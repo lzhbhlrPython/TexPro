@@ -48,10 +48,11 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
       await endLine('Writing anchor.'); await type('Native close save.');
       assert.ok(!fs.readFileSync(main, 'utf8').includes('Native close save.'));
       app.once('will-quit', () => {
-        try { assert.ok(fs.readFileSync(main, 'utf8').includes('Native close save.')); console.log('PASS native window close saves pending typing'); process.exit(0); }
+        try { assert.ok(fs.readFileSync(main, 'utf8').includes('Native close save.')); console.log('PASS native window close saves pending typing'); }
         catch (error) { console.error(error); process.exit(1); }
       });
-      window.close(); return;
+      if (process.env.TEXPRO_QUIT_METHOD === 'quit') app.quit(); else window.close();
+      return;
     }
     await endLine('Writing anchor.'); await key('Enter'); await type('# ');
     await wait(`document.querySelector('.cm-content').textContent.includes('\\section{}')`);
@@ -166,6 +167,7 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     const first = await js(`document.activeElement.outerHTML`); await key('Tab', ['shift']);
     assert.notEqual(await js(`document.activeElement.outerHTML`), first); await key('Tab'); assert.equal(await js(`document.activeElement.outerHTML`), first);
     await key('Escape'); await wait(`!document.querySelector('[data-testid="backup-panel"]')`);
+    await wait(`document.activeElement===document.querySelector('.cm-content')`);
     assert.equal(await js(`document.activeElement===document.querySelector('.cm-content')`), true);
     for (const [action, selector] of [['templates','template-modal'],['bibliography','bib-manager']]) {
       await open(action); await wait(`!!document.querySelector('[data-testid="${selector}"][role="dialog"]')`);
@@ -184,7 +186,7 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     await endLine('Stable writing paragraph.'); await type('Native close save.');
     assert.ok(!fs.readFileSync(main,'utf8').includes('Native close save.'));
     app.once('will-quit', () => {
-      try { assert.ok(fs.readFileSync(main,'utf8').includes('Native close save.')); console.log('PASS native window close saves unsaved typing with autosave disabled'); process.exit(0); }
+      try { assert.ok(fs.readFileSync(main,'utf8').includes('Native close save.')); console.log('PASS native window close saves unsaved typing with autosave disabled'); }
       catch (error) { console.error(error); app.exit(1); }
     });
     window.close();

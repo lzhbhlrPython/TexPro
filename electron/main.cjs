@@ -904,6 +904,11 @@ app.whenReady().then(() => {
 });
 
 let quitting = false;
+require('./quit-watchdog.cjs').installQuitWatchdog(app, {
+  report: code => {
+    if (isSmoke && process.env.TEXPRO_EXIT_REPORT) fs.writeFileSync(process.env.TEXPRO_EXIT_REPORT, JSON.stringify({ code, pid: process.pid, quit: true }));
+  },
+});
 app.on('before-quit', () => { quitting = true; });
 app.on('will-quit', () => { mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
 

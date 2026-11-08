@@ -54,7 +54,7 @@ test('extracted services retain the main TeX service API', () => {
 
 function fixture(root) {
   for (const [name, content] of Object.entries({
-    'package.json': '{}', 'electron/main.cjs': '', 'electron/preload.cjs': '', 'mcp/server.mjs': '',
+    'package.json': '{}', 'electron/quit-watchdog.cjs': '', 'electron/window-close.cjs': '', 'electron/main.cjs': '', 'electron/preload.cjs': '', 'mcp/server.mjs': '',
     'electron/services/music.cjs': '', 'electron/services/tex.cjs': '', 'electron/services/history.cjs': '', 'electron/services/git.cjs': '', 'electron/services/project-files.cjs': '', 'electron/services/project-root.cjs': '', 'electron/services/project-operations.cjs': '', 'electron/services/font-report.cjs': '',
     'dist/index.html': '<script src="./assets/index-a.js"></script><link href="./assets/index-a.css" rel="stylesheet">',
     'dist/assets/index-a.js': '', 'dist/assets/index-a.css': '', 'dist/assets/pdf.worker-a.mjs': '',
