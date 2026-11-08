@@ -299,7 +299,7 @@ TeXPro 不是 Markdown 编辑器，也不是把 PDF 截图贴到编辑器里的�
 - Windows: NSIS installer + portable EXE + ZIP, x64.
 - Ubuntu: `.deb` + AppImage, x64.
 - CentOS / RHEL-compatible: `.rpm`, x64.
-- Published under the fixed **`nightly`** prerelease tag; asset names include the nightly version and platform.
+- Each run uses **`v{current version}-YYYYMMDD-Nightly`** as its prerelease tag and title, for example `v0.1.0-20261108-Nightly`. The date is chosen once in Asia/Shanghai and shared by all platforms; package versions omit the leading `v`. A same-day rerun updates that day's tag and assets to the built commit.
 - The run first performs `npm run typecheck` and `npm run build`; packaging only starts if both pass.
 - Only `main` can publish the nightly release.
 
@@ -311,6 +311,8 @@ npm run package:mac
 npm run package:win
 npm run package:linux
 ```
+
+The script updates `package.json` and the lockfile's root version only in the build checkout; it does not increment the stable version or commit generated versions back to the repository. For a reproducible date, set `NIGHTLY_DATE=YYYYMMDD`; `--dry-run` previews the version without modifying either manifest.
 
 Artifacts are written to `release/`. Nightlies are intentionally unsigned; macOS Gatekeeper and Windows SmartScreen will warn on first launch.
 
@@ -648,3 +650,13 @@ TeXPro 的代码、UI、图标、主题、演示文档和截图均为独立实�
 ### 许可
 
 本项目代码采用 MIT License；第三方依赖保留各自许可。Typora、TeXstudio 是其各自权利人的商标/产品名，本项目与它们没有隶属关系。
+
+### Writing aids
+
+Use **placeholders** (`Cmd/Ctrl+Shift+H`) to keep writing while figures, tables, citations or data are missing. Descriptions remain ordinary `\texproplaceholder[kind]{description}` TeX; insertion installs a portable definition in the actual main file, including when editing a child. F4 / Shift+F4 selects the next / previous placeholder in the active file. Draft builds warn; arXiv packaging requires all placeholders to be resolved.
+
+**Revision memos** (`Cmd/Ctrl+Shift+N`, list: `Cmd/Ctrl+Shift+U`) are `% MEMO:` source comments, completed as `% MEMO-DONE:`. Reopening a file offers its last pending memo beside the writing surface. Existing TODO / FIXME / NOTE / DONE comments remain compatible. Memos never enter the PDF.
+
+The command palette also offers **Apply Chinese writing typography** (`Cmd/Ctrl+Alt+Shift+C`): a reversible, main-file CTeX body profile that preserves author fonts and class settings. New Chinese templates use Fandol; existing manuscripts are only changed on request. MCP exposes `texpro_writing_aids`, hash-protected `texpro_edit_writing_aid`, and read-only `texpro_ctex_typography` previews; see [MCP documentation](mcp/README.md).
+
+The product-page content includes usage guides and a Git-based development series under `product-page/src/content/`. Private AI working records remain excluded from Git and releases.

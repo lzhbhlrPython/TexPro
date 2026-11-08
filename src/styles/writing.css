@@ -53,3 +53,32 @@
 .writing-rename input { width: min(240px, 55vw); padding: 6px 8px; color: var(--text); background: var(--popover); border: 1px solid var(--border); border-radius: 6px; }
 .writing-rename [role=alert] { flex-basis: 100%; color: var(--danger); }
 :root[data-theme="studio"] .writing-rename [role=alert] { color: #e2685a; }
+
+/* Writing aids use paper colors in the editor and panel colors in the sidebar. */
+.cm-writing-placeholder {
+  display: inline-flex; align-items: baseline; gap: .6em; max-width: calc(100% - .6em);
+  margin-inline: .3em; padding: .12em .6em;
+  border: 1px dashed color-mix(in srgb, var(--editor-text) 24%, transparent);
+  border-radius: 4px; color: var(--editor-text); background: color-mix(in srgb, var(--editor-text) 2%, var(--paper));
+  font-family: var(--font-editor); cursor: text; vertical-align: baseline;
+}
+.cm-writing-placeholder small { font: .7em/1.5 var(--font-ui); color: color-mix(in srgb, var(--editor-text) 72%, var(--paper)); white-space: nowrap; padding-inline-end: .7em; border-inline-end: 1px solid color-mix(in srgb, var(--editor-text) 14%, transparent); }
+.cm-writing-placeholder > span { overflow-wrap: anywhere; }
+.cm-writing-placeholder.is-block { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .5em; min-height: 7em; margin: 1em 0; padding: 1em 1.5em; width: 100%; max-width: 100%; text-align: center; }
+.cm-writing-placeholder.is-block small { padding: 0; border: 0; }
+.cm-writing-placeholder:hover { border-color: color-mix(in srgb, var(--editor-text) 40%, transparent); }
+.cm-writing-placeholder:focus-visible { outline: 2px solid var(--editor-text); outline-offset: 3px; }
+.cm-chinese-paragraph { text-indent: 2em; line-height: 1.85; letter-spacing: normal; line-break: strict; word-break: normal; }
+.writing-aids-panel { padding: 0 12px; }
+.writing-aids-hint { color: var(--text-muted); font: 12px/1.6 var(--font-ui); margin: 10px 0 16px; }
+.placeholder-insert { display: flex; gap: 6px; }
+.placeholder-insert select { flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; }
+.writing-placeholder-row { width: 100%; display: flex; gap: 9px; align-items: start; text-align: left; color: var(--text); border: 0; border-bottom: 1px solid var(--border); background: transparent; padding: 12px 2px; }
+.writing-placeholder-row:hover { background: var(--panel-alt); }
+.writing-placeholder-row > span { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.writing-placeholder-row small { color: var(--text-muted); font-size: 11px; }
+.revision-memo-reminder { display: flex; flex-shrink: 0; align-items: center; gap: 8px; height: 36px; padding: 0 20px; border-bottom: 1px solid var(--border); color: var(--text-muted); background: var(--panel); font: 12px var(--font-ui); }
+.revision-memo-reminder.is-dismissed { visibility: hidden; pointer-events: none; }
+.memo-resume-text { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--text); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: left; }
+.memo-resume-text > span { color: var(--text-muted); margin-right: 8px; }
+.writing-aids-export-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; color: var(--text); background: var(--panel-alt); border-bottom: 1px solid var(--border); font-size: 12px; }

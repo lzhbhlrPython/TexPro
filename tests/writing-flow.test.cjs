@@ -13,7 +13,7 @@ const localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, 
 function load(file) {
   file = path.resolve(file);
   if (modules.has(file)) return modules.get(file);
-  const context = { exports: {}, localStorage, Uint32Array, Set, Map, require: name => name.endsWith('/i18n') ? { t: value => value } : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
+  const context = { exports: {}, localStorage, Uint32Array, Set, Map, require: name => name.endsWith('/i18n') ? { t: value => value } : name.endsWith('.mjs') ? require(path.resolve(path.dirname(file), name)) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
   modules.set(file, context.exports);
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, context);
   return context.exports;

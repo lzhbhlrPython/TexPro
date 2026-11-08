@@ -1,5 +1,6 @@
+import { useDialogFocus } from '../hooks/useDialogFocus';
 import { requestText } from './TextRequest';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   BookMarked,
   Check,
@@ -66,6 +67,8 @@ export function BibManager({
   onChanged,
 }: Props) {
   const { t } = useI18n();
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, () => void close());
   const [files, setFiles] = useState<string[]>(bibFiles);
   const [entries, setEntries] = useState<BibEntry[]>([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -129,6 +132,15 @@ export function BibManager({
   }, [entries, search, selectedFile]);
 
   const selected = entries.find((entry) => entry.key === selectedKey && entry.file === selectedFile);
+
+  const close = async () => {
+    if (!dirty) { onClose(); return; }
+    if (!window.confirm(t('Save changes before closing?'))) return;
+    try {
+      for (const file of files) await window.texpro.writeFile(file, serializeBib(entries.filter(entry => entry.file === file)));
+      setDirty(false); onChanged(); onClose();
+    } catch (error) { setNotice(String(error)); }
+  };
 
   if (!open) return null;
 
@@ -325,19 +337,19 @@ export function BibManager({
   const bibPathForDocument = selectedFile && activeFile ? relativePath(dirname(activeFile), selectedFile) : '';
 
   return (
-    <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="bib-manager" data-testid="bib-manager" onMouseDown={(event) => event.stopPropagation()}>
+    <div className="modal-scrim" onMouseDown={() => void close()}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="bib-manager-title" tabIndex={-1} className="bib-manager" data-testid="bib-manager" onMouseDown={(event) => event.stopPropagation()}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><BookMarked size={18} /></div>
             <div>
               <span className="modal-eyebrow">{t('Bibliography')}</span>
-              <h2>{t('Bibliography manager')}</h2>
+              <h2 id="bib-manager-title">{t('Bibliography manager')}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok"><BookMarked size={11} /> BibTeX</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={() => void close()} aria-label={t('Close')} title={t('Close')}><X size={16} /></button>
           </div>
         </header>
 
@@ -444,7 +456,7 @@ export function BibManager({
           </span>
           <div className="spacer" />
           <button className="secondary-btn" onClick={() => void saveFile()} disabled={!selectedFile || !dirty}><Check size={12} /> {t('Save .bib')}</button>
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="primary-btn" onClick={() => void close()}>{t('Done')}</button>
         </footer>
         {zoteroOpen && (
           <div className="zotero-search-scrim" onMouseDown={() => setZoteroOpen(false)}>

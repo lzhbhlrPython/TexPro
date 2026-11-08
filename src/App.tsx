@@ -1,8 +1,13 @@
 import { ChangeSet, Text, Transaction } from '@codemirror/state';
-import { renameLabels } from './lib/labelRename';
+import { renameLabels, textChange } from './lib/labelRename';
+import { planPlaceholder } from './lib/writingAids';
+import { parseWritingAids, applyCtexTypography, type PlaceholderKind, type WritingPlaceholder } from '../electron/services/writing-aids-core.mjs';
 import { requestText, TextRequestHost } from './components/TextRequest';
 import { rememberActiveFile, resumeFile } from './lib/writingResume';
 import { ensureTexPackages } from './lib/texDocument';
+import { SaveQueue } from './app/saveQueue';
+import { movedPath, reconcileFiles } from './app/fileOperations';
+import type { ProjectFileOperation } from './types';
 import { writingNotes, type WritingNote } from './lib/writingNotes';
 import { figureWritingRange, writingFigure } from './lib/writingFigure';
 import { writingPackages, writingSnippets } from './lib/writingSnippets';
@@ -12,7 +17,7 @@ import { musicBlock, newScore } from './lib/music';
 import { TemplateGallery, PgfplotsStudio, PluginMarket, PaperStudio, CrewPanel, CompileTheater, CommandStudio, PackageManager, GitPanel, InkStudio, SchematicStudio, BackupPanel, VersionReview, FontCoverage, ProjectGraph, ArxivPanel, McpPanel, AIAssistant, CommentsPanel, ExportStudio, ProjectDoctor, TableStudio, ImportStudio, TemplateWorkshop, ProjectStudio, BibManager, FormulaStudio, LayoutStudio, TikzStudio } from './app/lazyTools';
 import { SETTINGS_KEY, RECENT_KEY, loadSettings, loadRecent } from './app/settings';
 import { findFirstTex, flattenFiles, isTextPath, normalizeFile, fileFromBuild, reanchorComments } from './app/project';
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
   BookMarked,
@@ -29,6 +34,7 @@ import {
   Download,
   Eye,
   EyeOff,
+  FileText,
   FileImage,
   FileInput,
   FlaskConical,
@@ -95,7 +101,8 @@ import type { MoreAction } from './components/MoreMenu';
 import { Sidebar, type SidebarTab } from './components/Sidebar';
 import { ProblemsPanel } from './components/ProblemsPanel';
 import { StatusBar } from './components/StatusBar';
-import { PdfPane } from './components/PdfPane';
+const PdfPane = lazy(() => import('./components/PdfPane').then(module => ({ default: module.PdfPane })));
+
 import { Welcome } from './components/Welcome';
 import { CommandPalette, type PaletteAction } from './components/CommandPalette';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -207,6 +214,8 @@ export default function App() {
   const closingProject = useRef(false);
   const [closing, setClosing] = useState(false);
   const docsRef = useRef(docs);
+  const saveQueue = useRef(new SaveQueue());
+  const fileOperation = useRef<Promise<ProjectFileOperation | null> | null>(null);
   const activePathRef = useRef(activePath);
   const cursorRef = useRef(cursor);
   const pdfPathRef = useRef(pdfPath);
@@ -360,6 +369,11 @@ export default function App() {
     ...Object.values(docs).flatMap(doc => /\.(tex|ltx)$/i.test(doc.path) ? writingNotes(doc.content, doc.path) : []),
   ], [docs, symbols]);
 
+  const placeholders = useMemo(() => [
+    ...(symbols.placeholders || []).filter(item => !docs[item.file]),
+    ...Object.values(docs).flatMap(doc => /\.(tex|ltx)$/i.test(doc.path) ? parseWritingAids(doc.content, doc.path).placeholders : []),
+  ], [docs, symbols]);
+
   const bibFiles = useMemo(
     () => (project ? flattenFiles(project.tree).filter((node) => node.ext === '.bib').map((node) => node.path) : []),
     [project],
@@ -491,50 +505,109 @@ export default function App() {
     return result.count;
   }, [applyProjectTexts, pushToast]);
 
+  const insertPlaceholder = useCallback(async (kind: PlaceholderKind = 'text') => {
+    const current = projectRef.current, editor = editorRef.current, file = activePathRef.current, generation = projectGeneration.current;
+    if (!current?.rootFile || !editor || !file || !/\.(tex|ltx)$/i.test(file)) { pushToast(tr('Choose main file'), 'info'); return; }
+    const source = editor.getContent(), selection = editor.getSelectionRange(), main = current.rootFile;
+    try {
+      const mainSource = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
+      if (generation !== projectGeneration.current || editorRef.current !== editor || editor.getContent() !== source || JSON.stringify(editor.getSelectionRange()) !== JSON.stringify(selection) || docsRef.current[main] && docsRef.current[main].content !== mainSource) throw new Error(tr('Document changed. Try again.'));
+      const sources = { [main]: mainSource, [file]: source };
+      const plan = planPlaceholder(sources, main, file, selection, kind, editor.getSelection() || 'TODO');
+      applyProjectTexts(plan.after, plan.changes, plan.before);
+      const history = renameHistory.current;
+      history.items = [...history.items.slice(0, history.cursor), { before: plan.before, after: plan.after, edits: plan.changes, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
+      editor.selectRange(plan.from, plan.to);
+    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
+  }, [applyProjectTexts, pushToast]);
+
+  const applyChineseTypography = useCallback(async () => {
+    const current = projectRef.current, main = current?.rootFile, generation = projectGeneration.current;
+    if (!current || !main) { pushToast(tr('Choose main file'), 'info'); return; }
+    try {
+      const before = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
+      if (generation !== projectGeneration.current || docsRef.current[main] && docsRef.current[main].content !== before) throw new Error(tr('Document changed. Try again.'));
+      const after = applyCtexTypography(before);
+      if (after !== before) {
+        const edits = { [main]: ChangeSet.of(textChange(before, after), before.length) };
+        applyProjectTexts({ [main]: after }, edits, { [main]: before });
+        const history = renameHistory.current;
+        history.items = [...history.items.slice(0, history.cursor), { before: { [main]: before }, after: { [main]: after }, edits, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
+      }
+      setSettings(value => ({ ...value, engine: value.engine === 'lualatex' ? 'lualatex' : 'xelatex' }));
+      editorRef.current?.focus(); pushToast(tr('Chinese writing typography applied to the main file'), 'success');
+    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
+  }, [applyProjectTexts, pushToast]);
+
   const saveDoc = useCallback(
     async (path: string, notify: boolean) => {
-      const doc = docsRef.current[path];
-      if (!doc || !doc.dirty) {
-        if (notify) pushToast(tr('No changes to save'), 'info');
-        return true;
-      }
-      const snapshot = doc.content;
-      try {
-        await window.texpro.writeFile(path, snapshot);
-        setDocs((current) => {
-          const latest = current[path];
-          if (!latest) return current;
-          return {
-            ...current,
-            [path]: {
-              ...latest,
-              savedContent: snapshot,
-              dirty: latest.content !== snapshot,
-            },
-          };
-        });
-        if (notify) {
-          pushToast(tr('Saved'), 'success', path.split('/').pop());
-          const currentProject = projectRef.current;
-          if (currentProject && !gitManagedRef.current) void window.texpro.historyCommit(currentProject.root, 'save');
+      const pending = fileOperation.current;
+      if (pending) { const operation = await pending; if (operation) path = movedPath(path, operation); }
+      return saveQueue.current.run(async () => {
+        const doc = docsRef.current[path];
+        if (!doc || !doc.dirty) {
+          if (notify) pushToast(tr('No changes to save'), 'info');
+          return true;
         }
-        return true;
-      } catch (error) {
-        pushToast(tr('Save failed'), 'error', String(error));
-        return false;
-      }
+        const snapshot = doc.content;
+        try {
+          await window.texpro.writeFile(path, snapshot);
+          const current = docsRef.current;
+          const latest = current[path];
+          if (latest) {
+            const next = {
+              ...current,
+              [path]: {
+                ...latest,
+                savedContent: snapshot,
+                dirty: latest.content !== snapshot,
+              },
+            };
+            docsRef.current = next; setDocs(next);
+          }
+          if (notify) {
+            pushToast(tr('Saved'), 'success', path.split('/').pop());
+            const currentProject = projectRef.current;
+            if (currentProject && !gitManagedRef.current) void window.texpro.historyCommit(currentProject.root, 'save');
+          }
+          return true;
+        } catch (error) {
+          pushToast(tr('Save failed'), 'error', String(error));
+          return false;
+        }
+      });
     },
     [pushToast],
   );
 
   const saveAll = useCallback(async () => {
-    const dirty = Object.values(docsRef.current).filter((doc) => doc.dirty);
-    for (const doc of dirty) {
-      const ok = await saveDoc(doc.path, false);
-      if (!ok) return false;
+    if (fileOperation.current) await fileOperation.current;
+    for (let pass = 0; pass < 5; pass++) {
+      const dirty = Object.values(docsRef.current).filter((doc) => doc.dirty);
+      if (!dirty.length) { await saveQueue.current.idle(); return !Object.values(docsRef.current).some(doc => doc.dirty); }
+      for (const doc of dirty) if (!(await saveDoc(doc.path, false))) return false;
     }
-    return true;
+    return !Object.values(docsRef.current).some(doc => doc.dirty);
   }, [saveDoc]);
+
+  useEffect(() => window.texpro.onPrepareClose(({ id }) => {
+    void (async () => {
+      if (closingProject.current) { window.texpro.finishClose(id, false); return; }
+      closingProject.current = true; setClosing(true);
+      let saved = false;
+      try {
+        saved = await saveAll();
+        if (saved) {
+          if (compileRunId.current) await window.texpro.cancelCompile(compileRunId.current);
+          await window.texpro.stopCollab();
+        }
+      } catch { saved = false; }
+      finally {
+        window.texpro.finishClose(id, saved);
+        closingProject.current = false; setClosing(false);
+      }
+    })();
+  }), [saveAll]);
 
   const saveActive = useCallback(async () => {
     const path = activePathRef.current;
@@ -1086,6 +1159,17 @@ export default function App() {
     if (!editorRef.current.toggleNote(note)) { pushToast(tr('Note moved. Refreshing its location.'), 'info'); void refreshProjectData(); }
   }, [gotoLocation, pushToast, refreshProjectData]);
 
+  const openPlaceholder = useCallback(async (item: WritingPlaceholder) => {
+    const generation = projectGeneration.current;
+    await gotoLocation(item.file, item.line);
+    for (let n = 0; n < 30 && editorRef.current?.getPath() !== item.file; n++) await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    const editor = editorRef.current;
+    if (generation !== projectGeneration.current || editor?.getPath() !== item.file) return;
+    const found = parseWritingAids(editor.getContent(), item.file).placeholders.find(value => value.from === item.from && value.source === item.source);
+    if (found) editor.selectRange(found.from, found.to);
+    else { pushToast(tr('Placeholder moved. Select it again.'), 'info'); void refreshProjectData(); }
+  }, [gotoLocation, pushToast, refreshProjectData]);
+
   const handleDiagnosticClick = useCallback(
     (diagnostic: Diagnostic) => {
       if (!diagnostic.line) {
@@ -1300,6 +1384,49 @@ export default function App() {
     void saveComments([comment, ...comments]);
   }, [comments, saveComments]);
 
+  const performFileOperation = useCallback(async (run: () => Promise<ProjectFileOperation>) => {
+    if (fileOperation.current) throw new Error(tr('A file operation is already in progress'));
+    if (!(await saveAll())) return null;
+    if (fileOperation.current) throw new Error(tr('A file operation is already in progress'));
+    // Install the gate before IPC: saves requested while disk references change wait for rebasing.
+    let release!: (result: ProjectFileOperation | null) => void;
+    const gate = new Promise<ProjectFileOperation | null>(resolve => { release = resolve; });
+    fileOperation.current = gate;
+    let result: ProjectFileOperation | null = null;
+    try {
+      result = await run();
+      const previous = docsRef.current, reconciled = reconcileFiles(previous, result);
+      const active = activePathRef.current;
+      if (active && reconciled.edits[active]) editorRef.current?.applyProjectChanges(reconciled.edits[active]);
+      const live = editorRef.current?.getSession();
+      if (active && live) writingSessions.current.set(active, live);
+      const sessions: WritingSessions = new Map();
+      for (const [file, session] of writingSessions.current) {
+        const change = reconciled.edits[file], before = previous[file]?.content;
+        if (change && session.state.doc.toString() === before) session.state = session.state.update({ changes: change, annotations: Transaction.addToHistory.of(false) }).state;
+        const expected = reconciled.docs[movedPath(file, result)]?.content;
+        if (!expected || session.state.doc.toString() === expected) sessions.set(movedPath(file, result), session);
+      }
+      writingSessions.current.clear();
+      for (const [file, session] of sessions) writingSessions.current.set(file, session);
+      for (const point of writingTrail.current) point.file = movedPath(point.file, result);
+      renameHistory.current = { items: [], cursor: 0 };
+      docsRef.current = reconciled.docs; setDocs(reconciled.docs);
+      if (active) {
+        const next = movedPath(active, result);
+        activePathRef.current = next; setActivePath(next);
+        if (projectRef.current) rememberActiveFile(projectRef.current.root, next);
+      }
+      // The old editor's unmount may cache its old key once more.
+      const oldPath = result.oldPath;
+      setTimeout(() => { for (const file of writingSessions.current.keys()) if (movedPath(file, { oldPath, path: '' }) !== file) writingSessions.current.delete(file); }, 0);
+      if (reconciled.conflicts) pushToast(tr('References updated; overlapping edits kept for review'), 'info');
+      return result;
+    } finally {
+      fileOperation.current = null; release(result);
+    }
+  }, [saveAll, pushToast]);
+
   const handleRenameFile = useCallback(
     async (path: string) => {
       const currentProject = projectRef.current;
@@ -1307,28 +1434,15 @@ export default function App() {
       const nextName = await requestText(tr('Rename file'), basename(path));
       if (!nextName || nextName === basename(path)) return;
       try {
-        if (!(await saveAll())) return;
-        const result = await window.texpro.renameProjectFile(currentProject.root, path, nextName);
-        if (activePathRef.current === path) {
-          const previous = path;
-          setDocs((current) => {
-            const doc = current[previous];
-            if (!doc) return current;
-            const next = { ...current };
-            delete next[previous];
-            next[result.path] = { ...doc, path: result.path };
-            return next;
-          });
-          setActivePath(result.path);
-          activePathRef.current = result.path;
-        }
+        const result = await performFileOperation(() => window.texpro.renameProjectFile(currentProject.root, path, nextName));
+        if (!result) return;
         await refreshProjectData();
         pushToast(tr('File renamed'), 'success', tr('{count} references updated', { count: result.updated }));
       } catch (failure) {
         pushToast(tr('Could not rename file'), 'error', String(failure));
       }
     },
-    [pushToast, refreshProjectData, saveAll],
+    [pushToast, refreshProjectData, performFileOperation],
   );
 
   const handleMoveDirectory = useCallback(
@@ -1342,32 +1456,15 @@ export default function App() {
         if (impact.references > 0 || impact.assets > 0) {
           if (!window.confirm(`${t('Rename this folder?')}\n${basename(dir)} → ${nextName}\n\n${impact.files} ${t('files')} · ${impact.assets} ${t('assets')} · ${impact.references} ${t('references will be updated')}.`)) return;
         }
-        if (!(await saveAll())) return;
-        const result = await window.texpro.moveProjectDirectory(currentProject.root, dir, nextName);
-        setDocs((current) => {
-          const next: Record<string, OpenDoc> = {};
-          for (const [key, doc] of Object.entries(current)) {
-            if (key === result.oldPath || key.startsWith(result.oldPath + '/')) {
-              const moved = result.path + key.slice(result.oldPath.length);
-              next[moved] = { ...doc, path: moved };
-            } else {
-              next[key] = doc;
-            }
-          }
-          return next;
-        });
-        if (activePathRef.current && (activePathRef.current === result.oldPath || activePathRef.current.startsWith(result.oldPath + '/'))) {
-          const moved = result.path + activePathRef.current.slice(result.oldPath.length);
-          activePathRef.current = moved;
-          setActivePath(moved);
-        }
+        const result = await performFileOperation(() => window.texpro.moveProjectDirectory(currentProject.root, dir, nextName));
+        if (!result) return;
         await refreshProjectData();
         pushToast(tr('Directory moved'), 'success', tr('{count} references updated', { count: result.updated }));
       } catch (failure) {
         pushToast(tr('Could not move directory'), 'error', String(failure));
       }
     },
-    [pushToast, refreshProjectData, saveAll],
+    [pushToast, refreshProjectData, performFileOperation],
   );
 
   const handleCreateFile = useCallback(async (parent: string, name: string) => {
@@ -1402,26 +1499,14 @@ export default function App() {
     try {
       const impact = await window.texpro.projectImpact(currentProject.root, file);
       if (!window.confirm(`${t('Move this file?')}\n${basename(file)} → ${target || '/'}\n\n${impact.references} ${t('references will be updated')}.`)) return;
-      if (!(await saveAll())) return;
-      const result = await window.texpro.moveProjectFile(currentProject.root, file, targetDir);
-      setDocs((current) => {
-        const doc = current[file];
-        if (!doc) return current;
-        const next = { ...current };
-        delete next[file];
-        next[result.path] = { ...doc, path: result.path };
-        return next;
-      });
-      if (activePathRef.current === file) {
-        activePathRef.current = result.path;
-        setActivePath(result.path);
-      }
+      const result = await performFileOperation(() => window.texpro.moveProjectFile(currentProject.root, file, targetDir));
+      if (!result) return;
       await refreshProjectData();
       pushToast(tr('File moved'), 'success', `${result.updated} ${t('references updated')}`);
     } catch (failure) {
       pushToast(tr('Could not move file'), 'error', String(failure));
     }
-  }, [pushToast, refreshProjectData, saveAll, t]);
+  }, [pushToast, refreshProjectData, performFileOperation, t]);
 
   const handleDeleteFile = useCallback(async (file: string) => {
     const currentProject = projectRef.current;
@@ -1842,7 +1927,12 @@ export default function App() {
         return;
       }
       const key = event.key.toLowerCase();
-      if (key === 'k' && !event.shiftKey) {
+      const editing = document.activeElement?.closest('.cm-editor');
+      if (editing && event.shiftKey && key === 'h') { event.preventDefault(); void insertPlaceholder(); }
+      else if (editing && event.shiftKey && key === 'n') { event.preventDefault(); editorRef.current?.leaveNote(); }
+      else if (event.shiftKey && key === 'u') { event.preventDefault(); setSidebarOpen(true); setSidebarTab('notes'); }
+      else if (editing && event.altKey && event.shiftKey && (event.code === 'KeyC' || key === 'c')) { event.preventDefault(); void applyChineseTypography(); }
+      else if (key === 'k' && !event.shiftKey) {
         event.preventDefault();
         setPaletteOpen((value) => !value);
       } else if (key === 'enter') {
@@ -1880,9 +1970,11 @@ export default function App() {
         setSidebarOpen((value) => !value);
       }
     };
+    const showMemos = () => { setSidebarOpen(true); setSidebarTab('notes'); };
+    window.addEventListener('texpro:revision-memos', showMemos);
     window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [handleOpenFolder, manualForwardSync, runCompile, saveActive, toggleDayNight, toggleFocus, toggleTypewriter, toggleVisual]);
+    return () => { window.removeEventListener('keydown', handler); window.removeEventListener('texpro:revision-memos', showMemos); };
+  }, [handleOpenFolder, manualForwardSync, runCompile, saveActive, toggleDayNight, toggleFocus, toggleTypewriter, toggleVisual, insertPlaceholder, applyChineseTypography]);
 
   useEffect(() => {
     return window.texpro.onMenuAction((action) => {
@@ -1916,6 +2008,11 @@ export default function App() {
 
   const paletteActions: PaletteAction[] = useMemo(
     () => [
+      { id: 'placeholder', label: t('Insert placeholder'), shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
+      { id: 'placeholders', label: t('Placeholders'), group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
+      { id: 'revision-memo', label: t('Leave a revision memo'), shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => editorRef.current?.leaveNote() },
+      { id: 'revision-memos', label: t('Revision memos'), shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
+      { id: 'ctex-typography', label: t('Apply Chinese writing typography'), shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
       { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
       { id: 'close-project', label: t('Close project and return to Welcome'), group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
       {
@@ -2207,6 +2304,8 @@ export default function App() {
     ],
     [
       project,
+      insertPlaceholder,
+      applyChineseTypography,
       handleCloseProject,
       handleInsertMusic,
       writeAtCaret,
@@ -2237,12 +2336,16 @@ export default function App() {
 
   const moreActions: MoreAction[] = useMemo(
     () => [
+      { id: 'placeholder', label: 'Insert placeholder', shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
+      ...(['figure', 'table', 'citation', 'data'] as PlaceholderKind[]).map(kind => ({ id: `placeholder-${kind}`, label: `${kind[0].toUpperCase() + kind.slice(1)} placeholder`, group: 'Insert', icon: FileText, run: () => void insertPlaceholder(kind) })),
+      { id: 'placeholders', label: 'Placeholders', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
+      { id: 'ctex-typography', label: 'Apply Chinese writing typography', shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
       { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
       { id: 'close-project', label: 'Close project and return to Welcome', group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
       { id: 'review-writing', label: 'Review in writing', group: 'Tools', icon: History, run: () => editorRef.current?.toggleReview() },
       { id: 'return-writing', label: 'Back to writing position', group: 'Edit', icon: BookOpen, run: () => void returnToWriting() },
-      { id: 'writing-note', label: 'Leave a writing note', group: 'Insert', icon: MessageSquare, run: () => { editorRef.current?.leaveNote(); } },
-      { id: 'writing-notes', label: 'Writing notes', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
+      { id: 'writing-note', label: 'Leave a revision memo', shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => { editorRef.current?.leaveNote(); } },
+      { id: 'writing-notes', label: 'Revision memos', shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
       { id: 'move-content-up', label: 'Move content up', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
       { id: 'move-content-down', label: 'Move content down', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
       { id: 'music', label: 'Insert music', group: 'Insert', icon: Music2, run: () => void handleInsertMusic() },
@@ -2296,7 +2399,7 @@ export default function App() {
       { id: 'settings', label: 'Settings', group: 'Tools', icon: Settings2, run: () => setSettingsOpen(true) },
       { id: 'palette', label: 'Command palette', group: 'Tools', shortcut: '⌘K', icon: Command, run: () => setPaletteOpen(true) },
     ],
-    [returnToWriting, beginWritingHelper, writeAtCaret, handleInsertMusic, editMainFile, handleCloseProject, settings.visual, settings.focus, settings.typewriter, settings.theme, openFormula, insert, toggleVisual, toggleFocus, toggleTypewriter, toggleDayNight, handleOpenFolder, saveActive, runCompile, manualForwardSync, t],
+    [insertPlaceholder, applyChineseTypography, returnToWriting, beginWritingHelper, writeAtCaret, handleInsertMusic, editMainFile, handleCloseProject, settings.visual, settings.focus, settings.typewriter, settings.theme, openFormula, insert, toggleVisual, toggleFocus, toggleTypewriter, toggleDayNight, handleOpenFolder, saveActive, runCompile, manualForwardSync, t],
   );
 
   moreActionsRef.current = moreActions;
@@ -2352,6 +2455,9 @@ export default function App() {
               symbols={effectiveSymbols}
               assets={assets}
               writingNotes={notes}
+              placeholders={placeholders}
+              onOpenPlaceholder={item => void openPlaceholder(item)}
+              onInsertPlaceholder={kind => void insertPlaceholder(kind)}
               onOpenNote={note => void gotoLocation(note.file, note.line, 1, true)}
               onToggleNote={note => void toggleNote(note)}
               onInsertNote={() => editorRef.current?.leaveNote()}
@@ -2405,10 +2511,10 @@ export default function App() {
                   symbols={effectiveSymbols}
                   diagnostics={activeDiagnostics}
                   onChange={(content) => {
-                    setDocs((current) => {
+                    const current = docsRef.current;
                       const doc = current[activeDoc.path];
-                      if (!doc) return current;
-                      return {
+                      if (!doc) return;
+                      const next = {
                         ...current,
                         [activeDoc.path]: {
                           ...doc,
@@ -2416,7 +2522,7 @@ export default function App() {
                           dirty: content !== doc.savedContent,
                         },
                       };
-                    });
+                      docsRef.current = next; setDocs(next);
                   }}
                   readSource={async file => docsRef.current[file]?.content ?? await window.texpro.readFile(file)}
                   onRenameLabel={renameProjectLabel}
@@ -2450,7 +2556,7 @@ export default function App() {
           </main>
 
           {pdfOpen && (
-            <PdfPane
+            <Suspense fallback={<aside className="editor-loading" role="status">{t('Opening PDF preview…')}</aside>}><PdfPane
               bytes={pdfBytes}
               previousBytes={previousPdfBytes}
               pdfPath={pdfPath}
@@ -2463,7 +2569,7 @@ export default function App() {
               onOpenPdf={openPdf}
               onReveal={revealPdf}
               onPageChange={setPage}
-            />
+            /></Suspense>
           )}
         </div>
       )}
@@ -2512,7 +2618,7 @@ export default function App() {
         userTemplates={userTemplates}
         activeDoc={activeDoc || null}
         activeEngine={settings.engine}
-        onClose={() => setTemplatesOpen(false)}
+        onClose={() => { setTemplatesOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onCreate={handleCreateFromTemplate}
         onSaveCurrent={handleSaveTemplate}
         onDuplicate={handleSaveTemplate}
@@ -2619,7 +2725,7 @@ export default function App() {
       <BackupPanel
         open={backupOpen}
         projectRoot={project?.root || null}
-        onClose={() => setBackupOpen(false)}
+        onClose={() => { setBackupOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onReveal={(path) => void window.texpro.reveal(path)}
       />
       <VersionReview
@@ -2635,7 +2741,7 @@ export default function App() {
       <FontCoverage
         open={fontOpen}
         projectRoot={project?.root || null}
-        onClose={() => setFontOpen(false)}
+        onClose={() => { setFontOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onOpen={(path) => void window.texpro.openPath(path)}
       />
       <ProjectGraph
@@ -2703,6 +2809,7 @@ export default function App() {
       />
       <ExportStudio
         open={exportOpen}
+        onReviewPlaceholders={() => { setExportOpen(false); setSidebarOpen(true); setSidebarTab('placeholders'); editorRef.current?.focus(); }}
         source={activeDoc?.content || ''}
         name={activeDoc ? basename(activeDoc.path) : 'document.tex'}
         onClose={() => setExportOpen(false)}
@@ -2774,7 +2881,7 @@ export default function App() {
         activeFile={activePath}
         activeContent={activeDoc?.content || ''}
         bibFiles={bibFiles}
-        onClose={() => setBibOpen(false)}
+        onClose={() => { setBibOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onInsertCite={handleInsertCite}
         onAddBibliography={handleAddBibliography}
         onChanged={() => void refreshProjectData()}

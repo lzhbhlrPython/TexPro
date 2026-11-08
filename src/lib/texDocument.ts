@@ -241,3 +241,29 @@ export function ensureTexPackages(text: string, packages: string[]): string {
   const missing = [...new Set(packages)].filter(p => /^[a-zA-Z0-9-]+$/.test(p) && !installed.has(p));
   return text.slice(0, document.from) + missing.map(p => `\\usepackage${p === 'ctex' ? '[UTF8,fontset=fandol]' : ''}{${p}}\n`).join('') + text.slice(document.from);
 }
+
+/** Replace only our layout block. Existing package options belong to the author. */
+export function applyLayoutPreamble(source: string, classOptions: string, generated: string): string {
+  let text = updateLayoutClassOptions(source, classOptions);
+  const document = texDocumentStart(text);
+  if (!document) return source;
+  const preamble = text.slice(0, document.from).replace(/^% TeXPro layout begin\r?\n[\s\S]*?^% TeXPro layout end(?:\r?\n|$)/gm, '');
+  const installed = new Set<string>();
+  if (isCtexClass(texDocumentClass(preamble)?.name || '')) installed.add('ctex');
+  for (const command of texCommands(preamble)) {
+    if (!['usepackage', 'RequirePackage'].includes(command.name)) continue;
+    let at = skipTexSpace(preamble, command.to);
+    const options = preamble[at] === '[' ? texGroup(preamble, at, '[', ']') : null;
+    if (options) at = skipTexSpace(preamble, options.to);
+    const group = texGroup(preamble, at);
+    if (group) preamble.slice(group.from + 1, group.to - 1).split(',').forEach(name => installed.add(name.trim()));
+  }
+  const block = generated.replace(/\\usepackage(?:\[([^\]]*)\])?\{([^}]+)\}/g, (declaration, options: string | undefined, names: string) => {
+    const missing = names.split(',').map(name => name.trim()).filter(name => !installed.has(name));
+    if (!missing.length) return names.trim() === 'geometry' && options ? `\\geometry{${options}}` : '';
+    missing.forEach(name => installed.add(name));
+    return `\\usepackage${options ? `[${options}]` : ''}{${missing.join(',')}}`;
+  }).replace(/^\s*\n/gm, '');
+  text = `${preamble}% TeXPro layout begin\n${block}\n% TeXPro layout end\n${text.slice(document.from)}`;
+  return text;
+}

@@ -135,10 +135,10 @@ export function ProblemsPanel({
                 key={`${diagnostic.message}-${index}`}
                 className="problem-row"
                 onClick={() => onDiagnosticClick(diagnostic)}
-                title={diagnostic.file}
+                title={[diagnostic.message, diagnostic.file].filter(Boolean).join('\n')}
               >
                 {severityIcon(diagnostic.severity)}
-                <span className="problem-message">{diagnostic.message}</span>
+                <span className="problem-message">{diagnostic.source === 'placeholder' && diagnostic.message.startsWith('Unresolved placeholder: ') ? t('Unresolved placeholder: {text}', { text: diagnostic.message.slice(24) }) : diagnostic.message}</span>
                 <span className="problem-location">
                   {diagnostic.file ? basename(diagnostic.file) : ''}
                   {diagnostic.line ? `:${diagnostic.line}` : ''}

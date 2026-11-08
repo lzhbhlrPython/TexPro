@@ -28,8 +28,9 @@ import { WritingReviewBar } from '../components/WritingReviewBar';
 import { writingFeedback, writingDiagnostics } from './writingFeedback';
 import { writingPosition, restoreWritingPosition, type WritingPosition, type WritingSessions } from './writingSession';
 import { toggleWritingNote, type WritingNote } from '../lib/writingNotes';
+import { parseWritingAids, writingPositionAllowed } from '../../electron/services/writing-aids-core.mjs';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
-import { Bold, Code2, Italic, Link2, Quote, Sigma } from 'lucide-react';
+import { Bold, Code2, Italic, Link2, Quote, Sigma, Check, X, MessageSquare } from 'lucide-react';
 import {
   autocompletion,
   acceptCompletion,
@@ -55,7 +56,7 @@ import { completionAppearance, completionTheme } from './completionAppearance';
 import { composingWriting, leaveWritingBlock, stableWritingInput } from './writing';
 import { enterWritingTable } from './tableWidget';
 import { applyWriting, rememberWriting, restoreWriting, writingTargets, type WritingTarget } from './writingTargets';
-import { ensureTexPackages, texDocumentStart, updateLayoutClassOptions } from '../lib/texDocument';
+import { ensureTexPackages, texDocumentStart, applyLayoutPreamble } from '../lib/texDocument';
 import { focusMode, typewriterMode, visualLatex, refreshWritingPreview, type VisualContext } from './visual';
 import type { CursorInfo, Diagnostic, ProjectSymbols, Settings, SourceJump } from '../types';
 import { dirname } from '../lib/latex';
@@ -63,8 +64,10 @@ import { findSpellingIssues } from '../lib/spellcheck';
 import { smartPaste } from '../lib/pasteCleaner';
 
 export interface EditorHandle {
+  selectRange: (from: number, to: number) => void;
   renameLabel: () => void;
   applyProjectChanges: (changes: ChangeSet) => void;
+  getSession: () => import('./writingSession').WritingSession | null;
   leaveNote: () => void;
   toggleNote: (note: WritingNote) => boolean;
   moveContent: (direction: -1 | 1) => boolean;
@@ -216,6 +219,9 @@ const flashField = StateField.define<DecorationSet>({
 export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(props, ref) {
   const { language } = useI18n();
   const [renaming, setRenaming] = useState<{ before: string; value: string; error: string; busy: boolean } | null>(null);
+  const [resumeMemo] = useState(() => parseWritingAids(props.value, props.path).memos.filter(memo => !memo.done && memo.text.trim()).at(-1));
+  const [memoDismissed, setMemoDismissed] = useState(false);
+  const liveResumeMemo = resumeMemo && parseWritingAids(props.value, props.path).memos.find(memo => !memo.done && memo.text === resumeMemo.text);
   const startRename = (key?: string) => {
     const view = viewRef.current; if (!view || view.composing) return;
     const before = key || labelAt(view.state.doc.toString(), view.state.selection.main.head);
@@ -317,6 +323,9 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         foldGutter({ openText: '⌄', closedText: '›' }),
         highlightSelectionMatches(),
         keymap.of([
+          { key: 'Mod-Shift-u', run: () => { window.dispatchEvent(new Event('texpro:revision-memos')); return true; } },
+          { key: 'F4', run: view => navigatePlaceholder(view, 1) },
+          { key: 'Shift-F4', run: view => navigatePlaceholder(view, -1) },
           { key: 'F2', run: () => { startRename(); return true; } },
           { key: 'Mod-z', run: () => propsRef.current.onProjectHistory(false) },
           { key: 'Mod-Shift-z', run: () => propsRef.current.onProjectHistory(true) },
@@ -655,6 +664,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     ref,
     () => ({
       renameLabel() { startRename(); },
+      getSession() { const view = viewRef.current; return view ? { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft } : null; },
       applyProjectChanges(changes) { const view = viewRef.current; if (view) view.dispatch({ changes, annotations: Transaction.addToHistory.of(false), effects: view.scrollSnapshot() }); },
       toggleReview() { setReviewing(current => !current); },
       getPosition() { const view = viewRef.current; return view ? writingPosition(view, props.path) : null; },
@@ -663,8 +673,13 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         const view = viewRef.current; if (!view || view.composing) return;
         leaveWritingBlock(view);
         const at = view.state.doc.lineAt(view.state.selection.main.head).to;
-        view.dispatch({ changes: { from: at, insert: '\n% TODO: \n' }, selection: { anchor: at + 9 }, annotations: isolateHistory.of('full'), scrollIntoView: true });
+        if (!writingPositionAllowed(view.state.doc.toString(), Math.max(0, at - 1))) return;
+        view.dispatch({ changes: { from: at, insert: '\n% MEMO: \n' }, selection: { anchor: at + 9 }, annotations: isolateHistory.of('full'), scrollIntoView: true });
         view.focus();
+      },
+      selectRange(from, to) {
+        const view = viewRef.current; if (!view || view.composing || from < 0 || to > view.state.doc.length) return;
+        view.dispatch({ selection: { anchor: from, head: to }, scrollIntoView: true }); view.focus();
       },
       toggleNote(note) {
         const view = viewRef.current; if (!view || note.file !== props.path || note.line > view.state.doc.lines) return false;
@@ -866,20 +881,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       applyLayout({ documentClassOptions, preambleBlock }) {
         const view = viewRef.current;
         if (!view) return;
-        let text = updateLayoutClassOptions(view.state.doc.toString(), documentClassOptions);
-        text = text.replace(/\n?% TeXPro layout begin[\s\S]*?% TeXPro layout end\n?/g, '\n');
-        const managed = ['geometry', 'setspace', 'fancyhdr', 'ctex', 'luatexja', 'polyglossia', 'titling', 'microtype'];
-        for (const pkg of managed) {
-          const pattern = new RegExp('\\\\usepackage(?:\\[[^\\]]*\\])?\\{' + pkg + '\\}\\s*\\n?', 'g');
-          text = text.replace(pattern, '');
-        }
-        const marker = text.indexOf('\\begin{document}');
-        if (marker < 0) return;
-        const block = `% TeXPro layout begin\n${preambleBlock}\n% TeXPro layout end\n`;
-        text = text.slice(0, marker) + block + text.slice(marker);
-        view.dispatch({
-          changes: { from: 0, to: view.state.doc.length, insert: text },
-        });
+        const text = applyLayoutPreamble(view.state.doc.toString(), documentClassOptions, preambleBlock);
+        view.dispatch({ changes: textChange(view.state.doc.toString(), text), effects: view.scrollSnapshot() });
       },
     }),
     [props.path],
@@ -915,6 +918,15 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   }, []);
   return (
     <>
+      {resumeMemo && <div className={`revision-memo-reminder ${memoDismissed || !liveResumeMemo ? 'is-dismissed' : ''}`} data-testid="revision-memo-reminder" aria-hidden={memoDismissed || !liveResumeMemo}>
+        <MessageSquare size={13} /><button className="memo-resume-text" onClick={() => { const view = viewRef.current; if (!view || !liveResumeMemo) return; const line = view.state.doc.line(Math.max(1, liveResumeMemo.line - 1)); view.dispatch({ selection: { anchor: line.to }, scrollIntoView: true }); view.focus(); }} title={t('Continue revising this passage')}><span>{t('Continue revising')}</span> {liveResumeMemo?.text || resumeMemo.text}</button>
+        <button className="mini-btn" title={t('Complete memo')} aria-label={t('Complete memo')} onClick={() => {
+          const view = viewRef.current; if (!view || !liveResumeMemo) return;
+          const line = view.state.doc.line(liveResumeMemo.line), next = toggleWritingNote(line.text, liveResumeMemo);
+          if (next) view.dispatch({ changes: { from: line.from, to: line.to, insert: next }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() }); view.focus();
+        }}><Check size={13} /></button>
+        <button className="mini-btn" title={t('Dismiss reminder')} aria-label={t('Dismiss reminder')} onClick={() => { setMemoDismissed(true); viewRef.current?.focus(); }}><X size={13} /></button>
+      </div>}
       {renaming && <form className="writing-rename" onSubmit={async event => {
         event.preventDefault(); if (renaming.busy) return;
         setRenaming({ ...renaming, busy: true, error: '' });
@@ -947,3 +959,12 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     </>
   );
 });
+
+function navigatePlaceholder(view: EditorView, direction: -1 | 1) {
+  if (view.composing) return false;
+  const items = parseWritingAids(view.state.doc.toString()).placeholders;
+  if (!items.length) return false;
+  const selection = view.state.selection.main;
+  const next = direction === 1 ? items.find(item => item.from > selection.from) || items[0] : [...items].reverse().find(item => item.from < selection.from) || items.at(-1)!;
+  view.dispatch({ selection: { anchor: next.from, head: next.to }, scrollIntoView: true }); return true;
+}

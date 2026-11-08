@@ -5,6 +5,7 @@ import type {
   CompileResult,
   Engine,
   Project,
+  ProjectFileOperation,
   ProjectSymbols,
   SearchResult,
   TemplateItem,
@@ -84,12 +85,12 @@ export interface TexProApi {
     error?: string;
     log?: string;
   }>;
-  renameProjectFile: (root: string, file: string, name: string) => Promise<{ path: string; oldPath: string; updated: number; oldRelative: string; newRelative: string }>;
-  moveProjectDirectory: (root: string, dir: string, name: string) => Promise<{ path: string; oldPath: string; updated: number; oldRelative: string; newRelative: string }>;
+  renameProjectFile: (root: string, file: string, name: string) => Promise<ProjectFileOperation>;
+  moveProjectDirectory: (root: string, dir: string, name: string) => Promise<ProjectFileOperation>;
   projectImpact: (root: string, target: string) => Promise<{ files: number; assets: number; references: number }>;
   createProjectFolder: (root: string, parent: string, name: string) => Promise<{ path: string; relative: string }>;
   createProjectFile: (root: string, parent: string, name: string, content?: string) => Promise<{ path: string; relative: string }>;
-  moveProjectFile: (root: string, file: string, targetDir: string) => Promise<{ path: string; oldPath: string; updated: number; oldRelative: string; newRelative: string }>;
+  moveProjectFile: (root: string, file: string, targetDir: string) => Promise<ProjectFileOperation>;
   deleteProjectFile: (root: string, file: string) => Promise<{ ok: boolean; destination: string; relative: string }>;
   deleteProjectFolder: (root: string, dir: string) => Promise<{ ok: boolean; destination: string }>;
   startCollab: (options?: { port?: number }) => Promise<{ running: boolean; port?: number; room?: string; host?: string; url?: string }>;
@@ -100,10 +101,11 @@ export interface TexProApi {
   fontCoverage: (root: string) => Promise<{
     scripts: Record<string, number>;
     declared: string[];
-    fontChecks: Array<{ name: string; resolved: string; ok: boolean }>;
+    fontChecks: Array<{ name: string; resolved: string; ok: boolean | null }>;
     pdfFonts: Array<{ name: string; type: string; embedded: boolean; unicode: boolean }>;
     issues: Array<{ severity: string; message: string; file: string; line: number }>;
     pdfPath: string | null;
+    pdfInspection: string;
   }>;
   historyList: (root: string) => Promise<Array<{ id: string; time: number; reason: string; files: string[]; size: number }>>;
   historyCommit: (root: string, reason: string) => Promise<{ ok: boolean; skipped?: boolean; reason?: string; version: { id: string; time: number; reason: string; files: string[]; size: number } | null }>;
@@ -178,6 +180,8 @@ export interface TexProApi {
   getInfo: () => Promise<AppInfo>;
   getSpellWords: () => Promise<string[]>;
   onMenuAction: (callback: (action: string) => void) => () => void;
+  onPrepareClose: (callback: (request: { id: string }) => void) => () => void;
+  finishClose: (id: string, ok: boolean) => void;
 }
 
 declare global {

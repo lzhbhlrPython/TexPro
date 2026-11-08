@@ -1,0 +1,74 @@
+name: Product page
+
+on:
+  push:
+    branches: [main]
+    paths: ['product-page/**']
+  pull_request:
+    paths: ['product-page/**']
+  workflow_dispatch:
+    inputs:
+      nightly_tag:
+        description: Published Nightly tag to refresh (blank for latest release)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-page-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+    defaults:
+      run:
+        working-directory: product-page
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: product-page/pnpm-lock.yaml
+      - name: Configure Pages
+        id: pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck and build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEXPRO_RELEASE_TAG: ${{ inputs.nightly_tag || '' }}
+          PAGES_BASE_PATH: ${{ (github.event_name == 'pull_request' || github.ref != 'refs/heads/main') && format('/{0}/', github.event.repository.name) || steps.pages.outputs.base_path }}
+        run: pnpm run build
+      - name: Support direct links to client routes
+        run: cp dist/index.html dist/404.html
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: product-page/dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

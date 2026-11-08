@@ -64,6 +64,7 @@ export interface CompileResult {
 }
 
 export interface ProjectSymbols {
+  placeholders?: import('../electron/services/writing-aids-core.mjs').WritingPlaceholder[];
   labels: string[];
   citations: string[];
   environments: string[];
@@ -140,6 +141,15 @@ export interface SearchResult {
   relative: string;
   line: number;
   text: string;
+}
+
+export interface ProjectFileOperation {
+  path: string;
+  oldPath: string;
+  updated: number;
+  oldRelative: string;
+  newRelative: string;
+  updates: Array<{ path: string; oldPath: string; before: string; after: string; changes: Array<{ from: number; to: number; insert: string }> }>;
 }
 
 export interface Settings {

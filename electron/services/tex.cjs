@@ -13,7 +13,7 @@ const { IGNORED_DIRS, isTextFile } = require('./project-files.cjs');
 const history = require('./history.cjs');
 const git = require('./git.cjs');
 const { musicSpacing } = require('./music.cjs');
-const { readConfig, resolveProjectRoot, resolveCompileRoot, rebaseConfiguredRoot } = require('./project-root.cjs');
+const { readConfig, resolveProjectRoot, resolveCompileRoot } = require('./project-root.cjs');
 
 function walk(root, current = root, depth = 0, budget = { left: 1200 }) {
   if (depth > 8 || budget.left <= 0) return [];
@@ -902,105 +902,9 @@ async function lookupBibtex(identifier) {
 
 
 
-function moveProjectDirectory(projectRoot, dir, nextName) {
-  const root = path.resolve(projectRoot);
-  const oldDir = path.resolve(dir);
-  if (!oldDir.startsWith(root + path.sep)) throw new Error('Directory is outside the project');
-  const safeName = String(nextName || '').trim();
-  if (!safeName || /[\\/]/.test(safeName) || safeName === '.' || safeName === '..') throw new Error('Invalid directory name');
-  const newDir = path.join(path.dirname(oldDir), safeName);
-  if (fs.existsSync(newDir)) throw new Error('A directory with that name already exists');
-  fs.renameSync(oldDir, newDir);
-  rebaseConfiguredRoot(root, oldDir, newDir);
+const { moveProjectDirectory } = require('./project-operations.cjs');
 
-  const oldRel = path.relative(root, oldDir).replace(/\\/g, '/');
-  const newRel = path.relative(root, newDir).replace(/\\/g, '/');
-  let updated = 0;
-  const visit = (current, depth) => {
-    if (depth > 6) return;
-    let entries = [];
-    try { entries = fs.readdirSync(current, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (entry.name.startsWith('.') || IGNORED_DIRS.has(entry.name)) continue;
-      const full = path.join(current, entry.name);
-      if (entry.isDirectory()) { visit(full, depth + 1); continue; }
-      if (!isTextFile(full) || path.extname(full).toLowerCase() === '.bib') continue;
-      let text = fs.readFileSync(full, 'utf8');
-      const before = text;
-      text = text.replace(/\\(input|include|includegraphics|bibliography|addbibresource)(\[[^\]]*\])?\{([^}]+)\}/g, (whole, command, options, argument) => {
-        const raw = argument.trim().replace(/^\.\//, '').replace(/\\/g, '/');
-        if (!(raw === oldRel || raw.startsWith(oldRel + '/'))) return whole;
-        const suffix = raw.slice(oldRel.length);
-        return `\\${command}${options || ''}{${newRel}${suffix}}`;
-      });
-      text = text.replace(/\\(?:input|include)\{([^}]+)\}/g, (whole, argument) => {
-        const raw = argument.trim().replace(/^\.\//, '').replace(/\\/g, '/');
-        if (!(raw === oldRel || raw.startsWith(oldRel + '/'))) return whole;
-        return `\\input{${newRel}${raw.slice(oldRel.length)}}`;
-      });
-      if (text !== before) {
-        fs.writeFileSync(full, text, 'utf8');
-        updated += 1;
-      }
-    }
-  };
-  visit(root, 0);
-  return { path: newDir, oldPath: oldDir, updated, oldRelative: oldRel, newRelative: newRel };
-}
-
-function renameProjectFile(projectRoot, file, nextName) {
-  const root = path.resolve(projectRoot);
-  const oldPath = path.resolve(file);
-  if (!oldPath.startsWith(root + path.sep)) throw new Error('File is outside the project');
-  const safeName = String(nextName || '').trim();
-  if (!safeName || /[\\/]/.test(safeName) || safeName === '.' || safeName === '..') throw new Error('Invalid file name');
-  let name = safeName;
-  if (!path.extname(name)) name += path.extname(oldPath);
-  const newPath = path.join(path.dirname(oldPath), name);
-  if (fs.existsSync(newPath)) throw new Error('A file with that name already exists');
-  fs.renameSync(oldPath, newPath);
-  rebaseConfiguredRoot(root, oldPath, newPath);
-
-  const oldRelative = path.relative(root, oldPath).replace(/\\/g, '/');
-  const newRelative = path.relative(root, newPath).replace(/\\/g, '/');
-  const oldBase = oldRelative.replace(/\.(tex|ltx|bib)$/i, '');
-  const newBase = newRelative.replace(/\.(tex|ltx|bib)$/i, '');
-  let updated = 0;
-
-  const visit = (dir, depth) => {
-    if (depth > 6) return;
-    let entries = [];
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (entry.name.startsWith('.') || IGNORED_DIRS.has(entry.name)) continue;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) { visit(full, depth + 1); continue; }
-      if (!isTextFile(full) || path.extname(full).toLowerCase() === '.bib') continue;
-      let text = fs.readFileSync(full, 'utf8');
-      const before = text;
-      text = text.replace(/\\(input|include|includegraphics|bibliography|addbibresource)(\[[^\]]*\])?\{([^}]+)\}/g, (whole, command, options, argument) => {
-        const raw = argument.trim();
-        const candidate = path.resolve(path.dirname(full), raw.endsWith('.tex') ? raw : raw);
-        const candidateWithExt = path.extname(candidate) ? candidate : candidate + '.tex';
-        const isTarget = candidateWithExt === oldPath || candidate === oldPath || path.resolve(path.dirname(full), raw) === oldPath;
-        if (!isTarget) return whole;
-        const extension = path.extname(oldPath);
-        const nextRel = path.relative(path.dirname(full), newPath).replace(/\\/g, '/');
-        const nextArg = command === 'bibliography' || command === 'addbibresource'
-          ? nextRel.replace(/\.bib$/i, '')
-          : nextRel;
-        return `\\${command}${options || ''}{${nextArg}}`;
-      });
-      if (text !== before) {
-        fs.writeFileSync(full, text, 'utf8');
-        updated += 1;
-      }
-    }
-  };
-  visit(root, 0);
-  return { path: newPath, oldPath, updated, oldRelative, newRelative };
-}
-
+const { renameProjectFile } = require('./project-operations.cjs');
 
 async function renderTemplatePreview({ source, engine, cacheDir }) {
   const text = String(source || '');
@@ -1043,6 +947,8 @@ async function renderTemplatePreview({ source, engine, cacheDir }) {
 
 async function createArxivPackage(projectRoot) {
   const root = path.resolve(projectRoot);
+  const pending = (await require('./writing-aids.cjs').listWritingAids(root)).placeholders;
+  if (pending.length) throw new Error(`Resolve ${pending.length} placeholder(s) before creating a submission package: ${pending.slice(0, 5).map(item => `${path.relative(root, item.file)}:${item.line}`).join(', ')}`);
   const rootFile = findRootFile(root);
   if (!rootFile) throw new Error(resolveProjectRoot(root).rootError);
   const exportsDir = path.join(root, '.texpro', 'exports');
@@ -1145,6 +1051,8 @@ function collectProjectGraph(projectRoot) {
 }
 
 
+const { fontMatches, parsePdfFonts } = require('./font-report.cjs');
+
 async function fontCoverage(projectRoot) {
   const root = path.resolve(projectRoot);
   const files = [];
@@ -1186,28 +1094,26 @@ async function fontCoverage(projectRoot) {
       const result = await execFileAsync('fc-match', ['--format=%{family}', font], { timeout: 3000, encoding: 'utf8' });
       resolved = result.stdout.trim();
     } catch { /* fc-match may not exist */ }
-    const ok = !resolved || resolved.toLowerCase().includes(font.toLowerCase().split(' ')[0]) || resolved.toLowerCase().includes(font.toLowerCase());
-    fontChecks.push({ name: font, resolved: resolved || 'unknown', ok });
-    if (!ok) issues.push({ severity: 'warning', message: `Font may not match: ${font} -> ${resolved}`, file: files[0] || '', line: 0 });
+    const ok = fontMatches(font, resolved);
+    fontChecks.push({ name: font, resolved, ok });
+    if (ok === false) issues.push({ severity: 'warning', message: `Font may not match: ${font} -> ${resolved}`, file: files[0] || '', line: 0 });
   }
 
   const rootFile = findRootFile(root);
   const pdfPath = rootFile ? path.resolve(root, readConfig(root).directories?.build || '.texpro/build', path.basename(rootFile, path.extname(rootFile)) + '.pdf') : null;
-  const pdfFonts = [];
+  let pdfFonts = [];
+  let pdfInspection = 'missing';
   if (pdfPath && fs.existsSync(pdfPath)) {
     try {
       const result = await execFileAsync('pdffonts', [pdfPath], { timeout: 5000, encoding: 'utf8' });
-      const lines = result.stdout.split('\n');
-      for (const line of lines.slice(2)) {
-        const match = line.match(/^(.+?)\s{2,}(\S+)\s+(yes|no)\s+(yes|no)\s+(yes|no)/i);
-        if (match) pdfFonts.push({ name: match[1].trim(), type: match[2], embedded: match[3].toLowerCase() === 'yes', unicode: match[5].toLowerCase() === 'yes' });
-      }
-    } catch { /* pdffonts missing */ }
+      pdfFonts = parsePdfFonts(result.stdout);
+      pdfInspection = 'complete';
+    } catch { pdfInspection = 'unavailable'; }
   }
   for (const font of pdfFonts) {
     if (!font.embedded) issues.push({ severity: 'warning', message: `PDF font not embedded: ${font.name}`, file: pdfPath || '', line: 0 });
   }
-  return { scripts, declared: [...declared], fontChecks, pdfFonts, issues, pdfPath };
+  return { scripts, declared: [...declared], fontChecks, pdfFonts, pdfInspection, issues, pdfPath };
 }
 
 
@@ -1325,44 +1231,7 @@ function projectImpact(root, target) {
   return { files: affected.length, assets: assets.length, references };
 }
 
-function moveProjectFile(projectRoot, file, targetDir) {
-  const root = path.resolve(projectRoot);
-  const oldPath = path.resolve(file);
-  const destinationDir = path.resolve(targetDir);
-  if (!oldPath.startsWith(root + path.sep)) throw new Error('File is outside the project');
-  if (!destinationDir.startsWith(root)) throw new Error('Target folder is outside the project');
-  if (!fs.existsSync(destinationDir) || !fs.statSync(destinationDir).isDirectory()) throw new Error('Target folder does not exist');
-  const newPath = path.join(destinationDir, path.basename(oldPath));
-  if (fs.existsSync(newPath)) throw new Error('A file with that name already exists in the target folder');
-  fs.renameSync(oldPath, newPath);
-  rebaseConfiguredRoot(root, oldPath, newPath);
-  let updated = 0;
-  const visit = (dir, depth) => {
-    if (depth > 6) return;
-    let entries = [];
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (entry.name.startsWith('.') || IGNORED_DIRS.has(entry.name)) continue;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) { visit(full, depth + 1); continue; }
-      if (!isTextFile(full) || path.extname(full).toLowerCase() === '.bib') continue;
-      let text = fs.readFileSync(full, 'utf8');
-      const before = text;
-      text = text.replace(/\\(input|include|includegraphics|bibliography|addbibresource|lstinputlisting|includepdf)(\[[^\]]*\])?\{([^}]+)\}/g, (whole, command, options, argument) => {
-        const raw = argument.trim().replace(/^\.\//, '');
-        const candidate = path.resolve(path.dirname(full), raw.endsWith('.tex') ? raw : raw);
-        const withExt = path.extname(candidate) ? candidate : candidate + '.tex';
-        if (candidate !== oldPath && withExt !== oldPath) return whole;
-        let nextArg = path.relative(path.dirname(full), newPath).replace(/\\/g, '/');
-        if (!path.extname(raw) && (command === 'input' || command === 'include')) nextArg = nextArg.replace(/\.tex$/i, '');
-        return `\\${command}${options || ''}{${nextArg}}`;
-      });
-      if (text !== before) { fs.writeFileSync(full, text, 'utf8'); updated += 1; }
-    }
-  };
-  visit(root, 0);
-  return { path: newPath, oldPath, updated, oldRelative: path.relative(root, oldPath), newRelative: path.relative(root, newPath) };
-}
+const { moveProjectFile } = require('./project-operations.cjs');
 
 function projectCreationParent(projectRoot, parent) {
   const root = path.resolve(projectRoot), dir = path.resolve(root, parent || '.');
@@ -1705,6 +1574,16 @@ function cleanLogText(text) {
 function parseDiagnostics(logText, rootFile, projectRoot) {
   const text = cleanLogText(logText || '');
   const diagnostics = [];
+  const continuation = (first, offset) => {
+    const parts = [first.trim()];
+    for (const line of text.slice(offset).split('\n').slice(1, 12)) {
+      const packageLine = line.match(/^\([\w .-]+\)\s+(.+)$/);
+      if (packageLine) parts.push(packageLine[1].trim());
+      else if (/^\s{2,}\S/.test(line) && !/^\s*(?:l\.\d|<\*>)/.test(line)) parts.push(line.trim());
+      else break;
+    }
+    return parts.join(' ');
+  };
   const seen = new Set();
   const push = (item) => {
     const key = `${item.severity}:${item.line || 0}:${item.message}`;
@@ -1715,10 +1594,9 @@ function parseDiagnostics(logText, rootFile, projectRoot) {
 
   const fileLineError = /^(?:\.\/)?([^:\n]+\.(?:tex|ltx|sty|cls|bib)):(\d+):\s*(?:LaTeX Error:\s*)?(.+)$/gm;
   for (const m of text.matchAll(fileLineError)) {
-    const message = m[3].trim();
-    if (/^LaTeX Warning/.test(message)) continue;
+    const message = continuation(m[3], m.index);
     push({
-      severity: 'error',
+      severity: /^(?:LaTeX|Package|Class)\b.*Warning:/.test(message) ? 'warning' : 'error',
       file: path.isAbsolute(m[1]) ? m[1] : path.resolve(projectRoot, m[1]),
       line: Number(m[2]),
       message,
@@ -1742,20 +1620,16 @@ function parseDiagnostics(logText, rootFile, projectRoot) {
       severity: 'error',
       file,
       line: lineMatch ? Number(lineMatch[1]) : undefined,
-      message: first,
+      message: continuation(first, text.indexOf(block)),
       source: 'latex',
     });
   }
 
-  const warnings = /(?:LaTeX|Package|Class)\s+(?:[^\n]*?)\s*Warning:\s*([^\n]+)(?:\s+on input line\s+(\d+))?/g;
+  const warnings = /^(?:LaTeX|Package|Class)\b[^\n]*?Warning:\s*([^\n]+)/gm;
   for (const m of text.matchAll(warnings)) {
-    push({
-      severity: 'warning',
-      file: rootFile,
-      line: m[2] ? Number(m[2]) : undefined,
-      message: m[1].trim(),
-      source: 'latex',
-    });
+    const message = continuation(m[1], m.index);
+    const line = message.match(/on input line\s+(\d+)/);
+    push({ severity: 'warning', file: rootFile, line: line ? Number(line[1]) : undefined, message, source: 'latex' });
   }
 
   const boxes = /(Overfull|Underfull)\s+\\[hv]box\s+\(([^)]*)\)[^\n]*?(?:at lines?\s+(\d+)(?:--(\d+))?)?/g;
@@ -1958,6 +1832,12 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
   if (diagnostics.length === 0 && result.code !== 0) {
     diagnostics = parseWarningsFromStdout([result.stdout, result.stderr].join('\n'));
   }
+  if (!isolated) {
+    try {
+      const pending = (await require('./writing-aids.cjs').listWritingAids(projectRoot)).placeholders;
+      diagnostics.push(...pending.map(item => ({ severity: 'warning', source: 'placeholder', message: `Unresolved placeholder: ${item.text || item.kind}`, file: item.file, line: item.line })));
+    } catch (error) { diagnostics.push({ severity: 'warning', source: 'placeholder', message: `Could not complete placeholder check: ${error.message}`, file: rootFile }); }
+  }
   const pdfExists = fs.existsSync(pdfPath);
   const ok = result.code === 0 && pdfExists && !result.timedOut && !result.cancelled;
   const errors = diagnostics.filter((d) => d.severity === 'error');
@@ -2087,6 +1967,7 @@ async function synctexInverse({ projectRoot, pdfFile, page, x, y }) {
 }
 
 module.exports = {
+  parseDiagnostics,
   renderMusicPreview,
   ...history,
   ...git,

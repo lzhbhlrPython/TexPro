@@ -26,10 +26,12 @@ function changedCommitsToday(root, now = new Date()) {
 
 module.exports = { shanghaiDay, changedCommitsToday };
 if (require.main === module) {
-  const commits = changedCommitsToday(process.cwd());
+  const now = new Date();
+  const day = shanghaiDay(now).date;
+  const commits = changedCommitsToday(process.cwd(), now);
   const build = commits.length > 0;
-  const message = `${shanghaiDay(new Date()).date} (Asia/Shanghai): ${commits.length} commit(s) with file changes; ${build ? 'build' : 'skip'}.`;
+  const message = `${day} (Asia/Shanghai): ${commits.length} commit(s) with file changes; ${build ? 'build' : 'skip'}.`;
   console.log(message);
-  if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `build=${build}\n`);
+  if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `build=${build}\ndate=${day.replaceAll('-', '')}\n`);
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, message + '\n');
 }

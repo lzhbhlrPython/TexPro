@@ -28,7 +28,8 @@ export function useDialogFocus(open: boolean, ref: RefObject<HTMLElement | null>
     dialog.addEventListener('keydown', onKey);
     return () => {
       dialog.removeEventListener('keydown', onKey);
-      if (previous?.isConnected) previous.focus();
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      else document.querySelector<HTMLElement>('.cm-content')?.focus({ preventScroll: true });
     };
     // Callers use inline close handlers; reinstalling would steal focus on every edit.
     // eslint-disable-next-line react-hooks/exhaustive-deps

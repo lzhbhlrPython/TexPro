@@ -3,6 +3,7 @@ dist/
 release/
 .texpro/
 .npm-cache/
+.pnpm-store/
 artifacts/*.png
 .DS_Store
 *.log

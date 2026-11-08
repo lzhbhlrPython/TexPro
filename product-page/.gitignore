@@ -1,0 +1,21 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+*.log
+
+# Local caches and generated reports
+.pnpm-store/
+coverage/
+*.tsbuildinfo
+
+# Local environment configuration; keep the shared example
+.env
+.env.*
+!.env.example
+
+# Local review captures and working notes
+/docs/preview/
+/docs/superpowers/

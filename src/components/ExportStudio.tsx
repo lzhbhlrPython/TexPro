@@ -1,3 +1,4 @@
+import { parseWritingAids } from '../../electron/services/writing-aids-core.mjs';
 import { useMemo, useState } from 'react';
 import { Check, Clipboard, Download, FileCode2, FileText, X } from 'lucide-react';
 import { exportLatex, type ExportFormat } from '../lib/exporters';
@@ -8,6 +9,7 @@ interface Props {
   source: string;
   name: string;
   onClose: () => void;
+  onReviewPlaceholders?: () => void;
 }
 
 const formats: Array<{ id: ExportFormat; label: string; ext: string; icon: typeof FileText }> = [
@@ -16,11 +18,12 @@ const formats: Array<{ id: ExportFormat; label: string; ext: string; icon: typeo
   { id: 'html', label: 'HTML', ext: 'html', icon: FileCode2 },
 ];
 
-export function ExportStudio({ open, source, name, onClose }: Props) {
+export function ExportStudio({ open, source, name, onClose, onReviewPlaceholders }: Props) {
   const { t } = useI18n();
   const [format, setFormat] = useState<ExportFormat>('markdown');
   const [copied, setCopied] = useState(false);
   const output = useMemo(() => exportLatex(source, format), [source, format]);
+  const pending = useMemo(() => parseWritingAids(source).placeholders.length, [source]);
   const current = formats.find((item) => item.id === format) || formats[0];
 
   if (!open) return null;
@@ -58,6 +61,7 @@ export function ExportStudio({ open, source, name, onClose }: Props) {
           </div>
         </header>
 
+        {pending > 0 && <div className="writing-aids-export-notice" role="status"><span>{t('Resolve {count} placeholders before submission.', { count: pending })}</span><button className="secondary-btn" onClick={onReviewPlaceholders}>{t('Review placeholders')}</button></div>}
         <div className="export-body">
           <aside className="export-side">
             <div className="pane-label">{t('Format')}</div>

@@ -345,6 +345,26 @@ function createWindow() {
     }
   });
 
+  const guardedWindow = mainWindow;
+  require('./window-close.cjs').guardWindowClose(guardedWindow, {
+    ipcMain,
+    confirmFailure: async () => {
+      const wasQuitting = quitting;
+      quitting = false;
+      const zh = menuLanguage === 'zh';
+      const result = await dialog.showMessageBox(guardedWindow, {
+        type: 'warning',
+        message: zh ? '尚未确认所有内容已保存' : 'Your changes could not be confirmed as saved',
+        detail: zh ? '文档会保持打开。请检查保存错误，或重试保存后退出。' : 'Your document will stay open. Check the save error, or retry saving before closing.',
+        buttons: zh ? ['继续写作', '重试保存并关闭'] : ['Keep writing', 'Retry saving and close'],
+        defaultId: 0, cancelId: 0,
+      });
+      if (result.response === 1) quitting = wasQuitting;
+      return result.response === 1;
+    },
+    // Finish outside the IPC callback so native window teardown is not reentrant.
+    finish: () => setImmediate(() => { if (quitting) app.quit(); else if (!guardedWindow.isDestroyed()) guardedWindow.close(); }),
+  });
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -523,7 +543,8 @@ function registerIpc() {
 
   ipcMain.handle('project:symbols', async (_event, root) => {
     if (typeof root !== 'string' || !isAllowed(root)) throw new Error('Project is not open');
-    return tex.collectProjectSymbols(root);
+    const aids = await require('./services/writing-aids.cjs').listWritingAids(root);
+    return { ...tex.collectProjectSymbols(root), placeholders: aids.placeholders, writingNotes: aids.memos };
   });
 
   ipcMain.handle('tikz:render', async (_event, options) => {
@@ -883,10 +904,17 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('before-quit', () => { mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
+let quitting = false;
+require('./quit-watchdog.cjs').installQuitWatchdog(app, {
+  report: code => {
+    if (isSmoke && process.env.TEXPRO_EXIT_REPORT) fs.writeFileSync(process.env.TEXPRO_EXIT_REPORT, JSON.stringify({ code, pid: process.pid, quit: true }));
+  },
+});
+app.on('before-quit', () => { quitting = true; });
+app.on('will-quit', () => { mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin' || isSmoke) app.quit();
+  if (process.platform !== 'darwin' || isSmoke) setImmediate(() => app.quit());
 });
 
 process.on('uncaughtException', (error) => {

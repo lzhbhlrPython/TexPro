@@ -14,6 +14,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const tex = require('../electron/services/tex.cjs');
+const writingAids = require('../electron/services/writing-aids.cjs');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const IGNORED = new Set(['.git', '.texpro', 'node_modules', 'dist', 'build', 'out', '.DS_Store']);
@@ -121,6 +122,16 @@ const TOOLS = [
     limit: { type: 'number' },
   }, ['query'], { readOnlyHint: true }),
   tool('texpro_project_symbols', 'Return labels, citation keys, environments, packages and images.', {}, [], { readOnlyHint: true }),
+  tool('texpro_ctex_typography', 'Preview Chinese writing typography for the actual main file. Does not save; review source before applying with write_file.', {}, [], { readOnlyHint: true }),
+  tool('texpro_writing_aids', 'List placeholders, revision memos and source SHA-256 hashes, including closed files. Unresolved placeholders prevent submission packaging. Offsets are UTF-16 indices.', {}, [], { readOnlyHint: true }),
+  tool('texpro_edit_writing_aid', 'Insert/resolve a placeholder or add/complete/reopen a revision memo in saved TeX source. Explicit user intent required. Obtain current hashes with texpro_writing_aids first; stale edits are rejected. Placeholder insertion installs a portable macro in the selected main file.', {
+    file: { type: 'string' }, action: { type: 'string', enum: ['insert-placeholder', 'resolve-placeholder', 'add-memo', 'complete-memo', 'reopen-memo'] },
+    expectedHash: { type: 'string', description: 'SHA-256 of the complete saved target source.' },
+    expectedMainHash: { type: 'string', description: 'Required for placeholder insertion: SHA-256 of the saved main file.' },
+    offset: { type: 'integer', description: 'UTF-16 insertion offset or the placeholder start to resolve.' },
+    line: { type: 'integer', description: '1-based source line for memo operations.' },
+    kind: { type: 'string', enum: ['text', 'figure', 'table', 'citation', 'data'] }, text: { type: 'string' },
+  }, ['file', 'action', 'expectedHash']),
   tool('texpro_diagnose', 'Check TeX tools, missing packages, broken includes, undefined refs/cites, duplicate labels and orphan files.', {}, [], { readOnlyHint: true }),
   tool('texpro_compile', 'Compile the project with latexmk and return diagnostics.', {
     engine: { type: 'string', enum: ['pdflatex', 'xelatex', 'lualatex'] },
@@ -192,6 +203,16 @@ async function callTool(name, args = {}) {
     }
     case 'texpro_project_symbols':
       return { content: [{ type: 'text', text: JSON.stringify(tex.collectProjectSymbols(projectState.root), null, 2) }] };
+    case 'texpro_ctex_typography': {
+      const { applyCtexTypography } = await import('../electron/services/writing-aids-core.mjs');
+      const file = setProject(projectState.root).rootFile;
+      if (!file) throw new Error('Choose a main file with a document environment.');
+      return { content: [{ type: 'text', text: JSON.stringify({ file, engine: 'xelatex', source: applyCtexTypography(fs.readFileSync(file, 'utf8')), saved: false }, null, 2) }] };
+    }
+    case 'texpro_writing_aids':
+      return { content: [{ type: 'text', text: JSON.stringify(await writingAids.listWritingAids(projectState.root), null, 2) }] };
+    case 'texpro_edit_writing_aid':
+      return { content: [{ type: 'text', text: JSON.stringify(await writingAids.editWritingAid(projectState.root, args), null, 2) }] };
     case 'texpro_diagnose':
       return { content: [{ type: 'text', text: JSON.stringify(await tex.diagnoseProject(projectState.root), null, 2) }] };
     case 'texpro_compile': {

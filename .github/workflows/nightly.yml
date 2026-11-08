@@ -20,6 +20,9 @@ jobs:
     timeout-minutes: 5
     outputs:
       build: ${{ steps.changes.outputs.build }}
+      date: ${{ steps.changes.outputs.date }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,6 +32,12 @@ jobs:
           node-version: 22
       - id: changes
         run: node scripts/nightly-changes.cjs
+      - name: Prepare nightly version
+        id: version
+        if: steps.changes.outputs.build == 'true'
+        env:
+          NIGHTLY_DATE: ${{ steps.changes.outputs.date }}
+        run: node scripts/set-nightly-version.mjs --dry-run
 
   test:
     name: Typecheck and build
@@ -49,10 +58,11 @@ jobs:
 
   macos:
     name: macOS universal
-    needs: test
+    needs: [changes, test]
     runs-on: macos-latest
     timeout-minutes: 45
     env:
+      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -77,10 +87,11 @@ jobs:
 
   windows:
     name: Windows x64
-    needs: test
+    needs: [changes, test]
     runs-on: windows-latest
     timeout-minutes: 40
     env:
+      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
@@ -104,10 +115,11 @@ jobs:
 
   linux:
     name: Ubuntu and CentOS packages
-    needs: test
+    needs: [changes, test]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
+      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
@@ -137,25 +149,37 @@ jobs:
 
   release:
     name: Publish nightly prerelease
-    needs: [macos, windows, linux]
+    needs: [changes, macos, windows, linux]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: release
           merge-multiple: true
-      - name: Publish fixed nightly tag
+      - name: Point today's nightly tag at the built commit
+        env:
+          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
+        run: |
+          git tag --force "$NIGHTLY_TAG" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$NIGHTLY_TAG"
+      - name: Publish dated nightly tag
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nightly
-          name: TeXPro Nightly
+          tag_name: ${{ needs.changes.outputs.tag }}
+          name: ${{ needs.changes.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           prerelease: true
           overwrite_files: true
           fail_on_unmatched_files: true
           body: |
             Automated nightly build of TeXPro.
 
+            - Version: `${{ needs.changes.outputs.tag }}`
             - Commit: `${{ github.sha }}`
             - Branch: `${{ github.ref_name }}`
             - Run: #${{ github.run_number }}
@@ -166,3 +190,8 @@ jobs:
 
             These builds are unsigned and intended for testing.
           files: release/**/*
+      - name: Refresh product page after publishing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
+        run: gh workflow run product-page.yml --repo "$GITHUB_REPOSITORY" --ref main -f "nightly_tag=$NIGHTLY_TAG"

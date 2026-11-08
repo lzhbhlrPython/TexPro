@@ -1,7 +1,5 @@
-import * as pdfjs from 'pdfjs-dist';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-
-pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+import type * as pdfjs from 'pdfjs-dist';
+import { loadPdfRuntime } from './pdfRuntime';
 
 /** Render original TeX geometry at display density; never upscale an existing bitmap. */
 export async function rasterizeTexPdf(file: string, bounds: { width: number; height: number }, signal: AbortSignal) {
@@ -12,7 +10,9 @@ export async function rasterizeTexPdf(file: string, bounds: { width: number; hei
   try {
     const bytes = await window.texpro.readPdf(file);
     signal.throwIfAborted();
-    task = pdfjs.getDocument({ data: new Uint8Array(bytes) });
+    const runtime = await loadPdfRuntime();
+    signal.throwIfAborted();
+    task = runtime.getDocument({ data: new Uint8Array(bytes) });
     const doc = await task.promise, page = await doc.getPage(1);
     signal.throwIfAborted();
     const base = page.getViewport({ scale: 1 });

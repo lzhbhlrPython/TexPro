@@ -1,3 +1,4 @@
+import { ctexWritingSettings } from '../../electron/services/writing-aids-core.mjs';
 export type ImportFormat = 'markdown' | 'typst';
 
 export interface ImportOptions {
@@ -99,7 +100,8 @@ function buildDocument(body: string, options: ImportOptions, warnings: string[])
 \\usepackage[margin=2.5cm]{geometry}
 \\usepackage{booktabs}
 \\usepackage{xcolor}
-\\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}`
+\\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+${ctexWritingSettings}`
     : `\\documentclass[11pt]{article}
 \\usepackage[T1]{fontenc}
 \\usepackage[utf8]{inputenc}
