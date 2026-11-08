@@ -152,6 +152,9 @@ jobs:
     needs: [changes, macos, windows, linux]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -187,3 +190,8 @@ jobs:
 
             These builds are unsigned and intended for testing.
           files: release/**/*
+      - name: Refresh product page after publishing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
+        run: gh workflow run product-page.yml --repo "$GITHUB_REPOSITORY" --ref main -f "nightly_tag=$NIGHTLY_TAG"
