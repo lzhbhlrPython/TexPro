@@ -1,12 +1,17 @@
 import { useEffect } from 'react';
 import { APP_NAME } from '@/config/constants';
 import { Reveal } from '@/components/Reveal';
+import { VisualDemo } from './VisualDemo';
 import { Capabilities } from './Capabilities';
 import { Comparison } from './Comparison';
+import { DataFlow } from './DataFlow';
 import { Download } from './Download';
 import { Hero } from './Hero';
+import { Migrate } from './Migrate';
 import { Showcase } from './Showcase';
 import { Themes } from './Themes';
+import { Proof } from './Proof';
+import { Details } from './Details';
 import { Workflow } from './Workflow';
 
 export default function HomePage() {
@@ -23,6 +28,10 @@ export default function HomePage() {
       </Reveal>
 
       <Reveal>
+        <VisualDemo />
+      </Reveal>
+
+      <Reveal>
         <Showcase />
       </Reveal>
 
@@ -31,11 +40,27 @@ export default function HomePage() {
       </Reveal>
 
       <Reveal>
+        <Details />
+      </Reveal>
+
+      <Reveal>
         <Comparison />
       </Reveal>
 
       <Reveal>
+        <DataFlow />
+      </Reveal>
+
+      <Reveal>
         <Themes />
+      </Reveal>
+
+      <Reveal>
+        <Migrate />
+      </Reveal>
+
+      <Reveal>
+        <Proof />
       </Reveal>
 
       <Reveal>

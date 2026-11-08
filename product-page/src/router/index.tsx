@@ -2,6 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import SiteLayout from '@/layouts/SiteLayout';
 import HomePage from '@/pages/home';
 import DocsPage from '@/pages/docs';
+import BlogIndexPage from '@/pages/blog';
+import BlogPostPage from '@/pages/blog/post';
+import ChangelogPage from '@/pages/changelog';
 import NotFoundPage from '@/pages/exception/NotFound';
 
 export const router = createBrowserRouter([
@@ -13,6 +16,9 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'docs', element: <DocsPage />, handle: { title: '文档 · TeXPro' } },
       { path: 'docs/:slug', element: <DocsPage />, handle: { title: '文档 · TeXPro' } },
+      { path: 'changelog', element: <ChangelogPage />, handle: { title: '更新日志 · TeXPro' } },
+      { path: 'blog', element: <BlogIndexPage />, handle: { title: '开发博客 · TeXPro' } },
+      { path: 'blog/:slug', element: <BlogPostPage />, handle: { title: '开发博客 · TeXPro' } },
     ],
   },
   {

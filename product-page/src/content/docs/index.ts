@@ -1,17 +1,12 @@
 /**
  * 文档内容：一篇文档 = `src/content/docs/*.md` 一个文件。
  * 文件顶部是 front matter（slug / title / group / order / summary），正文用 Markdown 写。
- * 这里只做一件小事：把 Markdown 的常用语法解析成页面可以直接排版的块。
- * 支持的语法有限（标题、段落、列表、代码块、引用、表格），够写文档，也避免了引入解析库。
+ * 解析器在 `src/lib/markdown.ts`，博客页共用同一套。
  */
 
-export type DocBlock =
-  | { kind: 'p'; text: string }
-  | { kind: 'h3'; text: string }
-  | { kind: 'ul'; items: string[] }
-  | { kind: 'code'; text: string }
-  | { kind: 'note'; text: string }
-  | { kind: 'kv'; rows: { term: string; desc: string }[] };
+import { parseMarkdown, splitFrontMatter, type DocBlock } from '@/lib/markdown';
+
+export type { DocBlock };
 
 export interface DocTopic {
   slug: string;
@@ -20,6 +15,8 @@ export interface DocTopic {
   summary: string;
   order: number;
   blocks: DocBlock[];
+  /** 英文模式下这一篇还没有译文，正文回落中文 */
+  englishFallback?: boolean;
 }
 
 export interface DocsNavGroup {
@@ -27,138 +24,7 @@ export interface DocsNavGroup {
   items: { slug: string; title: string }[];
 }
 
-interface FrontMatter {
-  slug?: string;
-  title?: string;
-  group?: string;
-  order?: string;
-  summary?: string;
-}
-
-const GROUP_ORDER = ['开始', '使用', '参考'];
-
-function splitFrontMatter(raw: string): { data: FrontMatter; body: string } {
-  const text = raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-  if (!text.startsWith('---\n')) return { data: {}, body: text };
-
-  const end = text.indexOf('\n---', 4);
-  if (end === -1) return { data: {}, body: text };
-
-  const data: Record<string, string> = {};
-  for (const line of text.slice(4, end).split('\n')) {
-    const match = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(line.trim());
-    if (!match) continue;
-    const value = match[2].trim().replace(/^["']|["']$/g, '');
-    data[match[1]] = value;
-  }
-
-  return { data: data as FrontMatter, body: text.slice(end + 4) };
-}
-
-/** 中文与中文之间不加空格，中文与西文之间留一个空格。 */
-function joinLines(lines: string[]): string {
-  return lines.reduce((acc, line, index) => {
-    if (index === 0) return line;
-    const cjk = /[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/;
-    const needSpace = !cjk.test(acc.slice(-1)) && !cjk.test(line[0] ?? '') ? ' ' : '';
-    return `${acc}${needSpace}${line}`;
-  }, '');
-}
-
-function parseBody(body: string): DocBlock[] {
-  const blocks: DocBlock[] = [];
-  const lines = body.split('\n');
-  let paragraph: string[] = [];
-
-  const flushParagraph = () => {
-    if (!paragraph.length) return;
-    blocks.push({ kind: 'p', text: joinLines(paragraph) });
-    paragraph = [];
-  };
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const trimmed = line.trim();
-
-    if (!trimmed) {
-      flushParagraph();
-      continue;
-    }
-
-    // ``` 代码块
-    if (trimmed.startsWith('```')) {
-      flushParagraph();
-      const code: string[] = [];
-      index += 1;
-      while (index < lines.length && !lines[index].trim().startsWith('```')) {
-        code.push(lines[index]);
-        index += 1;
-      }
-      blocks.push({ kind: 'code', text: code.join('\n') });
-      continue;
-    }
-
-    // ## 小节标题
-    if (trimmed.startsWith('## ')) {
-      flushParagraph();
-      blocks.push({ kind: 'h3', text: trimmed.slice(3).trim() });
-      continue;
-    }
-
-    // > 提示
-    if (trimmed.startsWith('> ')) {
-      flushParagraph();
-      const quote = [trimmed.slice(2)];
-      while (index + 1 < lines.length && lines[index + 1].trim().startsWith('> ')) {
-        index += 1;
-        quote.push(lines[index].trim().slice(2));
-      }
-      blocks.push({ kind: 'note', text: joinLines(quote) });
-      continue;
-    }
-
-    // - 列表
-    if (/^[-*]\s+/.test(trimmed)) {
-      flushParagraph();
-      const items: string[] = [];
-      while (index < lines.length && /^[-*]\s+/.test(lines[index].trim())) {
-        const item = lines[index].trim().replace(/^[-*]\s+/, '');
-        index += 1;
-        items.push(item);
-      }
-      index -= 1;
-      blocks.push({ kind: 'ul', items });
-      continue;
-    }
-
-    // | 表格 |（第二行是 | --- | 分隔线）
-    if (trimmed.startsWith('|') && lines[index + 1]?.trim().startsWith('|')) {
-      const separator = lines[index + 1].trim();
-      if (/^[|\s:-]+$/.test(separator)) {
-        flushParagraph();
-        const rows: { term: string; desc: string }[] = [];
-        index += 2;
-        while (index < lines.length && lines[index].trim().startsWith('|')) {
-          const cells = lines[index]
-            .trim()
-            .replace(/^\||\|$/g, '')
-            .split('|')
-            .map((cell) => cell.trim());
-          if (cells.length >= 2) rows.push({ term: cells[0], desc: cells[1] });
-          index += 1;
-        }
-        index -= 1;
-        blocks.push({ kind: 'kv', rows });
-        continue;
-      }
-    }
-
-    paragraph.push(trimmed);
-  }
-
-  flushParagraph();
-  return blocks;
-}
+const GROUP_ORDER = ['开始', '使用', '参考', '开发', 'AI 协作', '关于'];
 
 const rawFiles = import.meta.glob('./*.md', {
   query: '?raw',
@@ -166,19 +32,38 @@ const rawFiles = import.meta.glob('./*.md', {
   eager: true,
 }) as Record<string, string>;
 
+/** 英文版：`src/content/docs/en/<slug>.md`，缺哪篇就回落到中文正文。 */
+const rawEnFiles = import.meta.glob('./en/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+export const GROUP_LABELS: Record<string, string> = {
+  开始: 'Start',
+  使用: 'Using',
+  参考: 'Reference',
+  开发: 'Development',
+  'AI 协作': 'AI workflow',
+  关于: 'About',
+};
+
+function parseTopic(path: string, raw: string): DocTopic {
+  const { data, body } = splitFrontMatter(raw);
+  const slug = data.slug ?? path.split('/').pop()!.replace('.md', '');
+  return {
+    slug,
+    group: data.group ?? '使用',
+    title: data.title ?? slug,
+    summary: data.summary ?? '',
+    order: Number(data.order ?? 99),
+    blocks: parseMarkdown(body),
+  };
+}
+
 export const DOC_TOPICS: DocTopic[] = Object.entries(rawFiles)
-  .map(([path, raw]) => {
-    const { data, body } = splitFrontMatter(raw);
-    const slug = data.slug ?? path.replace('./', '').replace('.md', '');
-    return {
-      slug,
-      group: data.group ?? '使用',
-      title: data.title ?? slug,
-      summary: data.summary ?? '',
-      order: Number(data.order ?? 99),
-      blocks: parseBody(body),
-    } satisfies DocTopic;
-  })
+  .filter(([path]) => !path.includes('/en/'))
+  .map(([path, raw]) => parseTopic(path, raw))
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, 'zh-Hans-CN'));
 
 const groups = Array.from(new Set(DOC_TOPICS.map((topic) => topic.group))).sort(
@@ -195,14 +80,53 @@ export const DOCS_NAV: DocsNavGroup[] = groups.map((label) => ({
 
 export const DEFAULT_DOC_SLUG = DOC_TOPICS[0]?.slug ?? 'start';
 
-export function findTopic(slug?: string): DocTopic {
-  return DOC_TOPICS.find((topic) => topic.slug === slug) ?? DOC_TOPICS[0];
+/** 英文版目录：与中文同结构，标题/摘要取自 en 文件；缺失的篇目回落中文正文。 */
+export const DOC_TOPICS_EN: DocTopic[] = DOC_TOPICS.map((zh) => {
+  const raw = Object.entries(rawEnFiles).find(
+    ([path]) => path.split('/').pop() === `${zh.slug}.md`,
+  )?.[1];
+  if (!raw) return { ...zh, englishFallback: true };
+  const en = parseTopic(`${zh.slug}.md`, raw);
+  return {
+    ...en,
+    slug: zh.slug,
+    group: zh.group,
+    order: zh.order,
+    // 英文正文缺失时用中文补位，页面会提示
+    blocks: en.blocks.length ? en.blocks : zh.blocks,
+  };
+});
+
+export function topicsFor(locale: 'zh' | 'en'): DocTopic[] {
+  return locale === 'en' ? DOC_TOPICS_EN : DOC_TOPICS;
 }
 
-export function neighbors(slug: string): { prev?: DocTopic; next?: DocTopic } {
-  const index = DOC_TOPICS.findIndex((topic) => topic.slug === slug);
+export function navFor(locale: 'zh' | 'en'): DocsNavGroup[] {
+  const topics = topicsFor(locale);
+  const labels = Array.from(new Set(topics.map((topic) => topic.group))).sort(
+    (a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b),
+  );
+  return labels.map((group) => ({
+    label: locale === 'en' ? (GROUP_LABELS[group] ?? group) : group,
+    items: topics
+      .filter((topic) => topic.group === group)
+      .map(({ slug, title }) => ({ slug, title })),
+  }));
+}
+
+export function findTopic(slug?: string, locale: 'zh' | 'en' = 'zh'): DocTopic {
+  const topics = topicsFor(locale);
+  return topics.find((topic) => topic.slug === slug) ?? topics[0];
+}
+
+export function neighbors(
+  slug: string,
+  locale: 'zh' | 'en' = 'zh',
+): { prev?: DocTopic; next?: DocTopic } {
+  const topics = topicsFor(locale);
+  const index = topics.findIndex((topic) => topic.slug === slug);
   return {
-    prev: index > 0 ? DOC_TOPICS[index - 1] : undefined,
-    next: index >= 0 && index < DOC_TOPICS.length - 1 ? DOC_TOPICS[index + 1] : undefined,
+    prev: index > 0 ? topics[index - 1] : undefined,
+    next: index >= 0 && index < topics.length - 1 ? topics[index + 1] : undefined,
   };
 }

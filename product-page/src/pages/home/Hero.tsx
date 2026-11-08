@@ -1,11 +1,17 @@
 import { CheckOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Button, Space, theme } from 'antd';
+import { LatexMark } from '@/components/LatexMark';
 import { ScreenshotFrame } from '@/components/ScreenshotFrame';
-import { APP_VERSION } from '@/config/constants';
-import { HERO_METRICS, HERO_POINTS } from '@/data/site';
+import { useRelease } from '@/hooks/useRelease';
+import { HERO_POINTS } from '@/data/site';
+import { useLocalize, useT } from '@/i18n';
 
 export function Hero() {
   const { token } = theme.useToken();
+  const release = useRelease();
+  const t = useT();
+  const localize = useLocalize();
+  const points = localize([...HERO_POINTS]);
 
   return (
     <section className="hero" id="top">
@@ -19,33 +25,35 @@ export function Hero() {
       <div className="shell hero-inner">
         <div className="hero-copy">
           <p className="hero-badge" style={{ color: token.colorTextSecondary }}>
-            <span>v{APP_VERSION}</span>
-            <span>本地优先</span>
-            <span>免登录</span>
+            <span className="badge-version">
+              v<span className="badge-version-full">{release.version}</span>
+              <span className="badge-version-short">{release.version.split('-')[0]}</span>
+            </span>
+            <span>{t('本地优先')}</span>
+            <span>{t('免登录')}</span>
           </p>
 
           <h1 className="hero-title">
-            让 LaTeX
+            {t('让')} <LatexMark />
             <br />
-            像纸面一样好写
+            {t('像纸面一样好写')}
           </h1>
 
           <p className="hero-lede">
-            TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ
-            与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，而文件始终留在你自己的磁盘上。
+            {t('TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，而文件始终留在你自己的磁盘上。')}
           </p>
 
           <Space size={12} wrap className="hero-actions">
             <Button type="primary" size="large" href="#download" icon={<DownloadOutlined />}>
-              下载 TeXPro
+              {t('下载 TeXPro')}
             </Button>
             <Button size="large" href="#capabilities">
-              看看能做什么
+              {t('看看能做什么')}
             </Button>
           </Space>
 
           <ul className="hero-points">
-            {HERO_POINTS.map((point) => (
+            {points.map((point) => (
               <li key={point} style={{ color: token.colorTextTertiary }}>
                 <CheckOutlined style={{ color: token.colorSuccess }} />
                 {point}
@@ -57,8 +65,8 @@ export function Hero() {
         <div className="hero-visual">
           <ScreenshotFrame
             src="/shots/hero.jpg"
-            alt="TeXPro 主界面：左侧项目树与主文件，中间可视编辑器，右侧 PDF 预览"
-            caption="可视编辑器 · PDF 预览 · 双向 SyncTeX 同屏"
+            alt={t('TeXPro 主界面：左侧项目树与主文件，中间可视编辑器，右侧 PDF 预览')}
+            caption={t('可视编辑器 · PDF 预览 · 双向 SyncTeX 同屏')}
             width={1800}
             height={1259}
             eager
@@ -67,14 +75,6 @@ export function Hero() {
       </div>
 
       <div className="shell">
-        <dl className="hero-metrics" style={{ borderTopColor: token.colorBorderSecondary }}>
-          {HERO_METRICS.map((metric) => (
-            <div key={metric.label} className="metric">
-              <dt style={{ color: token.colorTextHeading }}>{metric.value}</dt>
-              <dd style={{ color: token.colorTextTertiary }}>{metric.label}</dd>
-            </div>
-          ))}
-        </dl>
       </div>
     </section>
   );

@@ -1,0 +1,119 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "TeXPro 开发博客",
+  "home_page_url": "https://lzhbhlrpython.github.io/TexStudioPro/blog",
+  "feed_url": "https://lzhbhlrpython.github.io/TexStudioPro/feed.json",
+  "description": "TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。",
+  "language": "zh-CN",
+  "items": [
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
+      "title": "缺一张图，也可以把这一段写完",
+      "summary": "开发记录 09：占位符、修订备忘与中文正文配置，让未完成内容留在线索里，而不是打断当前句子。",
+      "content_text": "开发记录 09：占位符、修订备忘与中文正文配置，让未完成内容留在线索里，而不是打断当前句子。",
+      "date_published": "2026-11-08T16:00:00.000Z",
+      "tags": [
+        "占位符",
+        "修订备忘",
+        "CTeX"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown",
+      "title": "可靠保存，应该覆盖关闭窗口的最后一秒",
+      "summary": "开发回顾 07：保存队列、文件移动和 macOS 退出收尾，补齐写作数据的最后一段路径。",
+      "content_text": "开发回顾 07：保存队列、文件移动和 macOS 退出收尾，补齐写作数据的最后一段路径。",
+      "date_published": "2026-11-07T16:00:00.000Z",
+      "tags": [
+        "保存",
+        "可靠性"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly",
+      "title": "Nightly 的日期，要从版本号一直走到发布标签",
+      "summary": "开发回顾 08：只在有变更时构建，让各平台共享日期版本，避免标签和安装包彼此错位。",
+      "content_text": "开发回顾 08：只在有变更时构建，让各平台共享日期版本，避免标签和安装包彼此错位。",
+      "date_published": "2026-11-07T16:00:00.000Z",
+      "tags": [
+        "Nightly",
+        "发布"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/chinese-typesetting",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/chinese-typesetting",
+      "title": "中文编译失败，往往先要查导言区",
+      "summary": "开发回顾 06：修复 CTeX 重复加载与系统字体依赖，并保留作者自己的中文文档设置。",
+      "content_text": "开发回顾 06：修复 CTeX 重复加载与系统字体依赖，并保留作者自己的中文文档设置。",
+      "date_published": "2026-10-23T16:00:00.000Z",
+      "tags": [
+        "CTeX",
+        "字体"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/formatting-and-context",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/formatting-and-context",
+      "title": "识别格式，不夺走作者的输入习惯",
+      "summary": "开发回顾 05：智能输入与粘贴、重开续写、引用原地查阅和标签重命名进入同一写作流程。",
+      "content_text": "开发回顾 05：智能输入与粘贴、重开续写、引用原地查阅和标签重命名进入同一写作流程。",
+      "date_published": "2026-10-22T16:00:00.000Z",
+      "tags": [
+        "智能格式",
+        "修订"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/writing-contract",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/writing-contract",
+      "title": "连续写作，需要先把源范围和焦点管好",
+      "summary": "开发回顾 04：表格、图形与格式辅助共享正文位置，补齐素材联动、修订和直接新建文件。",
+      "content_text": "开发回顾 04：表格、图形与格式辅助共享正文位置，补齐素材联动、修订和直接新建文件。",
+      "date_published": "2026-10-21T16:00:00.000Z",
+      "tags": [
+        "编辑器",
+        "连续写作"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-music",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-music",
+      "title": "乐谱回到文章里，而不是另开一间工作室",
+      "summary": "开发回顾 03：以 TeX 乐谱源为基础，将制谱辅助收回连续写作流程。",
+      "content_text": "开发回顾 03：以 TeX 乐谱源为基础，将制谱辅助收回连续写作流程。",
+      "date_published": "2026-10-21T16:00:00.000Z",
+      "tags": [
+        "乐谱",
+        "行内编辑"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/project-identity",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/project-identity",
+      "title": "保存、编译和同步，必须认同一个主文件",
+      "summary": "开发回顾 02：修复崩溃、主文件漂移、项目关闭和同步定位，让工程操作可信。",
+      "content_text": "开发回顾 02：修复崩溃、主文件漂移、项目关闭和同步定位，让工程操作可信。",
+      "date_published": "2026-10-20T16:00:00.000Z",
+      "tags": [
+        "工程",
+        "可靠性"
+      ]
+    },
+    {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/foundation-and-release",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/foundation-and-release",
+      "title": "从可视 LaTeX 工作台到可交付应用",
+      "summary": "开发回顾 01：建立源文件、编译、协作与打包的基础，再处理跨平台发布的现实问题。",
+      "content_text": "开发回顾 01：建立源文件、编译、协作与打包的基础，再处理跨平台发布的现实问题。",
+      "date_published": "2026-10-20T16:00:00.000Z",
+      "tags": [
+        "架构",
+        "发布"
+      ]
+    }
+  ]
+}

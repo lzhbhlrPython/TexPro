@@ -8,13 +8,31 @@ export interface NavItem {
   to?: string;
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  { href: '#capabilities', label: '能力' },
-  { href: '#showcase', label: '场景' },
-  { href: '#workflow', label: '工作流' },
-  { href: '#compare', label: '对比' },
+/** Header 只放跨页面入口，页内段落交给侧边栏（SectionRail）。 */
+export const PAGE_LINKS: NavItem[] = [
+  { to: '/blog', label: '博客' },
   { to: '/docs', label: '文档' },
-  { href: '#download', label: '下载' },
+];
+
+export interface SectionLink {
+  id: string;
+  label: string;
+}
+
+/** 首页各段落的顺序，与 pages/home/index.tsx 的排布一致。 */
+export const SECTION_LINKS: SectionLink[] = [
+  { id: 'top', label: '首屏' },
+  { id: 'capabilities', label: '能力' },
+  { id: 'demo', label: '演示' },
+  { id: 'showcase', label: '场景' },
+  { id: 'workflow', label: '工作流' },
+  { id: 'details', label: '小巧思' },
+  { id: 'compare', label: '对比' },
+  { id: 'local', label: '隐私' },
+  { id: 'themes', label: '写作' },
+  { id: 'migrate', label: '迁移' },
+  { id: 'proof', label: '证据' },
+  { id: 'download', label: '下载' },
 ];
 
 export const HERO_METRICS = [
@@ -92,6 +110,15 @@ export const COMPARE_ROWS: CompareRow[] = [
     cloud: 'no',
   },
   {
+    key: 'chinese',
+    capability: '中文写作排版',
+    detail: 'CTeX 两字缩进、全角标点与中文行距',
+    texpro: 'yes',
+    markdown: 'partial',
+    classic: 'partial',
+    cloud: 'partial',
+  },
+  {
     key: 'offline',
     capability: '完全离线，文件不离开本机',
     detail: '不建账号、不上传、不收集使用数据',
@@ -110,17 +137,36 @@ export const COMPARE_COLUMNS = [
 ] as const;
 
 export interface DownloadTarget {
-  key: string;
+  key: 'mac' | 'windows' | 'linux';
   platform: string;
   detail: string;
   format: string;
+  /** 在发布的安装包清单里认领对应文件（文件名以版本号开头） */
+  assetPattern: string;
 }
 
 export const DOWNLOADS: DownloadTarget[] = [
-  { key: 'mac-arm', platform: 'macOS', detail: 'Apple 芯片 · arm64 · 13 以上', format: 'DMG' },
-  { key: 'mac-intel', platform: 'macOS', detail: 'Intel · x64 · 13 以上', format: 'DMG' },
-  { key: 'windows', platform: 'Windows', detail: 'x64 · 10 以上', format: 'EXE' },
-  { key: 'linux', platform: 'Linux', detail: 'x64 · AppImage', format: 'AppImage' },
+  {
+    key: 'mac',
+    platform: 'macOS',
+    detail: 'Universal · Apple 芯片与 Intel · 13 以上',
+    format: 'DMG',
+    assetPattern: 'mac-universal\\.dmg$',
+  },
+  {
+    key: 'windows',
+    platform: 'Windows',
+    detail: 'x64 · 10 以上 · NSIS 安装包',
+    format: 'EXE',
+    assetPattern: 'windows-x64-setup\\.exe$',
+  },
+  {
+    key: 'linux',
+    platform: 'Linux',
+    detail: 'x64 · AppImage，另有 deb / rpm',
+    format: 'AppImage',
+    assetPattern: 'linux-x86_64\\.AppImage$',
+  },
 ];
 
 export const FOOTER_GROUPS = [
@@ -131,14 +177,18 @@ export const FOOTER_GROUPS = [
       { label: '使用场景', href: '#showcase' },
       { label: '工作流', href: '#workflow' },
       { label: '版本对比', href: '#compare' },
+      { label: '迁移路径', href: '#migrate' },
     ],
   },
   {
     title: '资源',
     links: [
       { label: '使用文档', to: '/docs' },
-      { label: '更新日志', href: 'https://github.com/texpro/texpro/releases', external: true },
-      { label: '问题反馈', href: 'https://github.com/texpro/texpro/issues', external: true },
+      { label: '开发文档', to: '/docs/dev-setup' },
+      { label: 'MCP 教程', to: '/docs/mcp' },
+      { label: '常见问题', to: '/docs/faq' },
+      { label: '更新日志', to: '/changelog' },
+      { label: 'RSS 订阅', href: `${import.meta.env.BASE_URL}feed.xml`, external: true },
     ],
   },
 ] as const;

@@ -1,0 +1,107 @@
+{
+  "version": "0.1.0-nightly.20261025",
+  "channel": "nightly",
+  "releaseTag": "nightly",
+  "publishedAt": "2026-10-21T05:32:07Z",
+  "assets": [
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-linux-amd64.deb",
+      "size": 113360952,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-linux-amd64.deb",
+      "digest": "sha256:8ecf8dd8a25564912d442faa2fd2575f3f9a1c59edbbc3a87899c87f0f6633f5"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-linux-x86_64.AppImage",
+      "size": 147019406,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-linux-x86_64.AppImage",
+      "digest": "sha256:fcf2d79681e219b795f5bba99116254661e13723e86e974f94a7fba8b1510391"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-linux-x86_64.rpm",
+      "size": 97674877,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-linux-x86_64.rpm",
+      "digest": "sha256:2cd52476080843dfdb15b82f72f21d91b01b36599c0953f41278e54a91c39dab"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-mac-universal.dmg",
+      "size": 250768212,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-mac-universal.dmg",
+      "digest": "sha256:966dc39e61758ea93f9471eeb56a884ec7493af844bdd07b3fab9f069309cc80"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-mac-universal.zip",
+      "size": 249715756,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-mac-universal.zip",
+      "digest": "sha256:8dcc783c617a9b5a2849a1d97918a55cd0e3c0556a03c29d2c4d98d24e3fd12c"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-win-x64.zip",
+      "size": 173113427,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-win-x64.zip",
+      "digest": "sha256:f416973d9cebd03ec15974f68f48b0127a682ee46d6b81b3a4abc9076c9f6197"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-windows-x64-portable.exe",
+      "size": 125618724,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-windows-x64-portable.exe",
+      "digest": "sha256:34e3d8ed04257fe7c99ef1d43afde33c36f1a98d2779b1e0e9f63e688b5b2c8a"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261021-windows-x64-setup.exe",
+      "size": 125842777,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261021-windows-x64-setup.exe",
+      "digest": "sha256:ae50a5c10526bd2516b6957c6029e70eedb6e86af69ecaf5f596537f7d428dd6"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-linux-amd64.deb",
+      "size": 118475404,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-linux-amd64.deb",
+      "digest": "sha256:9ca69c916a20d50a2e39aa9142442904719d3297982b01879b70cdad0be197b8"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-linux-x86_64.AppImage",
+      "size": 151673474,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-linux-x86_64.AppImage",
+      "digest": "sha256:cdde3fb242f5ca033c8a32f613c1be9bddfa46180a20700252b26861079f5e6e"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-linux-x86_64.rpm",
+      "size": 99939971,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-linux-x86_64.rpm",
+      "digest": "sha256:e5816fafbe81964cd0a074b3ca6443e6c553122ae4de283f751a893e02174838"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-mac-universal.dmg",
+      "size": 255385227,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-mac-universal.dmg",
+      "digest": "sha256:8103678c404acb1660e39c32fd93a6b185829f3e91566b2011b73588f564d9ba"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-mac-universal.zip",
+      "size": 254343764,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-mac-universal.zip",
+      "digest": "sha256:6a6f944b40232bf7edd8ac1aaf03ef991bb415a826872ab476c07a18af2fef29"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-win-x64.zip",
+      "size": 177557980,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-win-x64.zip",
+      "digest": "sha256:183bc1a8e0d92b3ffc53579264823ea51e718525f5c5c71153dd17f13e04253a"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-windows-x64-portable.exe",
+      "size": 129566020,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-windows-x64-portable.exe",
+      "digest": "sha256:61ee0efa816701758753edb4b0fd280c48793f6ec34b681ab6c05c2e30d0e332"
+    },
+    {
+      "name": "TeXPro-0.1.0-nightly.20261025-windows-x64-setup.exe",
+      "size": 129790027,
+      "url": "https://github.com/lzhbhlrPython/TexStudioPro/releases/download/nightly/TeXPro-0.1.0-nightly.20261025-windows-x64-setup.exe",
+      "digest": "sha256:1ab70af2330461179b139df59af39612e5c4863170c6c8e059b8ca07a964a84c"
+    }
+  ],
+  "repo": "lzhbhlrPython/TexStudioPro",
+  "syncedAt": "2026-11-08T18:07:06.502Z",
+  "source": "stale"
+}

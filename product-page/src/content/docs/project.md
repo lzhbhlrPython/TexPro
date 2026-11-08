@@ -2,24 +2,90 @@
 slug: project
 title: 工程与文件
 group: 参考
-order: 5
-summary: 一个工程就是磁盘上的一个目录。TeXPro 只在这个目录里读写，不会把文件带到别处。
+order: 6
+summary: 一个工程就是磁盘上的一个目录。主文件、子文件、图片、参考文献与 .texpro 元数据都在里面，TeXPro 不建数据库，只读写这些文件。
 ---
 
-## 目录树与影响分析
+工程没有隐藏的导入步骤：打开一个目录，它就是工程。之后所有新建、重命名、移动、删除都发生在该目录内，越界操作会被直接拒绝。换一台机器，把这个目录拷过去就能继续编译。
 
-重命名、移动或删除之前，TeXPro 会先算一遍影响：哪些子文件、bib 条目和图片引用会受影响；确认之后才执行，执行完会给出改动清单。
+## 打开与新建
 
-## 快照与恢复
+- `⌘O` 或 `文件 → Open Folder…` 选一个目录，它成为工程；欢迎页保留最近 8 个。
+- `文件 → Template Library…` 从模板起新工程：选父目录、填工程名，建 `<父目录>/<工程名>`。
+- 工程名里的反斜杠、斜杠、冒号、星号、问号、引号、尖括号与竖线会换成 `-`，长度截到 80 字符；同名目录已存在时自动加 `-2`、`-3`，不会覆盖。
+- 打开工程会解析目录树、主文件、素材、大纲与评论；不复制、不移动任何文件。
+- 欢迎页的 `Explore the demo project` 在应用数据目录生成一个示例工程，并尝试编译一次，适合先熟悉界面。
 
-每次写入都会留一份内容寻址快照：同样的内容只存一份，所以多存几版几乎不占空间。翻回上一版、对比两版差异都不需要 Git。
+## 主文件怎么定
 
-## Git 与 Overleaf
+- 先看 `.texpro/project.json` 的 `rootFile`（相对工程根的路径）。有就校验：必须是工程内的 `.tex` 或 `.ltx`，且含未被注释的 `\documentclass`。
+- 没有配置时递归探测含 `\documentclass` 的文件，深度 5 层，跳过点开头目录与 `.git`、`node_modules`、`.texpro`、`build`、`out`、`dist` 等忽略目录。
+- 恰好一个 → 直接作为主文件；多个 → 报 "Multiple main files found. Choose the project main file."，需要你在 Project Structure 里选；没有 → 报 "No main file containing \documentclass found."。
+- 配置指向的文件被改坏 → 报 "Project main file configuration is invalid: ..."，不会悄悄回退到自动探测。
 
-内置 Git 面板用来看改动与历史。从 Overleaf 导出的 ZIP、或者其他工具生成的老工程，解压后直接「打开文件夹」即可，不需要改造目录结构。
+主文件决定编译入口与 PDF 名字，不决定编辑焦点：打开任意文件按 `⌘↩`，编译的仍是主文件。错误提示里提到 `% !TeX root` 注释，但主文件解析并不读它；这行注释只在重命名或移动时被一起改写。
 
-> TeXPro 不会背着你提交，也不会改动 `.git` 里的内容；所有写操作都发生在工程目录之内。
+## 目录与元数据
 
-## 素材与图片
+| 路径 | 内容 |
+| --- | --- |
+| `.texpro/project.json` | 主文件、modules、assets、build 目录、TOC 与模块列表 |
+| `.texpro/build/` | 编译产物，默认构建目录 |
+| `.texpro/trash/` | 删除文件的暂存地，按时间戳命名 |
+| `.texpro/comments.json` | 评论，锚定文件、行号与片段 |
+| `.texpro/svg-cache/` | SVG 栅格化缓存，源文件不动 |
+| `.texpro/history/` | 内部快照，内容寻址存储 |
 
-拖进来的图片会存到工程内的素材目录，插入时就地生成 figure 环境；路径按工程根目录计算，换机器只要整个目录一起搬。
+这些都可以删。删掉 `project.json` 等于忘记主文件选择与目录配置，下次打开会重新探测。备份会跳过所有点开头的目录，但会把 `project.json` 与 `comments.json` 单独补进 zip。
+
+## 文件操作与引用
+
+新建、重命名、移动、删除都在文件树里完成，执行前先算影响：
+
+- 重命名或移动会改写 `\input`、`\include`、`\includegraphics`、`\bibliography`、`\addbibresource`、`\lstinputlisting`、`\includepdf` 与 `% !TeX root` 里的路径。
+- 改写跳过注释，也跳过 verbatim、lstlisting、minted 与 `\verb` 里的内容。
+- 扩展名按引用类型补齐或去掉：图片认 `.pdf`、`.png`、`.jpg`、`.jpeg`、`.svg`，参考文献认 `.bib`，源码认 `.tex`、`.ltx`。
+- 先把所有改动算完再 rename；写回失败会反向恢复原文与路径，不留半改状态。
+- 目标已存在报 "A file or folder with that name already exists"；越界报 "Path is outside the project"；符号链接会被拒绝。
+- 新建文件不写扩展名时补 `.tex`；重命名不带扩展名时沿用原扩展名；名字里不能有斜杠或反斜杠。
+
+## 删除与恢复
+
+删除不是真删：文件或目录被移到 `.texpro/trash/<时间戳>-<原名>`，时间戳是去掉冒号与点的 ISO 时间。确认框会先给出受影响的子文件、素材与引用计数。
+
+界面没有「恢复」按钮。需要找回时从 Finder 进 `.texpro/trash`，按时间排序，把东西拖回原位；引用不会自动恢复，必要时手动改回路径。
+
+## 快照与版本
+
+工程不在 Git 仓库里时，`⌘S` 显式保存会给改动文件留一份内部快照；`Project → Version Review…` 可以手动创建快照、看行级 diff、恢复单个文件或删除快照。
+
+工程一旦位于 Git 仓库内，内部快照自动停写，面板会提示改用 Git。Git 面板显示分支、ahead / behind 与最近 8 条提交，commit 默认信息是 "Update from TeXPro"，pull 只做 `--ff-only`。
+
+快照是内容寻址的：按 4096 字符切块，块以 sha256 命名并用 brotli 压缩，重复内容不重复存。它适合「刚才那段删错了」，不适合长期版本管理。
+
+## 搜索、大纲与工程体检
+
+- 搜索：至少 2 字符，320 毫秒防抖，深度 5 层，单文件上限 2 MB，最多 120 条命中，可切大小写。
+- 大纲以活动文件为主：跨文件大纲不合并，长工程按 `\input` 结构拆开看更准。
+- Project Doctor 检查工具链、孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key、重复 label 与字体嵌入，并可清理构建目录。
+- 同一时间只有一个活动文档，没有完整的多标签编辑；编码按 UTF-8 处理。
+
+## 评论
+
+`Project → Comments…` 的评论存在 `.texpro/comments.json`，锚定文件、行号与一段原文片段，不往 `.tex` 里插标记。打开工程时若行号已经漂移，会按片段重新定位；片段也被改掉时，评论留在列表里但不再锚定。
+
+## 常见坑
+
+- 工程根选错：选到父目录会扫进无关工程，选到子目录会找不到主文件；重开正确目录即可。
+- 在 Finder 里移动文件后不重开工程：树与引用都是旧的，用应用内移动才会改写引用。
+- 删除后想恢复却找不到：`.texpro/trash` 里按时间戳排序，名字前一段是 ISO 时间。
+- 用外部 Git 提交后再开 Version Review：内部快照已停写，看到的是旧快照。
+- `.texpro` 被整体删掉：评论、回收站与快照一起消失，源码不受影响。
+- 备份 zip 不含默认构建目录与 `.texpro` 其余内容，恢复后首次编译会重建构建目录。
+
+## 相关页面
+
+- 编译与诊断：`/docs/compile`
+- PDF 与源码双向定位：`/docs/synctex`
+- 导入、模板与素材：`/docs/import`
+- 导出与 arXiv：`/docs/export`

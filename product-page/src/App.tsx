@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { RouterProvider } from 'react-router-dom';
+import { LocaleProvider } from '@/i18n';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BRAND_PRIMARY } from '@/config/design';
 import { router } from '@/router';
@@ -31,9 +32,17 @@ function ConfigEffects() {
     root.setProperty('--site-brand', token.colorPrimary);
     root.setProperty('--site-border', token.colorBorderSecondary);
     root.setProperty('--site-bg', token.colorBgLayout);
+    root.setProperty('--site-muted', token.colorTextSecondary);
+    root.setProperty('--site-heading', token.colorTextHeading);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', token.colorBgContainer);
-  }, [token.colorBgLayout, token.colorBgContainer, token.colorPrimary]);
+  }, [
+    token.colorBgLayout,
+    token.colorBgContainer,
+    token.colorPrimary,
+    token.colorTextSecondary,
+    token.colorTextHeading,
+  ]);
 
   return null;
 }
@@ -66,7 +75,9 @@ export default function App() {
       <AntdApp>
         <ConfigEffects />
         <ErrorBoundary>
-          <RouterProvider router={router} />
+          <LocaleProvider>
+            <RouterProvider router={router} />
+          </LocaleProvider>
         </ErrorBoundary>
       </AntdApp>
     </ConfigProvider>

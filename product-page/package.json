@@ -4,10 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/fetch-release.mjs && vite",
-    "build": "node scripts/fetch-release.mjs && tsc --noEmit && vite build",
+    "dev": "node scripts/fetch-release.mjs && node scripts/gen-feed.mjs && vite",
+    "build": "node scripts/fetch-release.mjs && node scripts/gen-feed.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:layout": "node scripts/layout-lock.mjs",
+    "layout:update": "node scripts/layout-lock.mjs --update",
+    "release:sync": "node scripts/fetch-release.mjs",
+    "latex:mark": "node scripts/build-latex-mark.mjs",
+    "feed:build": "node scripts/gen-feed.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
@@ -18,10 +23,12 @@
     "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
+    "@types/katex": "^0.16.8",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "katex": "^0.19.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.7"
   }

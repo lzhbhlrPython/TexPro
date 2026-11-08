@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>TeXPro 开发博客</title>
+    <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
+    <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 08 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>缺一张图，也可以把这一段写完</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos</guid>
+      <pubDate>Sun, 08 Nov 2026 16:00:00 GMT</pubDate>
+      <description>开发记录 09：占位符、修订备忘与中文正文配置，让未完成内容留在线索里，而不是打断当前句子。</description>
+      <category>占位符</category>
+      <category>修订备忘</category>
+      <category>CTeX</category>
+    </item>
+    <item>
+      <title>可靠保存，应该覆盖关闭窗口的最后一秒</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown</guid>
+      <pubDate>Sat, 07 Nov 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 07：保存队列、文件移动和 macOS 退出收尾，补齐写作数据的最后一段路径。</description>
+      <category>保存</category>
+      <category>可靠性</category>
+    </item>
+    <item>
+      <title>Nightly 的日期，要从版本号一直走到发布标签</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly</guid>
+      <pubDate>Sat, 07 Nov 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 08：只在有变更时构建，让各平台共享日期版本，避免标签和安装包彼此错位。</description>
+      <category>Nightly</category>
+      <category>发布</category>
+    </item>
+    <item>
+      <title>中文编译失败，往往先要查导言区</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/chinese-typesetting</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/chinese-typesetting</guid>
+      <pubDate>Fri, 23 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 06：修复 CTeX 重复加载与系统字体依赖，并保留作者自己的中文文档设置。</description>
+      <category>CTeX</category>
+      <category>字体</category>
+    </item>
+    <item>
+      <title>识别格式，不夺走作者的输入习惯</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/formatting-and-context</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/formatting-and-context</guid>
+      <pubDate>Thu, 22 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 05：智能输入与粘贴、重开续写、引用原地查阅和标签重命名进入同一写作流程。</description>
+      <category>智能格式</category>
+      <category>修订</category>
+    </item>
+    <item>
+      <title>连续写作，需要先把源范围和焦点管好</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/writing-contract</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/writing-contract</guid>
+      <pubDate>Wed, 21 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 04：表格、图形与格式辅助共享正文位置，补齐素材联动、修订和直接新建文件。</description>
+      <category>编辑器</category>
+      <category>连续写作</category>
+    </item>
+    <item>
+      <title>乐谱回到文章里，而不是另开一间工作室</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-music</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-music</guid>
+      <pubDate>Wed, 21 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 03：以 TeX 乐谱源为基础，将制谱辅助收回连续写作流程。</description>
+      <category>乐谱</category>
+      <category>行内编辑</category>
+    </item>
+    <item>
+      <title>保存、编译和同步，必须认同一个主文件</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/project-identity</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/project-identity</guid>
+      <pubDate>Tue, 20 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 02：修复崩溃、主文件漂移、项目关闭和同步定位，让工程操作可信。</description>
+      <category>工程</category>
+      <category>可靠性</category>
+    </item>
+    <item>
+      <title>从可视 LaTeX 工作台到可交付应用</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/foundation-and-release</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/foundation-and-release</guid>
+      <pubDate>Tue, 20 Oct 2026 16:00:00 GMT</pubDate>
+      <description>开发回顾 01：建立源文件、编译、协作与打包的基础，再处理跨平台发布的现实问题。</description>
+      <category>架构</category>
+      <category>发布</category>
+    </item>
+  </channel>
+</rss>

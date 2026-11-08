@@ -2,6 +2,7 @@ import { CheckOutlined } from '@ant-design/icons';
 import { Typography, theme } from 'antd';
 import { ScreenshotFrame } from '@/components/ScreenshotFrame';
 import { SectionHeading } from '@/components/SectionHeading';
+import { useLocalize } from '@/i18n';
 
 const { Title } = Typography;
 
@@ -46,6 +47,8 @@ const ITEMS: ShowcaseItem[] = [
 ];
 
 export function Showcase() {
+  const localize = useLocalize();
+  const items = localize(ITEMS);
   const { token } = theme.useToken();
 
   return (
@@ -58,7 +61,7 @@ export function Showcase() {
         />
 
         <div className="showcase-list">
-          {ITEMS.map((item, index) => (
+          {items.map((item, index) => (
             <div className={`showcase-row${index % 2 === 1 ? ' is-reversed' : ''}`} key={item.id}>
               <div className="showcase-copy">
                 <span className="showcase-kicker" style={{ color: token.colorPrimary }}>

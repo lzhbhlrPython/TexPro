@@ -1,127 +1,52 @@
-import { Fragment, useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Typography, theme } from 'antd';
-import { DOCS_NAV, findTopic, neighbors, type DocBlock } from '@/content/docs';
+import { GROUP_LABELS, findTopic, navFor, neighbors } from '@/content/docs';
+import { useLocale, useT } from '@/i18n';
+import { MarkdownBlocks, collectSections } from '@/components/MarkdownBlocks';
 
 const { Text } = Typography;
 
-/** 行内只处理两种标记：`代码` 与 **加粗**，其余按纯文本输出。 */
-function inline(text: string): ReactNode {
-  return text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).map((part, index) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
-      return (
-        <code key={index} className="docs-inline-code">
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={index}>{part.slice(2, -2)}</strong>;
-    }
-    return <Fragment key={index}>{part}</Fragment>;
-  });
-}
-
-function DocBlocks({ blocks }: { blocks: DocBlock[] }) {
-  const { token } = theme.useToken();
-
-  return (
-    <>
-      {blocks.map((block, index) => {
-        const key = `${block.kind}-${index}`;
-
-        switch (block.kind) {
-          case 'h3':
-            return (
-              <h2
-                key={key}
-                id={`sec-${index}`}
-                className="docs-section-title"
-                style={{ color: token.colorTextHeading }}
-              >
-                {block.text}
-              </h2>
-            );
-          case 'ul':
-            return (
-              <ul key={key} className="docs-ul" style={{ color: token.colorText }}>
-                {block.items.map((item) => (
-                  <li key={item}>{inline(item)}</li>
-                ))}
-              </ul>
-            );
-          case 'code':
-            return (
-              <pre
-                key={key}
-                className="docs-code"
-                style={{
-                  background: token.colorFillQuaternary,
-                  borderColor: token.colorBorderSecondary,
-                  borderRadius: token.borderRadius,
-                  color: token.colorText,
-                }}
-              >
-                {block.text}
-              </pre>
-            );
-          case 'note':
-            return (
-              <div
-                key={key}
-                className="docs-note"
-                style={{
-                  background: token.colorFillQuaternary,
-                  borderRadius: token.borderRadius,
-                  color: token.colorTextSecondary,
-                }}
-              >
-                {inline(block.text)}
-              </div>
-            );
-          case 'kv':
-            return (
-              <dl key={key} className="docs-kv">
-                {block.rows.map((row) => (
-                  <div key={row.term} style={{ borderColor: token.colorBorderSecondary }}>
-                    <dt style={{ color: token.colorTextHeading }}>{inline(row.term)}</dt>
-                    <dd style={{ color: token.colorTextSecondary }}>{inline(row.desc)}</dd>
-                  </div>
-                ))}
-              </dl>
-            );
-          default:
-            return (
-              <p key={key} className="docs-p" style={{ color: token.colorText }}>
-                {inline(block.text)}
-              </p>
-            );
-        }
-      })}
-    </>
-  );
-}
-
 export default function DocsPage() {
   const { slug } = useParams();
-  const topic = findTopic(slug);
+  const { locale } = useLocale();
+  const t = useT();
+  const topic = findTopic(slug, locale);
   const { token } = theme.useToken();
-  const { prev, next } = neighbors(topic.slug);
-  const sections = topic.blocks.flatMap((block, index) =>
-    block.kind === 'h3' ? [{ id: `sec-${index}`, title: block.text }] : [],
-  );
+  const { prev, next } = neighbors(topic.slug, locale);
+  const docsNav = navFor(locale);
+  // 英文模式下这一篇还没有译文时，正文仍是中文，页面顶部给出提示
+  const englishMissing = locale === 'en' && Boolean(topic.englishFallback);
+  const sections = collectSections(topic.blocks);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
-    document.title = `${topic.title} · TeXPro 文档`;
-  }, [topic.slug, topic.title]);
+    document.title = `${topic.title} · ${t('TeXPro 文档')}`;
+
+    // 目录很长时，把当前条目滚进可视区（桌面是竖向滚动，窄屏是横向）
+    const active = document.querySelector<HTMLElement>('.docs-nav a.is-active');
+    const nav = document.querySelector<HTMLElement>('.docs-nav');
+    if (active && nav) {
+      if (nav.scrollWidth > nav.clientWidth + 4) {
+        const left = active.offsetLeft - nav.offsetLeft;
+        if (left < nav.scrollLeft || left > nav.scrollLeft + nav.clientWidth - 96) {
+          nav.scrollTo({ left: Math.max(0, left - nav.clientWidth / 2), behavior: 'auto' });
+        }
+      } else {
+        const top = active.offsetTop - nav.offsetTop;
+        if (top < nav.scrollTop || top > nav.scrollTop + nav.clientHeight - 40) {
+          nav.scrollTo({ top: Math.max(0, top - nav.clientHeight / 2), behavior: 'auto' });
+        }
+      }
+    }
+  }, [topic.slug, topic.title, locale]);
 
   return (
     <article className="docs">
       <div className="shell">
-        <header className="docs-head">
+        <header className="docs-head docs-enter" key={`head-${topic.slug}`}>
           <Text className="docs-kicker" style={{ color: token.colorPrimary }}>
-            文档 · {topic.group}
+            {t('文档')} · {locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}
           </Text>
           <h1 className="docs-title" style={{ color: token.colorTextHeading }}>
             {topic.title}
@@ -129,11 +54,16 @@ export default function DocsPage() {
           <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
             {topic.summary}
           </p>
+          {englishMissing ? (
+            <p className="docs-lang-note" style={{ color: token.colorTextTertiary }}>
+              {t('这一篇的英文版还在翻译中，正文暂时以简体中文呈现。')}
+            </p>
+          ) : null}
         </header>
 
         <div className="docs-body">
-          <nav className="docs-nav" aria-label="文档目录">
-            {DOCS_NAV.map((group) => (
+          <nav className="docs-nav" aria-label={t('文档目录')}>
+            {docsNav.map((group) => (
               <div className="docs-nav-group" key={group.label}>
                 <Text className="docs-nav-label" style={{ color: token.colorTextTertiary }}>
                   {group.label}
@@ -159,13 +89,13 @@ export default function DocsPage() {
             ))}
           </nav>
 
-          <div className="docs-main">
-            <DocBlocks blocks={topic.blocks} />
+          <div className="docs-main docs-enter" key={topic.slug}>
+            <MarkdownBlocks blocks={topic.blocks} />
 
-            <nav className="docs-pager" aria-label="上下篇">
+            <nav className="docs-pager" aria-label={t('上一页与下一页')}>
               {prev ? (
                 <Link to={prev.slug === 'start' ? '/docs' : `/docs/${prev.slug}`} style={{ color: token.colorPrimary }}>
-                  <span style={{ color: token.colorTextTertiary }}>上一篇</span>
+                  <span style={{ color: token.colorTextTertiary }}>{t('上一篇')}</span>
                   {prev.title}
                 </Link>
               ) : (
@@ -176,7 +106,7 @@ export default function DocsPage() {
                   to={`/docs/${next.slug}`}
                   style={{ color: token.colorPrimary, textAlign: 'right' }}
                 >
-                  <span style={{ color: token.colorTextTertiary }}>下一篇</span>
+                  <span style={{ color: token.colorTextTertiary }}>{t('下一篇')}</span>
                   {next.title}
                 </Link>
               ) : null}
@@ -184,9 +114,9 @@ export default function DocsPage() {
           </div>
 
           {sections.length > 1 ? (
-            <aside className="docs-toc" aria-label="本页目录">
+            <aside className="docs-toc" aria-label={t('本页目录')}>
               <Text className="docs-nav-label" style={{ color: token.colorTextTertiary }}>
-                本页目录
+                {t('本页目录')}
               </Text>
               {sections.map((section) => (
                 <a
@@ -204,6 +134,7 @@ export default function DocsPage() {
             </aside>
           ) : null}
         </div>
+
       </div>
     </article>
   );

@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 interface RevealProps {
   children: ReactNode;
-  /** 同屏多个块依次出现时的延迟（毫秒）。 */
+  /** 同屏多个块依次出现时的延迟（毫秒）。全站统一用 60ms 一档，别各写各的。 */
   delay?: number;
   className?: string;
+  style?: CSSProperties;
 }
 
 /**
  * 进入视口时淡入上移一次。prefers-reduced-motion 下由 CSS 直接置为可见，不做动画。
  */
-export function Reveal({ children, delay = 0, className }: RevealProps) {
+export function Reveal({ children, delay = 0, className, style }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -41,7 +42,7 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
     <div
       ref={ref}
       className={`reveal${visible ? ' is-visible' : ''}${className ? ` ${className}` : ''}`}
-      style={{ transitionDelay: visible ? `${delay}ms` : undefined }}
+      style={{ ...style, transitionDelay: visible ? `${delay}ms` : undefined }}
     >
       {children}
     </div>

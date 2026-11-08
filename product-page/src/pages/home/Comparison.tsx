@@ -3,10 +3,15 @@ import { Table, Tag, Typography, theme, type TableProps } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
 import { COMPARE_COLUMNS, COMPARE_ROWS, type CompareRow } from '@/data/site';
 import type { SupportLevel } from '@/types';
+import { useT, useLocalize } from '@/i18n';
 
 const { Text } = Typography;
 
 export function Comparison() {
+  const t = useT();
+  const localize = useLocalize();
+  const rows = localize(COMPARE_ROWS);
+  const columnsMeta = localize([...COMPARE_COLUMNS]);
   const { token } = theme.useToken();
 
   const renderSupport = (level: SupportLevel) => {
@@ -14,7 +19,7 @@ export function Comparison() {
       return (
         <span className="compare-cell">
           <CheckCircleFilled style={{ color: token.colorSuccess }} />
-          <span className="visually-hidden">支持</span>
+          <span className="visually-hidden">{t('支持')}</span>
         </span>
       );
     }
@@ -22,7 +27,7 @@ export function Comparison() {
     if (level === 'partial') {
       return (
         <Tag color="warning" variant="filled" style={{ marginInlineEnd: 0 }}>
-          部分
+          {t('部分')}
         </Tag>
       );
     }
@@ -30,14 +35,14 @@ export function Comparison() {
     return (
       <span className="compare-cell">
         <MinusCircleOutlined style={{ color: token.colorTextQuaternary }} />
-        <span className="visually-hidden">不支持</span>
+        <span className="visually-hidden">{t('不支持')}</span>
       </span>
     );
   };
 
   const columns: TableProps<CompareRow>['columns'] = [
     {
-      title: '能力',
+      title: t('能力'),
       dataIndex: 'capability',
       key: 'capability',
       width: 320,
@@ -54,7 +59,7 @@ export function Comparison() {
         </div>
       ),
     },
-    ...COMPARE_COLUMNS.map((column) => ({
+    ...columnsMeta.map((column) => ({
       title: column.highlight ? (
         <Text strong style={{ color: token.colorPrimary }}>
           {column.label}
@@ -93,14 +98,14 @@ export function Comparison() {
           <Table<CompareRow>
             rowKey="key"
             columns={columns}
-            dataSource={COMPARE_ROWS}
+            dataSource={rows}
             pagination={false}
             size="middle"
             scroll={{ x: 760 }}
             rowClassName={(_, index) => (index % 2 === 1 ? 'compare-row-alt' : '')}
           />
           <p className="compare-hint" style={{ color: token.colorTextTertiary }}>
-            左右滑动可查看完整对比
+            {t('左右滑动可查看完整对比')}
           </p>
         </div>
       </div>

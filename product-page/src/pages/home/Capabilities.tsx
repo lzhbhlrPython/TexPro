@@ -8,7 +8,9 @@ import {
   ThunderboltOutlined,
 } from '@ant-design/icons';
 import { theme } from 'antd';
+import { Reveal } from '@/components/Reveal';
 import { SectionHeading } from '@/components/SectionHeading';
+import { useLocalize } from '@/i18n';
 
 interface Feature {
   icon: ReactNode;
@@ -50,6 +52,8 @@ const FEATURES: Feature[] = [
 ];
 
 export function Capabilities() {
+  const localize = useLocalize();
+  const features = localize(FEATURES);
   const { token } = theme.useToken();
 
   return (
@@ -62,8 +66,8 @@ export function Capabilities() {
         />
 
         <div className="feature-grid">
-          {FEATURES.map((feature) => (
-            <article className="feature-item" key={feature.title}>
+          {features.map((feature, index) => (
+            <Reveal className="feature-item" key={feature.title} delay={index * 60}>
               <span className="feature-icon" aria-hidden="true" style={{ color: token.colorPrimary }}>
                 {feature.icon}
               </span>
@@ -73,7 +77,7 @@ export function Capabilities() {
               <p className="feature-desc" style={{ color: token.colorTextSecondary }}>
                 {feature.desc}
               </p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </div>

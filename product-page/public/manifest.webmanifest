@@ -1,0 +1,19 @@
+{
+  "name": "TeXPro · 本地优先的 LaTeX 工作台",
+  "short_name": "TeXPro",
+  "description": "可视化 LaTeX 写作与工程化编译，文件始终留在你自己的磁盘上。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F7F2EA",
+  "theme_color": "#BC4F30",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

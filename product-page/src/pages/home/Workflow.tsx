@@ -1,6 +1,7 @@
 import { CheckCircleFilled, SyncOutlined } from '@ant-design/icons';
 import { Col, Grid, Row, Steps, Typography, theme } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
+import { useLocalize, useT } from '@/i18n';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -31,7 +32,27 @@ const STATUS_ITEMS = [
   { icon: <CheckCircleFilled />, label: '没有错误', tone: 'success' as const },
 ];
 
+const NOTES = [
+  {
+    title: '编译不阻塞写作',
+    desc: '编译在后台进行，你可以继续输入；结果回来时只更新预览与诊断。',
+  },
+  {
+    title: '旧结果不会写回新工程',
+    desc: '切换工程或重新编译时，迟到的异步结果会被丢弃，不会覆盖当前文件。',
+  },
+  {
+    title: '一切操作可逆',
+    desc: '改写、移动、删除都留下内容寻址快照，随手可以翻回上一版。',
+  },
+];
+
 export function Workflow() {
+  const localize = useLocalize();
+  const t = useT();
+  const steps = localize(STEPS);
+  const statusItems = localize(STATUS_ITEMS);
+  const notes = localize(NOTES);
   const { token } = theme.useToken();
   const screens = useBreakpoint();
   const horizontal = Boolean(screens.lg);
@@ -50,7 +71,7 @@ export function Workflow() {
             current={3}
             responsive={false}
             orientation={horizontal ? 'horizontal' : 'vertical'}
-            items={STEPS.map((step) => ({
+            items={steps.map((step) => ({
               title: step.title,
               content: step.description,
             }))}
@@ -67,7 +88,7 @@ export function Workflow() {
           }}
         >
           <div className="status-left">
-            {STATUS_ITEMS.map((item) => (
+            {statusItems.map((item) => (
               <span
                 key={item.label}
                 className="status-item"
@@ -80,26 +101,13 @@ export function Workflow() {
           </div>
           <div className="status-right">
             <Text type="secondary" style={{ fontSize: 12 }}>
-              第 1 行，第 1 列 · 420 词
+              {t('第 1 行，第 1 列 · 420 词')}
             </Text>
           </div>
         </div>
 
         <Row gutter={[16, 16]} style={{ marginTop: 40 }}>
-          {[
-            {
-              title: '编译不阻塞写作',
-              desc: '编译在后台进行，你可以继续输入；结果回来时只更新预览与诊断。',
-            },
-            {
-              title: '旧结果不会写回新工程',
-              desc: '切换工程或重新编译时，迟到的异步结果会被丢弃，不会覆盖当前文件。',
-            },
-            {
-              title: '一切操作可逆',
-              desc: '改写、移动、删除都留下内容寻址快照，随手可以翻回上一版。',
-            },
-          ].map((item) => (
+          {notes.map((item) => (
             <Col xs={24} md={8} key={item.title}>
               <div className="mini-block" style={{ borderLeftColor: token.colorBorderSecondary }}>
                 <Text strong>{item.title}</Text>
