@@ -299,7 +299,7 @@ TeXPro 不是 Markdown 编辑器，也不是把 PDF 截图贴到编辑器里的�
 - Windows: NSIS installer + portable EXE + ZIP, x64.
 - Ubuntu: `.deb` + AppImage, x64.
 - CentOS / RHEL-compatible: `.rpm`, x64.
-- Published under the fixed **`nightly`** prerelease tag; asset names include the nightly version and platform.
+- Each run uses **`v{current version}-YYYYMMDD-Nightly`** as its prerelease tag and title, for example `v0.1.0-20261108-Nightly`. The date is chosen once in Asia/Shanghai and shared by all platforms; package versions omit the leading `v`. A same-day rerun updates that day's tag and assets to the built commit.
 - The run first performs `npm run typecheck` and `npm run build`; packaging only starts if both pass.
 - Only `main` can publish the nightly release.
 
@@ -311,6 +311,8 @@ npm run package:mac
 npm run package:win
 npm run package:linux
 ```
+
+The script updates `package.json` and the lockfile's root version only in the build checkout; it does not increment the stable version or commit generated versions back to the repository. For a reproducible date, set `NIGHTLY_DATE=YYYYMMDD`; `--dry-run` previews the version without modifying either manifest.
 
 Artifacts are written to `release/`. Nightlies are intentionally unsigned; macOS Gatekeeper and Windows SmartScreen will warn on first launch.
 
