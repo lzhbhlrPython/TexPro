@@ -1,3 +1,4 @@
+import { ctexBodySettings } from '../../electron/services/writing-aids-core.mjs';
 import { useEffect, useMemo, useState } from 'react';
 import { Columns3, LayoutTemplate, Ruler, Sparkles, X } from 'lucide-react';
 import type { Engine } from '../types';
@@ -85,7 +86,7 @@ const presets: Array<{ id: string; label: string; state: Partial<LayoutState> }>
 function generate(state: LayoutState, documentText: string): LayoutResult {
   const ctex = isCtexClass(texDocumentClass(documentText)?.name || 'article');
   const languageLines: string[] = [];
-  let engine: Engine = 'pdflatex';
+  let engine: Engine = ctex ? 'xelatex' : 'pdflatex';
 
   if (state.language === 'chinese') {
     if (!ctex) languageLines.push('\\usepackage[UTF8,fontset=fandol]{ctex}');
@@ -119,6 +120,7 @@ function generate(state: LayoutState, documentText: string): LayoutResult {
     `\\setstretch{${state.lineSpacing}}`,
     '\\usepackage{microtype}',
     ...languageLines,
+    ...(state.language === 'chinese' || ctex ? [ctexBodySettings] : []),
     ...headerLines,
     ...titleLines,
   ].join('\n');

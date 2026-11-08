@@ -1,3 +1,4 @@
+import { ctexBodySettings } from '../../electron/services/writing-aids-core.mjs';
 export interface TemplateDesign {
   name: string;
   description: string;
@@ -79,6 +80,7 @@ export function designTemplate(design: TemplateDesign): string {
       : '\\usepackage[colorlinks=true,linkcolor=accent,urlcolor=accent]{hyperref}');
   }
   lines.push('\\usepackage{setspace}', `\\setstretch{${design.lineSpacing}}`);
+  if (chinese) lines.push(ctexBodySettings);
   if (!beamer && (design.pageNumbers || design.header)) {
     lines.push('\\usepackage{fancyhdr}', '\\pagestyle{fancy}', '\\fancyhf{}');
     if (design.header) lines.push(`\\fancyhead[L]{${design.header}}`);

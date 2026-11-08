@@ -1,0 +1,46 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+module.exports = async ({ window, key, wait, type, click, line, open, save, shot, js, main }) => {
+  await click(`document.querySelector('.tree-file[title^="chapter.tex"]')`);
+  await wait(`document.querySelector('.titlebar-file-name').textContent==='chapter.tex'`);
+  await click(line('Chapter writing.')); await key('Right',['meta']);
+  await key('h',['meta','shift']);
+  await wait(`document.querySelector('.cm-content').textContent.includes('texproplaceholder')`);
+  await key('z',['meta']);
+  await wait(`!document.querySelector('.cm-content').textContent.includes('texproplaceholder')`);
+  await click(`document.querySelector('.tree-file[title^="main.tex"]')`);
+  assert.ok(!await js(`document.querySelector('.cm-content').textContent.includes('providecommand')`));
+  await click(`document.querySelector('.tree-file[title^="chapter.tex"]')`);
+  await click(line('Chapter writing.')); await key('Right',['meta']); await key('z',['meta','shift']);
+  await wait(`document.querySelector('.cm-content').textContent.includes('texproplaceholder')`);
+  await key('F4'); await type('42'); await save();
+  assert.ok(!await js(`document.querySelector('.cm-content').textContent.includes('texproplaceholder')`));
+  console.log('PASS child placeholder insertion, atomic cross-file undo/redo and F4 replacement');
+  await click(line('Chapter writing.')); await key('Right',['meta']); await key('n',['meta','shift']); await type('核对实验条件'); await save();
+  await click(`document.querySelector('.tree-file[title^="main.tex"]')`); await save();
+  assert.ok(fs.readFileSync(main,'utf8').includes('providecommand{\\texproplaceholder}'));
+  await click(line('Writing anchor.')); await key('c',['meta','alt','shift']);
+  await wait(`document.querySelector('.cm-content').textContent.includes('TeXPro Chinese typography begin')`); await save();
+  assert.ok(fs.readFileSync(main,'utf8').includes('TeXPro Chinese typography begin'));
+  await click(`document.querySelector('.tree-file[title^="chapter.tex"]')`);
+  await wait(`!!document.querySelector('.revision-memo-reminder:not(.is-dismissed)')`);
+  await click(`document.querySelector('.memo-resume-text')`);
+  assert.equal(await js(`document.activeElement===document.querySelector('.cm-content')`),true);
+  await key('h',['meta','shift']); await type('补一张实验图'); await key('Right'); await key('Enter'); await type('继续写作。'); await save();
+  await open('visual');
+  await wait(`!!document.querySelector('.cm-writing-placeholder')`);
+  for(const theme of ['paper','studio','night']) {
+    await js(`document.documentElement.dataset.theme=${JSON.stringify(theme)}`); await shot(`aids-${theme}`);
+    assert.equal(await js(`(()=>{const e=document.querySelector('.cm-writing-placeholder');const s=getComputedStyle(e);return s.color===getComputedStyle(document.querySelector('.cm-editor')).color})()`),true);
+  }
+  await click(`document.querySelector('.revision-memo-reminder button[aria-label="完成备忘"]')`); await save();
+  assert.equal(await js(`document.querySelector('.revision-memo-reminder').getBoundingClientRect().height`),36);
+  await key('u',['meta','shift']); await wait(`!!document.querySelector('.writing-note.done')`);
+  assert.ok((await js(`document.querySelector('.sidebar').textContent`)).includes('修订备忘'));
+  console.log('PASS memo resume/complete, CTeX main configuration and paper/studio/night contrast');
+  await key('k',['meta']); await type('language: English'); await key('Enter');
+  await wait(`document.querySelector('.panel-heading').textContent.includes('Revision memos')`);
+  await shot('aids-en');
+  assert.deepEqual(await js('window.__flowErrors || []'),[]);
+};

@@ -66,3 +66,11 @@ The test starts the real stdio server against `demo/`, performs initialize, tool
 ## Packaging
 
 `mcp/**` and its TeX/history/Git/file-filter service dependencies are explicitly unpacked by Electron Builder; in a packaged build the UI reports the path under `Contents/Resources/app.asar.unpacked/mcp/server.mjs`. These dependencies remain ordinary files so the server can run in Node.js, while Electron can still resolve the same services through ASAR. The packaging check verifies both the renderer archive and these unpacked files.
+
+### Writing aids and Chinese typography
+
+- `texpro_writing_aids` lists placeholders, revision memos (including legacy TODO notes), UTF-16 offsets and saved-file SHA-256 hashes across the project.
+- `texpro_edit_writing_aid` takes `file`, `action` and `expectedHash`. Actions: `insert-placeholder` (`offset`, `kind`, `text`, `expectedMainHash`), `resolve-placeholder` (`offset`, replacement TeX in `text`), `add-memo` (`line`, `text`), `complete-memo` / `reopen-memo` (`line`). Read fresh hashes first. Placeholder support is installed in the resolved main file, not the child being edited.
+- `texpro_ctex_typography` returns a preview of the actual main file with Chinese body typography; it does not save. Review it before using `texpro_write_file`. Existing author fonts are preserved.
+
+These tools operate on **saved files**, not unsaved editor buffers. Save before handing work to an external client and review external changes when returning. Unresolved placeholders produce draft compile warnings and block arXiv submission packaging. Memos are `% MEMO:` / `% MEMO-DONE:` source comments and never enter the PDF.

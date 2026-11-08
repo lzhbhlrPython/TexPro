@@ -1,3 +1,4 @@
+import { ctexWritingSettings } from '../../electron/services/writing-aids-core.mjs';
 import type { TemplateItem } from '../types';
 
 export interface TemplateMeta {
@@ -172,13 +173,12 @@ visual editor show you the final shape.
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{microtype}
-\usepackage{indentfirst}
 \usepackage[colorlinks=true,linkcolor=blue]{hyperref}
 \ctexset{
   section/format = \Large\bfseries,
   subsection/format = \large\bfseries,
 }
-\setlength{\parindent}{2em}
+${ctexWritingSettings}
 
 \title{ {{title}} }
 \author{ {{author}} }

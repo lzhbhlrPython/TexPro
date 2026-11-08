@@ -947,6 +947,8 @@ async function renderTemplatePreview({ source, engine, cacheDir }) {
 
 async function createArxivPackage(projectRoot) {
   const root = path.resolve(projectRoot);
+  const pending = (await require('./writing-aids.cjs').listWritingAids(root)).placeholders;
+  if (pending.length) throw new Error(`Resolve ${pending.length} placeholder(s) before creating a submission package: ${pending.slice(0, 5).map(item => `${path.relative(root, item.file)}:${item.line}`).join(', ')}`);
   const rootFile = findRootFile(root);
   if (!rootFile) throw new Error(resolveProjectRoot(root).rootError);
   const exportsDir = path.join(root, '.texpro', 'exports');
@@ -1829,6 +1831,12 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
   let diagnostics = parseDiagnostics(log, rootFile, projectRoot);
   if (diagnostics.length === 0 && result.code !== 0) {
     diagnostics = parseWarningsFromStdout([result.stdout, result.stderr].join('\n'));
+  }
+  if (!isolated) {
+    try {
+      const pending = (await require('./writing-aids.cjs').listWritingAids(projectRoot)).placeholders;
+      diagnostics.push(...pending.map(item => ({ severity: 'warning', source: 'placeholder', message: `Unresolved placeholder: ${item.text || item.kind}`, file: item.file, line: item.line })));
+    } catch (error) { diagnostics.push({ severity: 'warning', source: 'placeholder', message: `Could not complete placeholder check: ${error.message}`, file: rootFile }); }
   }
   const pdfExists = fs.existsSync(pdfPath);
   const ok = result.code === 0 && pdfExists && !result.timedOut && !result.cancelled;

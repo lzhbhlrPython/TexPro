@@ -11,6 +11,7 @@ import { getLanguage, t } from '../i18n';
 import { themeTexArtwork } from '../lib/texArtwork';
 import { rasterizeTexPdf } from '../lib/texPdfArtwork';
 import { reviewedRanges } from './writingReview';
+import { parseWritingAids, type WritingPlaceholder } from '../../electron/services/writing-aids-core.mjs';
 
 export const refreshWritingPreview = StateEffect.define<null>();
 
@@ -82,6 +83,22 @@ abstract class LatexWidget extends WidgetType {
     });
     dom.setAttribute('title', t('Click to edit LaTeX source'));
     dom.setAttribute('data-texpro-pos', String(this.focusPos));
+  }
+}
+
+class PlaceholderWidget extends LatexWidget {
+  constructor(readonly item: WritingPlaceholder, readonly block: boolean) { super(item.contentFrom); }
+  eq(other: PlaceholderWidget) { return this.item.source === other.item.source && this.focusPos === other.focusPos && this.block === other.block && this.locale === other.locale; }
+  toDOM(view: EditorView) {
+    const dom = document.createElement('span');
+    dom.className = `cm-writing-placeholder${this.block ? ' is-block' : ''}`;
+    const labels = { text: 'Text placeholder', figure: 'Figure placeholder', table: 'Table placeholder', citation: 'Citation placeholder', data: 'Data placeholder' };
+    const label = document.createElement('small'); label.textContent = t(labels[this.item.kind]);
+    const description = document.createElement('span'); description.textContent = this.item.text === 'TODO' ? t('Describe what belongs here') : this.item.text.replace(/\\([%#$&_{}])/g, '$1');
+    dom.append(label, description); this.bind(dom, view);
+    dom.setAttribute('role', 'button'); dom.tabIndex = 0;
+    dom.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(view, this.focusPos); } });
+    return dom;
   }
 }
 
@@ -879,6 +896,21 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
   }
 
   const bodyStart = texDocumentStart(text)?.to ?? 0;
+  for (const item of parseWritingAids(text).placeholders) {
+    if (touched(item.from, item.to) || overlaps(item.from, item.to, occupied)) continue;
+    const line = state.doc.lineAt(item.from), endLine = state.doc.lineAt(item.to);
+    const block = ['figure', 'table'].includes(item.kind) && !text.slice(line.from, item.from).trim() && !text.slice(item.to, endLine.to).trim();
+    ranges.push(Decoration.replace({ widget: new PlaceholderWidget(item, block), block }).range(block ? line.from : item.from, block ? endLine.to : item.to));
+    occupied.push({ from: item.from, to: item.to });
+  }
+  const chinese = /\\(?:documentclass(?:\[[^\]]*\])?\{ctex(?:art|rep|book)\}|(?:usepackage|RequirePackage)(?:\[[^\]]*\])?\{[^}]*\bctex\b)/.test(context.preamble || text.slice(0, bodyStart));
+  if (chinese) for (let n = 1; n <= state.doc.lines; n++) {
+    const line = state.doc.line(n);
+    if (line.from < bodyStart || !/[\u3400-\u9fff]/.test(line.text) || /^\s*[\\%$}]/.test(line.text) || overlaps(line.from, line.to, occupied)) continue;
+    // Indent paragraph starts only; wrapped visual lines inherit normal TeX-like flow.
+    if (n > 1 && state.doc.line(n - 1).text.trim()) continue;
+    ranges.push(Decoration.line({ class: 'cm-chinese-paragraph' }).range(line.from));
+  }
   const inlineCommands = [...texCommands(text)].filter(c => c.from >= bodyStart);
   const headingLevels: Record<string, number> = { part: 1, chapter: 1, section: 1, subsection: 2, subsubsection: 3, paragraph: 4 };
   for (const command of inlineCommands) {
@@ -994,7 +1026,7 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     const from = match.index + offset;
     const to = match.index + match[0].length;
     if (overlaps(from, to, occupied)) continue;
-    const isTodo = /^\s*%\s*(TODO|FIXME|NOTE)\b/i.test(match[0].slice(offset));
+    const isTodo = /^\s*%\s*(MEMO|TODO|FIXME|NOTE)\s*:/i.test(match[0].slice(offset));
     ranges.push(makeMarkerRange(from, to, ['cm-comment', isTodo ? 'cm-todo-comment' : '']));
   }
 

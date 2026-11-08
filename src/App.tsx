@@ -1,5 +1,7 @@
 import { ChangeSet, Text, Transaction } from '@codemirror/state';
-import { renameLabels } from './lib/labelRename';
+import { renameLabels, textChange } from './lib/labelRename';
+import { planPlaceholder } from './lib/writingAids';
+import { parseWritingAids, applyCtexTypography, type PlaceholderKind, type WritingPlaceholder } from '../electron/services/writing-aids-core.mjs';
 import { requestText, TextRequestHost } from './components/TextRequest';
 import { rememberActiveFile, resumeFile } from './lib/writingResume';
 import { ensureTexPackages } from './lib/texDocument';
@@ -32,6 +34,7 @@ import {
   Download,
   Eye,
   EyeOff,
+  FileText,
   FileImage,
   FileInput,
   FlaskConical,
@@ -366,6 +369,11 @@ export default function App() {
     ...Object.values(docs).flatMap(doc => /\.(tex|ltx)$/i.test(doc.path) ? writingNotes(doc.content, doc.path) : []),
   ], [docs, symbols]);
 
+  const placeholders = useMemo(() => [
+    ...(symbols.placeholders || []).filter(item => !docs[item.file]),
+    ...Object.values(docs).flatMap(doc => /\.(tex|ltx)$/i.test(doc.path) ? parseWritingAids(doc.content, doc.path).placeholders : []),
+  ], [docs, symbols]);
+
   const bibFiles = useMemo(
     () => (project ? flattenFiles(project.tree).filter((node) => node.ext === '.bib').map((node) => node.path) : []),
     [project],
@@ -495,6 +503,40 @@ export default function App() {
     history.items = [...history.items.slice(0, history.cursor), { before: originals, after: result.texts, edits, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
     pushToast(tr('Label and references updated'), 'success', tr('{count} occurrences in {files} files', { count: result.count, files: Object.keys(result.texts).length }));
     return result.count;
+  }, [applyProjectTexts, pushToast]);
+
+  const insertPlaceholder = useCallback(async (kind: PlaceholderKind = 'text') => {
+    const current = projectRef.current, editor = editorRef.current, file = activePathRef.current, generation = projectGeneration.current;
+    if (!current?.rootFile || !editor || !file || !/\.(tex|ltx)$/i.test(file)) { pushToast(tr('Choose main file'), 'info'); return; }
+    const source = editor.getContent(), selection = editor.getSelectionRange(), main = current.rootFile;
+    try {
+      const mainSource = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
+      if (generation !== projectGeneration.current || editorRef.current !== editor || editor.getContent() !== source || JSON.stringify(editor.getSelectionRange()) !== JSON.stringify(selection) || docsRef.current[main] && docsRef.current[main].content !== mainSource) throw new Error(tr('Document changed. Try again.'));
+      const sources = { [main]: mainSource, [file]: source };
+      const plan = planPlaceholder(sources, main, file, selection, kind, editor.getSelection() || 'TODO');
+      applyProjectTexts(plan.after, plan.changes, plan.before);
+      const history = renameHistory.current;
+      history.items = [...history.items.slice(0, history.cursor), { before: plan.before, after: plan.after, edits: plan.changes, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
+      editor.selectRange(plan.from, plan.to);
+    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
+  }, [applyProjectTexts, pushToast]);
+
+  const applyChineseTypography = useCallback(async () => {
+    const current = projectRef.current, main = current?.rootFile, generation = projectGeneration.current;
+    if (!current || !main) { pushToast(tr('Choose main file'), 'info'); return; }
+    try {
+      const before = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
+      if (generation !== projectGeneration.current || docsRef.current[main] && docsRef.current[main].content !== before) throw new Error(tr('Document changed. Try again.'));
+      const after = applyCtexTypography(before);
+      if (after !== before) {
+        const edits = { [main]: ChangeSet.of(textChange(before, after), before.length) };
+        applyProjectTexts({ [main]: after }, edits, { [main]: before });
+        const history = renameHistory.current;
+        history.items = [...history.items.slice(0, history.cursor), { before: { [main]: before }, after: { [main]: after }, edits, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
+      }
+      setSettings(value => ({ ...value, engine: value.engine === 'lualatex' ? 'lualatex' : 'xelatex' }));
+      editorRef.current?.focus(); pushToast(tr('Chinese writing typography applied to the main file'), 'success');
+    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
   }, [applyProjectTexts, pushToast]);
 
   const saveDoc = useCallback(
@@ -1115,6 +1157,17 @@ export default function App() {
     for (let frame = 0; frame < 30 && editorRef.current?.getPath() !== note.file; frame++) await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
     if (generation !== projectGeneration.current || editorRef.current?.getPath() !== note.file) return;
     if (!editorRef.current.toggleNote(note)) { pushToast(tr('Note moved. Refreshing its location.'), 'info'); void refreshProjectData(); }
+  }, [gotoLocation, pushToast, refreshProjectData]);
+
+  const openPlaceholder = useCallback(async (item: WritingPlaceholder) => {
+    const generation = projectGeneration.current;
+    await gotoLocation(item.file, item.line);
+    for (let n = 0; n < 30 && editorRef.current?.getPath() !== item.file; n++) await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    const editor = editorRef.current;
+    if (generation !== projectGeneration.current || editor?.getPath() !== item.file) return;
+    const found = parseWritingAids(editor.getContent(), item.file).placeholders.find(value => value.from === item.from && value.source === item.source);
+    if (found) editor.selectRange(found.from, found.to);
+    else { pushToast(tr('Placeholder moved. Select it again.'), 'info'); void refreshProjectData(); }
   }, [gotoLocation, pushToast, refreshProjectData]);
 
   const handleDiagnosticClick = useCallback(
@@ -1874,7 +1927,12 @@ export default function App() {
         return;
       }
       const key = event.key.toLowerCase();
-      if (key === 'k' && !event.shiftKey) {
+      const editing = document.activeElement?.closest('.cm-editor');
+      if (editing && event.shiftKey && key === 'h') { event.preventDefault(); void insertPlaceholder(); }
+      else if (editing && event.shiftKey && key === 'n') { event.preventDefault(); editorRef.current?.leaveNote(); }
+      else if (event.shiftKey && key === 'u') { event.preventDefault(); setSidebarOpen(true); setSidebarTab('notes'); }
+      else if (editing && event.altKey && event.shiftKey && (event.code === 'KeyC' || key === 'c')) { event.preventDefault(); void applyChineseTypography(); }
+      else if (key === 'k' && !event.shiftKey) {
         event.preventDefault();
         setPaletteOpen((value) => !value);
       } else if (key === 'enter') {
@@ -1912,9 +1970,11 @@ export default function App() {
         setSidebarOpen((value) => !value);
       }
     };
+    const showMemos = () => { setSidebarOpen(true); setSidebarTab('notes'); };
+    window.addEventListener('texpro:revision-memos', showMemos);
     window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [handleOpenFolder, manualForwardSync, runCompile, saveActive, toggleDayNight, toggleFocus, toggleTypewriter, toggleVisual]);
+    return () => { window.removeEventListener('keydown', handler); window.removeEventListener('texpro:revision-memos', showMemos); };
+  }, [handleOpenFolder, manualForwardSync, runCompile, saveActive, toggleDayNight, toggleFocus, toggleTypewriter, toggleVisual, insertPlaceholder, applyChineseTypography]);
 
   useEffect(() => {
     return window.texpro.onMenuAction((action) => {
@@ -1948,6 +2008,11 @@ export default function App() {
 
   const paletteActions: PaletteAction[] = useMemo(
     () => [
+      { id: 'placeholder', label: t('Insert placeholder'), shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
+      { id: 'placeholders', label: t('Placeholders'), group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
+      { id: 'revision-memo', label: t('Leave a revision memo'), shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => editorRef.current?.leaveNote() },
+      { id: 'revision-memos', label: t('Revision memos'), shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
+      { id: 'ctex-typography', label: t('Apply Chinese writing typography'), shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
       { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
       { id: 'close-project', label: t('Close project and return to Welcome'), group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
       {
@@ -2239,6 +2304,8 @@ export default function App() {
     ],
     [
       project,
+      insertPlaceholder,
+      applyChineseTypography,
       handleCloseProject,
       handleInsertMusic,
       writeAtCaret,
@@ -2269,12 +2336,16 @@ export default function App() {
 
   const moreActions: MoreAction[] = useMemo(
     () => [
+      { id: 'placeholder', label: 'Insert placeholder', shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
+      ...(['figure', 'table', 'citation', 'data'] as PlaceholderKind[]).map(kind => ({ id: `placeholder-${kind}`, label: `${kind[0].toUpperCase() + kind.slice(1)} placeholder`, group: 'Insert', icon: FileText, run: () => void insertPlaceholder(kind) })),
+      { id: 'placeholders', label: 'Placeholders', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
+      { id: 'ctex-typography', label: 'Apply Chinese writing typography', shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
       { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
       { id: 'close-project', label: 'Close project and return to Welcome', group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
       { id: 'review-writing', label: 'Review in writing', group: 'Tools', icon: History, run: () => editorRef.current?.toggleReview() },
       { id: 'return-writing', label: 'Back to writing position', group: 'Edit', icon: BookOpen, run: () => void returnToWriting() },
-      { id: 'writing-note', label: 'Leave a writing note', group: 'Insert', icon: MessageSquare, run: () => { editorRef.current?.leaveNote(); } },
-      { id: 'writing-notes', label: 'Writing notes', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
+      { id: 'writing-note', label: 'Leave a revision memo', shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => { editorRef.current?.leaveNote(); } },
+      { id: 'writing-notes', label: 'Revision memos', shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
       { id: 'move-content-up', label: 'Move content up', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
       { id: 'move-content-down', label: 'Move content down', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
       { id: 'music', label: 'Insert music', group: 'Insert', icon: Music2, run: () => void handleInsertMusic() },
@@ -2328,7 +2399,7 @@ export default function App() {
       { id: 'settings', label: 'Settings', group: 'Tools', icon: Settings2, run: () => setSettingsOpen(true) },
       { id: 'palette', label: 'Command palette', group: 'Tools', shortcut: '⌘K', icon: Command, run: () => setPaletteOpen(true) },
     ],
-    [returnToWriting, beginWritingHelper, writeAtCaret, handleInsertMusic, editMainFile, handleCloseProject, settings.visual, settings.focus, settings.typewriter, settings.theme, openFormula, insert, toggleVisual, toggleFocus, toggleTypewriter, toggleDayNight, handleOpenFolder, saveActive, runCompile, manualForwardSync, t],
+    [insertPlaceholder, applyChineseTypography, returnToWriting, beginWritingHelper, writeAtCaret, handleInsertMusic, editMainFile, handleCloseProject, settings.visual, settings.focus, settings.typewriter, settings.theme, openFormula, insert, toggleVisual, toggleFocus, toggleTypewriter, toggleDayNight, handleOpenFolder, saveActive, runCompile, manualForwardSync, t],
   );
 
   moreActionsRef.current = moreActions;
@@ -2384,6 +2455,9 @@ export default function App() {
               symbols={effectiveSymbols}
               assets={assets}
               writingNotes={notes}
+              placeholders={placeholders}
+              onOpenPlaceholder={item => void openPlaceholder(item)}
+              onInsertPlaceholder={kind => void insertPlaceholder(kind)}
               onOpenNote={note => void gotoLocation(note.file, note.line, 1, true)}
               onToggleNote={note => void toggleNote(note)}
               onInsertNote={() => editorRef.current?.leaveNote()}
@@ -2735,6 +2809,7 @@ export default function App() {
       />
       <ExportStudio
         open={exportOpen}
+        onReviewPlaceholders={() => { setExportOpen(false); setSidebarOpen(true); setSidebarTab('placeholders'); editorRef.current?.focus(); }}
         source={activeDoc?.content || ''}
         name={activeDoc ? basename(activeDoc.path) : 'document.tex'}
         onClose={() => setExportOpen(false)}

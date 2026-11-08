@@ -44,6 +44,9 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     fs.writeFileSync(chapter, '\\section{Child}\\label{sec:child}\nChapter writing.\n\\ref{sec:start} and \\cref{sec:child,sec:start}.\n');
     await click(el('.welcome-project-row')); await wait(`!!document.querySelector('.cm-content')`);
     await js(`window.__flowErrors=[];addEventListener('error',e=>__flowErrors.push(e.message));addEventListener('unhandledrejection',e=>__flowErrors.push(String(e.reason)));true`);
+    if (process.env.TEXPRO_AIDS_REGRESSION === '1') {
+      await require('./writing-aids-regression.cjs')({ window, key, wait, type, click, line, open, save, shot, js, main }); app.quit(); return;
+    }
     if (process.env.TEXPRO_CLOSE_ONLY === '1') {
       await endLine('Writing anchor.'); await type('Native close save.');
       assert.ok(!fs.readFileSync(main, 'utf8').includes('Native close save.'));

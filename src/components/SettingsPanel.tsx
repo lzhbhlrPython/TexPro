@@ -278,6 +278,11 @@ export function SettingsPanel({
               <span>{t('Toggle PDF preview')}</span><kbd>{formatShortcut('⌘ ⌥ P')}</kbd>
               <span>{t('Toggle sidebar')}</span><kbd>{formatShortcut('⌘ \\')}</kbd>
               <span>{t('Forward search PDF')}</span><kbd>{formatShortcut('⌘ ⇧ J')}</kbd>
+              <span>{t('Insert placeholder')}</span><kbd>{formatShortcut('⌘ ⇧ H')}</kbd>
+              <span>{t('Next / previous placeholder')}</span><kbd>F4 / ⇧F4</kbd>
+              <span>{t('Leave a revision memo')}</span><kbd>{formatShortcut('⌘ ⇧ N')}</kbd>
+              <span>{t('Revision memos')}</span><kbd>{formatShortcut('⌘ ⇧ U')}</kbd>
+              <span>{t('Apply Chinese writing typography')}</span><kbd>{formatShortcut('⌘ ⌥ ⇧ C')}</kbd>
             </div>
           </div>
         </div>

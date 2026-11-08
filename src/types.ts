@@ -64,6 +64,7 @@ export interface CompileResult {
 }
 
 export interface ProjectSymbols {
+  placeholders?: import('../electron/services/writing-aids-core.mjs').WritingPlaceholder[];
   labels: string[];
   citations: string[];
   environments: string[];

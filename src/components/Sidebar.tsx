@@ -32,19 +32,22 @@ import {
   Plus,
   Search,
   Shapes,
+  SquareDashed,
   Sigma,
   SlidersHorizontal,
   Tag,
 } from 'lucide-react';
 import type { AssetItem, FileNode, OutlineItem, Project, ProjectSymbols, SearchResult } from '../types';
 import { WritingNotes } from './WritingNotes';
+import { WritingPlaceholders } from './WritingPlaceholders';
+import type { PlaceholderKind, WritingPlaceholder } from '../../electron/services/writing-aids-core.mjs';
 import type { WritingNote } from '../lib/writingNotes';
 import { snippetLibrary } from '../editor/completions';
 import { allSymbols, renderSymbolHtml, symbolModules, type SymbolItem } from '../lib/symbols';
 import { assetUrl, basename, dirname, extname, relativePath } from '../lib/latex';
 import { useI18n } from '../i18n';
 
-type SidebarTab = 'files' | 'outline' | 'assets' | 'symbols' | 'search' | 'notes';
+type SidebarTab = 'files' | 'outline' | 'assets' | 'symbols' | 'search' | 'notes' | 'placeholders';
 
 interface Props {
   project: Project | null;
@@ -57,6 +60,9 @@ interface Props {
   symbols: ProjectSymbols;
   assets: AssetItem[];
   writingNotes: WritingNote[];
+  placeholders: WritingPlaceholder[];
+  onOpenPlaceholder: (item: WritingPlaceholder) => void;
+  onInsertPlaceholder: (kind: PlaceholderKind) => void;
   onOpenNote: (note: WritingNote) => void;
   onToggleNote: (note: WritingNote) => void;
   onInsertNote: () => void;
@@ -209,6 +215,9 @@ export function Sidebar({
   writingNotes,
   onOpenNote,
   onToggleNote,
+  placeholders,
+  onOpenPlaceholder,
+  onInsertPlaceholder,
   onInsertNote,
   onTabChange,
   onOpenFile,
@@ -361,7 +370,8 @@ export function Sidebar({
         <button className={tab === 'search' ? 'active' : ''} onClick={() => onTabChange('search')} title={t('Search project')} aria-label={t('Search project')}>
           <Search size={17} />
         </button>
-        <button className={tab === 'notes' ? 'active' : ''} data-testid="tab-notes" onClick={() => onTabChange('notes')} title={t('Writing notes')} aria-label={t('Writing notes')}><CheckSquare size={17} /></button>
+        <button className={tab === 'notes' ? 'active' : ''} data-testid="tab-notes" onClick={() => onTabChange('notes')} title={t('Revision memos')} aria-label={t('Revision memos')}><CheckSquare size={17} /></button>
+        <button className={tab === 'placeholders' ? 'active' : ''} data-testid="tab-placeholders" onClick={() => onTabChange('placeholders')} title={t('Placeholders')} aria-label={t('Placeholders')}><SquareDashed size={17} /></button>
         <div className="rail-spacer" />
         <button onClick={onOpenFolder} title={t('Open another project')} aria-label={t('Open another project')}>
           <Plus size={17} />
@@ -370,6 +380,7 @@ export function Sidebar({
 
       <div className="sidebar-panel">
         {tab === 'notes' && <WritingNotes notes={writingNotes} onOpen={onOpenNote} onToggle={onToggleNote} onInsert={onInsertNote} />}
+        {tab === 'placeholders' && <WritingPlaceholders items={placeholders} onOpen={onOpenPlaceholder} onInsert={onInsertPlaceholder} />}
         {tab === 'files' && (
           <>
             <div className="panel-heading">

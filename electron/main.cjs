@@ -543,7 +543,8 @@ function registerIpc() {
 
   ipcMain.handle('project:symbols', async (_event, root) => {
     if (typeof root !== 'string' || !isAllowed(root)) throw new Error('Project is not open');
-    return tex.collectProjectSymbols(root);
+    const aids = await require('./services/writing-aids.cjs').listWritingAids(root);
+    return { ...tex.collectProjectSymbols(root), placeholders: aids.placeholders, writingNotes: aids.memos };
   });
 
   ipcMain.handle('tikz:render', async (_event, options) => {
