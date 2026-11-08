@@ -118,6 +118,8 @@
       "electron/services/git.cjs",
       "electron/services/project-files.cjs",
       "electron/services/project-root.cjs",
+      "electron/services/project-operations.cjs",
+      "electron/services/font-report.cjs",
       "electron/services/music.cjs"
     ],
     "nsis": {

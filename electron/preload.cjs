@@ -103,4 +103,6 @@ contextBridge.exposeInMainWorld('texpro', {
   getInfo: () => ipcRenderer.invoke('app:info'),
   getSpellWords: () => ipcRenderer.invoke('spell:words'),
   onMenuAction: (callback) => subscribe('menu:action', callback),
+  onPrepareClose: (callback) => subscribe('window:prepare-close', callback),
+  finishClose: (id, ok) => ipcRenderer.send('window:close-ready', { id, ok }),
 });

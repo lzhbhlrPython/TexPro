@@ -55,7 +55,7 @@ import { completionAppearance, completionTheme } from './completionAppearance';
 import { composingWriting, leaveWritingBlock, stableWritingInput } from './writing';
 import { enterWritingTable } from './tableWidget';
 import { applyWriting, rememberWriting, restoreWriting, writingTargets, type WritingTarget } from './writingTargets';
-import { ensureTexPackages, texDocumentStart, updateLayoutClassOptions } from '../lib/texDocument';
+import { ensureTexPackages, texDocumentStart, applyLayoutPreamble } from '../lib/texDocument';
 import { focusMode, typewriterMode, visualLatex, refreshWritingPreview, type VisualContext } from './visual';
 import type { CursorInfo, Diagnostic, ProjectSymbols, Settings, SourceJump } from '../types';
 import { dirname } from '../lib/latex';
@@ -65,6 +65,7 @@ import { smartPaste } from '../lib/pasteCleaner';
 export interface EditorHandle {
   renameLabel: () => void;
   applyProjectChanges: (changes: ChangeSet) => void;
+  getSession: () => import('./writingSession').WritingSession | null;
   leaveNote: () => void;
   toggleNote: (note: WritingNote) => boolean;
   moveContent: (direction: -1 | 1) => boolean;
@@ -655,6 +656,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     ref,
     () => ({
       renameLabel() { startRename(); },
+      getSession() { const view = viewRef.current; return view ? { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft } : null; },
       applyProjectChanges(changes) { const view = viewRef.current; if (view) view.dispatch({ changes, annotations: Transaction.addToHistory.of(false), effects: view.scrollSnapshot() }); },
       toggleReview() { setReviewing(current => !current); },
       getPosition() { const view = viewRef.current; return view ? writingPosition(view, props.path) : null; },
@@ -866,20 +868,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       applyLayout({ documentClassOptions, preambleBlock }) {
         const view = viewRef.current;
         if (!view) return;
-        let text = updateLayoutClassOptions(view.state.doc.toString(), documentClassOptions);
-        text = text.replace(/\n?% TeXPro layout begin[\s\S]*?% TeXPro layout end\n?/g, '\n');
-        const managed = ['geometry', 'setspace', 'fancyhdr', 'ctex', 'luatexja', 'polyglossia', 'titling', 'microtype'];
-        for (const pkg of managed) {
-          const pattern = new RegExp('\\\\usepackage(?:\\[[^\\]]*\\])?\\{' + pkg + '\\}\\s*\\n?', 'g');
-          text = text.replace(pattern, '');
-        }
-        const marker = text.indexOf('\\begin{document}');
-        if (marker < 0) return;
-        const block = `% TeXPro layout begin\n${preambleBlock}\n% TeXPro layout end\n`;
-        text = text.slice(0, marker) + block + text.slice(marker);
-        view.dispatch({
-          changes: { from: 0, to: view.state.doc.length, insert: text },
-        });
+        const text = applyLayoutPreamble(view.state.doc.toString(), documentClassOptions, preambleBlock);
+        view.dispatch({ changes: textChange(view.state.doc.toString(), text), effects: view.scrollSnapshot() });
       },
     }),
     [props.path],

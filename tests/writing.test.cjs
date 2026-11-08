@@ -121,3 +121,14 @@ Text
   assert.equal(d.ensureTexPackages(next, ['chemfig', 'tikz']), next);
   assert.equal(next.slice(next.indexOf('\\begin{document}')), source.slice(source.indexOf('\\begin{document}')));
 });
+
+test('layout changes preserve author package declarations, custom geometry options and document text', () => {
+  const source = '% \\begin{document}\n\\documentclass[fontset=windows,12pt]{ctexart}\n\\usepackage[includehead,headheight=18pt]{geometry}\n\\usepackage{setspace,microtype}\n\\usepackage[style=authoryear]{biblatex}\n\\begin{document}\nKeep the paragraph.\n\\end{document}';
+  const block = '\\usepackage[a4paper,top=2cm]{geometry}\n\\usepackage{ctex}\n\\usepackage{setspace}\n\\setstretch{1.2}\n\\usepackage{microtype}';
+  const output = d.applyLayoutPreamble(source, '11pt,a4paper', block);
+  assert.ok(output.includes('\\usepackage[includehead,headheight=18pt]{geometry}'));
+  assert.ok(output.includes('\\geometry{a4paper,top=2cm}')); assert.ok(output.includes('fontset=windows'));
+  assert.equal((output.match(/\\usepackage\{setspace,microtype\}/g) || []).length, 1);
+  assert.ok(!output.includes('\\usepackage{ctex}')); assert.ok(output.endsWith('\\begin{document}\nKeep the paragraph.\n\\end{document}'));
+  assert.equal(d.applyLayoutPreamble(output, '11pt,a4paper', block), output);
+});

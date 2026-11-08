@@ -36,6 +36,16 @@ export function getLanguage(): Language {
 }
 
 const zh: Record<string, string> = {
+  'Checking fonts…': '正在检查字体…',
+  'Opening PDF preview…': '正在打开 PDF 预览…',
+  'Save changes before closing?': '保存修改后关闭？',
+  'Unable to verify': '暂时无法验证',
+  'Font check is incomplete': '字体检查尚未完成',
+  'PDF font inspection is unavailable. Install Poppler (pdffonts) and retry.': '无法检查 PDF 字体，请安装 Poppler（pdffonts）后重试。',
+  'No fonts listed in this PDF.': '此 PDF 未列出字体。',
+  'A file operation is already in progress': '正在处理文件操作，请稍后再试',
+  'References updated; overlapping edits kept for review': '引用已更新；与你正在输入的内容重叠的修改已保留，请检查',
+
   "The folder is moved to .texpro/trash.": "文件夹将移入 .texpro/trash，可从中恢复。",
   "{errors} errors · {warnings} warnings": "{errors} 个错误 · {warnings} 条警告",
   "Rename": "重命名",

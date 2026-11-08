@@ -1,5 +1,6 @@
+import { useDialogFocus } from '../hooks/useDialogFocus';
 import { requestText } from './TextRequest';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   BookOpen,
   FileText,
@@ -47,6 +48,8 @@ export function TemplateGallery({
   onDeleteTemplate,
 }: Props) {
   const { t } = useI18n();
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState('article');
   const [projectName, setProjectName] = useState('my-paper');
@@ -158,13 +161,13 @@ export function TemplateGallery({
 
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="template-modal" data-testid="template-modal" onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="template-modal-title" tabIndex={-1} className="template-modal" data-testid="template-modal" onMouseDown={(event) => event.stopPropagation()}>
         <header className="template-header">
           <div className="template-heading">
             <div className="template-icon"><LayoutTemplate size={18} /></div>
             <div>
               <span className="modal-eyebrow">{t('Template library')}</span>
-              <h2>{t('Create a new project')}</h2>
+              <h2 id="template-modal-title">{t('Create a new project')}</h2>
             </div>
           </div>
           <div className="template-header-actions">
@@ -177,7 +180,7 @@ export function TemplateGallery({
               <Save size={13} />
               {t('Save as template')}
             </button>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}>
+            <button className="icon-btn" onClick={onClose} aria-label={t('Close')} title={t('Close')}>
               <X size={16} />
             </button>
           </div>

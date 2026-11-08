@@ -88,7 +88,7 @@ function generate(state: LayoutState, documentText: string): LayoutResult {
   let engine: Engine = 'pdflatex';
 
   if (state.language === 'chinese') {
-    if (!ctex) languageLines.push('\\usepackage[UTF8]{ctex}');
+    if (!ctex) languageLines.push('\\usepackage[UTF8,fontset=fandol]{ctex}');
     engine = 'xelatex';
   } else if (state.language === 'japanese') {
     languageLines.push('\\usepackage{luatexja}');

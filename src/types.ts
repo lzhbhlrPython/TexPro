@@ -142,6 +142,15 @@ export interface SearchResult {
   text: string;
 }
 
+export interface ProjectFileOperation {
+  path: string;
+  oldPath: string;
+  updated: number;
+  oldRelative: string;
+  newRelative: string;
+  updates: Array<{ path: string; oldPath: string; before: string; after: string; changes: Array<{ from: number; to: number; insert: string }> }>;
+}
+
 export interface Settings {
   theme: ThemeName;
   language: Language;

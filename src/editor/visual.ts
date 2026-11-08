@@ -707,12 +707,20 @@ function parseTabular(body: string, spec: string): string | null {
   return `<table><thead><tr>${(header || []).map((cell, index) => `<th style="text-align:${alignments[index] === 'r' ? 'right' : alignments[index] === 'c' ? 'center' : 'left'}">${escape(cell)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map(td).join('')}</tr>`).join('')}</tbody></table>`;
 }
 
+interface PreviewSelectionRange { from: number; to: number; selected: boolean }
+const previewSelections = new WeakMap<EditorState, PreviewSelectionRange[]>();
+
 function buildDecorations(state: EditorState, context: VisualContext): DecorationSet {
   const text = state.doc.toString();
   const ranges: Range<Decoration>[] = [];
   const occupied: Occupied[] = [];
   const revisions = state.field(reviewedRanges, false) || [];
-  const touched = (from: number, to: number) => selectionTouches(state, { from, to }) || revisions.some(hunk => hunk.from <= to && hunk.to >= from);
+  const selectionRanges: PreviewSelectionRange[] = [];
+  const touched = (from: number, to: number) => {
+    const selected = selectionTouches(state, { from, to });
+    selectionRanges.push({ from, to, selected });
+    return selected || revisions.some(hunk => hunk.from <= to && hunk.to >= from);
+  };
 
   const addBlock = (from: number, to: number, widget: WidgetType) => {
     ranges.push(Decoration.replace({ widget, block: true }).range(from, to));
@@ -1045,7 +1053,9 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     }
   }
 
-  return Decoration.set(ranges, true);
+  const result = Decoration.set(ranges, true);
+  previewSelections.set(state, selectionRanges);
+  return result;
 }
 
 export function visualLatex(config: VisualConfig): Extension {
@@ -1053,7 +1063,20 @@ export function visualLatex(config: VisualConfig): Extension {
     create(state) { return buildDecorations(state, config.get()); },
     update(value, tr) {
       if (tr.state.field(writingComposition)) return value.map(tr.changes);
-      if (tr.docChanged || tr.selection || tr.effects.length) return buildDecorations(tr.state, config.get());
+      const refresh = tr.effects.some(effect => effect.is(refreshWritingPreview));
+      const changedContext = tr.startState.field(musicSourceField, false) !== tr.state.field(musicSourceField, false)
+        || tr.startState.field(tableWritingField, false) !== tr.state.field(tableWritingField, false)
+        || tr.startState.field(reviewedRanges, false) !== tr.state.field(reviewedRanges, false)
+        || tr.startState.field(writingComposition);
+      if (tr.docChanged || refresh || changedContext) return buildDecorations(tr.state, config.get());
+      // Cursor motion inside the same prose/TeX region changes no preview. Reuse the
+      // decorations until a boundary is crossed, avoiding another full source scan.
+      if (tr.selection) {
+        const cached = previewSelections.get(tr.startState);
+        if (!cached || cached.some(range => range.selected !== selectionTouches(tr.state, range))) return buildDecorations(tr.state, config.get());
+      }
+      const cached = previewSelections.get(tr.startState);
+      if (cached) previewSelections.set(tr.state, cached);
       return value;
     },
     provide: candidate => EditorView.decorations.from(candidate),

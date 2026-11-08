@@ -135,7 +135,7 @@ export function ProblemsPanel({
                 key={`${diagnostic.message}-${index}`}
                 className="problem-row"
                 onClick={() => onDiagnosticClick(diagnostic)}
-                title={diagnostic.file}
+                title={[diagnostic.message, diagnostic.file].filter(Boolean).join('\n')}
               >
                 {severityIcon(diagnostic.severity)}
                 <span className="problem-message">{diagnostic.message}</span>

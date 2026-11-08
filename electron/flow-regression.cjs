@@ -44,6 +44,15 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     fs.writeFileSync(chapter, '\\section{Child}\\label{sec:child}\nChapter writing.\n\\ref{sec:start} and \\cref{sec:child,sec:start}.\n');
     await click(el('.welcome-project-row')); await wait(`!!document.querySelector('.cm-content')`);
     await js(`window.__flowErrors=[];addEventListener('error',e=>__flowErrors.push(e.message));addEventListener('unhandledrejection',e=>__flowErrors.push(String(e.reason)));true`);
+    if (process.env.TEXPRO_CLOSE_ONLY === '1') {
+      await endLine('Writing anchor.'); await type('Native close save.');
+      assert.ok(!fs.readFileSync(main, 'utf8').includes('Native close save.'));
+      app.once('will-quit', () => {
+        try { assert.ok(fs.readFileSync(main, 'utf8').includes('Native close save.')); console.log('PASS native window close saves pending typing'); process.exit(0); }
+        catch (error) { console.error(error); process.exit(1); }
+      });
+      window.close(); return;
+    }
     await endLine('Writing anchor.'); await key('Enter'); await type('# ');
     await wait(`document.querySelector('.cm-content').textContent.includes('\\section{}')`);
     await type('智能标题'); await save(); assert.ok(fs.readFileSync(main,'utf8').includes('\\section{智能标题}'));
@@ -152,7 +161,32 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     await shot('stable-render');
     ipcMain.removeHandler('tikz:render'); ipcMain.handle('tikz:render',originalRender);
     console.log('PASS delayed diagram layout keeps the active paragraph within two CSS pixels and typing continues');
+    await open('backup'); await wait(`!!document.querySelector('[data-testid="backup-panel"][role="dialog"]')`);
+    assert.equal(await js(`document.querySelector('[data-testid="backup-panel"]').contains(document.activeElement)`), true);
+    const first = await js(`document.activeElement.outerHTML`); await key('Tab', ['shift']);
+    assert.notEqual(await js(`document.activeElement.outerHTML`), first); await key('Tab'); assert.equal(await js(`document.activeElement.outerHTML`), first);
+    await key('Escape'); await wait(`!document.querySelector('[data-testid="backup-panel"]')`);
+    assert.equal(await js(`document.activeElement===document.querySelector('.cm-content')`), true);
+    for (const [action, selector] of [['templates','template-modal'],['bibliography','bib-manager']]) {
+      await open(action); await wait(`!!document.querySelector('[data-testid="${selector}"][role="dialog"]')`);
+      assert.equal(await js(`document.querySelector('[data-testid="${selector}"]').contains(document.activeElement)`), true);
+      await key('Escape'); await wait(`!document.querySelector('[data-testid="${selector}"]')`);
+    }
+    const fontHandler = ipcMain._invokeHandlers.get('project:font-coverage');
+    ipcMain.removeHandler('project:font-coverage'); ipcMain.handle('project:font-coverage', () => ({ scripts: { cjk: 1 }, declared: ['Missing font'], fontChecks: [{ name:'Missing font', resolved:'', ok:null }], pdfFonts: [], pdfInspection:'unavailable', issues: [], pdfPath:null }));
+    await open('font'); await wait(`!!document.querySelector('.font-row[data-status="unknown"]')`);
+    assert.ok((await js(`document.querySelector('.font-body').textContent`)).match(/字体检查尚未完成|Font check is incomplete/));
+    for (const theme of ['paper','studio','night']) { await js(`document.documentElement.dataset.theme=${JSON.stringify(theme)}`); await shot(`font-unknown-${theme}`); }
+    await key('Escape'); await wait(`!document.querySelector('[data-testid="font-coverage"]')`);
+    ipcMain.removeHandler('project:font-coverage'); ipcMain.handle('project:font-coverage', fontHandler);
+    console.log('PASS dialogs contain focus, wrap Tab, dismiss with Escape and return to writing; unknown fonts stay neutral across themes');
     assert.deepEqual(await js('window.__flowErrors || []'), []);
-    app.exit(0);
+    await endLine('Stable writing paragraph.'); await type('Native close save.');
+    assert.ok(!fs.readFileSync(main,'utf8').includes('Native close save.'));
+    app.once('will-quit', () => {
+      try { assert.ok(fs.readFileSync(main,'utf8').includes('Native close save.')); console.log('PASS native window close saves unsaved typing with autosave disabled'); process.exit(0); }
+      catch (error) { console.error(error); app.exit(1); }
+    });
+    window.close();
   })().catch(async error=>{console.error('[flow regression]',error);try{await shot('failure')}catch{}app.exit(1)}); });
 };

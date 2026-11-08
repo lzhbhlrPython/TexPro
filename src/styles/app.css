@@ -7923,6 +7923,8 @@ textarea:focus-visible {
 .font-list{flex-direction:column;gap:3px;display:flex}
 .font-row{background:var(--panel);border-radius:4px;align-items:center;gap:6px;min-height:25px;padding:3px 6px;display:flex}
 .font-row svg{color:var(--success);flex:none}
+.font-row[data-status="unknown"] svg{color:var(--text-muted)}
+.font-row[data-status="warning"] svg{color:var(--warning)}
 .font-row strong{font-family:var(--font-mono);color:var(--text);flex:1;font-size:9px;font-weight:400}
 .font-row span{font-family:var(--font-mono);color:var(--text-faint);font-size:8.5px}
 .font-issues{flex-direction:column;gap:4px;display:flex}

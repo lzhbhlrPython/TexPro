@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Code2, FileMusic, Loader2, Minus, Music2, Plus, RefreshCw, Undo2, X } from 'lucide-react';
-import * as pdfjs from 'pdfjs-dist';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import type * as pdfjs from 'pdfjs-dist';
+import { loadPdfRuntime } from '../lib/pdfRuntime';
 import { useI18n } from '../i18n';
 import { themeTexArtwork } from '../lib/texArtwork';
 import { musicBlock, musicIssues, musicTemplates, newScore, previewDocument, type MusicNote, type MusicScore, type ParsedMusicBlock } from '../lib/music';
-pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 const pitchName = (p: number | null) => p === null ? 'Rest' : `${['C', 'D', 'E', 'F', 'G', 'A', 'B'][((p % 7) + 7) % 7]}${4 + Math.floor(p / 7)}`;
 function ChordInput({ note, onChange }: {
     note: MusicNote;
@@ -92,7 +91,9 @@ export function ScorePreview({ root, source, refresh, onMeasure, onSource }: {
                     return;
                 if (!result.ok || !result.bytes)
                     throw new Error(result.error || 'Music typesetting failed');
-                task = pdfjs.getDocument({ data: new Uint8Array(result.bytes) });
+                const runtime = await loadPdfRuntime();
+                if (dead) return;
+                task = runtime.getDocument({ data: new Uint8Array(result.bytes) });
                 const doc = await task.promise;
                 if (dead)
                     return;

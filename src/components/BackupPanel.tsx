@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useDialogFocus } from '../hooks/useDialogFocus';
+import { useState, useRef } from 'react';
 import { Cloud, CloudUpload, FileCode2, HardDrive, Image, KeyRound, MessageSquare, Server, X } from 'lucide-react';
 import { useI18n } from '../i18n';
 
@@ -13,6 +14,8 @@ interface Props {
 
 export function BackupPanel({ open, projectRoot, onClose, onReveal }: Props) {
   const { t } = useI18n();
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   const [type, setType] = useState<BackupType>('icloud');
   const [destination, setDestination] = useState('~/Library/Mobile Documents/com~apple~CloudDocs/TeXPro Backups');
   const [url, setUrl] = useState('');
@@ -57,13 +60,13 @@ export function BackupPanel({ open, projectRoot, onClose, onReveal }: Props) {
 
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="backup-studio" data-testid="backup-panel" onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="backup-studio-title" tabIndex={-1} className="backup-studio" data-testid="backup-panel" onMouseDown={(event) => event.stopPropagation()}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><CloudUpload size={18} /></div>
             <div>
               <span className="modal-eyebrow">{t('Safety')}</span>
-              <h2>{t('Project backup')}</h2>
+              <h2 id="backup-studio-title">{t('Project backup')}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
