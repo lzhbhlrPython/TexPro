@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import SiteLayout from '@/layouts/SiteLayout';
 import HomePage from '@/pages/home';
@@ -8,6 +9,9 @@ import BlogPostPage from '@/pages/blog/post';
 import ChangelogPage from '@/pages/changelog';
 import DownloadPage from '@/pages/download';
 import NotFoundPage from '@/pages/exception/NotFound';
+
+// 彩蛋页单独分包：没有走到这一步，主包不包含它的代码
+const TexPadPage = lazy(() => import('@/pages/easter'));
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +27,15 @@ export const router = createBrowserRouter([
       { path: 'blog/:slug', element: <BlogPostPage />, handle: { title: '开发博客 · TeXPro' } },
       { path: 'ai', element: <AiPage />, handle: { title: 'TeXPro · AI 入口' } },
       { path: 'download', element: <DownloadPage />, handle: { title: '下载 · TeXPro' } },
+      {
+        path: 'texpad',
+        element: (
+          <Suspense fallback={null}>
+            <TexPadPage />
+          </Suspense>
+        ),
+        handle: { title: 'TeXPad · TeXPro' },
+      },
     ],
   },
   {

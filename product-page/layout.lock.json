@@ -27,7 +27,7 @@
     "src/hooks/useRelease.ts": "14422ad27e20fa43",
     "src/layouts/SiteLayout.tsx": "2864e7cd6c0ac750",
     "src/layouts/components/AppLogo.tsx": "64ac947d1add1694",
-    "src/layouts/components/SiteFooter.tsx": "53e3d8d3dabc5637",
+    "src/layouts/components/SiteFooter.tsx": "b13d71297fb52fdc",
     "src/layouts/components/SiteHeader.tsx": "833fa2078900c0eb",
     "src/lib/markdown.ts": "d188d4262d4223f7",
     "src/lib/platform.ts": "3a114d623911ce40",
@@ -42,6 +42,7 @@
     "src/pages/changelog/index.tsx": "a79494c1192fc410",
     "src/pages/docs/index.tsx": "93d0c3791d296024",
     "src/pages/download/index.tsx": "ca5885e5b7c501e3",
+    "src/pages/easter/index.tsx": "87954618563e8a9a",
     "src/pages/exception/NotFound.tsx": "b89df30d18bcb29b",
     "src/pages/home/Capabilities.tsx": "3a15c32a60d9d62f",
     "src/pages/home/Comparison.tsx": "d62021cdf71465a8",
@@ -58,8 +59,8 @@
     "src/pages/home/VisualDemo.tsx": "7a6a0db658bee546",
     "src/pages/home/Workflow.tsx": "5cb2e22fc1c0601a",
     "src/pages/home/index.tsx": "9d82fe82ac87ce34",
-    "src/router/index.tsx": "4f4d2e86c1dc7aec",
-    "src/styles/global.css": "1242c2f5886e9b7d",
+    "src/router/index.tsx": "1d2e9827a078435f",
+    "src/styles/global.css": "1c92f6caa402ce03",
     "src/types/index.ts": "34c40285186170b4",
     "vite.config.ts": "f2d04a5eff31c45a"
   }

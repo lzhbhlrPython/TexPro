@@ -109,7 +109,10 @@ export function SiteFooter() {
           style={{ borderTopColor: token.colorBorderSecondary, color: token.colorTextTertiary }}
         >
           <span>
-            © 2026 TeXPro ·{' '}
+            <RouterLink to="/texpad" className="foot-secret">
+              © 2026 TeXPro
+            </RouterLink>
+            {' · '}
             <Link
               href={SITE_LINKS.license}
               target="_blank"
