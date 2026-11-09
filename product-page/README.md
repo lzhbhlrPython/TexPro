@@ -236,6 +236,19 @@ nightly 的版本号有两种形状，脚本都认：
 
 `src/config/constants.ts` 的 `SITE_LINKS` 指向真实仓库 `https://github.com/lzhbhlrPython/TexStudioPro`（仓库 / Releases / Issues / LICENSE），页面其它位置没有写死 URL。下载行的按钮统一指向 Releases；「从源码运行」与页脚「使用文档」走站内 `/docs/dev-setup` 与 `/docs`。
 
+## 下载：从首页跳到独立页面
+
+- 首页下载区的每一行不再是外链，而是 `navigate('/download?platform=…')`；页面顶部「回到下载区」回到 `/#download`。
+- `/download`（`src/pages/download/index.tsx`）：标题「你的 LaTeX 编辑器正在路上」，先是三阶段进度（核对版本 → 准备安装包 → 准备完成，520ms / 1180ms 两段推进，`aria-live="polite"`），再是主安装包卡片（文件名 / 体积 / 立即下载），然后「同一个平台的其它格式」「装好之后的四步」。
+- 变体数据在 `src/data/site.ts` 的 `DownloadTarget.variants`：mac = DMG / ZIP，Windows = EXE / Portable / ZIP，Linux = AppImage / deb / rpm；页面会过滤掉与主卡片相同的那一档，只在「其它格式」里列真正不同的。
+- 页面入场用 `dl-page-in`（`opacity 0→1`、`translateY(8px)→0`），子块按 60ms 一档，`prefers-reduced-motion` 下关闭；实心主按钮不做下划线动效，只有图标下沉与按下缩放。
+- 早先的侧边抽屉（`DownloadSheet`）已删除，功能与首页下载区重复。
+
+## 下载按钮动效
+
+- `.dl-cta`：hover 时下载图标下沉 2px，按下 `translateY(1px) scale(0.99)`，全部走 `--dur-quick/base` 与 `--ease-out`，`prefers-reduced-motion` 下自动降级。
+- 下划线展开只给描边 / 文字按钮（`.dl-cta:not(.ant-btn-primary)`）；实心主按钮不画线。
+
 ## 首屏数字与引用
 
 - 四个数字（89 / 87 / 16 / 21×2）在首屏底部，思源宋体 Black、`34px`，数字与标签上下居中。

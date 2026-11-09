@@ -3145,3 +3145,385 @@ html[data-theme='dark'] .diag-warning {
     gap: 44px;
   }
 }
+
+/* ---------- 下载按钮微动效 ---------- */
+
+.dl-cta {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--dur-quick) var(--ease-out),
+    box-shadow var(--dur-quick) var(--ease-out);
+}
+
+.dl-cta::after {
+  content: '';
+  position: absolute;
+  right: 14%;
+  bottom: 7px;
+  left: 14%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.dl-cta:not(.ant-btn-primary)::after {
+  background: var(--site-brand);
+  opacity: 0.55;
+}
+
+.dl-cta:hover::after {
+  transform: scaleX(1);
+}
+
+.dl-cta:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.dl-cta .anticon {
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+
+.dl-cta:hover .anticon {
+  transform: translateY(2px);
+}
+
+/* ---------- /download 提示页 ---------- */
+
+.dl-page {
+  padding: 40px 0 96px;
+}
+
+.dl-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--site-muted);
+  font-size: 12.5px;
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.dl-page-back:hover {
+  color: var(--site-brand);
+}
+
+.dl-page-hero {
+  max-width: 780px;
+  margin: 44px 0 28px;
+  animation: dl-row-in var(--dur-enter) var(--ease-out) both;
+}
+
+.dl-page-title {
+  margin: 10px 0 14px;
+  font-family: var(--serif);
+  font-size: clamp(30px, 4.2vw, 46px);
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.dl-page-lede {
+  max-width: 620px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--site-muted);
+}
+
+.dl-page-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--site-muted);
+  text-transform: none;
+}
+
+.dl-route {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  margin: 0 0 24px;
+  padding: 16px 0;
+  list-style: none;
+  border-top: 1px solid var(--site-border);
+  border-bottom: 1px solid var(--site-border);
+}
+
+.dl-route-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--site-muted);
+  opacity: 0.5;
+  transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+
+.dl-route-step.is-active,
+.dl-route-step.is-done {
+  opacity: 1;
+}
+
+.dl-route-step.is-done {
+  color: var(--site-brand);
+}
+
+.dl-route-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+}
+
+.dl-route-step.is-active .dl-route-mark {
+  color: var(--site-brand);
+}
+
+.dl-page-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  margin-bottom: 34px;
+  border: 1px solid var(--site-border);
+  border-radius: 6px;
+  background: var(--site-surface, transparent);
+  animation: dl-row-in var(--dur-enter) 120ms var(--ease-out) both;
+}
+
+.dl-page-file {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.dl-page-file-name {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.dl-page-file-size {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--site-muted);
+}
+
+.dl-page-block {
+  margin-bottom: 34px;
+}
+
+.dl-page-h2 {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dl-variant-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--site-border);
+}
+
+.dl-variant-row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 84px 52px;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--site-border);
+  font-size: 13px;
+  transition: background var(--dur-quick) var(--ease-out);
+}
+
+.dl-variant-row:hover {
+  background: var(--site-hover);
+}
+
+.dl-variant-label {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.dl-variant-note,
+.dl-variant-size {
+  font-size: 12px;
+  color: var(--site-muted);
+}
+
+.dl-variant-row a {
+  justify-self: end;
+  color: var(--site-brand);
+  text-align: right;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--site-brand) 35%, transparent);
+  transition: text-decoration-color var(--dur-quick) var(--ease-out);
+}
+
+.dl-variant-row a:hover {
+  text-decoration-color: var(--site-brand);
+}
+
+.dl-page-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: dl-step;
+}
+
+.dl-page-steps li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 14px;
+  counter-increment: dl-step;
+}
+
+.dl-page-steps li::before {
+  content: counter(dl-step);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--site-brand);
+  padding-top: 2px;
+}
+
+.dl-page-steps strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14.5px;
+}
+
+.dl-page-steps span {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: var(--site-muted);
+}
+
+.dl-page-actions {
+  margin-top: 8px;
+}
+
+@media (max-width: 767px) {
+  .dl-page {
+    padding: 24px 0 72px;
+  }
+
+  .dl-page-hero {
+    margin-top: 28px;
+  }
+
+  .dl-variant-row {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+  }
+
+  .dl-variant-size {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .dl-variant-row a {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+
+.dl-page-title-tail::before {
+  content: ' ';
+}
+
+.dl-page-file-size {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .dl-page-title-tail {
+    display: block;
+  }
+
+  .dl-page-title-tail::before {
+    content: '';
+  }
+
+  .dl-variant-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'label download'
+      'note size';
+    row-gap: 2px;
+    align-items: baseline;
+  }
+
+  .dl-variant-label {
+    grid-area: label;
+  }
+
+  .dl-variant-note {
+    grid-area: note;
+  }
+
+  .dl-variant-size {
+    grid-area: size;
+    text-align: right;
+  }
+
+  .dl-variant-row a {
+    grid-area: download;
+    text-align: right;
+  }
+}
+
+
+/* 从下载区跳进来时，页面按 60ms 一档安静地落位 */
+@keyframes dl-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.dl-page .shell > * {
+  animation: dl-page-in var(--dur-enter) var(--ease-out) both;
+}
+
+.dl-page .shell > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.dl-page .shell > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.dl-page .shell > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.dl-page .shell > :nth-child(5) {
+  animation-delay: 240ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-page .shell > * {
+    animation: none;
+  }
+}

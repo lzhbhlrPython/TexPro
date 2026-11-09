@@ -2,6 +2,7 @@ import { FloatButton } from 'antd';
 import { ArrowUpOutlined } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import { SiteFooter } from '@/layouts/components/SiteFooter';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { SectionRail } from '@/components/SectionRail';
 import { SiteHeader } from '@/layouts/components/SiteHeader';
 
@@ -9,6 +10,7 @@ export default function SiteLayout() {
   return (
     <div className="site-shell">
       <SiteHeader />
+      <ScrollToTop />
       <main id="main">
         <Outlet />
       </main>

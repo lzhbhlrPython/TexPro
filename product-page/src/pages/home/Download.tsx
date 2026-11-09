@@ -110,10 +110,9 @@ export function Download() {
                 ) : null}
                 <Button
                   type={current ? 'primary' : 'link'}
+                  className="dl-cta"
                   icon={<DownloadOutlined />}
-                  href={asset?.url ?? SITE_LINKS.releases}
-                  target="_blank"
-                  rel="noreferrer"
+                  onClick={() => navigate(`/download?platform=${target.key}`)}
                   style={current ? { justifySelf: 'end' } : { paddingInline: 0, justifySelf: 'end' }}
                 >
                   {asset ? t('下载') : t('前往 Releases')}

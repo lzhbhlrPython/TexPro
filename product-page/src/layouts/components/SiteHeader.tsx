@@ -134,7 +134,12 @@ export function SiteHeader() {
             rel="noreferrer"
             aria-label={t('在 GitHub 查看源码')}
           />
-          <Button type="primary" icon={<DownloadOutlined />} onClick={() => goSection('download')}>
+          <Button
+            type="primary"
+            className="dl-cta"
+            icon={<DownloadOutlined />}
+            onClick={() => goSection('download')}
+          >
             {t('下载')}
           </Button>
         </Space>
@@ -222,10 +227,14 @@ export function SiteHeader() {
           <Button
             block
             type="primary"
+            className="dl-cta"
             icon={<DownloadOutlined />}
-            onClick={() => goSection('download')}
+            onClick={() => {
+              setMenuOpen(false);
+              goSection('download');
+            }}
           >
-            下载 TeXPro
+            {t('下载 TeXPro')}
           </Button>
         </Flex>
 
