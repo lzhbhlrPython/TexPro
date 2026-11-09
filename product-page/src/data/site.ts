@@ -26,8 +26,10 @@ export const SECTION_LINKS: SectionLink[] = [
   { id: 'demo', label: '演示' },
   { id: 'showcase', label: '场景' },
   { id: 'workflow', label: '工作流' },
+  { id: 'failure', label: '出错' },
   { id: 'details', label: '小巧思' },
   { id: 'compare', label: '对比' },
+  { id: 'limits', label: '边界' },
   { id: 'local', label: '隐私' },
   { id: 'themes', label: '写作' },
   { id: 'migrate', label: '迁移' },
@@ -36,10 +38,10 @@ export const SECTION_LINKS: SectionLink[] = [
 ];
 
 export const HERO_METRICS = [
-  { value: '0', label: '数据上云' },
-  { value: '3', label: '套纸面主题' },
-  { value: '双向', label: 'SyncTeX 定位' },
-  { value: '30+', label: '可视化面板' },
+  { value: '89', label: '条回归用例', source: 'tests' },
+  { value: '87', label: '个 IPC 通道', source: 'ipc' },
+  { value: '16', label: '个安装包 / 次夜构', source: 'releases' },
+  { value: '21 × 2', label: '篇文档，中英各一版', source: 'docs' },
 ] as const;
 
 export const HERO_POINTS = ['免登录使用', '离线可编译', '文件留在本机磁盘'] as const;
@@ -177,6 +179,7 @@ export const FOOTER_GROUPS = [
       { label: '使用场景', href: '#showcase' },
       { label: '工作流', href: '#workflow' },
       { label: '版本对比', href: '#compare' },
+      { label: '它不做什么', href: '#limits' },
       { label: '迁移路径', href: '#migrate' },
     ],
   },
@@ -189,6 +192,7 @@ export const FOOTER_GROUPS = [
       { label: '常见问题', to: '/docs/faq' },
       { label: '更新日志', to: '/changelog' },
       { label: 'RSS 订阅', href: `${import.meta.env.BASE_URL}feed.xml`, external: true },
+      { label: '给 AI 的入口', to: '/ai' },
     ],
   },
 ] as const;

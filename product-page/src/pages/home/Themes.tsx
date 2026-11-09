@@ -3,7 +3,7 @@ import { Segmented, theme } from 'antd';
 import { CompareSlider } from '@/components/CompareSlider';
 import { ScreenshotFrame } from '@/components/ScreenshotFrame';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize } from '@/i18n';
+import { useLocalize, useT } from '@/i18n';
 
 type ThemeKey = 'studio' | 'night' | 'paper';
 
@@ -48,6 +48,7 @@ const MODES = [
 
 export function Themes() {
   const localize = useLocalize();
+  const t = useT();
   const themes = localize(THEMES);
   const modes = localize(MODES);
   const { token } = theme.useToken();
@@ -105,7 +106,7 @@ export function Themes() {
         </ul>
 
         <figure className="theme-compare">
-          <figcaption className="theme-compare-label">拖动分割线，对比 Studio 与 Night</figcaption>
+          <figcaption className="theme-compare-label">{t('拖动分割线，对比 Studio 与 Night')}</figcaption>
           <CompareSlider
             leftSrc="/shots/theme-studio.jpg"
             rightSrc="/shots/theme-night.jpg"

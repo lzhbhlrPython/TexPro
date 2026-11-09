@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { DownloadOutlined, GithubOutlined, MenuOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  DownloadOutlined,
+  GithubOutlined,
+  KeyOutlined,
+  MenuOutlined,
+  MoonOutlined,
+  SearchOutlined,
+  SunOutlined,
+} from '@ant-design/icons';
 import { Button, Divider, Drawer, Flex, Space, Typography, theme } from 'antd';
 import { SITE_LINKS } from '@/config/constants';
 import { useGoSection } from '@/lib/section';
 import { PAGE_LINKS, SECTION_LINKS } from '@/data/site';
 import { AppLogo } from '@/layouts/components/AppLogo';
 import { SearchDialog } from '@/components/SearchDialog';
+import { ShortcutsDialog } from '@/components/ShortcutsDialog';
 import { useLocale, useT } from '@/i18n';
+import { useThemeMode } from '@/lib/theme';
 
 const { Text } = Typography;
 
@@ -15,10 +25,12 @@ export function SiteHeader() {
   const { token } = theme.useToken();
   const t = useT();
   const { locale, toggle } = useLocale();
+  const { mode, toggle: toggleTheme } = useThemeMode();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -32,12 +44,26 @@ export function SiteHeader() {
   // ⌘K / Ctrl+K 打开搜索；在输入框里不拦截
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const isShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
-      if (!isShortcut) return;
       const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      event.preventDefault();
-      setSearchOpen((prev) => !prev);
+      const typing = Boolean(target && /^(INPUT|TEXTAREA)$/.test(target.tagName));
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        if (typing) return;
+        event.preventDefault();
+        setSearchOpen((prev) => !prev);
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+        event.preventDefault();
+        setShortcutsOpen((prev) => !prev);
+        return;
+      }
+
+      if (event.key === '?' && !typing) {
+        event.preventDefault();
+        setShortcutsOpen((prev) => !prev);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -85,6 +111,18 @@ export function SiteHeader() {
             aria-label={t('搜索文档与博客（⌘K）')}
             onClick={() => setSearchOpen(true)}
           />
+          <Button
+            type="text"
+            icon={<KeyOutlined />}
+            aria-label={t('键盘快捷键')}
+            onClick={() => setShortcutsOpen(true)}
+          />
+          <Button
+            type="text"
+            icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+            onClick={toggleTheme}
+            aria-label={t(mode === 'dark' ? '切换到日间模式' : '切换到夜间模式')}
+          />
           <Button type="text" className="locale-switch" onClick={toggle} aria-label={t('切换语言')}>
             {locale === 'zh' ? 'EN' : '中文'}
           </Button>
@@ -111,6 +149,7 @@ export function SiteHeader() {
       </div>
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
 
       <Drawer
         open={menuOpen}

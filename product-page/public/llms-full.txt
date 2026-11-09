@@ -1,0 +1,2411 @@
+# 安装与第一个工程
+
+> TeXPro 是桌面应用，不依赖服务端。这一节只讲四件事：装好、打开、编译、看结果。
+
+## TeXPro 是什么
+
+一个本地优先的 LaTeX 工作台：左边写、右边排，中间没有来回切换。源码始终是真源码，编译始终走你本机的 `latexmk`，文件始终在你自己的磁盘上。
+
+它不是 Markdown 编辑器，也不是在线协作平台。打开它之前，你不需要注册账号、不需要把稿子传到任何服务器。
+
+## 准备环境
+
+### 应用本体
+
+| 平台 | 安装包 | 说明 |
+| --- | --- | --- |
+| macOS 13+ | `.dmg` | 分 Apple 芯片（arm64）与 Intel（x64）两种 |
+| Windows 10+ | `.exe` | NSIS 安装包，可选安装路径 |
+| Linux | `.AppImage` | 赋执行权限后直接运行；也有 deb / rpm |
+
+安装包托管在 GitHub Releases，随每次提交自动打包；nightly 构建的版本号带日期。
+
+### TeX 发行版
+
+TeXPro 不打包 TeX，需要本机已有完整发行版：
+
+- macOS：MacTeX（或 BasicTeX + 需要的宏包）
+- Windows：TeX Live
+- Linux：TeX Live（发行版仓库里通常叫 `texlive-full` 或按需装）
+
+`pdflatex`、`xelatex`、`lualatex` 任一可用即可；应用启动时探测发行版与可执行文件，探测不到会在编译前提示缺什么。中文排版建议 XeLaTeX 或 LuaLaTeX。
+
+## 第一次打开
+
+首次启动会给一份演示工程（`demo/`），里面有一份 `main.tex`，覆盖公式、表格、TikZ、乐谱、引用等常见元素。不用先准备自己的稿子——用它走一遍编译，能最快确认环境是否完整。
+
+按下编译后，底部状态栏会依次出现「排版中」与「PDF 就绪 · 耗时」。如果这一步就通了，说明 TeX 环境没问题，可以打开自己的工程了。
+
+## 打开自己的工程
+
+用「文件 → 打开文件夹」（⌘O / Ctrl+O）选一个目录。TeXPro 会扫描其中的 `.tex`、`.bib`、图片与子目录，据此推断主文件。
+
+主文件的判定顺序是：
+
+| 状态 | 含义 |
+| --- | --- |
+| `configured` | 工程配置里写死了主文件，以它为准 |
+| `detected` | 目录里只有一个合理的候选，自动选中 |
+| `ambiguous` | 有多个候选，需要你指定 |
+| `missing` | 目录里没有 `.tex` 文件 |
+| `invalid` | 配置指向的文件不存在 |
+
+推断不出来时，用左侧「主文件」下拉手动指定一次，选择会写进工程配置，之后打开就以配置为准。
+
+> 工程目录下的 `.texpro/` 保存工程配置与内容快照。它是否进版本库由你决定，但对共享工程来说，通常和 `.gitignore` 一起处理更省事。
+
+## 第一次编译
+
+按 ⌘↩（Windows / Linux 为 Ctrl+Enter）编译。
+
+```text
+main.tex  →  latexmk（-synctex=1）  →  main.pdf
+```
+
+- 引擎默认跟随工程设置（`pdflatex` / `xelatex` / `lualatex`）
+- 增量构建由 `latexmk` 负责，第二次编译通常比第一次快
+- 日志同时写进 PDF 旁的构建目录，诊断面板读的是同一份
+- 出错时右侧显示问题数量，点开就是诊断面板，点一条跳到出错行
+
+编译在后台进行，不阻塞输入：你可以继续写，结果回来时只更新预览与诊断。
+
+## 界面地图
+
+| 位置 | 作用 |
+| --- | --- |
+| 左侧栏 | 文件树、素材库、符号与全文搜索（⌘\ 收起） |
+| 中间 | 编辑器。源码与可视层是同一份内容的两面（⌘⌥M 切换） |
+| 右侧 | PDF 预览，可整块收起（⌘⌥P） |
+| 底部 | 状态栏、编译耗时与诊断面板 |
+
+## 四个常用开关
+
+| 快捷键 | 作用 |
+| --- | --- |
+| ⌘K | 命令面板，30+ 面板与动作都能搜到 |
+| ⌘⌥F | 聚焦模式：只留当前段落 |
+| ⌘⌥T | 打字机模式：光标固定在视线中间 |
+| ⌘⌥L | 切换日间 / 夜间 |
+
+完整列表见 [快捷键](/docs/shortcuts)。
+
+## 第一次常见问题
+
+**编译报找不到 latexmk**：TeX 没装，或装完没重启终端 / 应用。安装器改了 PATH，旧进程拿不到。
+
+**PDF 是空白**：多半是主文件选错了，编译的是个没有正文的 stub。检查左侧「主文件」下拉。
+
+**中文变成方框**：引擎用了 pdfLaTeX。换成 XeLaTeX，或加载 `ctex` 宏包。
+
+**PDF 预览不跟光标**：先编译一次让 SyncTeX 数据生成；`-synctex=1` 是默认参数，但旧工程配置里可能被覆盖了。
+
+**打开工程很慢**：目录里 `node_modules` / `build` 之类的大目录会被跳过，但如果你的工程里有超大的图片目录，第一次扫描仍会读元信息。
+
+## 下一步
+
+- 编译与诊断：[编译与诊断](/docs/compile)
+- 双向定位：[PDF 与源码双向定位](/docs/synctex)
+- 写作手感：[写作模式与主题](/docs/writing)
+- 从别的工具搬稿子：[导入、模板与素材](/docs/import)
+
+---
+
+# 导入、模板与素材
+
+> 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程、把图片收进素材目录，这三件事各有入口和边界。
+
+导入、模板与素材解决三个不同的问题：换格式、起新工程、给已有工程添图。三者都不修改原始文件；生成的 `.tex` 直接落在工程里，之后就是普通源码，可以继续手改。
+
+## 把 Markdown 翻成 LaTeX
+
+打开工程后，用 `文件 → 导入 Markdown / Typst…` 打开导入面板；也可以按 `⌘K` 搜 Import 进入。面板左侧是原文，右侧 `Generated LaTeX` 随输入实时更新。
+
+- 选 Markdown，把稿子粘进左侧，或用 Choose file 选 `.md`、`.markdown`、`.mdown`、`.txt`。
+- 填 Title、Author、Date、Document class 与 File name。Date 默认 `\today`，留空则生成空日期。
+- 按 **Insert body** 只把正文插到当前光标处；按 **Create .tex file** 则在工程根生成完整文档，含导言区。
+
+转换规则是固定的，不是启发式猜测：
+
+| 原文 | 生成 |
+| --- | --- |
+| `#` 到 `######` | `\section` 到 `\paragraph`，最多四级 |
+| `-`、`*`、`+` 与 `1.` | itemize、enumerate |
+| `>` 起头 | quote |
+| 行内粗体、斜体、行内代码 | `\textbf`、`\emph`、`\texttt` |
+| `$...$` 与 `$$...$$` | 原样保留为数学 |
+| 围栏代码块 | verbatim |
+| 表格 | table 加 tabular，全部左对齐 |
+| `![alt](path)` | figure 加 `\includegraphics`，宽 0.8 `\linewidth` |
+| 分隔线 `---` | 一条横线 |
+| 原始 HTML | 转义为文本，并记一条警告 |
+
+文件开头若带 front matter，其中的 title、author、date 会填进表单；正文不会重复输出这些字段。
+
+## 中文与导言区
+
+正文里只要出现中文，生成的文档一律用 `ctexart`，无论下拉里选的是 article 还是 ctexart。编码 UTF8、字体 fandol，引擎标记为 xelatex。纯西文才用 article 与 pdflatex。
+
+```latex
+\documentclass[UTF8,fontset=fandol,11pt]{ctexart}
+\usepackage{amsmath,amssymb,graphicx}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs,xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\begin{document}
+\maketitle
+\section{引言}
+...
+\end{document}
+```
+
+两种导言区都带 amsmath、amssymb、graphicx、geometry（2.5 cm 边距）、booktabs、xcolor 与 hyperref。没有 Title 时不写 `\maketitle`，日期留空时写成 `\date{}`。
+
+## 从 Typst 导入
+
+同一面板切到 Typst，能识别 `#set document(...)` 里的 title 与 author、`= 标题` 的层级、列表、`*粗体*` 与 `_斜体_`、`$公式$`、`#link`、`#image` 与 `#figure`。Typst 是函数式排版，没有逐个对应物；认不出的写法不会静默丢掉，而会进警告列表。
+
+## 模板
+
+`文件 → Template Library…` 列出 11 个内置模板，分四类：
+
+| 分类 | 模板 | 引擎 |
+| --- | --- | --- |
+| Basics | Article、Letter | pdflatex |
+| Academic | Report、中文 article（ctex）、双栏 article、Thesis | pdflatex 或 xelatex |
+| Teaching | Beamer slides、Problem set | pdflatex |
+| Languages | 日文 article | lualatex |
+| Languages | 阿拉伯文、俄文 article | xelatex |
+
+选模板后填工程名并选父目录，TeXPro 建 `<父目录>/<工程名>`。名字里的非法字符换成 `-`，重名自动加 `-2`、`-3`；模板里的 `{{title}}`、`{{author}}`、`{{projectName}}` 由表单替换，生成的 `main.tex` 以模板对应的引擎打开。
+
+`文件 → Template Workshop…` 从空白基础类（article、report、ctexart、beamer）拼页面、字体、结构与宏包，满意的版式可以保存成个人模板。选中模板后，预览区会用该模板的引擎编译一页，作为首页缩略图。个人模板存在应用数据目录的 JSON 里，单份内容上限 2,000,000 字符。
+
+## 素材
+
+`Project → Asset Library` 扫描当前工程，深度 6 层、最多 500 个文件，按修改时间倒序。只认 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`、`.pdf`、`.eps`。
+
+插入一张图：
+
+- 从 Finder 拖图片进编辑器，或在素材库里点一张。
+- 图片先存进工程配置的素材目录（默认 `assets`），重名加 `-2`、`-3`。
+- 编辑器插入 `figure[htbp]`、`\centering`、`\includegraphics[width=0.8\linewidth]`、`\caption{}`、`\label{fig:...}`，光标停在 caption 里。
+- 主文件导言区缺 `graphicx` 时会自动补上。
+
+路径写成相对当前 `.tex` 的路径；label 由文件名生成，重名追加 `-2`。SVG 在插入前先栅格化到 `.texpro/svg-cache/`，源文件不动。落点有规则：图片不会插进另一个浮动体内部，光标在 figure 里时会挪到该环境之后；在主文件里则不会落进导言区。
+
+## 常见坑
+
+- 导入不复制图片：Markdown 里的相对路径原样写进 `\includegraphics`，图没跟着进工程就会缺图。
+- 远程图片（`http(s)://`）不会下载，改写成 `\href` 并在警告里点名。
+- 代码块里出现 `\end{verbatim}` 时，该块降级成 quote，避免环境提前结束。
+- 表格按最宽一行定列数，所有列都是左对齐；合并单元格与长表请改用 Table Studio 或手写。
+- 下拉里选 article 也可能得到 ctexart：只要正文含中文。
+- 没打开工程时不能 Create .tex file，但 Insert body 仍可用。
+- 警告面板最多显示 4 条，剩余条数只在计数里体现。
+
+## 相关页面
+
+- 编译与诊断：`/docs/compile`
+- 工程与文件：`/docs/project`
+- 写作模式与主题：`/docs/writing`
+- 导出与 arXiv：`/docs/export`
+
+---
+
+# 编译与诊断
+
+> 编译是一层薄壳：定位主文件、挑引擎、跑 latexmk、把日志读成可跳转的诊断。理解这四步，「为什么没出 PDF」大多能自己回答。
+
+TeXPro 不实现 TeX，它调用本机的 latexmk。一次编译真正做的事只有四件：把改动写盘、决定编译谁、决定用哪个引擎、把日志翻译成界面上的信号。知道这四步，报错就不再是黑箱。
+
+## 一次编译的四个阶段
+
+- 保存：编译前把所有脏缓冲区写盘，并重读一次主文件，确保 latexmk 看到的是磁盘上的最新版本。
+- 定位：按 `.texpro/project.json` 的 `rootFile`，或工程内唯一的 `\documentclass` 文件，决定主文件。
+- 选引擎：读主文件里的魔法注释与宏包特征，再参考设置里的默认引擎。
+- 运行与解析：调 latexmk，读 `.log`，把错误、警告、排版溢出拆成诊断，最后确认 PDF 真的生成。
+
+## 引擎怎么定
+
+优先级从高到低：
+
+- 主文件里的魔法注释，如 `% !TeX program = xelatex`。
+- 文档特征：`ltjs`、`luatexja` 走 lualatex；`ctex`、`xeCJK`、`fontspec`、`polyglossia`、`\setCJKmainfont` 走 xelatex。
+- 设置里的 Default engine。
+- 兜底 pdflatex。
+
+| 引擎 | latexmk 参数 | 适用 |
+| --- | --- | --- |
+| pdfLaTeX | `-pdf` | 纯西文、传统 Type1 字体 |
+| XeLaTeX | `-xelatex` | ctex、fontspec、系统字体 |
+| LuaLaTeX | `-lualatex` | luatexja、需要 Lua 的宏包 |
+
+同样的判断也用于 TikZ、图表等预览，所以主文件里写对魔法注释，预览与正式编译不会用两个引擎。
+
+## 构建目录与产物
+
+默认构建目录是 `.texpro/build`，可以在 `Project → Project Structure…` 里改 `directories.build`，但必须留在工程内，否则报 "Build directory must stay inside the project"。PDF 与 log 都以主文件 basename 命名。
+
+```bash
+latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error \
+  -outdir=.texpro/build main.tex
+```
+
+工程在 Git 管理下时，记得把构建目录写进 `.gitignore`；它每轮都会被重写。
+
+## 编译策略
+
+| 策略 | 行为 |
+| --- | --- |
+| After idle（默认） | 停止输入 2.2 秒后编译，正在编译时不重入 |
+| Only when PDF is open | 只有 PDF 面板开着才自动编译 |
+| Manual only | 只认 `⌘↩` 与菜单里的 Compile |
+
+自动保存是独立开关，关掉自动编译不影响保存。`⌘↩` 随时可以手动编译，代价是先保存全部改动。
+
+编译中按钮变成 Cancel，菜单里也有 Cancel Compile。取消先对整个进程组发 SIGTERM，2.5 秒后补 SIGKILL。单次编译默认超时 180 秒，超时报 "Compilation timed out after 180s"。
+
+## 诊断怎么读
+
+| 来源 | 处理 |
+| --- | --- |
+| `main.tex:42: Undefined control sequence` | 直接给出文件与行号 |
+| `! LaTeX Error: ...` 加 `l.42` | 从错误块里补出行号 |
+| `LaTeX Warning:`、`Package ... Warning:` | 记为警告 |
+| Overfull / Underfull `\hbox` | 排版溢出，归为提示（info） |
+| `File 'x' not found` | 当作错误 |
+
+诊断上限 250 条，按行号排序。点一条跳到对应行，编辑器 gutter 同时标出；状态栏右侧的 `n problems` 是错误加警告的计数，点开是问题面板。
+
+命令面板（`⌘K`）里的 Compile theater 把一次编译拆成 Engine and root file、LaTeX compilation、Diagnostics、PDF handoff 四段，附流式日志。需要看 latexmk 原始输出时用它，比状态栏耐心得多。
+
+## 工具链检查
+
+`Project → Project Doctor…` 检查 latexmk、pdflatex、xelatex、lualatex、biber、bibtex、synctex、kpsewhich、dvisvgm。硬性要求只有 latexmk 与 pdflatex；其余缺了只影响对应功能：xelatex 模板、biber 参考文献、SyncTeX 跳转、SVG 转换。
+
+Doctor 还会列孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key 与重复 label，并可以清理构建目录。
+
+## 常见坑
+
+- 找不到主文件：报 "No LaTeX root file found. Add a file containing \documentclass or a % !TeX root comment."。让工程里只有一个含 `\documentclass` 的 `.tex`，或在 Project Structure 里指定主文件。
+- 配了主文件但内容被改坏：不会自动回退，报 "Project main file configuration is invalid: ..."。修好文件或重新选主文件。
+- 多个候选：报 "Multiple main files found. Choose the project main file."，必须显式选一个。
+- exit 0 却没有 PDF：报 "latexmk finished but no PDF was produced."，通常是 `\end{document}` 之前就中断，或构建目录被外部清理。
+- 字体缺失：ctex 配 xelatex 在没装中文字体的机器上会失败；Doctor 的字体覆盖能提前看出来。
+- minted 一类需要 shell-escape 的宏包：主编译不传 `-shell-escape`，这类内容要在外部编译或改造。
+- 编译中切换或关闭工程：会先取消当前编译，旧结果直接丢弃。
+
+## 相关页面
+
+- PDF 与源码双向定位：`/docs/synctex`
+- 工程与文件：`/docs/project`
+- 导入、模板与素材：`/docs/import`
+- 快捷键：`/docs/shortcuts`
+- 编译实现细节：`/docs/dev-arch`
+
+---
+
+# PDF 与源码双向定位
+
+> SyncTeX 把 PDF 的坐标映射回源码行。TeXPro 每轮编译都带 -synctex=1，正向跟随与反向点选都建立在这份映射上。
+
+每轮编译都带 `-synctex=1`，所以不需要额外开关。正向查询是「源码第几行在 PDF 的哪里」，反向查询是「PDF 这个坐标来自哪一行」；两边都由本机 `synctex` 完成，精度就是 TeX 断行之后的精度。
+
+## 一次定位的完整链路
+
+- 编译成功后，构建目录里多出一份与主文件同名的 `.synctex.gz`。
+- 正向查询读它，把「文件、行、列」换算成页面与矩形，PDF 面板据此高亮、滚动。
+- 反向查询读同一份文件，把「页、x、y」换算成源文件与行号，编辑器据此选中。
+- 映射在每轮成功编译后整份替换，不累积、不增量更新。
+
+手动验证时可以直接调命令行，参数与 TeXPro 内部一致：
+
+```bash
+synctex view -i 128:1:main.tex -o .texpro/build/main.pdf
+synctex edit -o 3:210:420:.texpro/build/main.pdf
+```
+
+`view` 输出 Page、x、y、h、v、W、H，`edit` 输出 Input、Line、Column。TeXPro 额外检查 `edit` 返回的源文件真实路径必须在工程内，否则拒绝跳转。
+
+## 源码 → PDF
+
+- 光标停在某处、PDF 面板开着、设置里的 PDF follows cursor 保持默认开启：停顿 650 毫秒后自动定位。
+- 想立刻定位：`⇧⌘J`，或 `Build → Forward Search`。
+- PDF 没打开时，手动定位会把面板打开；还没有编译产物时提示 "Compile first to enable SyncTeX"。
+- 命中后 PDF 滚到对应位置，顶部横幅写 `Synced to page 3 · line 128`。
+
+自动跟随只在「不编译中、有 PDF、有活动文件」时触发。两者都只在目标离开视口时才滚动，并把它停在视口约 40% 处；区别是手动定位用平滑滚动，自动跟随直接跳，避免边打字边看时画面持续滑动。
+
+## PDF → 源码
+
+在 PDF 上按住 `⌘`（Windows / Linux 为 `Ctrl`）单击，编辑器跳到对应行。反向选区则是按住 `⌘` 拖一个矩形，或先点工具栏的 Select PDF region 进入框选模式。
+
+- 底部提示：`Hold ⌘ / Ctrl and click or drag to locate source`。
+- 框选模式提示：`Drag to select a PDF region and locate its source. Esc cancels.`，`Esc` 退出。
+- 区域最多取 7 个采样点并行反查。
+- 结果按文件分组，取覆盖行数最多的文件，把最小到最大行整段选中。
+- 几个点落在不同文件时提示 "Region crosses source files. Showing the largest matching range."。
+- 找不到时提示 "No source location at this point"。
+
+反向定位成功后会暂停自动正向跟随 1800 毫秒，否则同一动作会立刻被光标跟随覆盖回去。
+
+## PDF 面板
+
+| 控件 | 作用 |
+| --- | --- |
+| 上一页 / 下一页 | 翻页，标题旁显示当前页与总页数 |
+| 缩放 | 35% 到 180%，步进 10%，默认 90% |
+| Fit page width | 按面板宽度铺满一页 |
+| 缩略图 | 侧栏页缩略图列表，点击翻到该页 |
+| 搜索 | 至少 2 字符，显示 n/m 命中，Enter 与 Shift-Enter 跳转 |
+| Select PDF region | 进入框选反查，Esc 退出 |
+| Compare with previous compile | 与上一份 PDF 叠影，透明度 15% 到 90% |
+| Two-page spread | 双页并排 |
+| Presentation mode | 面板全屏 |
+| Copy page text | 复制当前页文本 |
+| Open PDF in default viewer | 交给系统阅读器 |
+| Reveal PDF in Finder | 在文件管理器里定位产物 |
+
+面板空态写 "No PDF yet"，按钮直接触发编译，并提示 `⌘↩ compile · ⌘-click PDF to jump back`。
+
+## 精度与边界
+
+- 粒度是行，不是字符。同一行里的多个公式都指向同一行号；反向点选也只落到行。
+- 映射来自最近一次成功编译。改了源码没重编译，定位会偏，偏多少取决于改动了多少行。
+- 反向查询要求源文件真实路径在工程内，`\input` 到工程外时会被拒绝，报 "SyncTeX source is outside the project"。
+- 编译取消或失败时不更新映射，旧 PDF 与旧映射仍然成对，界面不会出现半张新图配旧行号。
+- 从别处拷来的 PDF 没有可用映射：映射由 latexmk 在编译时写入，只对同一次编译的 PDF 有效。
+
+## 常见坑
+
+- 只在 PDF 面板打开时有意义；面板收起后自动跟随不会触发，但仍可以用 `⇧⌘J` 手动定位。
+- 编译进行中不跟随：正在编译时打字，等状态栏从 Typesetting 变回 PDF ready 再看。
+- 自动编译与光标跟随叠加时，刚保存就跳转可能对到上一版；停顿一拍再定位更稳。
+- 区域反查跨文件时只给一个文件的范围，不是多文件合并结果。
+- 双页与演示模式只改显示方式，不影响坐标换算。
+- 缩放不改变映射：任意缩放级别下点击都按页面坐标换算。
+
+## 与自动编译的配合
+
+自动编译在停止输入 2.2 秒后触发，编译完成才更新 PDF 与映射。写长段时这会出现一个窗口：屏幕上的 PDF 仍是上一版，光标跟随也会对到旧位置。状态栏左边的 Typesetting 转圈是唯一可靠的信号，转完再读 PDF 就不会错位。
+
+如果只想安静写作，把编译策略切到 Manual only，或在设置里关掉 PDF follows cursor，用 `⇧⌘J` 按需定位。
+
+## 相关页面
+
+- 编译与诊断：`/docs/compile`
+- 写作模式与主题：`/docs/writing`
+- 工程与文件：`/docs/project`
+- 快捷键：`/docs/shortcuts`
+
+---
+
+# 写作模式与主题
+
+> 同一份 .tex 有几种屏幕投影：可视层把结构画出来，专注、打字机与零界面决定屏幕上还剩多少东西，主题只改界面配色。
+
+内容始终是同一份 `.tex`。可视层改变「怎么显示」，写作模式改变「显示多少」，主题改变「用什么颜色」。三者都只作用于界面，不改源码，也不参与编译。
+
+## 可视模式
+
+默认开启，`⇧⌘M` 或 `View → Toggle Visual Mode` 切换。开启时编辑器把标题、公式、表格、图片、代码块与引用环境渲染成接近排版的组件，语法噪音被收起。
+
+- 点击任何一个渲染结果，光标落到它对应的源码位置，该对象随即展开为源码，可以直接改。
+- 光标或选区进入的块会暂时退回源码；移开后重新渲染。
+- 导言区折叠成一张卡片，显示文档类、宏包数量与被隐藏的行数，点 Reveal 展开。
+- 链接在正文里以普通文字显示；按住 `⌘`（Windows / Linux 为 `Ctrl`）点击才在系统浏览器打开。
+
+可视层是语义组件，不是排版引擎：断行、浮动体位置、字体度量一律以 PDF 为准。要判断最终效果，看 PDF，不看编辑器。
+
+## 专注、打字机与零界面
+
+| 模式 | 行为 | 开关 |
+| --- | --- | --- |
+| Focus mode | 当前段落之外全部淡出；隐藏侧栏、PDF 与格式栏，正文单列，最大宽度取阅读宽度与 720 px 的较小值 | `⇧⌘F` |
+| Typewriter scrolling | 选区变化后把光标居中，视口随写随滚 | `⇧⌘T` |
+| Zero interface | 隐藏标题栏、侧栏、PDF、状态栏、问题面板与格式栏，正文最大 820 px，右上角留一个 Exit focus 按钮 | `⌘⇧0`，`Esc` 退出 |
+
+专注模式按「连续非空行块」判断段落：段落之间空一行，才会被当成两段。打字机模式在选区变化 20 毫秒后把光标滚到视口中央，编辑器失去焦点时不动作。
+
+三种模式可以叠加。专注加打字机适合长段写作；零界面适合投影、录屏或纯粹不想看见工具栏的时候。
+
+## 主题
+
+| 主题 | 观感 |
+| --- | --- |
+| Paper | 默认。暖白纸面、深色文字，工具栏收进右上「更多」 |
+| Night | 深色界面，夜间写作 |
+| Studio | 深色侧栏配浅色编辑区 |
+
+`⇧⌘L` 只在 Paper 与 Night 之间切换：当前是 Studio 时按一次会回到 Paper。三套主题在命令面板里各有独立命令（Theme: Paper、Theme: Night、Theme: Studio），比循环切换更直接。
+
+主题只改界面 CSS 变量。它不影响源码、不影响 PDF、不影响导出；换主题不会让文档「重新排版」。
+
+## 排版参数
+
+| 参数 | 范围 | 默认 |
+| --- | --- | --- |
+| 字号 | 13 到 22 px | 17 px |
+| 阅读宽度 | 620 到 980 px | 760 px |
+
+阅读宽度同时也是专注模式的宽度上限，两者取小。参数存在本机设置里，按工程无关，换工程不重置。
+
+## 输入辅助
+
+Markdown input shortcuts 只在你键入、且位于正文时生效；导言区、注释、数学、verbatim 与命令参数里保持原样。
+
+- 行首 `# ` 到 `###### ` 换成 `\section` 到 `\subparagraph`。
+- 行首 `-`、`+`、`*` 换成 itemize 骨架，`1.` 换成 enumerate，`>` 换成 quote。
+- 行尾的 `**粗**`、`*斜*` 与反引号包住的代码换成 `\textbf`、`\emph`、`\texttt`。
+- 撤销会还原你打的原语法，而不是逐字撤销转换结果。
+
+Smart paste 在粘贴时判断来源：剪贴板里已经有 TeX 命令就原样贴；网页 HTML 转成粗体、斜体、等宽、链接与列表，遇到合并单元格则退回纯文本；列数一致的 TSV 转成 tabular；Markdown 转成标题、列表、引用、代码块与表格。`⌘⇧V` 始终按纯文本粘贴。
+
+拼写检查只检查拉丁字母单词，命令、数学、verbatim、URL 与邮箱先被掩掉；它不判断中文用词。`Show line numbers` 控制行号 gutter。
+
+状态栏中间给三样东西：Ln/Col、选中字符数、`n words`。词数先去掉注释、环境标记与命令，西文按空白切词，中文按字计数，所以中英混排的稿子会看到一个偏大的数字。
+
+## 界面语言与命令面板
+
+设置里可以切中英文界面，菜单、命令面板与提示同步换语言。`⌘K` 里搜主题、模式、面板名都能直接执行，比记快捷键稳；命令面板同时是发现入口，很多工作室面板只在里面出现。
+
+## 常见坑
+
+- 专注模式按连续非空行块分段：段落之间不空行，就会被当成同一段。
+- 零界面不是全屏：它只隐藏界面元素，PDF 与编译照常运行，`Esc` 或右上角按钮退出。
+- 打字机模式依赖编辑器焦点，点到侧栏时不会滚动。
+- 数学环境里打 `*` 不会被换成 emph，这是故意的；离开数学后才会转换。
+- 关闭可视模式后，「点击渲染对象回到源码」的行为也随之消失。
+- Studio 不是默认主题；新装或重置设置后是 Paper。
+- 专注模式会收起 PDF 面板，边写边核对版式时先退出专注，再用 `⌘⌥P` 单独开 PDF。
+- 词数不是投稿口径：中文按字计数，导言区里的标题与作者也算进去，只能看趋势。
+
+## 相关页面
+
+- PDF 与源码双向定位：`/docs/synctex`
+- 编译与诊断：`/docs/compile`
+- 快捷键：`/docs/shortcuts`
+- 工程与文件：`/docs/project`
+
+---
+
+# 占位符与修订备忘
+
+> 缺素材时继续写，在原段落留下修订线索；内容留在 TeX 中，可查找、可撤销、可交接。
+
+## 占位符：先继续写
+
+配图、表格、引用或数据暂时没有准备好时，在正文按 `⌘⇧H`（Windows / Linux 为 `Ctrl+Shift+H`）。编辑器插入占位符并选中说明，直接写下待补内容。继续输入正文即可，无需打开工作间。
+
+左侧「占位符」列表可以选择正文、配图、表格、引用、数据五种类型。点击条目会选中源文件中对应的完整命令，输入真实内容即可替换。`F4` / `Shift+F4` 在当前文件的占位符间循环。命令面板 `⌘K` 同样能找到这些操作。
+
+```tex
+\texproplaceholder[figure]{补一张实验装置示意图}
+\texproplaceholder[data]{核对最终样本量}
+```
+
+插入命令会把所需的兼容宏放进工程的实际主文件，正文仍留在当前子文件；两处修改作为一组撤销。已有自定义同名宏时保留作者定义。普通 LaTeX 发行版即可编译，无需新增外部程序。
+
+## 草稿与正式提交
+
+配图、表格占位符在草稿 PDF 中保留框与说明，其他类型显示行内框。它们不会自动生成真实图片、文献或数据。编译问题面板会给出待补项的位置；源文件导出也会提示。创建 arXiv 投稿包前必须清空工程中的占位符，避免把待办当作成稿提交。
+
+占位符列表包含工程内的 `.tex` / `.ltx` 文件；隐藏目录、构建目录和符号链接不参与扫描。未被主文件包含的草稿也会出现在工程清单中，应在正式打包前处理或移出工程。手工输入命令时，需要自己保留主文件里的宏定义；推荐使用插入操作自动安装支持。
+
+## 修订备忘：下次从这里接着改
+
+在当前段落按 `⌘⇧N` 留下备忘，直接在源文件注释中输入内容；按 `⌘⇧U` 打开修订备忘清单。备忘记录在普通注释里，不进入 PDF，也不依赖应用数据库。
+
+```tex
+这一段先保留现有论证。
+% MEMO: 下次核对第三段和图 2 的结论是否一致
+% MEMO-DONE: 已补充实验条件
+```
+
+重新打开文件时，编辑器上方会提示该文件最后一条未完成的备忘。点击提示回到相邻段落；可以标为完成或关闭本次提示。关闭提示不删除注释，完成后仍可在清单里重新打开。原有 `% TODO:`、`% FIXME:`、`% NOTE:` 和 `% DONE:` 继续兼容。
+
+## MCP 协作
+
+`texpro_writing_aids` 返回已保存文件中的占位符、备忘、UTF-16 偏移与 SHA-256。`texpro_edit_writing_aid` 支持插入、替换、添加备忘和完成／重开备忘。修改必须提交刚读取的文件哈希；插入占位符还需主文件哈希，防止覆盖外部改动。
+
+MCP 操作直接读写磁盘，无法读取编辑器里尚未保存的缓冲区。交给外部客户端处理前先保存，返回编辑器后检查外部变更。不要用过期的偏移重复请求。
+
+---
+
+# 工程与文件
+
+> 一个工程就是磁盘上的一个目录。主文件、子文件、图片、参考文献与 .texpro 元数据都在里面，TeXPro 不建数据库，只读写这些文件。
+
+工程没有隐藏的导入步骤：打开一个目录，它就是工程。之后所有新建、重命名、移动、删除都发生在该目录内，越界操作会被直接拒绝。换一台机器，把这个目录拷过去就能继续编译。
+
+## 打开与新建
+
+- `⌘O` 或 `文件 → Open Folder…` 选一个目录，它成为工程；欢迎页保留最近 8 个。
+- `文件 → Template Library…` 从模板起新工程：选父目录、填工程名，建 `<父目录>/<工程名>`。
+- 工程名里的反斜杠、斜杠、冒号、星号、问号、引号、尖括号与竖线会换成 `-`，长度截到 80 字符；同名目录已存在时自动加 `-2`、`-3`，不会覆盖。
+- 打开工程会解析目录树、主文件、素材、大纲与评论；不复制、不移动任何文件。
+- 欢迎页的 `Explore the demo project` 在应用数据目录生成一个示例工程，并尝试编译一次，适合先熟悉界面。
+
+## 主文件怎么定
+
+- 先看 `.texpro/project.json` 的 `rootFile`（相对工程根的路径）。有就校验：必须是工程内的 `.tex` 或 `.ltx`，且含未被注释的 `\documentclass`。
+- 没有配置时递归探测含 `\documentclass` 的文件，深度 5 层，跳过点开头目录与 `.git`、`node_modules`、`.texpro`、`build`、`out`、`dist` 等忽略目录。
+- 恰好一个 → 直接作为主文件；多个 → 报 "Multiple main files found. Choose the project main file."，需要你在 Project Structure 里选；没有 → 报 "No main file containing \documentclass found."。
+- 配置指向的文件被改坏 → 报 "Project main file configuration is invalid: ..."，不会悄悄回退到自动探测。
+
+主文件决定编译入口与 PDF 名字，不决定编辑焦点：打开任意文件按 `⌘↩`，编译的仍是主文件。错误提示里提到 `% !TeX root` 注释，但主文件解析并不读它；这行注释只在重命名或移动时被一起改写。
+
+## 目录与元数据
+
+| 路径 | 内容 |
+| --- | --- |
+| `.texpro/project.json` | 主文件、modules、assets、build 目录、TOC 与模块列表 |
+| `.texpro/build/` | 编译产物，默认构建目录 |
+| `.texpro/trash/` | 删除文件的暂存地，按时间戳命名 |
+| `.texpro/comments.json` | 评论，锚定文件、行号与片段 |
+| `.texpro/svg-cache/` | SVG 栅格化缓存，源文件不动 |
+| `.texpro/history/` | 内部快照，内容寻址存储 |
+
+这些都可以删。删掉 `project.json` 等于忘记主文件选择与目录配置，下次打开会重新探测。备份会跳过所有点开头的目录，但会把 `project.json` 与 `comments.json` 单独补进 zip。
+
+## 文件操作与引用
+
+新建、重命名、移动、删除都在文件树里完成，执行前先算影响：
+
+- 重命名或移动会改写 `\input`、`\include`、`\includegraphics`、`\bibliography`、`\addbibresource`、`\lstinputlisting`、`\includepdf` 与 `% !TeX root` 里的路径。
+- 改写跳过注释，也跳过 verbatim、lstlisting、minted 与 `\verb` 里的内容。
+- 扩展名按引用类型补齐或去掉：图片认 `.pdf`、`.png`、`.jpg`、`.jpeg`、`.svg`，参考文献认 `.bib`，源码认 `.tex`、`.ltx`。
+- 先把所有改动算完再 rename；写回失败会反向恢复原文与路径，不留半改状态。
+- 目标已存在报 "A file or folder with that name already exists"；越界报 "Path is outside the project"；符号链接会被拒绝。
+- 新建文件不写扩展名时补 `.tex`；重命名不带扩展名时沿用原扩展名；名字里不能有斜杠或反斜杠。
+
+## 删除与恢复
+
+删除不是真删：文件或目录被移到 `.texpro/trash/<时间戳>-<原名>`，时间戳是去掉冒号与点的 ISO 时间。确认框会先给出受影响的子文件、素材与引用计数。
+
+界面没有「恢复」按钮。需要找回时从 Finder 进 `.texpro/trash`，按时间排序，把东西拖回原位；引用不会自动恢复，必要时手动改回路径。
+
+## 快照与版本
+
+工程不在 Git 仓库里时，`⌘S` 显式保存会给改动文件留一份内部快照；`Project → Version Review…` 可以手动创建快照、看行级 diff、恢复单个文件或删除快照。
+
+工程一旦位于 Git 仓库内，内部快照自动停写，面板会提示改用 Git。Git 面板显示分支、ahead / behind 与最近 8 条提交，commit 默认信息是 "Update from TeXPro"，pull 只做 `--ff-only`。
+
+快照是内容寻址的：按 4096 字符切块，块以 sha256 命名并用 brotli 压缩，重复内容不重复存。它适合「刚才那段删错了」，不适合长期版本管理。
+
+## 搜索、大纲与工程体检
+
+- 搜索：至少 2 字符，320 毫秒防抖，深度 5 层，单文件上限 2 MB，最多 120 条命中，可切大小写。
+- 大纲以活动文件为主：跨文件大纲不合并，长工程按 `\input` 结构拆开看更准。
+- Project Doctor 检查工具链、孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key、重复 label 与字体嵌入，并可清理构建目录。
+- 同一时间只有一个活动文档，没有完整的多标签编辑；编码按 UTF-8 处理。
+
+## 评论
+
+`Project → Comments…` 的评论存在 `.texpro/comments.json`，锚定文件、行号与一段原文片段，不往 `.tex` 里插标记。打开工程时若行号已经漂移，会按片段重新定位；片段也被改掉时，评论留在列表里但不再锚定。
+
+## 常见坑
+
+- 工程根选错：选到父目录会扫进无关工程，选到子目录会找不到主文件；重开正确目录即可。
+- 在 Finder 里移动文件后不重开工程：树与引用都是旧的，用应用内移动才会改写引用。
+- 删除后想恢复却找不到：`.texpro/trash` 里按时间戳排序，名字前一段是 ISO 时间。
+- 用外部 Git 提交后再开 Version Review：内部快照已停写，看到的是旧快照。
+- `.texpro` 被整体删掉：评论、回收站与快照一起消失，源码不受影响。
+- 备份 zip 不含默认构建目录与 `.texpro` 其余内容，恢复后首次编译会重建构建目录。
+
+## 相关页面
+
+- 编译与诊断：`/docs/compile`
+- PDF 与源码双向定位：`/docs/synctex`
+- 导入、模板与素材：`/docs/import`
+- 导出与 arXiv：`/docs/export`
+
+---
+
+# CTeX 中文写作排版
+
+> 中文纸面阅读与正式 PDF 分别处理，保留作者字体、文档类和工程主文件。
+
+## 编辑器与 PDF 的分工
+
+可视模式会识别主文件的 CTeX 配置，在普通中文段落的起始处显示两字缩进、适合阅读的行距和中文换行规则。公式、代码、表格、标题仍按各自结构呈现。屏幕预览帮助连续写作；正式断行、分页和字形以本地 TeX 编译得到的 PDF 为准。
+
+界面主题只改变屏幕配色，不改变 PDF。占位符在纸面、工作室和夜间主题中使用相应的正文颜色，不把界面深色写入文档。
+
+## 应用中文写作排版
+
+在命令面板搜索「应用 CTeX 中文写作排版」，或在编辑器按 `⌘⌥⇧C`（其他平台为 `Ctrl+Alt+Shift+C`）。操作作用于实际主文件，保留当前正在写的子文件位置，可撤销。
+
+配置包括两字首行缩进、全角标点处理、中文间空格处理、段间距和 1.3 倍基准行距。已有 CTeX 类／宏包会继续使用，不重复加载；普通文档会补入 CTeX。仅替换 TeXPro 自己标记的排版块，保留作者原有字体和标题设置。
+
+```tex
+% TeXPro Chinese typography begin
+\ctexset{autoindent=2, punct=quanjiao, space=auto}
+\setlength{\parskip}{0pt plus 1pt}
+\linespread{1.3}
+% TeXPro Chinese typography end
+```
+
+这是按需操作，不会在打开旧工程时自动重写排版。学校、期刊或出版社模板已有规范时，以模板为准，不必应用这份通用配置。
+
+## 字体与引擎
+
+新建中文文章与中文导入使用 `ctexart` 和 `fontset=fandol`，默认 XeLaTeX，减少依赖系统宋体名称造成的跨平台失败。已存在的 `fontset`、`fontspec` 和中文字体命令不会被这项操作替换。缺少自定义字体时，仍需安装对应字体或自行选择替代字体。
+
+模板设计器和页面布局保留用户设置的行距，不额外叠加通用行距。中文类即使没有再次选择中文语言，也保持 Unicode 编译引擎。切换布局时不会再把 `ctexart` 当成普通 `article` 重复加载 `ctex`。
+
+## MCP
+
+`texpro_ctex_typography` 读取实际主文件并返回排版后的源文件预览，`saved: false` 表示尚未落盘。先审阅，再用明确的文件写入操作应用。外部客户端应保留工程现有 LuaLaTeX 设置，不把返回的 XeLaTeX 建议当作必须重写的引擎配置。
+
+---
+
+# 导出与 arXiv
+
+> PDF 来自编译；导出文档把当前文件转成 Markdown / Typst / HTML；arXiv 包收集源码与素材，生成可上传的 zip。
+
+## 三条出口，各有各的用途
+
+TeXPro 不重新排版内容，也不把文件传到任何服务器。写完之后，能拿走的产物有三种：
+
+| 产物 | 从哪里来 | 位置 |
+| --- | --- | --- |
+| PDF | 编译（⌘↩） | `<工程>/.texpro/build/<主文件名>.pdf` |
+| Markdown / Typst / HTML | 文件 → 导出文档… | 浏览器下载目录，或剪贴板 |
+| arXiv 源码包 | 文件 → 创建 arXiv 包… | `<工程>/.texpro/exports/arxiv-<时间戳>.zip` |
+
+三者不能互相替代：PDF 给读者，导出文档给不写 LaTeX 的合作者，arXiv 包给投稿系统。
+
+## PDF：编译的产物
+
+菜单里没有「导出 PDF」这一项，这是有意的。PDF 由 latexmk 在编译时写进构建目录；要最新版本，先按 ⌘↩，再去 PDF 面板。
+
+- 默认输出目录是 `.texpro/build`，可以在 `.texpro/project.json` 的 `directories.build` 里改成别的路径
+- 文件名取自工程主文件，不是当前打开的那个章节文件
+- PDF 面板右上角的视图菜单提供「用默认阅读器打开」与「在 Finder 中显示」
+- 编译失败不会生成新的 PDF；面板里可能还留着上一次的旧文件，不要把它当成最新结果
+
+> 日志、aux、synctex 都在同一个构建目录里。要清理时删这个目录即可，不会影响源码。
+
+## 导出文档：一次一个文件
+
+入口是 `文件 → 导出文档…`。它读的是当前编辑器缓冲区的内容，未保存的修改也会被包含；导出的范围只有这一个文件，不会沿着 `\input` 展开整个工程。
+
+面板左侧选格式，右侧是实时预览，可以复制到剪贴板，也可以下载。下载名沿用原文件的主干名，`.tex` / `.ltx` 换成目标扩展名。
+
+| LaTeX 写法 | Markdown | Typst | HTML |
+| --- | --- | --- | --- |
+| `\section` / `\subsection`（同级） | `##` | `==` | `<h2>` |
+| `\chapter` / `\part` | `#` | `=` | `<h1>` |
+| `itemize` / `enumerate` | `-` / `1.` | `-` / `+` | `<ul>` / `<ol>` |
+| `equation`、`align` 等 | `$$ … $$` | `$ … $` | 只有 `equation` 渲染为 KaTeX 块 |
+| `verbatim` / `lstlisting` | 围栏代码块 | 围栏代码块 | 原样文本，不生成代码块 |
+| `figure` + `\includegraphics` | 图片引用 | `#image(...)` | HTML 的 `img` 元素 |
+| `tabular` | 管道表格 | 不转换 | 不转换 |
+| `\textbf`、`\emph`、`\texttt` | 加粗、斜体、等宽 | `*…*`、`_…_`、反引号 | `<strong>`、`<em>`、`<code>` |
+| `\cite`、`\ref`、`\eqref` | `[@key]`、`[key](#key)`、`(key)` | `@key` | `\cite` 转成引用标记，`\ref` / `\eqref` 不转换 |
+
+Markdown 结果会在顶部补一段 YAML front matter（`title`、`author`、`date`）和一级标题；Typst 结果用 `= 标题` 与 `#set document(...)`；HTML 是一份独立文档，公式在导出时就由 KaTeX 渲染成静态标记。
+
+### 转换的边界
+
+- 只取 `\begin{document}` 与 `\end{document}` 之间的正文，导言区不参与
+- 章节层级会被压平：`\section` 与 `\subsection` 输出为同一级标题，需要更细层级时手动调整
+- Markdown 与 Typst 输出里，以反斜杠开头、又没有对应转换规则的整行会被丢掉；`\newcommand`、自定义宏、条件编译都不展开
+- `tikz`、`minted`、`algorithm` 等环境不在映射表里，导出前先看一眼预览
+- HTML 的公式样式表指向 jsDelivr 上的 KaTeX CSS；离线打开时结构还在，但排版样式可能缺失
+- 表格靠 `&` 与 `\\` 切分，`\multicolumn`、`\multirow` 会退化成普通文本
+
+> 预览就是最终结果：面板里显示的文本，就是复制或下载得到的内容。
+
+## arXiv 包：源码与素材
+
+入口是 `文件 → 创建 arXiv 包…`。点「创建包」之前，应用会先保存所有未落盘的修改，然后在 `<工程>/.texpro/exports/` 生成一个 zip。
+
+打包规则是「整个工程减掉不该上传的东西」，不是「只挑参与编译的文件」：
+
+| 处理 | 内容 |
+| --- | --- |
+| 跳过目录 | `.texpro`、`.git`、`.hg`、`.svn`、`node_modules`、`build`、`out`、`dist` |
+| 跳过文件 | 以 `.` 开头的条目，以及 `aux`、`log`、`toc`、`synctex`、`bcf`、`run.xml`、`blg`、`nav`、`snm`、`vrb` 等中间产物 |
+| 原样保留 | `.tex`、`.bib`、图片、字体、`sty` / `cls`、子目录结构 |
+
+包内的相对路径与工程一致，不会为了「平铺」而改写 `\input` 路径。根目录会多一个 `README.txt`，写明主文件的相对路径、建议的 latexmk 命令、检测到的引擎与创建时间。
+
+引擎的检测顺序是：源码里的 `% !TEX program` 魔数注释 → `ctex` / `fontspec` 等宏包推断 xelatex → `luatexja` / `ltjs` 推断 lualatex → 默认 pdflatex。它只读主文件，不扫描整个工程。
+
+### 上传之前
+
+- 面板会显示文件数、引擎与 zip 体积，但不会替你判断 arXiv 的大小与文件数配额
+- 主文件在子目录里时，包内保留同样的结构；提交时按实际路径填写，不要指望它被移到根目录
+- 未被引用的图片、旧稿、实验数据也会被一起打包；先清理工程，比事后删 zip 更省事
+- 打包完成后用「Reveal」或「打开 zip」检查一遍，再上传
+
+> 实现说明：打包调用系统的 `/usr/bin/zip`，SVG 转 PNG 调用 `sips`。两者都是 macOS 自带的命令；在 Windows 上没有对应实现，这些按钮会报错。
+
+## SVG 与 arXiv
+
+LaTeX 不能直接读 SVG。插入 `.svg` 素材时，TeXPro 会先用 `sips` 把它转成 1800 px 宽的 PNG，缓存在 `.texpro/svg-cache/`，再写入 `\includegraphics`。
+
+已有工程里的 SVG 引用可以一次性处理：`项目 → 转换 SVG 素材…` 会扫描工程内（最多 6 层）的文本文件，把指向已存在 `.svg` 的 `\includegraphics` / `\includesvg` 改成对应的 PNG，并保留可选参数。`.bib` 不扫描。
+
+- 转换会真实修改 `.tex` 文件，建议先提交一次 Git，或做一次工程快照
+- 只处理能解析到文件的 `.svg`；远程图片与宏展开后的路径不动
+- PNG 落在 `.texpro/svg-cache/`，而打包会跳过 `.texpro`；带 SVG 插图的工程在上传 arXiv 前，要把 PNG 复制进工程内的素材目录并改好路径
+- 转换扫描有深度上限，深层目录里的引用可能被漏掉；以预览和编译结果为准
+
+> 想让 `.svg` 直接进 PDF，需要额外的 TeX 宏包与转换链路，TeXPro 不替你安装或配置这些组件。
+
+---
+
+# AI 助手（可选）
+
+> AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你按下 Run 时才会把上下文发出去，结果需要你确认才写入。
+
+## 默认关闭
+
+TeXPro 不附带模型，也不替你做任何自动补全式的改写。AI 是一个需要你自己接上的可选功能：不配置时，应用不会向 AI 服务发起任何请求。
+
+配置在 `设置 → 可选 AI`：
+
+- 打开「启用 AI 助手」开关
+- 填入服务地址，默认是 `https://api.openai.com/v1`，末尾不要带 `/chat/completions`
+- 填入模型名，默认是 `gpt-4o-mini`
+- 填入 API 密钥
+
+密钥不会写进普通设置，也不会进入 `localStorage`。它由主进程通过系统安全存储加密后，存成应用数据目录下的 `secrets.json`；文件权限是 `0600`。如果系统不提供加密能力，保存会失败并给出提示，而不是退化成明文。
+
+## 打开面板
+
+`项目 → AI 助手…`，或在命令面板里搜索 `AI assistant`。
+
+未配置时，面板不会显示任务，只显示一张设置卡片；所有按钮都不可用，也不会出现「试一下」的入口。
+
+## 六种任务
+
+| 任务 | 发送的上下文 | 产出 |
+| --- | --- | --- |
+| Explain compile error | 当前编译错误与诊断行 | 错误解释与最小修改建议 |
+| Rewrite clearly | 光标附近几行 | 更清楚的 LaTeX 段落 |
+| Translate to Chinese | 光标附近几行 | 保留命令与公式的中文译文 |
+| Translate to English | 光标附近几行 | 保留命令与公式的英文译文 |
+| LaTeX from description | 你输入的自然语言描述（默认填入光标附近几行，可替换） | 单个数学表达式，不带 `$` |
+| Agent actions | 当前选区（没有选区时用默认上下文） | 结构化编辑动作 |
+
+每个任务都带有固定的系统提示：翻译与改写会要求保留全部命令、引用、标签与公式；`Agent actions` 要求只返回 JSON，不返回解释性文字。
+
+## 上下文可以改
+
+面板里的「Context」是普通文本框，发送前可以增删。默认内容按任务决定：
+
+- 解释错误：取当前编译结果里的错误行
+- Agent actions：取当前选区
+- 其它任务：取光标所在行前后约五行
+
+文本框为空时，仍然会发出一个「No context provided.」的占位内容，而不是悄悄取消请求。
+
+> 只有这个文本框里的文字会离开本机。工程目录、其它文件、PDF 都不会被自动打包上传。
+
+## 运行与采纳
+
+按 Run 后，请求以流式返回，结果逐步出现；Stop 会中断当前请求。
+
+- 普通任务：结果出现在下方文本框，点「Insert result」才会插入到光标处，插入后面板关闭
+- Agent actions：结果被解析成若干张动作卡片，每张写明动作类型与理由，点「Apply action」才执行，执行过会标记为 Applied
+
+Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-document`。模型返回的内容不是合法 JSON、或没有可执行动作时，面板会报错，不会偷偷改文件。
+
+> 没有「接受全部」，也没有自动应用。批量修改请逐条看。
+
+## 请求细节
+
+- 协议：OpenAI 兼容的 Chat Completions，`POST {baseUrl}/chat/completions`
+- 鉴权：`Authorization: Bearer <apiKey>`
+- 参数：`temperature: 0.2`、`stream: true`，消息只有一条 system 与一条 user
+- 失败时会显示状态码与响应片段，例如 `AI request failed (401)`
+- 不保留对话历史：每次 Run 都是独立的一轮，只带当前任务的系统提示与上下文
+
+因此，任何兼容该协议的服务都能用：自建网关、代理、本地推理服务，只要它能流式返回 `choices[0].delta.content`。
+
+## 隐私与边界
+
+- AI 默认关闭，且永远不会自动运行；没有后台预热、没有自动摘要
+- 密钥只存在本机；请求从应用直接发往你填的地址，不经过 TeXPro 的中转
+- 服务提供方会看到你发送的文本，其日志与留存策略由对方决定
+- 模型可能生成无法编译的 LaTeX，也可能改错命令；先编译，再接受
+- 需要工程级的读写、编译与检索时，用 MCP，而不是把整个工程贴进对话框
+
+> 换服务或换模型不需要重启：保存设置后，下一次 Run 就使用新配置。
+
+## 出问题时
+
+| 现象 | 先检查 |
+| --- | --- |
+| 面板只显示设置卡片 | 开关是否打开、密钥是否非空 |
+| `AI request failed (401)` | 密钥是否正确、是否过期 |
+| `AI request failed (404)` | 服务地址是否多写或漏写了 `/v1` |
+| `AI returned an empty stream` | 服务是否支持流式；换成支持流式的代理再试 |
+| Agent actions 报「没有有效动作」 | 模型是否按 JSON 返回；换一个指令遵循更强的模型 |
+
+---
+
+# 快捷键
+
+> 菜单与编辑器里真实绑定的快捷键。macOS 用 ⌘，Windows / Linux 把 ⌘ 换成 Ctrl、⌥ 换成 Alt。
+
+## 怎么读
+
+下表只列真实存在的绑定，按作用范围分组。没有写快捷键的动作，就是只能从菜单或命令面板进入。
+
+- macOS：⌘ Command、⌥ Option、⇧ Shift、↩ Return、Esc
+- Windows / Linux：⌘ 换成 Ctrl，⌥ 换成 Alt，其余不变
+- 「当前文件」指编辑器获得焦点时的行为；焦点在 PDF 或输入框里时，部分组合键会落到别处
+
+## 文件与工程
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⌘O | 打开文件夹作为工程 |
+| ⌘S | 保存当前文件 |
+| ⇧⌘W | 关闭工程，回到欢迎页 |
+| ⌘K | 打开命令面板 |
+
+命令面板里能搜到所有菜单动作，包括没有快捷键的那些；它也是确认某个功能是否存在的最快方式。
+
+## 编译、PDF 与定位
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⌘↩ | 编译工程 |
+| ⇧⌘J | Forward Search：从源码跳到 PDF 对应位置 |
+| ⌘-click | 在 PDF 文本层上按住 ⌘ 单击，反查源码行 |
+| ⌥⌘P | 收起 / 展开 PDF 预览 |
+| ⌘F | 在当前文件内查找 |
+| Enter / ⇧Enter | 查找栏内跳到下一个 / 上一个匹配 |
+| Esc | 关闭查找栏或悬浮层 |
+
+取消编译没有默认快捷键，只能在 `构建 → 取消编译` 里点。它终止的是整个编译进程组，不只是 latexmk 本身。
+
+> 反向定位不要求先按 Forward Search：在 PDF 上直接 ⌘ 单击就是一次反查。
+
+## 界面与视图
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⌘\\ | 收起 / 展开左侧栏 |
+| ⇧⌘M | 切换可视模式 |
+| ⇧⌘F | 切换专注模式 |
+| ⇧⌘T | 切换打字机模式 |
+| ⇧⌘L | 切换日间 / 夜间主题 |
+| ⇧⌘0 | 进入零界面模式 |
+| Esc | 退出零界面模式 |
+| ⌘0 | 重置界面缩放 |
+
+零界面模式会隐藏大部分界面元素，只留下正文与一个退出按钮。它不是全屏，按 Esc 或点按钮即可回来。
+
+## 写作模式
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⌘⌥← | 回到上一个写作位置 |
+| Esc | 离开当前可视块，回到源码编辑位置 |
+| ⌥↩ | 同上，用于 Esc 被别处占用时 |
+| ⌘⌥P | 切换 PDF 预览（写作时也生效） |
+
+「回到上一个写作位置」用的是一段会话内的位置栈：大纲、搜索、SyncTeX、可视块跳转都会入栈，按一次回到跳转前的文件、光标与滚动位置。栈最多保留 80 个位置。
+
+> 可视模式下的公式、表格、图片都是可编辑块；Esc 退出的只是这一块，不会关闭整个可视模式。
+
+## 编辑器
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⌘B | 用 `\textbf{}` 包住选区或光标 |
+| ⌘I | 用 `\textit{}` 包住选区或光标 |
+| F2 | 重命名标签，并同步工程内的引用 |
+| ⌥F12 | 查看光标处引用 / 标签的源码预览 |
+| Tab | 补全弹窗打开时接受候选，否则缩进两格 |
+| ⌘⇧V | 纯文本粘贴 |
+| ⌘Z | 撤销；上一步是跨文件标签重命名时整体回退 |
+| ⇧⌘Z | 重做 |
+| ⌘Y | 重做（Windows 习惯） |
+| ⌥⇧↑ / ⌥⇧↓ | 上移 / 下移当前内容块 |
+
+纯文本粘贴的窗口很短：按下 ⌘⇧V 后 1.5 秒内的下一次粘贴按纯文本处理，不会触发富文本或图片粘贴。要反复粘贴纯文本，每次都要重新按。
+
+> 编辑器里的撤销优先处理「标签重命名」这类跨文件操作；没有可回退的重命名时，才交给编辑器自身的撤销栈。
+
+## 插入与工具
+
+| 快捷键 | 动作 |
+| --- | --- |
+| ⇧⌘E | 打开公式编辑器 |
+
+其它插入器（表格、图片、TikZ、电路、乐谱等）都没有全局快捷键，从 `插入` 菜单或命令面板进入。可视模式下直接用工具栏更快。
+
+## 最常用的几个
+
+- ⌘K：忘了某个功能在哪，先开命令面板
+- ⌘↩：编译；配合 PDF 面板看结果
+- ⇧⌘J：写完一段，跳过去核对排版
+- ⌘-click：PDF 上看到问题，点回源码
+- ⇧⌘0：需要连续写作时，清掉干扰
+
+## 冲突与例外
+
+- ⌘0 是重置缩放，⇧⌘0 才是零界面模式；两者不冲突，但很容易按错
+- ⌘Z 在输入框里的行为由系统决定，编辑器里才走工程历史
+- ⌘F 只作用于当前编辑器；PDF 里的搜索在 PDF 面板自己的搜索框
+- Windows / Linux 上，⌘ 对应的 Ctrl 可能与系统或输入法快捷键冲突；冲突时以应用内菜单显示的组合为准
+- 某些键盘布局下 `⌘\\` 依赖物理反斜杠键位；如果按不出来，用命令面板搜「切换侧栏」
+
+> 快捷键不会因为自定义设置而改变。想确认某个动作的绑定，最可靠的地方是菜单项右侧的提示。
+
+## 占位符与修订备忘
+
+| 操作 | macOS | Windows / Linux |
+| --- | --- | --- |
+| 插入正文占位符 | `⌘⇧H` | `Ctrl+Shift+H` |
+| 当前文件下一个／上一个占位符 | `F4` / `⇧F4` | `F4` / `Shift+F4` |
+| 留一条修订备忘 | `⌘⇧N` | `Ctrl+Shift+N` |
+| 打开修订备忘清单 | `⌘⇧U` | `Ctrl+Shift+U` |
+| 应用主文件 CTeX 写作排版 | `⌘⌥⇧C` | `Ctrl+Alt+Shift+C` |
+
+以上操作也可以在命令面板找到。详见[占位符与修订备忘](/docs/writing-aids)和[CTeX 中文写作排版](/docs/ctex-typography)。
+
+---
+
+# 开发环境
+
+> 单仓库、两套运行时：渲染层由 Vite 打包成 ES 模块，主进程与服务层是直接跑的 CommonJS。装好 Node 22 与 npm 就能起界面，TeX 只在编译和预览时才需要。
+
+## 这一层是什么
+
+`npm run dev` 起的是两个进程，不是一个进程里的两段代码。Vite 只服务渲染层；`electron .` 加载 `electron/main.cjs`，再由它开窗口、挂菜单、注册 IPC 与服务层。生产路径换成了另一条：`npm run build` 把渲染层产出到 `dist/`，主进程用 `loadFile` 读它。
+
+两条路径的唯一开关是 `VITE_DEV_SERVER_URL`。`electron/main.cjs:15` 用 `Boolean(process.env.VITE_DEV_SERVER_URL)` 判定 dev 模式，同时决定是否开 DevTools、CSP 由谁提供、`texpro-asset` 协议的 CORS 头写什么。
+
+## 前置条件
+
+| 依赖 | 版本 | 说明 |
+| --- | --- | --- |
+| Node.js | 22 | 仓库没有 `engines` 字段，CI 固定 `node-version: 22`，本地建议与 CI 一致 |
+| npm | 随 Node 附带 | 提交的是 `package-lock.json` |
+| TeX 发行版 | TeX Live 或 MacTeX，需 `latexmk` 与至少一个引擎 | 编译、SyncTeX 正反查、模板预览需要 |
+| 系统 | macOS 13+ / Windows 10+ / Linux | 冒烟与打包在 macOS 上验证最完整 |
+
+TeX 的路径不写死：`electron/services/tex.cjs` 的 `resolveTexBinary` 在运行时探测发行版与引擎，换安装位置不需要改代码。
+
+## 第一次启动
+
+```bash
+npm install
+npm run dev
+```
+
+`dev` 展开后是这条命令：
+
+```bash
+concurrently -k -n VITE,ELECTRON -c cyan,magenta \
+  "vite --host 127.0.0.1" \
+  "wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron ."
+```
+
+三个细节值得先知道：Vite 配置了 `strictPort: true`，5173 被占用时直接失败而不是换端口；`wait-on tcp:5173` 保证 Electron 不会先于 dev server 启动；`-k` 让任一侧退出时另一侧跟着结束。渲染层改动走 HMR，`electron/` 下任何文件的改动都要重启。
+
+## 常用脚本
+
+| 脚本 | 实际命令 | 用途 |
+| --- | --- | --- |
+| `npm run typecheck` | `tsc --noEmit` | 全仓类型检查，strict |
+| `npm run build` | `vite build` | 产出 `dist/`，生产 CSP 在这一步注入 |
+| `npm start` | `npm run build && electron .` | 跑生产构建 |
+| `npm run smoke` | `npm run build && cross-env TEXPRO_SMOKE=1 electron .` | 自动跑一遍界面，截图进 `artifacts/` |
+| `npm run smoke:welcome` | 再加 `TEXPRO_SMOKE_WELCOME=1` | 只跑欢迎页场景 |
+| `npm run test:regression` | `node --test tests/*.test.cjs` | 单元测试，13 个文件 80 条用例 |
+| `npm run test:ui` | `node scripts/test-ui.cjs` | 拉起真 Electron 跑界面回归 |
+
+`test:ui` 与 `test:flow:ui` 都不跑 build，跑之前先 `npm run build`。完整矩阵见 `/docs/dev-testing`。
+
+## 环境变量
+
+冒烟与回归全靠环境变量切换，读代码时先认这组：
+
+| 变量 | 作用 |
+| --- | --- |
+| `VITE_DEV_SERVER_URL` | 有值就 loadURL 并开 DevTools；无值就 loadFile `dist/index.html` |
+| `TEXPRO_SMOKE=1` | 进入冒烟模式：加 Chromium 降级开关，挂载 `electron/smoke.cjs` |
+| `TEXPRO_SMOKE_WELCOME=1` | 只跑欢迎页，配合 `smoke:welcome` |
+| `TEXPRO_USER_DATA` | 覆盖 userData，测试用临时目录隔离 |
+| `TEXPRO_ARTIFACTS` | 截图目录，默认仓库根 `artifacts/` |
+| `TEXPRO_EXIT_REPORT` | 退出报告 JSON，供 `scripts/test-ui.cjs` 判定是否正常退出 |
+| `TEXPRO_PERF=1` | 冒烟里额外做一次性能采样 |
+
+回归脚本的选择是互斥的，`electron/main.cjs:371-380` 按固定顺序取第一个命中：`TEXPRO_FLOW_REGRESSION`、`TEXPRO_CONTINUITY_REGRESSION`、`TEXPRO_ASSETS_REGRESSION`、`TEXPRO_WRITING_REGRESSION`、`TEXPRO_MUSIC_REGRESSION`、`TEXPRO_REGRESSION`，都没有才落到默认冒烟。
+
+## 目录地图
+
+| 目录 | 内容 |
+| --- | --- |
+| `src/` | 渲染层：`App.tsx` 编排、`editor/` 17 个文件、`components/`、`lib/` 36 个模块、`app/lazyTools.tsx` |
+| `electron/` | 主进程 `main.cjs`、`preload.cjs`，`services/` 11 个服务，冒烟与回归脚本 |
+| `mcp/` | 独立 stdio MCP server，`server.mjs` 409 行 |
+| `scripts/` | 集成测试、UI 回归、发布校验、nightly 版本，共 12 个脚本 |
+| `tests/` | `node --test` 用例与 helper |
+| `demo/` | 演示工程，冒烟默认打开它 |
+| `docs/` | 架构、可靠性、交互审计等说明 |
+| `artifacts/` | 截图产物，不进包 |
+
+## 没有 TeX 的机器
+
+界面、编辑器、可视层、导入导出、版本历史都不依赖本机 TeX，可以正常开发与调试。会失败的是编译、SyncTeX 双向定位、模板预览与 PDF 字体覆盖检查——这些请求在服务层返回结构化错误，界面上表现为提示而不是崩溃。
+
+写测试时注意：涉及编译的用例应当能跳过而不是硬失败。`tests/` 里已有这类条件分支的写法，照着来。
+
+## 代码约定
+
+- TypeScript `strict` 全程打开，新增代码不引入 `any` 逃逸
+- 界面文案走 `src/i18n.ts`，以英文源串为 key，中英两份都要补
+- 图标只用 `lucide-react`，不引入第二套图标库
+- 不引状态管理库，全局状态在 `App.tsx` 编排，纯逻辑下沉到 `src/lib/`
+- `electron/` 与 `mcp/` 是 CommonJS，不要在里面写 ESM 语法
+- `dist/` 是产物，不手改；样式改动落在 `src/styles/`
+
+## 常见问题
+
+- **5173 起不来**：`strictPort` 下不会自动换端口，先看是谁占了 5173
+- **Electron 白屏**：既没注入 `VITE_DEV_SERVER_URL`，也没 build 出 `dist/index.html`
+- **编译按钮不可用**：主文件未确定，看 `Project.rootSource` 是 `ambiguous` 还是 `missing`
+- **原生依赖装不上**：`@napi-rs/canvas` 是可选依赖，`files` 里已被排除，缺了不影响主流程
+- **改了主进程没反应**：`electron/` 下没有热更新，重启 `npm run dev`
+- **打包后才出现的路径错误**：运行时需要按路径加载的模块必须在 `asarUnpack` 里，漏一项就是装出来的包报模块找不到，见 `/docs/dev-release`
+
+## 验证命令
+
+```bash
+npm run typecheck
+npm run test:regression
+npm run build && npm run smoke
+```
+
+三条都过再提交。改到界面时，按 `/docs/dev-testing` 里的对照表补跑对应的 UI 回归。
+
+---
+
+# 常见问题
+
+> 装不上、编不过、找不到字体、担心上传——把第一次使用时最容易卡住的十来件事集中回答一遍。
+
+## 需要联网吗
+
+不需要。TeXPro 是桌面应用，打开工程、编辑、编译、看 PDF 全在本机完成。唯一会联网的地方是你主动发起的那几个：Git 远程、Overleaf、arXiv 上传、可选 AI 助手，以及页面上展示版本号时的 GitHub Releases 查询。
+
+## 必须自己装 TeX 吗
+
+是。TeXPro 不打包 TeX 发行版，它调用本机已有的 `latexmk` 与引擎。macOS 装 MacTeX 或 BasicTeX，Windows 与 Linux 装 TeX Live，中文项目建议包含 `ctex`。
+
+## 支持哪些平台
+
+macOS 13 及以上（Universal，Apple 芯片与 Intel 通用）、Windows 10 及以上 x64、Linux x64（AppImage，另有 deb / rpm）。目前主要在 macOS 上做界面回归，另外两个平台的构建由同一份 nightly 流程产出。
+
+## 提示找不到 pdflatex
+
+两种常见原因：
+
+- 发行版没装，或者装了但没进 `PATH`；
+- 从图形界面启动应用时拿不到登录 shell 的环境变量（macOS 上尤其常见）。
+
+先在终端里跑 `which latexmk` 确认路径，再在 TeXPro 的编译设置里指定可执行文件；或从终端启动应用，让它继承完整环境。
+
+## 中文编译乱码或报字体缺失
+
+把引擎切到 XeLaTeX 或 LuaLaTeX，并在导言区使用 `ctex` 宏包。字体是否真的被找到，可以用字体覆盖面板检查；缺字体时编译日志里会写明具体字体名。
+
+## `.texpro/` 要不要提交到仓库
+
+由你决定。它保存工程配置、内容快照与回收站，属于本机工作状态；多数人会和 `.gitignore` 一起处理，团队共享工程时也建议忽略，让每个人各自保留历史。
+
+## 能替代 Overleaf 吗
+
+定位不同。TeXPro 面向「一个人把一篇稿子写完」，工程文件在你自己的磁盘上；Overleaf 是在线协作与云端编译。两者可以通过 Git 往返：Overleaf 支持从 Git 克隆，TeXPro 也有 Git 面板。
+
+## 多人协作是怎么做的
+
+局域网临时房间：一方开启协作后，同一网络下的人用房间码加入，编辑内容通过本机 WebSocket 同步。它不是云同步，没有账号体系，也不做长期存档。
+
+## AI 会把我的稿子传出去吗
+
+默认不会。AI 助手是可选的：只有你配置了服务与密钥，并在选中文本后主动发起请求，选中的内容才会发送出去。不配置就一直不联网，其它功能不受影响。
+
+## 编译很慢怎么办
+
+先确认是不是每次都全量构建：观察底部状态栏的耗时。常见加速手段是用 `latexmk` 的增量构建、把图片转成 PDF 或降低分辨率、以及把长文档拆成子文件——`\include` 的章节可以只编译当前部分。
+
+## 卸载会删掉我的稿子吗
+
+不会。稿子在你选择的工程目录里，卸载应用不会碰它。应用自己的配置、历史与模板在用户数据目录，需要彻底清理时手动删除即可。
+
+## 数据和设置分别存在哪
+
+- 工程相关：工程目录 + 其中的 `.texpro/`；
+- 应用相关：系统用户数据目录下的 TeXPro 文件夹（设置、最近打开、用户模板、MCP 配置）。
+
+AI 密钥单独存成该目录下的 `secrets.json`，由系统安全存储加密、权限 `0600`；系统不提供加密能力时保存会直接失败，不会退化成明文。
+
+## 快捷键能改吗
+
+应用菜单里的快捷键目前是固定的，可以在「快捷键」一页查到完整对照；编辑器内部另有一套 CodeMirror 键位，跟随编辑器习惯。命令面板提供不依赖快捷键的入口。
+
+---
+
+# 进程与信任边界
+
+> 主进程碰文件系统，preload 只转发白名单通道，渲染层拿不到 Node。87 条 IPC、一套路径闸门、一份收紧的 CSP，构成了这个应用全部的信任边界。
+
+## 三个进程
+
+| 进程 | 入口 | 职责 |
+| --- | --- | --- |
+| 主进程 | `electron/main.cjs`（921 行） | 窗口、菜单、87 个 IPC handler、服务层调用、退出清理 |
+| preload | `electron/preload.cjs`（108 行） | `contextBridge` 暴露 `window.texpro`，每个方法只是一行写死通道名的 invoke |
+| 渲染层 | `src/main.tsx` → `src/App.tsx`（2846 行） | React 19 界面、CodeMirror、PDF.js、全部状态编排 |
+
+窗口参数集中在 `createWindow()`（`electron/main.cjs:286-311`）：
+
+```js
+webPreferences: {
+  preload: path.join(__dirname, 'preload.cjs'),
+  contextIsolation: true,
+  nodeIntegration: false,
+  sandbox: false,
+  spellcheck: false,
+  backgroundThrottling: false,
+}
+```
+
+`sandbox: false` 让 preload 可以用 Node 的 `require`，服务层则始终在主进程里跑。`contextIsolation: true` 仍然把 preload 与页面隔离，页面只拿到 `window.texpro` 这一层。`backgroundThrottling: false` 让后台窗口里的编译与预览不被节流。
+
+## 87 条 IPC 的分布
+
+`ipcMain.handle` 与 `preload.cjs` 里的 `ipcRenderer.invoke` 都是 87 处，一一对应；另有 4 个订阅（`compile:output`、`mcp:elicitation`、`menu:action`、`window:prepare-close`）与 1 个单向发送 `ipcRenderer.send('window:close-ready')`。
+
+| 域 | 数量 | 代表通道 |
+| --- | --- | --- |
+| `project:` | 19 | `open`、`symbols`、`impact`、`move-dir`、`graph`、`diagnose` |
+| `mcp:` | 8 | `client-call`、`configs`、`respond-elicitation` |
+| `git:` | 7 | `status`、`commit`、`overleaf-clone` |
+| `history:` | 6 | `list`、`restore`、`clear` |
+| `assets:` | 5 | `list`、`import`、`save-buffer`、`rasterize-svg` |
+| `file:` / `templates:` | 8 | `stat`、`read`、`write`、`exists`、`preview`、`save` |
+| 各 3 条 | 18 | `shell:`、`secret:`、`collab:`、`zotero:`、`paper-api:`、`tex:` |
+| 各 2 条 | 10 | `compile:`、`sync:`、`app:`、`dialog:`、`bib:` |
+| 单体 | 6 | `pdf:read`、`music:preview`、`tikz:render`、`backup:run`、`spell:words`、`menu:set-language` |
+
+新通道按域取名，`invoke` 只做转发，业务逻辑一律落在 `electron/services/`。
+
+## 路径闸门
+
+主进程维护一个 `allowedRoots` 集合（`electron/main.cjs:27`），打开工程时把根目录记进去。所有碰文件的 handler 第一件事是过 `isAllowed()`：
+
+```js
+function isAllowed(file) {
+  const resolved = path.resolve(file);
+  for (const root of allowedRoots) {
+    if (resolved === root || resolved.startsWith(root + path.sep)) return true;
+  }
+  return false;
+}
+```
+
+前缀校验挡 `../` 逃逸，符号链接逃逸由各服务里 `realpath` 的地方单独兜。错误文案是契约的一部分，渲染层靠它区分「没开工程」与「越界」：`Project is not open`、`File is outside the open project`、`Asset is outside the project`、`Directory is outside the project`、`Invalid project path`。
+
+## 自定义协议
+
+渲染层要显示项目里的图片与 PDF 预览图，走 `texpro-asset://` 而不是 `file://`。`protocol.handle` 在 `app.whenReady()` 里注册，缺 `path` 参数回 400，`isAllowed()` 不通过回 403，其余交给 `net.fetch` 并把 CORS 头按 dev 或生产分别写。
+
+渲染层拿不到路径拼接权：`app:assetUrl` 先过 `isAllowed()`，通过才返回编码后的 URL，否则返回 `null`。图片、PDF 缩略图、TikZ 预览共用这条链路。
+
+## 服务层 11 个文件
+
+| 文件 | 行数 | 负责 |
+| --- | --- | --- |
+| `services/tex.cjs` | 2013 | 工程、编译、SyncTeX、符号、搜索、素材、TikZ、arXiv、模板、Zotero |
+| `services/history.cjs` | 174 | 内容寻址快照：列表、读取、恢复、清理 |
+| `services/mcp-client.cjs` | 132 | 应用内连接 MCP server，含 elicitation 回调 |
+| `services/project-operations.cjs` | 119 | 改名、移动前的引用影响分析与重写 |
+| `services/git.cjs` | 98 | 状态、读文件、init、commit、pull、push、Overleaf 克隆 |
+| `services/collab.cjs` | 87 | 局域网协作：Yjs over WebSocket |
+| `services/project-root.cjs` | 76 | 主文件策略：configured 到 detected 到 ambiguous |
+| `services/paper-api.cjs` | 56 | 只读 HTTP API，绑回环加 token |
+| `services/` 其余 3 个 | 51 | `font-report` 字体覆盖、`project-files` 文本判定、`music` 乐谱源码 |
+
+`tex.cjs` 末尾把 `history`、`git` 的导出展开进同一个命名空间：`module.exports = { parseDiagnostics, renderMusicPreview, ...history, ...git, openProject, ... }`。调用方只 require 一个模块，代价是模块边界在导出层消失，新增函数名要确认不撞车。
+
+## 网络面
+
+- **Paper API**：只绑回环，启动时 `randomBytes(18)` 生成 bearer token，每个请求校验 `Authorization`
+- **协作**：`WebSocketServer({ port: 4177, host: '0.0.0.0' })`，房间号是 4 字节 hex，目前只校验房间存在，没有口令与角色，只在手动开启时启动
+- **AI**：密钥存系统安全存储，配置了才由渲染层发起请求
+- **MCP**：stdio，不走网络；路径校验复用同一套规则
+
+## 内容安全策略
+
+生产 CSP 不是写在 `index.html` 里的，而是 `vite.config.ts` 的自定义插件 `texpro-production-csp` 在 build 时注入：
+
+```text
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+img-src 'self' data: texpro-asset:; font-src 'self' data:; worker-src 'self' blob:;
+connect-src 'self' ws: http: https:; frame-src 'self' texpro-asset:;
+media-src 'self' texpro-asset: data:; object-src 'none'; base-uri 'self'; form-action 'none'
+```
+
+`style-src` 放开 `unsafe-inline` 是因为内联样式；`connect-src` 放宽是因为要连本机编译服务与用户自配的 AI 端点；`worker-src blob:` 是 PDF.js worker 需要。改 CSP 时同步检查 `/docs/dev-release` 里的产物校验。
+
+## 关闭协议
+
+关窗不是直接退出，是三轮协商：`electron/window-close.cjs` 拦下 `close`，生成 `randomUUID` 作为 pending 并通知渲染层；渲染层 `saveAll()` 后回 `window:close-ready`，主进程只在 sender 匹配且 id 对得上时接受；15 秒没回音就弹原生确认框，`finish()` 用 `setImmediate` 重入 teardown，避免在 IPC 回调里拆窗口。
+
+macOS 上还有 `electron/quit-watchdog.cjs`：退出时 spawn 一个 detached 子进程，5 秒后父进程还活着就 `kill -KILL`，兜住 Chromium 原生 shutdown 卡死。
+
+## 改动指南
+
+新增一条 IPC 要改三处：
+
+- `electron/main.cjs` 的 `registerIpc()`：`ipcMain.handle('channel', ...)`，第一行做路径校验
+- `electron/preload.cjs`：加同名通道的 invoke 包装，需要订阅就加 `subscribe()`
+- `src/api.ts`：在 `TexProApi` 里补方法签名
+
+漏了 preload 是运行时未定义，漏了类型是编译期报错。四处数字要一起变：main 的 handler 数、preload 的 invoke 数、`api.ts` 的方法数，以及本文的 87。
+
+新增一个服务要改四处：
+
+- 在 `electron/services/` 写 `.cjs`，用命名导出，不要副作用
+- `package.json` 的 `asarUnpack` 加路径（服务若会被 spawn 或按路径加载）
+- `scripts/verify-release.cjs` 的 required 列表加一行，否则打包校验不认它
+- `main.cjs` 顶部 require 并在 handler 里调用
+
+第 2、3 步最容易漏：本地开发一切正常，装出来的包才报错。
+
+## 陷阱
+
+- 在渲染层拼路径再传进来：一律传绝对路径，由主进程做 `isAllowed` 判定
+- 在 preload 里写业务逻辑：preload 没有 Node 权限，且会扩大注入面
+- 直接 `window.open` 或站内导航：`setWindowOpenHandler` 只放行 http(s) 给系统浏览器，其余 deny
+- 忘记 `sender.isDestroyed()` 就往回发流式输出：`compile:output` 在窗口关闭后会抛
+
+## 验证
+
+```bash
+grep -c "ipcMain.handle" electron/main.cjs && grep -c "ipcRenderer.invoke" electron/preload.cjs
+npm run typecheck
+```
+
+两条 grep 都应当是 87。改过服务层或打包配置后再跑 `npm run verify:release`，细节见 `/docs/dev-release`。
+
+---
+
+# 渲染层
+
+> 没有路由也没有状态库：一个 App.tsx 编排全部状态，编辑器是 CodeMirror 6，可视层靠 decoration 投影，工作室面板按需懒加载。读代码先认这四层。
+
+## 这一层是什么
+
+渲染层是一个单页 React 应用，入口 `src/main.tsx`，挂载 `src/App.tsx`。没有 router，没有 Redux 或 Zustand，也没有数据请求层——所有跨组件状态都在 `App.tsx` 里用 `useState` 与 `useRef` 编排，所有与磁盘、编译、Git 的交互都经 `window.texpro` 走 IPC。
+
+界面分四块：左侧 `components/Sidebar.tsx`（文件树、符号、搜索），中间 `editor/EditorPane.tsx`（CodeMirror），右侧 `components/PdfPane.tsx`（PDF.js），以及 29 个按需打开的工作室面板。主题与排版全在 `src/styles/app.css`。
+
+## 文件表
+
+| 文件 | 行数 | 作用 |
+| --- | --- | --- |
+| `src/App.tsx` | 2846 | 顶层状态、副作用、编译与关闭编排、快捷键 |
+| `src/editor/EditorPane.tsx` | 939 | CodeMirror 实例、每文件 EditorState 缓存、变更回灌 |
+| `src/editor/visual.ts` | 1174 | 可视层 decoration：公式、表格、TikZ、乐谱、章节 |
+| `src/components/PdfPane.tsx` | 885 | PDF.js 渲染、缩放、反向定位 |
+| `src/components/Sidebar.tsx` | 721 | 文件树、素材、符号、搜索 |
+| `src/i18n.ts` | 1845 | 以英文源串为 key 的中英词典 |
+| `src/app/lazyTools.tsx` | 70 | 29 个工作室的延迟加载与崩溃隔离 |
+| `src/styles/app.css` | 9602 | 三套主题、编辑器与面板样式 |
+
+`src/lib/` 另有 36 个纯逻辑模块（latex、pdfSync、lineDiff、templates、importers 等），不依赖 React，可以直接被 `node --test` 覆盖。
+
+## 并发：用代数丢弃迟到的结果
+
+同一时刻可能发生「切工程」「重新编译」「正查」「反查」「重新打开同一文件」，这些异步结果回来时上下文可能已经不成立。做法是给每类操作一个自增 ref，`await` 之后比对：
+
+```ts
+const run = ++compileRunId.current;
+const result = await window.texpro.compile({ ...args });
+if (run !== compileRunId.current) return;        // 这一轮已经过期
+if (generation !== projectGeneration.current) return;
+```
+
+每个异步域一个自增 ref：`compileRunId` 管编译，`projectGeneration` 管工程切换，`syncGeneration` 与 `inverseGeneration` 分别管 SyncTeX 两个方向，`navigationGeneration` 管大纲与搜索跳转，`openRequest` 管同一文件的重复打开。新增异步流程时照抄这个模式，不要用「取消标志」或裸 `setState`。
+
+## 保存队列
+
+写盘是串行的。`src/app/saveQueue.ts` 的 `SaveQueue` 注释写得很直白：让旧写入不可能晚于新写入完成。`saveDoc()` 先等飞行中的文件操作，用 `movedPath` 重写路径，再进队列：
+
+```ts
+await fileOperation.current;                     // 等移动/重命名落定
+const target = movedPath(path, operation);
+await saveQueue.current.run(() => window.texpro.writeFile(target, content));
+```
+
+`saveAll()` 最多循环 5 轮收集脏文档，最后 `await saveQueue.current.idle()` 再复查一遍。关闭窗口、切工程、编译前都调它——任何绕过队列直接写盘的新代码都会重新引入「旧内容覆盖新内容」的问题。
+
+## 编译器在这里只做编排
+
+`runCompile()` 的顺序值得记住：忙时把请求放进 `pendingCompile`；生成 `run-<timestamp>` 的 runId；先 `saveAll()`；再 `openProject(root)` 重读主文件配置（主文件变化就清空 PDF、诊断、热点并递增代数）；然后发 `compile`；结果回写前校验工程代数与 runId 都还对得上。
+
+编译输出是流式的，`onCompileOutput` 按 `output.runId === compileRunId.current` 过滤，`stream === 'meta'` 单独处理，日志只保留最后 90000 字符。窗口关闭后主进程会跳过 `sender.send`，渲染层这边则靠代数丢弃。
+
+## 编辑器：五个 Compartment
+
+`EditorPane` 不重建 EditorState，运行时切换靠 `Compartment.reconfigure()`：
+
+| Compartment | 切换什么 |
+| --- | --- |
+| `visual` | 可视层 decoration 与源码模式的互斥 |
+| `focus` | 当前段落聚焦、其余淡化 |
+| `typewriter` | 打字机滚动 |
+| `lineNumbers` | 行号槽 |
+| `collab` | Yjs 协作扩展 |
+
+扩展清单里比较关键的是：`history`、`writingTargets`、`stableViewport`、`writingReview`、`bracketMatching`、`closeBrackets`、`autocompletion`（覆盖自定义补全源，`maxRenderedOptions: 80`，`defaultKeymap: false`）、`foldGutter`。keymap 里 `Mod-z` / `Mod-Shift-z` / `Mod-y` 不走 CodeMirror 历史，而是回调 `onProjectHistory` 做工程级撤销；Tab 只在 `!view.composing` 时接受补全；`ArrowUp` / `ArrowDown` 走 `moveLogicalLine`，保证跨过可视块时光标按逻辑行移动。
+
+每个文件的 `EditorState` 存在 `sessions: Map` 里，切回来时若 `cached.state.doc.toString() === props.value` 就复用，连同滚动位置一起恢复；内容对不上则重新 `EditorState.create()`。切工程时 `App` 直接把整张 Map 换掉，不逐项清理。
+
+## 可视层：一次扫描，先到先得
+
+`visual.ts` 的 `buildDecorations()` 每次文档或选区变化都全量重扫，用一个 `occupied` 区间表保证同一位置只有一个 decoration。扫描顺序是固定的（从上到下），新块级元素插在哪里决定了它会不会被前面的块吞掉：
+
+- 乐谱块（`musicWidget`）
+- 表格（`writingTable` / `tableWidget`）
+- 标题行
+- 行内与行间公式，含 `equation`、`align`、`gather`、`multline`、`eqnarray`
+- 图、表、代码块
+- 标签与引用
+- 收尾（章节徽标、写作目标等）
+
+公式渲染走 KaTeX，参数是 `throwOnError: true`、`strict: 'ignore'`、`trust: false`、`maxExpand: 500`，另加 `\R`、`\N`、`\Z`、`\C`、`\dd` 五个宏。渲染结果进 `mathHtmlCache`，key 是 `d:` 或 `i:` 加 TeX 源，超过 800 条按 LRU 淘汰。渲染失败返回空字符串，界面上回退成源码。
+
+可视块点一下能回源码：`LatexWidget` 的 `bind()` 拦截 mousedown，把光标放到块首。TikZ 与图示预览额外走 `tikzRequests` 去重，再用 `rasterizeTexPdf` 拿图。
+
+## 懒加载与崩溃隔离
+
+`src/app/lazyTools.tsx` 的 `deferredTool()` 做三件事：没打开过就 `return null`（连 `import()` 都不发）；首次打开才 `lazy(load)`；外层 `RecoveryBoundary` 接住渲染异常，只让这一个面板失败。`generation` 作为 key，可以在不刷新整页的情况下重建某个面板。
+
+新增面板的路径：`lazyTools.tsx` 注册 → `components/` 写面板 → `app.css` 加区块 → `i18n.ts` 补中英。面板只在用户主动打开时才加载，别在 `App.tsx` 顶层静态 `import`。
+
+## 改动指南
+
+新增一个可视元素：在 `visual.ts` 里定区间与 `WidgetType`，插进 `buildDecorations()` 合适的位置，确认 `overlaps()` 逻辑覆盖它，再补 `theme.ts` 里的样式。别在 `EditorPane` 里另起一个 ViewPlugin 做同类事。
+
+新增一个设置项：在 `src/app/settings.ts` 的 `defaultSettings` 加默认值，`loadSettings` 里处理旧值迁移，再接到 `App.tsx` 的状态与界面上。持久化 key 是 `texpro.settings.v1`，`aiApiKey` 会被主动剔除，不进 localStorage。
+
+新增一个异步流程：先想清楚它属于哪一代，拿对应 ref 的当前值，回来时比对；涉及写盘的先进 `SaveQueue`。
+
+## 陷阱
+
+- 直接 `setState` 一个 `await` 的结果：不校验代数，切工程后旧数据会写进新视图
+- 手动改 `EditorState` 的 doc 而不走 `textChange` 差分：整篇替换会让光标跳到文档头
+- 在 decoration 里做重计算：`buildDecorations` 每次输入都跑，重活要放缓存或挪到主进程
+- 在面板里静态 import 重依赖（PDF.js、KaTeX）：会把主包撑大，懒加载失效
+
+## 验证
+
+```bash
+npm run typecheck
+npm run build && npm run smoke
+```
+
+冒烟会走一遍真实交互并截图到 `artifacts/`，可视层改动的效果直接看 `smoke-*.png`。测试矩阵见 `/docs/dev-testing`，编辑器与主进程的边界见 `/docs/dev-arch`。
+
+---
+
+# 测试与冒烟
+
+> 单元测试用 node --test，集成脚本直接跑真实服务，界面回归拉起真 Electron 并把截图留在 artifacts/。三层各管一段，提交前至少过前两层。
+
+## 三层验证
+
+| 层 | 命令 | 跑什么 | 耗时 |
+| --- | --- | --- | --- |
+| 类型 | `npm run typecheck` | 全仓 `tsc --noEmit`，strict | 数秒 |
+| 单元 | `npm run test:regression` | `node --test tests/*.test.cjs`，13 个文件 80 条用例 | 约 2.5 秒 |
+| 界面 | `npm run smoke` 与 `test:*:ui` | 真启动 Electron，驱动真实交互并截图 | 十几秒起 |
+
+单元测试全部是纯 Node，不加载 Electron，因此可以在任何有 Node 22 的机器上跑。界面回归需要先 `npm run build`，脚本自己不构建。
+
+## 单元测试
+
+`tests/` 下 13 个文件，用 `node:test` + `node:assert`，没有额外框架：
+
+| 文件 | 覆盖 |
+| --- | --- |
+| `project-root.test.cjs` | 主文件判定：唯一 `\documentclass`、歧义、损坏配置 |
+| `pdf-sync.test.cjs` | SyncTeX 坐标在缩放、裁切、旋转下的往返 |
+| `reliability.test.cjs` | 服务提取后的 API、发布前置校验、Git 与历史的联动 |
+| `writing-flow.test.cjs` | 写作输入：格式识别、Markdown 快捷键、字体与包选择 |
+| `writing-reliability.test.cjs` | 引用重写、失败回滚、保存队列顺序 |
+| `writing.test.cjs` | 写作块：页面版式、图表范围、表格单元格 |
+| `continuity.test.cjs` | 整块移动、修订重建、注释与引用索引 |
+| `music.test.cjs` | 乐谱：Unicode 往返、跨小节时值、分部共享 |
+| `nightly.test.cjs` | 变更判定：时区边界、空提交、未来时间、合并 |
+| `quit-watchdog.test.cjs` | 兜底只武装一次，且真的能杀掉卡住的父进程 |
+| `inline.test.cjs` | 嵌套表格、转义定界符、行内预览回退 |
+| `assets.test.cjs` | 素材与项目删除共用回收站，且不进索引 |
+| `artwork.test.cjs` | 主题墨色下的插图渲染与透明度 |
+
+写用例时优先断言「输出结构」而不是「屏幕文字」，前者稳定，后者会随文案改动碎掉。断言抛错信息比断言布尔值更有价值，失败时能直接看出差在哪。
+
+## 加一条用例
+
+```js
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { resolveProjectRoot } = require('../electron/services/project-root.cjs');
+
+test('configured root wins over detection', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-root-'));
+  fs.writeFileSync(path.join(root, 'main.tex'), '\\documentclass{article}');
+  fs.mkdirSync(path.join(root, '.texpro'));
+  fs.writeFileSync(path.join(root, '.texpro', 'project.json'), '{"rootFile":"main.tex"}');
+  const project = resolveProjectRoot(root);
+  assert.equal(project.rootSource, 'configured');
+  assert.ok(project.rootFile.endsWith('main.tex'));
+});
+```
+
+服务层导出的是纯函数，可以直接 require；不要为了测试去启动 Electron，那属于冒烟层。
+
+## 集成脚本
+
+三个脚本各自带依赖，跑之前确认环境：
+
+| 命令 | 覆盖 | 输出形态 |
+| --- | --- | --- |
+| `npm run test:compile` | 编译链：引擎、诊断解析、产物、清理 | 逐项 PASS / FAIL |
+| `npm run test:import` | Markdown 与 Typst 导入的往返 | 逐项 PASS / FAIL，末尾汇总 checks |
+| `npm run test:mcp` | 起 stdio MCP server，跑 initialize、tools、resources、prompts | 逐项 check，要求至少 12 个工具 |
+
+`test:compile` 直接编译仓库里的 `demo/` 工程，构建产物落在它自己的构建目录；`test:import` 在临时目录建工程，跑完清理。`test:mcp` 可以用 `TEXPRO_MCP_SERVER` 指向别的 server 入口，默认是 `mcp/server.mjs`。
+
+## 冒烟
+
+`npm run smoke` 会先 build，再以 `TEXPRO_SMOKE=1` 启动。主进程在这个模式下做三件事：加 Chromium 降级开关（`no-sandbox`、`disable-gpu` 等）、把 userData 指到 `.texpro-userdata`、加载 `electron/smoke.cjs`。
+
+```js
+module.exports = function installSmoke(mainWindow, { app, isSmokeWelcome }) { ... }
+```
+
+冒烟脚本接管窗口，按顺序打开演示工程、编译、翻页、搜索、打开各个工作室，每步用 `webContents.capturePage()` 截图落盘。截图目录取 `TEXPRO_ARTIFACTS`，默认是仓库根 `artifacts/`；打包后的应用默认写 userData 下的 `artifacts/`。
+
+常见产物：`smoke-welcome.png`、`smoke.png`、`smoke-lower.png`、`smoke-table.png`、`smoke-inline.png`、`smoke-math.png`、`smoke-compiled.png`、`smoke-pdf-search.png`、`smoke-pdf-thumbs.png`、`smoke-pdf-diff.png`、`smoke-templates.png`、`smoke-chart.png`、`smoke-layout.png`、`smoke-packages.png`、`smoke-commands.png`、`smoke-completions.png`。`TEXPRO_PERF=1` 时额外做一次性能采样。
+
+> 截图是证据而不是快照比对：冒烟会检查关键 DOM 状态与文件系统结果，图片留给人看。
+
+## 界面回归
+
+`scripts/test-ui.cjs` 与 `scripts/test-flow-ui.cjs` 是同一套东西的两种入口，都只有二十几行，逻辑很薄：
+
+- `mkdtemp` 建临时 userData，设 `TEXPRO_SMOKE=1`、`TEXPRO_REGRESSION=1`、`TEXPRO_USER_DATA`、`TEXPRO_ARTIFACTS`、`TEXPRO_EXIT_REPORT`
+- `delete env.ELECTRON_RUN_AS_NODE`，`spawn(require('electron'), ['.'])`，`stdio: 'inherit'`
+- 退出后读 exit-report：若信号是 `SIGKILL` 但报告里 `quit: true` 且 pid 匹配、退出码 0，判 PASS（这是 quit watchdog 兜底生效的正常路径），否则按退出码判定
+
+`test-ui` 超时 120 秒，`test-flow-ui` 180 秒且强制 `TEXPRO_FLOW_REGRESSION=1`。分支开关：`--music`、`--writing`、`--assets`、`--continuity`，对应 npm 脚本 `test:music:ui` 等。`TEXPRO_CLOSE_ONLY=1` 只测关闭，`TEXPRO_QUIT_METHOD=quit` 用 `app.quit()` 代替 `window.close()`。
+
+`test-ui` 与 `test-flow-ui` 都假设 `dist/` 已是最新。改完渲染层直接跑，看到白屏先想是不是忘了 build。
+
+## 退出链路
+
+关窗协议与退出兜底各有一个测试面：`electron/window-close.cjs` 由 flow 回归端到端覆盖（真实输入在 `window.close()` 时落盘、未保存则弹确认），`electron/quit-watchdog.cjs` 由 `tests/quit-watchdog.test.cjs` 验证武装时机与 SIGKILL 路径。改这两处时至少跑一次 `npm run test:flow:ui`。
+
+## 提交前清单
+
+- `npm run typecheck` 零错误
+- `npm run test:regression` 全绿（80 条，允许 skip）
+- 改到界面的，跑对应冒烟，看 `artifacts/` 里新截图
+- 改到编译、导入、MCP 的，跑对应集成脚本
+- 文案改动确认中英两份都在
+- 没把 `dist/`、`artifacts/`、`.texpro-userdata/` 带进提交
+
+## 陷阱
+
+- 冒烟不自动 build：直接 `npm run test:ui` 跑的是旧产物
+- 截图看着没变不等于没跑：确认文件的修改时间与数量
+- 在单测里 require Electron 相关模块：会拖起原生依赖，测试变慢且不可移植
+- 并发跑多个 UI 回归：它们共用 `artifacts/` 目录，文件名会互相覆盖
+
+## 验证
+
+```bash
+npm run typecheck && npm run test:regression
+npm run build && npm run smoke
+npm run test:flow:ui
+```
+
+第一条每次提交都跑；第二条改到渲染层或编译链时跑；第三条改到关闭、保存或协作时跑。CI 的 nightly 只跑 typecheck、test:regression 与 build，界面验收仍要靠本地，见 `/docs/dev-release`。
+
+---
+
+# 构建与发布
+
+> 打包配置全在 package.json 的 build 字段：mac 出 universal DMG 与 zip，Windows 出 NSIS、免安装 exe 与 zip，Linux 出 AppImage、deb、rpm。nightly 由 GitHub Actions 每天生成。
+
+## 这一层是什么
+
+发布由两段拼起来：本地的 `electron-builder` 配置，和 `.github/workflows/nightly.yml` 的自动化。前者决定包里有什么、产物叫什么；后者决定什么时候打、打完发到哪。两者共用 `scripts/` 下的校验与版本脚本。
+
+没有单独的 electron-builder 配置文件，全部在根目录 `package.json` 的 `build` 字段里。
+
+## 包的身份
+
+```json
+{
+  "appId": "dev.texpro.app",
+  "productName": "TeXPro",
+  "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+  "directories": { "output": "release", "buildResources": "build" }
+}
+```
+
+`files` 是白名单，只有 `dist/**`、`electron/**`、`mcp/**`、`demo/**`、`build/icon.*` 与 `package.json` 进包；排除项里显式去掉了 `node_modules/@napi-rs/canvas/**` 与 `.playwright-mcp/**`。源码、`tests/`、`scripts/`、`artifacts/` 都不进包。
+
+**必须留在 asar 外的有 9 项**，写在 `asarUnpack`：
+
+| 路径 | 原因 |
+| --- | --- |
+| `mcp/**` | MCP server 用普通 Node 启动，不能依赖 Electron 的 asar 加载 |
+| `electron/services/tex.cjs` | 被按路径 spawn 或 require |
+| `electron/services/history.cjs` | 同上 |
+| `electron/services/git.cjs` | 同上 |
+| `electron/services/project-files.cjs` | 同上 |
+| `electron/services/project-root.cjs` | 同上 |
+| `electron/services/project-operations.cjs` | 同上 |
+| `electron/services/font-report.cjs` | 同上 |
+| `electron/services/music.cjs` | 同上 |
+
+漏一项的表现是「本地开发正常，装出来的包报模块找不到」。
+
+## 平台与产物名
+
+| 脚本 | 实际命令 | 产物 |
+| --- | --- | --- |
+| `npm run package` | `electron-builder --mac --dir` | `release/mac-arm64/TeXPro.app`，未签名，调试用 |
+| `npm run package:mac` | `electron-builder --mac --universal` | `TeXPro-<version>-mac-universal.dmg` 与同名 zip |
+| `npm run package:win` | `electron-builder --win nsis portable zip --x64` | `TeXPro-<version>-windows-x64-setup.exe`、`-portable.exe`、zip |
+| `npm run package:linux` | `electron-builder --linux AppImage deb rpm --x64` | `TeXPro-<version>-linux-x64.AppImage`、`.deb`、`.rpm` |
+
+Windows 的两个安装器在 `build.nsis` 与 `build.portable` 里覆盖了 `artifactName`，其余平台沿用顶层模板。所有命令都先 `npm run build`，产物落在 `release/`。
+
+跨平台打包不推荐：NSIS 与 AppImage 在各自平台上最稳，交叉打包需要额外工具链，CI 也是三平台分开跑的。
+
+## nightly 工作流
+
+`.github/workflows/nightly.yml` 由 `schedule: cron '17 3 * * *'`（03:17 UTC，11:17 北京时间，特意避开整点）与 `workflow_dispatch` 触发，`concurrency` 组是 `nightly-release`，新任务取消旧任务。
+
+| job | 平台 | 做什么 |
+| --- | --- | --- |
+| `changes` | ubuntu | 跑 `nightly-changes.cjs`，判断今天有没有带文件变更的提交，输出 `build` |
+| `test` | ubuntu | `npm ci`、`test:regression`、`typecheck`、`build` |
+| `macos` | macos-latest | 设版本、build、verify、`--mac --universal`，上传 dmg 与 zip |
+| `windows` | windows-latest | 同上，`--win nsis portable zip --x64` |
+| `linux` | ubuntu-latest | 先装 `fakeroot rpm libarchive-tools`，再 `--linux AppImage deb rpm --x64` |
+| `release` | ubuntu | 汇总三平台产物，发当天日期 tag（`v0.1.0-20261109-Nightly`）的 pre-release |
+
+`test` 失败则三个打包 job 都不跑；`release` 只在 main 分支执行，用 `softprops/action-gh-release@v2` 覆盖同名资产。所有包都未签名：CI 里 `CSC_IDENTITY_AUTO_DISCOVERY` 设为 `false`。
+
+## 版本号
+
+nightly 版本由脚本算，不是手改：
+
+```bash
+npm run nightly:version
+```
+
+`set-nightly-version.mjs` 导出 `nightlyVersion(version, date)`：从 `package.json` 的版本里剥掉旧的 nightly 后缀（`-nightly.20261025` 或 `-20261109-Nightly`）得到 base，再拼上日期：`${base}-${YYYYMMDD}-Nightly`。日期按 `Asia/Shanghai` 当天算，可以用 `NIGHTLY_DATE` 覆盖；`--dry-run` 只打印不动文件。同时同步 `package-lock.json` 的 `version` 与 `packages[''].version`（lock 不存在就跳过）。
+
+`nightly-changes.cjs` 决定要不要发：按 `Asia/Shanghai` 的当天窗口取 `git log --first-parent` 的提交，逐个用 `git diff --name-only`（根提交用 `diff-tree --root`）确认真的改了文件，全都没变更就跳过整条流水线，避免空转出一条同内容的 nightly。
+
+## 发布校验
+
+```bash
+npm run verify:release
+```
+
+`scripts/verify-release.cjs` 是纯函数加 CLI，校验的是「产物内容」而不是「文件存在」：
+
+- required 清单：`package.json`、`electron/main.cjs`、`electron/preload.cjs`、`electron/quit-watchdog.cjs`、`electron/window-close.cjs`、`mcp/server.mjs`、`dist/index.html`、8 个服务文件
+- 从 `dist/index.html` 抽出引用的 `assets/*.js` 与 `*.css`，要求至少各一个且真实存在
+- 要求存在 `dist/assets/pdf.worker.*.mjs`
+- 禁止 `.ai-notes` 与 `superpowers` 路径混入
+- 传目录时遍历 `dist/`、`electron/`、`mcp/`；传 `.asar` 时用 `@electron/asar` 的 `listPackage` 与 `extractFile` 读真实包内容
+- 额外检查 `app.asar.unpacked` 下的 `mcp/server.mjs` 与 8 个服务
+
+失败会打印 `[release] <原因>` 并以退出码 1 结束。`@electron/asar` 是 devDependency，校验脚本本身不进包。
+
+## 打包前后的两道闸
+
+`build.beforePack` 与 `build.afterPack` 指向两个小脚本，各自只做一件事：
+
+```js
+// scripts/before-pack.cjs
+const result = verifyDirectory(context.packager.projectDir);
+// scripts/after-pack.cjs
+verifyPackagedApp(path.join(resources, 'app.asar'));
+```
+
+前者在打包前校验 `dist/`、`electron/`、`mcp/` 的实际待打包目录，后者读真实 ASAR 复核资源与外部 MCP 服务。它们和 `verify:release` 共用同一个校验模块，所以本地跑一次就等于预演了两道闸。
+
+## 陷阱
+
+- 新增服务文件却没加进 `asarUnpack` 与 `verify-release` 的 required：本地能跑，装完就崩
+- 把 `.ai-notes/` 或调试截图放进 `electron/`：会被白名单带进包，校验直接拒
+- 手改 `package.json` 的版本发 nightly：下一次 `nightly:version` 会以它为新 base，版本号越滚越乱
+- 同一天重跑会用同一条 tag：`release` 会 `git tag --force` 并覆盖安装包，历史产物不会保留
+- 在 Windows 上打 mac 包：universal 合并需要 macOS 工具链，CI 里也是分开的 job
+- 把 build 产物 `dist/` 提交上去：CI 会重新 build，提交的产物只会制造冲突
+
+## 验证
+
+```bash
+npm run build
+npm run verify:release
+npm run package -- --publish never
+node scripts/verify-release.cjs release/mac-arm64/TeXPro.app/Contents/Resources/app.asar
+```
+
+最后一条用真实 ASAR 走一遍打包校验，是本地最接近用户的检查。签名、公证与更新通道都还没纳入仓库，发出去的包首次打开需要手动放行。CI 打包不等于运行时验收，界面回归见 `/docs/dev-testing`。
+
+---
+
+# MCP：把工程交给 AI
+
+> TeXPro 自带一个 MCP server，让外部的 AI 客户端能读工程、查符号、跑编译、定位 PDF。这一页讲怎么接、接上之后能做什么、以及它被限制在哪里。
+
+## 两个方向，别搞混
+
+**TeXPro → 别的 MCP server**：应用内的 MCP 面板可以挂载外部 server（文件系统、数据库、搜索……），把它们的能力带进 TeXPro。配置写在用户数据目录的 `mcp-servers.json`。
+
+**别的 AI 客户端 → TeXPro**：`mcp/server.mjs` 是一个独立的 stdio server，暴露编译、检索、定位这些工程能力。Claude Desktop、Cursor、Codex、任何支持 MCP 的客户端都能接。
+
+这一页主要讲第二个方向。
+
+## 它是什么
+
+`mcp/server.mjs` 是普通 Node 脚本，不依赖 Electron 窗口，也不需要应用在运行。协议是 MCP 的 stdio 传输：一行一条 JSON-RPC，日志写到 stderr，不污染协议流。
+
+启动参数：
+
+```bash
+node /path/to/mcp/server.mjs --project /path/to/your-paper
+```
+
+也可以用环境变量 `TEXPRO_PROJECT_ROOT` 指定初始工程。不指定时 server 照样能起来，只是第一次调用需要先 `texpro_open_project`。
+
+## 接进客户端
+
+以 Claude Desktop 为例，配置文件里加一条：
+
+```json
+{
+  "mcpServers": {
+    "texpro": {
+      "command": "node",
+      "args": [
+        "/Applications/TeXPro.app/Contents/Resources/app.asar.unpacked/mcp/server.mjs",
+        "--project",
+        "/Users/you/papers/paper-1"
+      ]
+    }
+  }
+}
+```
+
+路径分两种：
+
+| 场景 | server.mjs 路径 |
+| --- | --- |
+| 开发仓库 | `<仓库>/mcp/server.mjs` |
+| 安装后的应用 | `<应用>/Contents/Resources/app.asar.unpacked/mcp/server.mjs`（Linux / Windows 在 `resources/app.asar.unpacked/mcp/`） |
+
+`--project` 指向你的工程目录，不是单个 `.tex` 文件。改完配置重启客户端，工具列表里应当出现 `texpro_*` 一族。
+
+## 能做什么
+
+### 读工程
+
+| 工具 | 作用 |
+| --- | --- |
+| `texpro_open_project` | 打开 / 切换工程根目录 |
+| `texpro_project_info` | 主文件、编译根、引擎、模块与目录结构 |
+| `texpro_list_files` | 列目录（可递归，深度上限 8） |
+| `texpro_read_file` | 读文本文件 |
+| `texpro_search` | 全工程文本检索（大小写可选，结果上限 200） |
+| `texpro_project_symbols` | 章节、标签、引用、命令等符号索引 |
+| `texpro_bib_lookup` | 按 key 或模糊词查 bib 条目 |
+
+### 写工程
+
+`texpro_write_file` 会真正落盘，单次内容上限 2 MB，只允许文本文件。写之前建议先 `texpro_read_file`，让模型看到当前内容再改，避免整段覆盖。
+
+### 编译与诊断
+
+`texpro_compile` 接受文件、引擎（`pdflatex` / `xelatex` / `lualatex`）与构建目录，返回耗时、页码、警告与错误的完整输出。`texpro_diagnose` 跑静态检查（缺图、缺包、未定义引用等）。`texpro_cancel_compile` 用来中断慢编译。
+
+### 定位与绘图
+
+`texpro_synctex_forward(file, line, column)` 从源码行拿到页号与坐标；`texpro_synctex_inverse(page, x, y)` 从 PDF 坐标反查文件与行。`texpro_render_tikz` 把 TikZ 片段渲染成图片，`texpro_template_preview` 渲染模板预览。
+
+## 资源和提示词
+
+除了工具，server 还提供两类 MCP 能力：
+
+- **resources**：以 `texpro://project/<相对路径>` 的形式暴露工程里的文本文件（`.tex` `.ltx` `.bib` `.md` `.txt` `.sty` `.cls`），客户端可以把它们挂成上下文
+- **prompts**：`fix-latex-error`（拿日志修错）、`summarize-project`（按结构写摘要）、`write-section`（按大纲写一节）
+
+## 典型用法
+
+### 让 AI 修一个编译错误
+
+```text
+1. texpro_compile            → 拿到错误日志
+2. 读 prompts/fix-latex-error → 按提示定位
+3. texpro_read_file          → 看上下文
+4. texpro_write_file         → 改最小的那一段
+5. texpro_compile            → 复验
+```
+
+关键在于第 5 步：改完必须重编译，否则模型只是在猜。
+
+### 让 AI 按大纲补一节
+
+先 `texpro_project_symbols` 拿到现有结构与编号，再 `texpro_read_file` 读相邻章节的写法（人称、时态、公式排版习惯），然后写。写完 `texpro_diagnose` 检查引用是否闭合。
+
+### 让 AI 找到「图 3 是哪段源码画的」
+
+`texpro_synctex_inverse(3, x, y)` 直接给出文件与行号，比让模型全文搜索可靠得多。
+
+## 安全边界
+
+- **路径闸门**：所有带路径的参数都先 `path.resolve` 再做前缀比对，必须落在当前工程根之内。越界报 `Path is outside the project: …`
+- **符号链接**：额外用 `realpath` 比对真实根，防止用软链接跳出工程，报 `Path escapes the project through a symlink: …`
+- **忽略目录**：`.git`、`.texpro`、`node_modules`、`dist`、`build`、`out` 不参与检索与列举
+- **无网络**：server 只读写本地文件、调本地 TeX，不发任何网络请求
+- **无窗口**：它不需要应用在运行，也不受界面状态影响
+
+## 排查
+
+| 现象 | 原因 |
+| --- | --- |
+| 工具列表是空的 | 客户端没连上：确认 `node` 在 PATH 里，或写绝对路径 |
+| `No project is open` | 没传 `--project`，且还没调 `texpro_open_project` |
+| 编译报找不到 latexmk | 运行 server 的环境没有 TeX 发行版；MCP server 不随应用打包 TeX |
+| 写入被拒 | 路径不在工程内，或文件不是文本，或超过 2 MB |
+| 中文乱码 | 文件不是 UTF-8；server 按 UTF-8 读写 |
+
+> 调试时可以直接 `node mcp/server.mjs --project .` 然后在终端里手敲一行 JSON-RPC，比在客户端里猜快。
+
+## 和内置 AI 助手的区别
+
+TeXPro 里也有一个可选的 AI 助手（设置里填密钥才启用），它和 MCP 是两条不同的路：
+
+| | 内置 AI 助手 | MCP server |
+| --- | --- | --- |
+| 谁来调用 | 应用自己，写作用时面板里 | 外部客户端（Claude Desktop、Cursor、Codex…） |
+| 上下文 | 你选中的文本与当前工程摘要 | 由客户端决定，可以读整个工程 |
+| 密钥 | 存在系统钥匙串，只有你配置的模型 | 与 TeXPro 无关，用客户端自己的模型 |
+| 能改文件 | 需要你确认才插入正文 | 可以用 `texpro_write_file` 直接落盘 |
+
+两者可以同时开；不喜欢外部客户端就不配 MCP，其它功能不受影响。
+
+## 手敲一条请求
+
+排查「客户端连不上」时，最快的方式是自己在终端里跑：
+
+```bash
+node mcp/server.mjs --project /path/to/paper
+```
+
+然后按协议一行一行输入 JSON。先握手，再列工具，再调用：
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"cli","version":"0"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"texpro_project_info","arguments":{}}}
+```
+
+日志走 stderr，不会混进响应。响应里的 `content` 是文本块，`isError` 标出调用失败——CLI 里看这两个字段就够了。
+
+## 并发与性能
+
+- **无状态会话**：每次调用都重新解析路径，不缓存文件内容；连续读同一个文件会重复读盘
+- **编译是重操作**：一次 `texpro_compile` 会起 `latexmk`，全量构建可能十几秒；批量改稿时建议改完再编译一次，而不是每改一行编译一次
+- **取消**：`texpro_cancel_compile` 只取消当前工程正在跑的那一次
+- **大工程**：`texpro_search` 与 `texpro_list_files` 会遍历目录，深度上限 8；检索结果上限 200 条，超过的部分要缩小查询范围
+
+## 版本与兼容
+
+server 与客户端按 MCP 协议版本协商；客户端过旧时会握手失败，表现为「工具列表为空」或连接立即断开。升级客户端通常就能解决。
+
+`texpro_*` 工具的参数名是稳定接口，改参数名等于破坏兼容；新增工具或新增可选参数则是安全的。
+
+---
+
+# 给 AI 的二次开发指南
+
+> 让模型在这个仓库里改代码，需要给它三样东西：能改的边界、不能动的约束、改完怎么验证。这一页就是这三样东西本身。
+
+## 为什么单开一页
+
+TeXPro 的代码量不大，但耦合点很集中：`App.tsx` 编排一切，`tex.cjs` 承担大半服务，可视层在每次按键时重扫全文。这三处一旦被「顺手重构」，功能会静默坏掉——不报错，只是某条链路不再更新。
+
+所以给模型的指令不能只写「实现 X」，还要写清楚「不要碰什么」和「改完怎么证明没坏」。下面按这个顺序展开。
+
+## 先读这四份
+
+| 文件 | 作用 |
+| --- | --- |
+| `docs/architecture.md` | 模块边界与关键机制（代数、decoration 优先级、SyncTeX 语义） |
+| `PRODUCT.md` | 产品定位与硬约束，决定「什么该做、什么不该做」 |
+| `README.md` | 功能清单与使用方式，改功能前先确认它已存在 |
+| `electron/services/tex.cjs` | 大部分能力的真实实现，从文件末尾的导出表倒着找入口 |
+
+不要从 `App.tsx` 第一行开始读——它是编排层，先知道有哪些服务，再回来看它怎么调。
+
+## 仓库地图
+
+| 路径 | 内容 | 改动频率 |
+| --- | --- | --- |
+| `electron/main.cjs` | 窗口、菜单、87 个 IPC handler、路径闸门 | 中 |
+| `electron/preload.cjs` | `contextBridge` 暴露的 90 个方法 | 中 |
+| `electron/services/` | 12 个服务：工程、编译、历史、Git、协作、MCP 客户端、Paper API…… | 高 |
+| `src/App.tsx` | 状态编排、代数、对话框与面板的挂载 | 高（谨慎） |
+| `src/editor/` | CodeMirror 配置、补全、decoration、协作绑定 | 高 |
+| `src/components/` | 界面组件与各工作室面板 | 高 |
+| `src/i18n.ts` | 全部界面文案，以英文源串为 key | 随功能 |
+| `src/styles/app.css` | 全站样式（按注释分区块） | 随功能 |
+| `mcp/server.mjs` | 独立 stdio MCP server | 低 |
+| `tests/` | `node --test` 用例 | 随服务层 |
+| `electron/smoke.cjs` + `scripts/` | 界面冒烟与打包校验 | 随流程 |
+
+## 不能动的约束
+
+- **不做玻璃拟态**：`PRODUCT.md` 明确拒绝过，不要以「更现代」为理由重新引入
+- **不加状态库**：跨组件状态留在 `App.tsx`，Redux / Zustand / Jotai 一律不要
+- **不加第二套 UI 库**：图标只用 Lucide，组件都用现有面板与原子组件
+- **不绕过 preload**：渲染层不能直接读文件、不能用 `require`、不能开 `nodeIntegration`
+- **不绕路径闸门**：任何新 IPC 都必须先过 `isAllowed()`，涉及符号链接时用 `realpath` 比对
+- **不做破坏性写入**：改写文件前留快照；删除、移动先算影响
+- **不留 `any`**：仓库现在零 `any`，新增代码不破例
+- **不写死文案**：一切界面文案走 `t()`，中英两份齐全
+
+## 四个必须理解的不变量
+
+### 代数（generation）
+
+每类异步操作有一个自增 ref，`await` 回来后先比对，过期直接丢弃。`runCompile`、`synctexForward`、`synctexInverse`、打开工程、导航都走这一套。
+
+```ts
+const run = ++compileRunId.current;
+const result = await window.texpro.compile(project.root, file);
+if (run !== compileRunId.current) return; // 旧工程的结果，丢掉
+setCompileResult(result);
+```
+
+新增异步流程时复用同一个模式：**先取号，回来再验号**。不要用 `setTimeout` 掩盖竞态。
+
+### decoration 不重叠
+
+可视层用 `occupied` 区间表保证同一位置只有一个装饰；光标所在区间回退成源码。新增一种可视元素要按优先级插进队列，并处理与表格、公式、TikZ 的嵌套。
+
+缓存只有公式 HTML（LRU 800）与 TikZ 请求去重。整篇重扫是已知的性能债，改动时不要让它变得更贵（例如在里面发起请求）。
+
+### 主文件策略
+
+`configured` 优先于 `detected`；探测不出唯一主文件时标记 `ambiguous`，不要自作主张挑一个。用户手动指定后写入工程配置，之后以配置为准。
+
+### SyncTeX 语义
+
+正向是「源码行 → 页 + 坐标」，反向是「PDF 点 → 文件 + 行」，多处命中时返回列表而不是单点。改动画布坐标前先读 `tests/pdf-sync.test.cjs`。
+
+## 四个常见改动路线
+
+### 新增一条 IPC
+
+```text
+electron/main.cjs     ipcMain.handle('thing:do', async (_e, path) => {
+                        if (!isAllowed(path)) throw new Error('File is outside the open project');
+                        ...
+                      })
+electron/preload.cjs  thingDo: (path) => ipcRenderer.invoke('thing:do', path)
+src/api.ts            thingDo(path: string): Promise<Result>
+```
+
+三处通道名必须逐字一致。改完跑一遍通道集合比对（preload 与 main 各 87 个、一一对应），缺一个就是运行时 `undefined`。
+
+### 新增一种可视元素
+
+在 `src/editor/visual.ts` 的 `buildDecorations()` 里加一轮扫描，产出与现有 decoration 同构的区间（带优先级），然后：
+
+- 在 `occupied` 里占位，避免被后面的轮次吞掉
+- 光标落入时回退源码
+- 渲染结果需要异步（TikZ、乐谱）时走现有的请求去重，不要每次都发
+
+### 新增一个工作室面板
+
+```text
+src/components/ThingStudio.tsx      面板本体（用现有原子组件与 token）
+src/app/lazyTools.tsx               注册 deferredTool + RecoveryBoundary
+src/styles/app.css                  对应注释区块里加类
+src/i18n.ts                         中英文案
+```
+
+延迟加载是默认：首次打开才 `import()`，关闭后保留状态，崩溃由 `RecoveryBoundary` 隔离。
+
+### 新增一个设置项
+
+四处一起改，少一处就会出现「能改但重启后失效」：
+
+1. `src/types.ts` 的 `Settings` 加字段
+2. `src/App.tsx` 的默认值与 `SETTINGS_KEY` 持久化（localStorage）
+3. 设置面板里加控件
+4. `src/i18n.ts` 中英两份文案
+
+密钥类不要进 localStorage：用 `safeStorage` 加密后走主进程。
+
+## 调试手段
+
+| 目标 | 做法 |
+| --- | --- |
+| 渲染层问题 | `npm run dev` 后 `Cmd/Ctrl+Shift+I` 打开 DevTools |
+| 主进程问题 | 终端里看 stdout / stderr，主进程的 `console.log` 直接在前台可见 |
+| IPC 没通 | 先比对三处通道名，再看 `isAllowed` 是否抛了「outside the open project」 |
+| 编译不对 | 看 `CompileOutput` 的完整日志，不要只看错误条数 |
+| 回归 | `npm run smoke`，截图落在 `artifacts/` |
+
+## 验证清单
+
+```bash
+npm run typecheck        # 必须零错误
+npm run test:regression  # 68 条用例必须全绿
+npm run smoke            # 改到界面时跑，看 artifacts/ 的新截图
+```
+
+三条都过了再写改动说明：改了什么、为什么这么改、验证到哪一步。不要用「应该可以」交差。
+
+## 反模式清单
+
+- 直接改 `dist/`——下次构建就被覆盖
+- 在渲染层拼文件路径再交给主进程——路径要由主进程解析并校验
+- 用 `setTimeout` 掩盖竞态——用代数
+- 把整篇文档在 React 与 CodeMirror 之间来回 `setState`——会丢光标，改走 `textChange` 差分
+- 为了「顺手」把 `sandbox` 打开——先确认主进程服务层的依赖面
+- 一次性重写 `App.tsx` 或 `tex.cjs`——没有测试覆盖的窗口太大，分步改
+- 把 i18n 文案写成中文 key——key 是英文源串，中文放在表里
+
+## 可以直接给 AI 的任务模板
+
+```text
+范围：只改 <文件/目录>，不要动其它模块。
+目标：<一句话说明行为变化>
+约束：遵守 PRODUCT.md；不加依赖；i18n 中英齐全；不破坏零 any。
+验证：npm run typecheck && npm run test:regression，改到界面再跑 npm run smoke。
+输出：改动清单 + 每处改动的原因 + 验证结果。若发现范围外的问题，只汇报不修改。
+```
+
+## 交接时怎么描述状态
+
+比「已修复」有用的三句话：
+
+1. **改了哪里**：文件 + 函数，别只写模块名
+2. **为什么这样改**：约束或失败现象，让下一个人能判断方案是否仍成立
+3. **验证边界**：跑过什么、没跑什么（例如「没在有 TeX 的环境跑冒烟」）
+
+> 这一页本身也适合作为 prompt 的一部分：把「不能动的约束」与「四个不变量」整段贴给模型，比让它自己总结可靠。
+
+---
+
+# 关于 TeXPro
+
+> TeXPro 是什么、为谁而做，以及设计哲学、设计语言、交互思路、版本与文档地图。
+
+## TeXPro 是什么
+
+TeXPro 是一个面向 LaTeX 的桌面写作工作台。它把源码编辑器、可视写作层、PDF 预览、工程管理与编译链放在同一个窗口里，让你从写第一行到交出 PDF 都不必离开应用。
+
+它不替代 LaTeX，也不隐藏 LaTeX。文件仍然是 `.tex`，编译仍然由本机的 latexmk 与 TeX 发行版完成；TeXPro 做的是把这条链路变得连贯：编辑时看得懂结构，编译后对得上位置，交付前查得清问题。
+
+仓库名沿用 `TexStudioPro`，产品名是 TeXPro。它与 TeXstudio、Typora 等项目没有隶属关系。
+
+## 为谁而做
+
+TeXPro 主要面向三类人：
+
+- 写论文的研究者与研究生：多文件工程、参考文献、交叉引用、期刊模板
+- 做课程作业或中文排版的学生：需要公式、图表与稳定的中文支持
+- 维护技术文档的作者：长文、代码、表格与多次修订
+
+共同点是：他们愿意为排版质量付出学习成本，但不想把时间花在工具切换与格式修补上。
+
+## 设计哲学
+
+下面七条不是口号，而是出现冲突时的排序依据。
+
+- **写作必须连续**：正文、公式、表格、乐谱、电路图都处在同一条光标流里。日常输入与修改不应该先打开工作室、填一张表单，再点「完成」。
+- **源码是记录**：`.tex` 是唯一事实来源，可视层只是它的投影。源文件必须保持可读、可移植、可离线编译，不能变成某个应用私有的文档格式。
+- **帮助按需出现**：只有你选中内容或明确请求时，工具才出现。把配置表单搬进正文，不等于连续写作；工作室是可选的加速器，不是默认路径。
+- **保留作者的位置**：预览刷新、校验、插入宏包、后台编译都不能抢走当前文件、光标、选区、撤销历史与滚动位置。输入法还在组合时，界面不能抢先重排。
+- **闭环**：写作、工程结构、编译诊断、PDF、引用与版本历史应当在同一个工作区里相遇，并且共享同一个主文件。
+- **自动化可检查**：AI、MCP、自定义构建与备份要让人看得见它们做了什么，并且可以撤销。
+- **本地优先，远程显式**：工程默认留在磁盘上；联网、云与协作都是带有可见边界的选择。
+
+发生冲突时，优先级从高到低是：连续写作、源码可信、可视化完整、工具数量。
+
+## 设计语言
+
+视觉目标可以概括为「纸面正文，安静外壳」：阅读区接近纸张，周围界面退到背景里。
+
+| 元素 | 取值 | 用意 |
+| --- | --- | --- |
+| 编辑纸面 | 主题变量 `--paper` | 纸张色而非纯白，减少屏幕反光 |
+| 正文颜色 | `#2b2926` | 比纯黑柔和，长文阅读不刺眼 |
+| 强调色 | 暖陶土色（Studio `#d97757`，Paper `#b4532a`） | 只标记焦点、选中与当前状态 |
+| 正文宽度 | `760 px` | 单栏，控制行长 |
+| 正文字号 | `18 px` | 屏幕阅读的舒适区 |
+| 圆角 | `10 px` | 柔和但不过度，不卡通化 |
+
+字体分三套：界面用 SF Pro、苹方或系统无衬线；正文用 New York、Charter、宋体类或 Georgia；代码用 SF Mono、JetBrains Mono 等等宽字体。三套字体各司其职，不混用。
+
+- 图标统一用 Lucide 的线性图标，保持同一笔画粗细；功能入口不靠彩色表情符号区分。
+- 动效只用于面板进出与状态转换，并遵循系统的「减少动态效果」设置；没有装饰性动画。
+- 主题提供 Studio、Night 与 Paper 三套。切换主题改变颜色与明暗，不改变版式、字号层级与强调色的含义。
+
+## 交互思路
+
+交互的目标是让手不离开键盘，眼睛不离开正文。
+
+- **键盘优先**：常用动作都有快捷键或命令面板入口，鼠标是加速器而不是前提。完整列表见 `/docs/shortcuts`。
+- **就地编辑**：段落、公式、表格与图片都在原位修改。选中文本时只浮出六个动作——粗体、斜体、代码、行内公式、引用、交叉引用，不打开大面板。
+- **进出明确**：可视块里按 Esc 回到源码；关闭写作辅助器时恢复原来的光标与选区，不把半成品留在文档里。
+- **位置保持**：自动保存、后台编译与预览刷新不抢焦点，不重置选区；输入法组合期间不打断输入。
+- **可见的自动化**：AI 的修改建议以动作卡片列出，逐条 Apply 才写入；构建使用你配置的命令，shell-escape 默认关闭。没有静默改写。
+- **素材即写即得**：拖入或粘贴图片会存进工程的素材目录，并插入带标签的 figure；SVG 会先转成 1800 px 的 PNG。
+- **反馈克制**：成功用短提示，错误进 Problems 与日志；删除、替换全文这类破坏性操作会先确认，其余时候不打断写作。
+
+判断交互好坏的标准不是动画是否顺滑，而是写完一段之后需不需要重新找光标。
+
+## 不做什么
+
+### 不做在线协作平台
+
+TeXPro 有基于 Yjs 的局域网协作，但它不是云端文档服务：没有房间托管、没有公网分享、没有账号权限体系。需要多人远程协作时，继续用 Overleaf 或 Git，TeXPro 只负责本地编辑与版本衔接。
+
+### 不做 Markdown 编辑器
+
+Markdown 与 Typst 只作为导入、导出的互操作格式存在。TeXPro 的源文件是 LaTeX；如果目标是 Markdown 写作，应该选择专门的 Markdown 工具，而不是在这里绕一圈。
+
+### 不做玻璃拟态
+
+界面刻意避免 Liquid Glass 式的半透明、强反光与层层模糊。视觉语言接近纸张与印刷：稳定的底色、清晰的层级、少量强调色。这不是审美偏好，而是为了让长时间阅读与写作不累。
+
+## 技术栈
+
+| 层 | 选择 | 说明 |
+| --- | --- | --- |
+| 桌面运行时 | Electron 44 | 原生菜单、文件系统与子进程 |
+| 渲染层 | React 19 + TypeScript 5.9 | 编辑器、面板与状态 |
+| 构建 | Vite 8 | 开发服务器与生产构建 |
+| 编辑器 | CodeMirror 6 | 语法高亮、补全、折叠与协作扩展 |
+| PDF | PDF.js 6 | 渲染、文本层与反向定位 |
+| 公式 | KaTeX 0.19 | 可视层与导出页面的公式预览 |
+| 协作 | Yjs 13 | 局域网 CRDT 同步 |
+| 图标 | Lucide | 界面图标 |
+
+进程边界是明确的：渲染层只负责编辑与展示，文件读写、编译进程、密钥加密都由主进程通过 preload 暴露的类型化 IPC 完成。TeX 本身不随应用分发，需要本机安装 TeX Live 或 MacTeX；Node.js 22+ 只在开发时需要。
+
+## 版本与发布节奏
+
+当前版本是 `0.1.0`。应用采用夜间构建：GitHub Actions 每天 `03:17 UTC`（北京时间 11:17）检查 `main` 上是否有当天的提交，有则运行回归测试、类型检查与构建，并把安装包发布为 `nightly` 预发布。
+
+| 平台 | 产物 |
+| --- | --- |
+| macOS | 通用 DMG 与 ZIP（Apple Silicon / Intel） |
+| Windows | x64 NSIS 安装包、便携版与 ZIP |
+| Linux | x64 deb、AppImage 与 rpm |
+
+几点现实约束：
+
+- 当天没有提交，就不会有新构建
+- 夜间构建未签名，macOS 可能提示「无法验证开发者」，Windows 可能触发 SmartScreen
+- 构建失败时不会产出安装包，以下载页显示的最新产物为准
+- 目前没有固定的稳定版节奏；重要工作请保留自己的备份与版本记录
+
+### 升级与兼容性
+
+`0.1.0` 仍处在快速迭代期，尚未承诺稳定的数据格式。夜间构建可能调整 `.texpro/project.json` 字段、历史与模板结构、导出结果或快捷键。
+
+- 升级前备份整个工程目录，并保留一份已知可用的应用版本
+- 先在副本上打开与编译，确认无误后再替换工作目录；不要假设旧版本能读懂新版本写入的数据
+
+## 项目故事
+
+TeXPro 的第一次提交在 2026 年 10 月 21 日，提交信息是「Initial commit: TeXPro visual LaTeX workbench」。它起初不是要做一个全能 IDE，而是想解决一个具体的别扭：TeXstudio 的工程能力很强，但写作时像在终端里排版；Typora 的纸面很安静，却不是 LaTeX 工具。
+
+最初的几天里，仓库很快长出了研究流程、夜间打包、受审批约束的 MCP 与协作编辑；随后是正文内乐谱，以及一份把「连续写作」写成产品契约的文档。这些功能看起来分散，背后是同一条线：所有辅助能力都要回到同一个光标位置。
+
+项目也做过减法。半透明的 Liquid Glass 外壳曾经实现过，后来被完整移除；除非有新的明确决定，它不会回来。LaTeX 语法高亮库 `codemirror-lang-latex` 也没有被采用，因为它是 AGPL-3.0-or-later，与仓库偏好的 MIT 许可不一致。
+
+到今天，它仍然是一个 `0.1.0` 的项目：历史很短，边界还在收敛，夜间构建每天从 `main` 出发。它不假装成熟，但尽量把每个取舍写下来，让后来的人知道为什么是这样。
+
+## 如何参与
+
+### 报告问题
+
+在 GitHub Issues 中描述现象、复现步骤与期望结果。有用的信息包括：
+
+- 版本号与构建日期（页脚或关于窗口）
+- 操作系统与 TeX 发行版（TeX Live / MacTeX 的版本）
+- 最小可复现的 `.tex` 片段，或工程结构说明
+- 编译日志中的关键错误行
+
+不要粘贴 API 密钥、未公开稿件或他人的个人信息。
+
+### 提交代码
+
+欢迎 PR，但请保持改动聚焦：
+
+- 先开 Issue 讨论较大改动，避免写完才发现方向不对
+- 遵守渲染层与主进程的边界，不在渲染层直接读文件或起进程
+- 行为变更附带测试；至少跑一遍现有测试与类型检查
+- 新增依赖前说明理由，优先选择与 MIT 兼容的许可
+
+### 改进文档
+
+产品页文档在 `product-page/src/content/docs/`，每个文件是一个页面，front matter 决定标题、分组与顺序。写作时请：
+
+- 事实以源码与仓库文档为准，不写未实现的功能
+- 用 `##` 与 `###` 组织内容，表格与提示按现有页面的写法
+- 中文与西文之间留空格，站内路径写作 `/docs/xxx`
+
+## 文档地图
+
+文档按六组组织，建议按使用路径阅读：
+
+| 分组 | 页面 |
+| --- | --- |
+| 开始 | `/docs/start` 安装与第一个工程 |
+| 使用 | `/docs/import`、`/docs/compile`、`/docs/synctex`、`/docs/writing` |
+| 参考 | `/docs/project`、`/docs/export`、`/docs/ai`、`/docs/shortcuts` |
+| 开发 | `/docs/dev-setup`、`/docs/dev-arch`、`/docs/dev-renderer`、`/docs/dev-testing`、`/docs/dev-release` |
+| AI 协作 | `/docs/mcp`、`/docs/ai-guide` |
+| 关于 | `/docs/about`、`/docs/copyright` |
+
+> 第一次使用，从「安装与第一个工程」开始；想接 AI 或自己做集成，读「MCP：把工程交给 AI」与「给 AI 的二次开发指南」。
+
+---
+
+# 版权与许可
+
+> TeXPro 的 MIT 许可、本站内容、第三方依赖与字体许可、商标与隐私说明。
+
+## 三句话版本
+
+- 应用本体是 MIT 许可：可以商用、修改、再分发，保留版权与许可声明即可。
+- 你的论文、图片与导出的 PDF 归你，TeXPro 不主张任何权利。
+- 应用不附账号、不做遥测；联网只发生在你主动触发的动作里。
+
+下面是完整说明。它不是法律意见；涉及商用或再分发时，建议同时阅读仓库根目录的 `LICENSE` 原文。
+
+## 应用本体：MIT 许可
+
+TeXPro 以 MIT 许可发布，版权声明为：
+
+```text
+Copyright (c) 2026 TeXPro contributors
+```
+
+MIT 是宽松许可，允许你把 TeXPro 用在哪里、改成什么样，也允许你把它并入闭源产品。
+
+### 你可以
+
+- 在个人、教学或商业环境中使用，不付费、不需要授权码
+- 阅读、修改源码，按自己的需要增删功能
+- 再分发原版或修改版，包括打包进自己的发行版
+- 将代码并入其他项目，包括不公开源码的项目
+- 在修改版上使用不同的名称与图标（需自行承担商标风险）
+
+### 你需要
+
+- 在副本或衍生作品中保留版权声明与 MIT 许可全文
+- 在分发时附上 `LICENSE`，通常放在安装目录或关于页面
+
+MIT 不要求你公开修改后的源码，也不要求你用同样的许可发布衍生作品。它也不提供任何形式的担保，这一点在下一节展开。
+
+### 分发修改版时
+
+如果你发布的版本与官方构建有明显差异，建议在名称或说明中标注「非官方构建」，避免用户把问题归到上游。使用 TeXPro 名称与图标属于商标问题，不在 MIT 授权范围内，详见下文「TeX、LaTeX 与相关名称」。
+
+## 软件按「现状」提供
+
+MIT 许可中的免责条款适用于整个应用：
+
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+用日常语言说：
+
+- 不保证编译结果正确，也不保证排版符合期刊要求
+- 不保证应用没有缺陷，或能在你的系统上无中断运行
+- 不保证数据不会因误操作、磁盘故障或第三方工具而丢失
+- 作者与贡献者不对使用或无法使用本软件造成的损失负责
+
+因此，重要论文请使用 Git、备份或工程快照保留历史；提交期刊前用目标模板再编译一次。应用提供快照、版本历史与备份入口，但它们不能替代你自己的备份策略。
+
+## 本站内容
+
+产品页与应用在同一个仓库，站点源码同样以 MIT 许可提供。页面上的文字、结构、样式与示例可以复用、改写，也可以用于商业项目。
+
+需要保留的仍然只有版权与许可声明。以下内容不随 MIT 授权：
+
+- 「TeXPro」名称、应用图标与官方构建的视觉标识
+- 页面截图中出现的第三方界面、字体与素材（归各自权利人）
+
+页面截图来自真实运行窗口，使用仓库内的 `demo/` 演示工程，没有合成或伪造的界面。引用截图时请注明来源，并避免让人误以为你的产品是官方版本。
+
+## 第三方依赖
+
+TeXPro 站在大量开源项目上。下表列出主要依赖及其真实许可证；版本是撰写时的主版本，精确版本以 `package.json` 与 `package-lock.json` 为准。
+
+| 组件 | 版本 | 许可证 | 用途 |
+| --- | --- | --- | --- |
+| Electron | 44.x | MIT | 桌面运行时与原生菜单 |
+| React / React DOM | 19.x | MIT | 渲染层界面 |
+| CodeMirror | 6.x | MIT | 源码编辑器与扩展 |
+| KaTeX | 0.19.x | MIT | 公式预览 |
+| PDF.js（pdfjs-dist） | 6.x | Apache-2.0 | PDF 渲染与文本层 |
+| Yjs | 13.x | MIT | 局域网协作的 CRDT |
+| y-codemirror.next / y-protocols | 0.3.x / 0.1.x | MIT | 协作与编辑器绑定 |
+| Lucide（lucide-react） | 0.544.x | ISC | 界面图标 |
+| Ant Design | 6.x | MIT | 本站组件库 |
+| Vite | 8.x（应用）/ 7.x（本站） | MIT | 构建与开发服务器 |
+| TypeScript | 5.9.x | Apache-2.0 | 类型检查与编译 |
+| ws | 8.x | MIT | 本地协作 WebSocket |
+| perfect-freehand | 1.2.x | MIT | 手绘笔迹 |
+| react-router-dom | 7.x | MIT | 本站路由 |
+| dayjs | 1.11.x | MIT | 日期格式化 |
+
+几点补充：
+
+- MIT 与 ISC 都要求保留版权与许可声明；Apache-2.0 还要求保留 NOTICE（如随包提供），并在修改文件时说明变更。TeXPro 以原样依赖使用这些库，没有打补丁。
+- 上表不是完整清单。间接依赖与开发依赖（如 electron-builder、Vite 插件、类型定义）同样遵循各自许可，完整文本在 `node_modules/<包名>/LICENSE`。
+- 构建产物中的第三方代码仍受原许可约束。再分发安装包时，请一并保留 `LICENSE` 与依赖声明；Electron 的许可信息在 `LICENSES.chromium.html` 中。
+- 如果你新增依赖，请选择与 MIT 兼容的许可，并在 PR 中说明；AGPL 类依赖需要单独评估，仓库目前刻意没有采用 `codemirror-lang-latex`（AGPL-3.0-or-later）。
+
+## 字体许可
+
+TeXPro 的字体策略分两部分，因为应用与产品页并不相同。
+
+### 应用内
+
+应用安装包不附带字体文件。界面使用系统字体：macOS 上是 SF Pro 与苹方，Windows / Linux 上回退到系统无衬线字体；编辑器优先使用本机的 New York、Charter、宋体类字体，缺省时回退到 Georgia 或系统衬线字体。
+
+这意味着：
+
+- 字体许可由操作系统与你安装的字体决定，TeXPro 不再单独授权
+- 换一台机器，字形可能不同；排版以编译时本机字体为准
+- 想在 PDF 中稳定使用某款商用字体，需要你自行购买并安装
+
+### 本站与文档页面
+
+本站正文使用思源宋体（Noto Serif SC），遵循 SIL Open Font License 1.1。字体通过 jsDelivr 上的 `@fontsource/noto-serif-sc` 分包加载，中文子集按需下载，不随站点仓库分发字体二进制。
+
+SIL OFL 1.1 允许：
+
+- 免费使用，包括商业网站与印刷品
+- 嵌入文档与 PDF
+- 修改字形并再分发
+- 与其它软件捆绑，只要不单独售卖字体
+
+需要遵守：
+
+- 再分发字体文件时保留 OFL 许可与版权声明
+- 修改版不得使用原字体的保留名称（Reserved Font Name），具体以字体随附的 `OFL.txt` 为准
+- 不能把字体本身当作主要商品出售
+
+### PDF 中的字体
+
+导出的 PDF 由本机 TeX 发行版排版，嵌入哪些字体由文档、宏包与系统字体决定。TeXPro 不替换也不额外打包字体。使用期刊指定字体或商用字体时，请确认你拥有相应授权；把 PDF 公开分发前，尤其要检查图片、图表与字体的来源。
+
+乐谱功能依赖本机的 MusiXTeX / musixtnt，它们随 TeX 发行版提供，不随 TeXPro 安装包分发，许可遵循发行版自身的说明。
+
+## TeX、LaTeX 与相关名称
+
+- TeX 是 American Mathematical Society 的商标
+- LaTeX 由 LaTeX Project 维护；其名称与蜂鸟标识用于指代该项目及其软件，标识不在 LPPL 授权范围内，使用前请阅读官方说明
+- TeXPro 与 TeX、LaTeX 没有隶属关系，也未获得其背书
+- 文档中提到这些名称，只为说明文件格式与编译链的兼容性
+- TeXPro 的名称与图标属于本项目；MIT 许可不包含商标授权
+- Typora、TeXstudio、Overleaf 等名称属于各自权利人，提及它们仅用于比较或说明互操作
+
+如果你在自己的产品中描述「兼容 LaTeX」，请确保表述准确，并避免暗示官方认证。
+
+## 你的内容归你
+
+你在 TeXPro 中创建或编辑的一切，版权归你（或原权利人）：
+
+- `.tex`、`.bib`、图片、图表与其它工程文件
+- 编译生成的 PDF、导出的 Markdown / Typst / HTML
+- 你撰写的文字、注释与批注
+
+TeXPro 不对这些内容主张任何许可或所有权。应用只在你的工程目录、应用数据目录，以及你明确选择的导出与备份位置读写文件；没有把文档上传到自家服务器的行为。
+
+需要注意的边界：
+
+- 导出文件可能包含你引用的第三方图片、字体或表格，公开前请自行清权
+- AI 生成的内容是否受版权保护、归谁所有，取决于你使用的模型服务条款与当地法律；发布前请核对
+- 协作场景下，文档的归属由参与者自行约定，应用不介入
+- 仓库中的 `demo/` 演示工程随仓库以 MIT 提供，仅用于展示，除非文件内另有说明
+
+## 隐私
+
+TeXPro 是一个本地应用，没有账号系统，也没有云端同步服务。
+
+- 不要求注册、登录或手机号
+- 不包含遥测、分析、崩溃上报或广告 SDK
+- 产品页是静态站点，没有统计脚本与 Cookie 横幅
+
+联网只发生在你主动触发的动作里：
+
+| 动作 | 连接位置 | 发送内容 |
+| --- | --- | --- |
+| AI 助手 | 你配置的模型端点（默认 OpenAI） | 上下文框里的文本 |
+| DOI / arXiv 元数据 | Crossref、arXiv API | 你输入的 DOI 或 arXiv ID |
+| Git / Overleaf | 你配置的远端 | 仓库内容与提交信息 |
+| 备份 | 你选择的 iCloud Drive、WebDAV 或 SSH 主机 | 工程文件 |
+| Zotero 文献 | 本机 `127.0.0.1:23119` | 本地查询，不出机器 |
+| 局域网协作 | 本机启动的 WebSocket 服务 | 文档更新，不经第三方 |
+| 外部链接 | 你的浏览器 | 由目标站点处理 |
+
+AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加密，保存在应用数据目录的 `secrets.json`，文件权限为仅当前用户可读；密钥不会写入浏览器 localStorage，也不会进入工程文件或 Git 仓库。只有你点击运行，才会把上下文框中的文字发给你配置的端点；应用不会自动调用模型。
+
+产品页通过 GitHub Pages 托管，字体从 jsDelivr 加载。这两个服务会按其自身策略记录访问日志（如 IP 与 User-Agent），TeXPro 不额外收集或分析这些数据。
+
+## 如何报告版权问题
+
+如果你认为仓库中的代码、文档、截图或演示素材侵犯了你的权利，请在 GitHub Issues 中提出：
+
+- 仓库地址：`https://github.com/lzhbhlrPython/TexStudioPro`
+- 说明涉及的文件、页面或版本
+- 提供权利证明或原始出处链接
+- 说明你希望的处置方式：署名、替换或移除
+
+维护者会核对后处理。涉及商标误用、冒充官方构建的情况也可以用同一渠道反馈。请勿在公开 Issue 中粘贴 API 密钥、未公开的稿件或他人的个人信息。
+
+> 本页会随依赖与许可变化更新；已发布版本仍以其随附的 `LICENSE` 为准。本页不构成法律意见。
+
+---

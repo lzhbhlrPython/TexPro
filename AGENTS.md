@@ -107,7 +107,9 @@
 - 获得明确改版或发布集成授权后，只改授权涉及的壳层／脚本，不扩展到无关页面。沿用现有 React、Ant Design、纸面品牌及中英文系统，不新增第二套 UI 或 Markdown 库。
 - 内容工作前后运行 `pnpm check:layout`。只写内容不应改变版式基线；如开始时已有并行改版差异，记录并比对，不覆盖他人修改，也不把既有差异算作自己已通过。
 - 不运行 `pnpm layout:update` 掩盖失败。只有用户已明确授权的版式变更核对完成后，才通过约定入口更新基线；禁止手填哈希绕过检查。
-- 新站点文案走 `product-page/src/i18n/`，同步中文与英文。文档英文版同 slug 放到 `src/content/docs/en/`；博客只写简体中文。
+- **任何文案、文档或版式改动，必须同步完成 i18n。** 界面字符串改在 `product-page/src/i18n/en.ts`（键为中文原文）；文档英文版同 slug 放到 `src/content/docs/en/`；博客只写简体中文，并在英文界面注明「以简体中文撰写」。只改中文一侧视为未完成。
+- **设计语言与动效必须一致。** 颜色、圆角、间距只用既有 token（`--site-*` 与 antd token），动效只用既有变量（`--dur-quick/base/enter`、`--ease-out`、`--rise`）与既有的 Reveal 节奏（同屏错开 60ms）；新增动效必须补齐 `prefers-reduced-motion` 降级，不得另起一套时长与缓动。
+- 机器可读产物（`llms.txt`、`llms-full.txt`、`sitemap.xml`、`robots.txt`、`feed.xml`、`feed.json`）由 `vite.config.ts` 的 `contentFiles` 插件在 `buildStart` 自动生成，源码在 `scripts/gen-*.mjs`；不要手改生成结果，也不要删除插件回退成「记得先跑 npm script」。
 - 真实截图来自应用，保留可核对来源。不得用假截图、未验证性能、客户案例或不存在的云服务作宣传。
 - 资源与站内路由兼容 `PAGES_BASE_PATH`／`BASE_URL` 和项目子路径；不要写死根路径导致 Pages 下失效。
 - 下载与版本数据来自实际 GitHub Release。兼容日期 Nightly 与旧固定 nightly 标签，不把示例版本写死在组件里；API 失败可用明确的旧快照，不能假称已同步。

@@ -4,15 +4,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/fetch-release.mjs && node scripts/gen-feed.mjs && vite",
-    "build": "node scripts/fetch-release.mjs && node scripts/gen-feed.mjs && tsc --noEmit && vite build",
+    "dev": "node scripts/fetch-release.mjs && vite",
+    "build": "node scripts/fetch-release.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "check:layout": "node scripts/layout-lock.mjs",
     "layout:update": "node scripts/layout-lock.mjs --update",
     "release:sync": "node scripts/fetch-release.mjs",
     "latex:mark": "node scripts/build-latex-mark.mjs",
-    "feed:build": "node scripts/gen-feed.mjs"
+    "feed:build": "node scripts/gen-feed.mjs",
+    "llms:build": "node scripts/gen-llms.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",

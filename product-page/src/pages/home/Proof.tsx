@@ -2,15 +2,13 @@ import { Link } from 'react-router-dom';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { SITE_LINKS } from '@/config/constants';
-import { useLocalize } from '@/i18n';
+import { CLAIMS } from '@/data/claims';
+import { useT } from '@/i18n';
 
 const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 
-/**
- * 一行一条，像工程附录：左边是出处，右边是那句结论。
- * 数字写在句子里，不做数字墙。
- */
-const RECORDS = [
+/** 首屏四个数字的出处：与引用共用同一张表，编号 [7]–[10]。 */
+const FIGURES = [
   {
     source: 'tests/',
     figure: '89',
@@ -20,26 +18,25 @@ const RECORDS = [
   {
     source: 'electron/',
     figure: '87',
-    text: '个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。',
+    text: '个 IPC 通道，preload 与主进程逐条对应。',
     href: `${REPO}/blob/main/electron/preload.cjs`,
   },
   {
     source: 'Releases',
     figure: '16',
-    text: '个安装包 / 次夜构，三个平台来自同一份 main。',
+    text: '个安装包 / 次夜构，三平台同一份 main。',
     href: SITE_LINKS.releases,
   },
   {
     source: 'docs/',
     figure: '21 × 2',
-    text: '篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。',
+    text: '篇文档，中英各一版；缺译文时回落中文并在页头注明。',
     to: '/docs',
   },
 ];
 
 export function Proof() {
-  const localize = useLocalize();
-  const rows = localize(RECORDS);
+  const t = useT();
 
   return (
     <section className="section section-proof" id="proof">
@@ -47,32 +44,50 @@ export function Proof() {
         <SectionHeading
           eyebrow="证据"
           title="可以核对的部分"
-          description="下面几行来自当前仓库与最近一次夜间构建，不是估算。"
+          description="正文里的每个上标都能在这里找到出处：左边是文件，右边是那句结论，编号与正文一一对应。"
         />
 
-        <div className="proof-list">
-          {rows.map((row, index) => (
-            <Reveal className="proof-row" key={row.source} delay={index * 60}>
-              {row.to ? (
-                <Link className="proof-link" to={row.to}>
-                  <span className="proof-source">{row.source}</span>
-                  <span className="proof-text">
-                    <strong className="proof-figure">{row.figure}</strong>
-                    {row.text}
-                  </span>
-                </Link>
-              ) : (
-                <a className="proof-link" href={row.href} target="_blank" rel="noreferrer">
-                  <span className="proof-source">{row.source}</span>
-                  <span className="proof-text">
-                    <strong className="proof-figure">{row.figure}</strong>
-                    {row.text}
-                  </span>
+        <Reveal>
+          <ol className="ref-table">
+            {CLAIMS.map((claim, index) => (
+              <li className="ref-row" id={`ref-${index + 1}`} key={claim.id}>
+                <a className="ref-line" href={claim.href} target="_blank" rel="noreferrer">
+                  <span className="ref-num">[{index + 1}]</span>
+                  <span className="ref-source">{claim.file}</span>
+                  <span className="ref-text">{t(claim.note)}</span>
                 </a>
-              )}
-            </Reveal>
-          ))}
-        </div>
+              </li>
+            ))}
+
+          {FIGURES.map((row, index) => {
+            const number = CLAIMS.length + index + 1;
+            const body = (
+              <>
+                <span className="ref-num">[{number}]</span>
+                <span className="ref-source">{row.source}</span>
+                <span className="ref-text">
+                  <span className="proof-figure">{row.figure}</span>
+                  {t(row.text)}
+                </span>
+              </>
+            );
+
+            return (
+              <li className="ref-row" id={`ref-${number}`} key={row.source}>
+                {row.to ? (
+                  <Link className="ref-line" to={row.to}>
+                    {body}
+                  </Link>
+                ) : (
+                  <a className="ref-line" href={row.href} target="_blank" rel="noreferrer">
+                    {body}
+                  </a>
+                )}
+              </li>
+            );
+          })}
+          </ol>
+        </Reveal>
       </div>
     </section>
   );

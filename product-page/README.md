@@ -28,17 +28,19 @@ pnpm layout:update # 经用户同意改版后，重建 layout.lock.json 基线
 
 | 区块 | 文件 | 锚点 | 内容 |
 | --- | --- | --- | --- |
-| 首屏 | `Hero.tsx` | `#top` | 主张（900 字重主标题）、两个 CTA、真实主界面截图、四个指标 |
-| 能力 | `Capabilities.tsx` | `#capabilities` | 八项能力，四列规格表式排版（细分隔线，不用卡片） |
+| 首屏 | `Hero.tsx` | `#top` | 主张（900 字重主标题）、两个 CTA、真实主界面截图；底部一行四个可核对数字（89 用例 / 87 IPC / 16 安装包 / 21×2 文档），与证据表同字族 |
+| 能力 | `Capabilities.tsx` | `#capabilities` | 六项能力，三列规格表式排版（细分隔线，不用卡片），每条说法带脚注 |
 | 演示 | `VisualDemo.tsx` | `#demo` | 同一份 LaTeX 的三块内容，点哪块哪块翻回源码（公式由构建期预渲染） |
 | 场景 | `Showcase.tsx` | `#showcase` | 两段图文交替，各自带真实截图 |
 | 工作流 | `Workflow.tsx` | `#workflow` | 四步 Steps + 仿真状态栏 + 三条说明 |
+| 出错 | `Failure.tsx` | `#failure` | 左边坏掉的 `main.tex`，右边三条真实诊断；点一条跳到对应行并展开说明 |
 | 细节 | `Details.tsx` | `#details` | 小巧思：占位符与修订备忘、CTeX 中文排版，两列窄带 |
 | 对比 | `Comparison.tsx` | `#compare` | 能力对比表，TeXPro 列高亮 |
+| 边界 | `Limits.tsx` | `#limits` | 反向营销：四条刻意不做的事（账号权限、手机端、藏源码、云同步） |
 | 隐私 | `DataFlow.tsx` | `#local` | 三个节点的数据流向图、「全程不出现」与「可选的外连」 |
 | 写作 | `Themes.tsx` | `#themes` | 三主题切换 + 一行一条的模式清单（聚焦 / 打字机 / 纸面留白）+ 主题对照滑块 |
 | 迁移 | `Migrate.tsx` | `#migrate` | 三条迁移路径（在线协作、Markdown、传统 IDE），每条给一个文档入口 |
-| 证据 | `Proof.tsx` | `#proof` | 四行可核对记录（用例 / IPC / 安装包 / 文档），左边出处、右边结论，滚动时逐行画出分隔线 |
+| 证据 | `Proof.tsx` | `#proof` | 一张 `[1]–[6]` 参考文献表：正文上标的出处，行内排、悬挂缩进；四个仓库数字放在首屏，不重复列出 |
 | 下载 | `Download.tsx` | `#download` | 按访客系统自动标出安装包，直接链到对应资产、显示体积，并给出每行的 SHA256 复制按钮 |
 | 页脚 | `layouts/components/SiteFooter.tsx` | — | 链接分组与声明 |
 
@@ -50,6 +52,7 @@ pnpm layout:update # 经用户同意改版后，重建 layout.lock.json 基线
 | `/blog` | `src/pages/blog/index.tsx` | 开发博客列表：日期 + 标题 + 摘要 + 标签 + 阅读时长 |
 | `/blog/:slug` | `src/pages/blog/post.tsx` | 单篇文章，文末「更早 / 更新」翻页 |
 | `/changelog` | `src/pages/changelog/index.tsx` | 当前发布的版本、tag、日期与全部资产（体积、SHA256、复制按钮） |
+| `/ai` | `src/pages/ai/index.tsx` | 给 AI 的结构化入口：项目定义、可核对事实、机器可读入口、修改边界 |
 
 文档正文有中英两个版本：中文在 `src/content/docs/*.md`，英文在 `src/content/docs/en/*.md`（同名、同 `slug`，`group`/`order` 沿用中文文件的）。英文版缺失的篇目会回落中文正文，并在页面顶部标注「英文版还在翻译中」。博客按约定只写简体中文。
 
@@ -64,12 +67,54 @@ pnpm layout:update # 经用户同意改版后，重建 layout.lock.json 基线
 | AI 协作 | MCP：把工程交给 AI、给 AI 的二次开发指南 |
 | 关于 | 关于 TeXPro、版权与许可 |
 
-外壳在 `src/layouts/SiteLayout.tsx`：吸顶导航（移动端收进 Drawer）、页脚、回到顶部按钮。站点没有面向访客的外观配置面板——主题与品牌色固定为 TeXPro 自己的纸面配色。
+外壳在 `src/layouts/SiteLayout.tsx`：吸顶导航（移动端收进 Drawer）、页脚、回到顶部按钮。站点没有面向访客的外观配置面板——品牌色固定为 TeXPro 自己的赤陶色；亮/暗两套中性色由 `src/lib/theme.tsx` 在 `html[data-theme]` 上切换，默认跟随系统。
 
 导航分两层，避免顶部堆成一排：
 
 - **Header 只做页面切换**：logo、博客、文档、GitHub、下载按钮；不再放首页锚点。
-- **右侧分段导航** `src/components/SectionRail.tsx`：≥1280px 固定在右侧，小圆点常驻、标签在悬停或当前段落时浮现，滚动时按视口中线高亮；窄屏收起，抽屉里以「本页」分组列出同样七段。
+- **右侧分段导航** `src/components/SectionRail.tsx`：≥1280px 固定在右侧，圆点常驻、标签在悬停或当前段落时浮现，滚动时按视口中线高亮；窄屏收起，抽屉里以「本页」分组列出同样十四段。
+
+## 可信的说法与脚注
+
+首页的每个说法都能点开出处：`src/data/claims.ts` 存六条 `{ id, file, href, note }`，`src/components/ClaimFootnote.tsx` 渲染正文上标，`Proof.tsx` 把它们排成一张 `[1]–[6]` 的参考文献表（780px、悬挂缩进、与打印稿同一样式）。四个仓库数字（89 / 87 / 16 / 21×2）作为首屏摘要放在 Hero 下面，字号 20px、字重 500，不放大也不加黑。
+
+边界不藏：`Limits.tsx` 明确写「不做账号与权限 / 不做手机 App / 不做藏起源码的编辑器 / 不做账号体系与云同步」，`DataFlow.tsx` 画出整条链路只经过磁盘与本机进程。
+
+## 交互件
+
+| 位置 | 实现 | 行为 |
+| --- | --- | --- |
+| Header | 搜索按钮 / `⌘K` | `SearchDialog`：文档与博客同搜，↑↓ 选择、⏎ 打开 |
+| Header | 键盘按钮 / `?` / `⌘/` | `ShortcutsDialog`：四组快捷键，输入框内不拦截 |
+| Header | 月亮 / 太阳 | 亮暗切换，写 `localStorage['texpro:theme']`，默认跟随系统 |
+| 首页 | `SectionRail` | 右侧圆点导航，≥1280px 显示，当前段落高亮 |
+| 演示区 | `VisualDemo` | 点公式 / 表格 / 标题翻回源码，可一键还原 |
+| 主题区 | `CompareSlider` | 拖动或 ←→ 对比 Studio 与 Night，`role="slider"` |
+| 文档 | 代码块 | hover 出现「复制」，复制后按钮变「已复制」 |
+| 博客 | 标签栏 | 按标签过滤，显示每个标签的篇数 |
+| 页脚 | PWA | 浏览器支持时出现「安装到桌面」（`beforeinstallprompt`） |
+
+## 机器可读
+
+`scripts/gen-llms.mjs` 在 `dev` / `build` 前生成：
+
+- `public/llms.txt` — 站点事实 + 21 篇文档 + 9 篇博客的纯文本索引；
+- `public/llms-full.txt` — 全部中文文档正文拼接；
+- `public/sitemap.xml`、`public/robots.txt`；
+- `/ai` 页面把同样的信息排成可引用段落，`index.html` 里挂了 `rel="alternate" type="text/plain"`。
+
+## 打印：排成一篇 CTeX article
+
+`@media print` 是一整套独立的版式，不是把网页压窄：
+
+- 页头换成论文题头：居中主标题 + 「摘要」段（英文界面写 Abstract），版本行缩成小字；
+- 各节自动编号（1、2…），标题左对齐，正文两端对齐、首行缩进两字，行距 1.72；
+- 图片按 148mm 宽等比缩放、去掉阴影与边框；表格 `table-layout: fixed`，表头跨页重复，隔行浅灰；
+- 引用编号上标保留，`证据` 一节整表按参考文献排版（编号 + 出处 + 结论，悬挂缩进），不另起卡片；
+- 外链以「‹URL›」形式补在句末，正文里的链接不再依赖点击；
+- 导航、页脚、侧栏、搜索、复制按钮、对照滑块全部隐藏，`@page` 留 24/22mm 页边距，A4 导出 13 页。
+
+用 `Page.pdf({ format: 'A4', printBackground: true })` 可直接验证；注意低 DPI 位图预览里中文粗体偶尔会有重影，那是 Ghostscript 的栅格化假象，DOM 与 PDF 字体都是干净的。
 
 ## 中英双语
 
@@ -190,6 +235,11 @@ nightly 的版本号有两种形状，脚本都认：
 ## 外链
 
 `src/config/constants.ts` 的 `SITE_LINKS` 指向真实仓库 `https://github.com/lzhbhlrPython/TexStudioPro`（仓库 / Releases / Issues / LICENSE），页面其它位置没有写死 URL。下载行的按钮统一指向 Releases；「从源码运行」与页脚「使用文档」走站内 `/docs/dev-setup` 与 `/docs`。
+
+## 首屏数字与引用
+
+- 四个数字（89 / 87 / 16 / 21×2）在首屏底部，思源宋体 Black、`34px`，数字与标签上下居中。
+- 标签末尾的上标 `7–10` 复用正文的 `.claim-ref` 样式，链接到 `#ref-7`…`#ref-10`；参考文献表铺满版心，`:target` 行有浅色高亮。
 
 ## 动效
 

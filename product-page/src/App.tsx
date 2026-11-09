@@ -3,6 +3,7 @@ import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { RouterProvider } from 'react-router-dom';
 import { LocaleProvider } from '@/i18n';
+import { ThemeProvider, useThemeMode } from '@/lib/theme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BRAND_PRIMARY } from '@/config/design';
 import { router } from '@/router';
@@ -13,21 +14,32 @@ import { router } from '@/router';
  */
 export const FONT_FAMILY = `'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'Noto Serif CJK SC', 'SimSun', 'Times New Roman', Georgia, serif`;
 
-const PALETTE = {
+const LIGHT_PALETTE = {
   colorBgLayout: '#F7F2EA',
   colorBgContainer: '#FFFCF7',
   colorBgElevated: '#FFFCF7',
+  colorBorder: '#E0D3C0',
   colorBorderSecondary: '#EBE1D2',
   colorText: '#2A231E',
   colorTextHeading: '#1C1613',
 };
 
-function ConfigEffects() {
+const DARK_PALETTE = {
+  colorBgLayout: '#141110',
+  colorBgContainer: '#1D1917',
+  colorBgElevated: '#241F1B',
+  colorBorder: '#3A322C',
+  colorBorderSecondary: '#332C27',
+  colorText: '#E9E3DA',
+  colorTextHeading: '#F5EFE6',
+};
+
+function ConfigEffects({ mode }: { mode: 'light' | 'dark' }) {
   const { token } = antdTheme.useToken();
 
   useEffect(() => {
     document.body.style.backgroundColor = token.colorBgLayout;
-    document.documentElement.style.colorScheme = 'light';
+    document.documentElement.style.colorScheme = mode;
     const root = document.documentElement.style;
     root.setProperty('--site-brand', token.colorPrimary);
     root.setProperty('--site-border', token.colorBorderSecondary);
@@ -37,6 +49,7 @@ function ConfigEffects() {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', token.colorBgContainer);
   }, [
+    mode,
     token.colorBgLayout,
     token.colorBgContainer,
     token.colorPrimary,
@@ -49,10 +62,21 @@ function ConfigEffects() {
 
 export default function App() {
   return (
+    <ThemeProvider>
+      <AppShell />
+    </ThemeProvider>
+  );
+}
+
+function AppShell() {
+  const { mode } = useThemeMode();
+  const dark = mode === 'dark';
+
+  return (
     <ConfigProvider
       locale={zhCN}
       theme={{
-        algorithm: antdTheme.defaultAlgorithm,
+        algorithm: dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
           colorPrimary: BRAND_PRIMARY,
           colorLink: BRAND_PRIMARY,
@@ -64,7 +88,7 @@ export default function App() {
           controlHeightSM: 32,
           controlHeightLG: 48,
           fontFamily: FONT_FAMILY,
-          ...PALETTE,
+          ...(dark ? DARK_PALETTE : LIGHT_PALETTE),
         },
         components: {
           // 宋体的字面看起来比无衬线细，按钮统一 500，避免主按钮发虚。
@@ -73,7 +97,7 @@ export default function App() {
       }}
     >
       <AntdApp>
-        <ConfigEffects />
+        <ConfigEffects mode={mode} />
         <ErrorBoundary>
           <LocaleProvider>
             <RouterProvider router={router} />

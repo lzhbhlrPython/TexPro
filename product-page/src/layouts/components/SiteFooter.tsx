@@ -1,5 +1,5 @@
 import { Link as RouterLink } from 'react-router-dom';
-import { GithubOutlined } from '@ant-design/icons';
+import { DownloadOutlined, GithubOutlined } from '@ant-design/icons';
 import { Button, Flex, Typography, theme } from 'antd';
 import { SITE_LINKS } from '@/config/constants';
 import { useRelease } from '@/hooks/useRelease';
@@ -7,6 +7,7 @@ import { FOOTER_GROUPS } from '@/data/site';
 import { useGoSection } from '@/lib/section';
 import { AppLogo } from '@/layouts/components/AppLogo';
 import { useLocalize, useT } from '@/i18n';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 const { Text, Link } = Typography;
 
@@ -17,6 +18,7 @@ export function SiteFooter() {
   const localize = useLocalize();
   const channelLabel = t(release.channel === 'nightly' ? '夜间构建' : '正式版');
   const groups = localize(FOOTER_GROUPS);
+  const { canInstall, install } = useInstallPrompt();
   const { token } = theme.useToken();
 
   return (
@@ -41,6 +43,11 @@ export function SiteFooter() {
               >
                 GitHub
               </Button>
+              {canInstall ? (
+                <Button size="small" icon={<DownloadOutlined />} onClick={install}>
+                  {t('安装到桌面')}
+                </Button>
+              ) : null}
               <Link
                 href={SITE_LINKS.issues}
                 target="_blank"
