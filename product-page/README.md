@@ -103,6 +103,15 @@ pnpm layout:update # 经用户同意改版后，重建 layout.lock.json 基线
 - `public/sitemap.xml`、`public/robots.txt`；
 - `/ai` 页面把同样的信息排成可引用段落，`index.html` 里挂了 `rel="alternate" type="text/plain"`。
 
+## 彩蛋页：TeXPad
+
+- 路由 `/texpad`，用 `lazy(() => import('@/pages/easter'))` 单独分包：没有走到这一步，主包不含它的代码，`public/easter/texpad.webp` 也不会被请求（实测首页零次请求，点开后才拉取 105 KB 的 webp）。
+- 入口是页脚的 `© 2026 TeXPro`：`RouterLink` 包住这七个字，`.foot-secret` 把颜色、下划线、光标全部设成 `inherit` / `none` / `text`，`transition: none`，hover 前后计算样式完全一致，点过也不留痕迹。
+- 页面自己写 `document.title = 'TeXPad · TeXPro'`，并临时插入 `<meta name="robots" content="noindex, nofollow">`，离开时移除。
+- 不进 `llms.txt`、`llms-full.txt`、`sitemap.xml`：`scripts/gen-llms.mjs` 只遍历 `src/content/docs` 与 `src/content/blog`，站点级路由是手写列表，彩蛋不在其中。
+- 视觉沿用站点 token 与 `--dur-enter` / `--ease-out` / `--rise`，图片与文案按 60ms 一档进入，`prefers-reduced-motion` 下全部关闭。
+- 插画由 GPT-Image 2.6 生成、作者提供；页脚注明来源。
+
 ## 打印：排成一篇 CTeX article
 
 `@media print` 是一整套独立的版式，不是把网页压窄：
