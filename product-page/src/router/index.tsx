@@ -6,6 +6,7 @@ import AiPage from '@/pages/ai';
 import BlogIndexPage from '@/pages/blog';
 import BlogPostPage from '@/pages/blog/post';
 import ChangelogPage from '@/pages/changelog';
+import DownloadPage from '@/pages/download';
 import NotFoundPage from '@/pages/exception/NotFound';
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: 'blog', element: <BlogIndexPage />, handle: { title: '开发博客 · TeXPro' } },
       { path: 'blog/:slug', element: <BlogPostPage />, handle: { title: '开发博客 · TeXPro' } },
       { path: 'ai', element: <AiPage />, handle: { title: 'TeXPro · AI 入口' } },
+      { path: 'download', element: <DownloadPage />, handle: { title: '下载 · TeXPro' } },
     ],
   },
   {

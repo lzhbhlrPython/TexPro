@@ -138,13 +138,24 @@ export const COMPARE_COLUMNS = [
   { key: 'cloud', label: '在线 LaTeX 服务', highlight: false },
 ] as const;
 
+export interface DownloadVariant {
+  /** 展示名，如 DMG / ZIP / AppImage */
+  label: string;
+  /** 在发布的安装包清单里认领对应文件（文件名以版本号开头） */
+  assetPattern: string;
+  /** 需要额外说明时填，例如「免安装」 */
+  note?: string;
+}
+
 export interface DownloadTarget {
   key: 'mac' | 'windows' | 'linux';
   platform: string;
   detail: string;
   format: string;
-  /** 在发布的安装包清单里认领对应文件（文件名以版本号开头） */
+  /** 主安装包，列在下载区那一行 */
   assetPattern: string;
+  /** 该平台的全部安装包形态 */
+  variants: DownloadVariant[];
 }
 
 export const DOWNLOADS: DownloadTarget[] = [
@@ -154,6 +165,10 @@ export const DOWNLOADS: DownloadTarget[] = [
     detail: 'Universal · Apple 芯片与 Intel · 13 以上',
     format: 'DMG',
     assetPattern: 'mac-universal\\.dmg$',
+    variants: [
+      { label: 'DMG', assetPattern: 'mac-universal\\.dmg$' },
+      { label: 'ZIP', assetPattern: 'mac-universal\\.zip$', note: '免安装' },
+    ],
   },
   {
     key: 'windows',
@@ -161,6 +176,11 @@ export const DOWNLOADS: DownloadTarget[] = [
     detail: 'x64 · 10 以上 · NSIS 安装包',
     format: 'EXE',
     assetPattern: 'windows-x64-setup\\.exe$',
+    variants: [
+      { label: 'EXE', assetPattern: 'windows-x64-setup\\.exe$', note: 'NSIS 安装包' },
+      { label: 'Portable', assetPattern: 'windows-x64-portable\\.exe$', note: '免安装' },
+      { label: 'ZIP', assetPattern: 'windows-x64\\.zip$', note: '解压即用' },
+    ],
   },
   {
     key: 'linux',
@@ -168,6 +188,11 @@ export const DOWNLOADS: DownloadTarget[] = [
     detail: 'x64 · AppImage，另有 deb / rpm',
     format: 'AppImage',
     assetPattern: 'linux-x86_64\\.AppImage$',
+    variants: [
+      { label: 'AppImage', assetPattern: 'linux-x86_64\\.AppImage$', note: '免安装' },
+      { label: 'deb', assetPattern: 'linux-amd64\\.deb$', note: 'Debian / Ubuntu' },
+      { label: 'rpm', assetPattern: 'linux-x86_64\\.rpm$', note: 'Fedora / RHEL' },
+    ],
   },
 ];
 

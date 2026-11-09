@@ -46,7 +46,13 @@ export function Hero() {
           </p>
 
           <Space size={12} wrap className="hero-actions">
-            <Button type="primary" size="large" href="#download" icon={<DownloadOutlined />}>
+            <Button
+              type="primary"
+              size="large"
+              className="dl-cta"
+              icon={<DownloadOutlined />}
+              href="#download"
+            >
               {t('下载 TeXPro')}
             </Button>
             <Button size="large" href="#capabilities">
