@@ -5,13 +5,15 @@ interface RevealProps {
   /** 同屏多个块依次出现时的延迟（毫秒）。全站统一用 60ms 一档，别各写各的。 */
   delay?: number;
   className?: string;
+  /** 锚点 id，供站内引用跳转（如参考文献条目）。 */
+  id?: string;
   style?: CSSProperties;
 }
 
 /**
  * 进入视口时淡入上移一次。prefers-reduced-motion 下由 CSS 直接置为可见，不做动画。
  */
-export function Reveal({ children, delay = 0, className, style }: RevealProps) {
+export function Reveal({ children, delay = 0, className, id, style }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -41,6 +43,7 @@ export function Reveal({ children, delay = 0, className, style }: RevealProps) {
   return (
     <div
       ref={ref}
+      id={id}
       className={`reveal${visible ? ' is-visible' : ''}${className ? ` ${className}` : ''}`}
       style={{ ...style, transitionDelay: visible ? `${delay}ms` : undefined }}
     >

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Typography, theme } from 'antd';
 import { BLOG_POSTS } from '@/content/blog';
@@ -20,6 +20,17 @@ export default function BlogIndexPage() {
   const { token } = theme.useToken();
   const t = useT();
   const { locale } = useLocale();
+  const [activeTag, setActiveTag] = useState('');
+
+  const tags = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const post of BLOG_POSTS) {
+      for (const tag of post.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, []);
+
+  const posts = activeTag ? BLOG_POSTS.filter((post) => post.tags.includes(activeTag)) : BLOG_POSTS;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -48,8 +59,34 @@ export default function BlogIndexPage() {
 
         </header>
 
+        {tags.length ? (
+          <div className="tag-filter" role="group" aria-label={t('按标签筛选')}>
+            <button
+              type="button"
+              className={`tag-pick${activeTag ? '' : ' is-active'}`}
+              aria-pressed={!activeTag}
+              onClick={() => setActiveTag('')}
+            >
+              {t('全部')}
+              <sup>{BLOG_POSTS.length}</sup>
+            </button>
+            {tags.map(([tag, count]) => (
+              <button
+                key={tag}
+                type="button"
+                className={`tag-pick${activeTag === tag ? ' is-active' : ''}`}
+                aria-pressed={activeTag === tag}
+                onClick={() => setActiveTag(activeTag === tag ? '' : tag)}
+              >
+                {tag}
+                <sup>{count}</sup>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         <ol className="blog-list">
-          {BLOG_POSTS.map((post, index) => (
+          {posts.map((post, index) => (
             <li className="blog-item" key={post.slug} style={{ animationDelay: `${index * 45}ms` }}>
               <time className="blog-date" dateTime={post.date} style={{ color: token.colorTextTertiary }}>
                 {formatDate(post.date, locale)}

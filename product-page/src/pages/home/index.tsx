@@ -12,6 +12,8 @@ import { Showcase } from './Showcase';
 import { Themes } from './Themes';
 import { Proof } from './Proof';
 import { Details } from './Details';
+import { Failure } from './Failure';
+import { Limits } from './Limits';
 import { Workflow } from './Workflow';
 
 export default function HomePage() {
@@ -40,11 +42,19 @@ export default function HomePage() {
       </Reveal>
 
       <Reveal>
+        <Failure />
+      </Reveal>
+
+      <Reveal>
         <Details />
       </Reveal>
 
       <Reveal>
         <Comparison />
+      </Reveal>
+
+      <Reveal>
+        <Limits />
       </Reveal>
 
       <Reveal>

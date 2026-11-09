@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lzhbhlrpython.github.io/TexStudioPro/sitemap.xml

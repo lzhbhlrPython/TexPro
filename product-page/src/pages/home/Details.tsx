@@ -1,6 +1,6 @@
 import { theme } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize } from '@/i18n';
+import { useLocalize, useT } from '@/i18n';
 
 const DETAILS = [
   {
@@ -19,6 +19,7 @@ const DETAILS = [
 export function Details() {
   const localize = useLocalize();
   const items = localize(DETAILS);
+  const t = useT();
   const { token } = theme.useToken();
 
   return (
@@ -34,7 +35,7 @@ export function Details() {
           {items.map((item) => (
             <article className="details-note" key={item.title}>
               <span className="details-kicker" style={{ color: token.colorTextTertiary }}>
-                {item.kicker}
+                {t(item.kicker)}
               </span>
               <h3 className="details-title" style={{ color: token.colorTextHeading }}>
                 {item.title}

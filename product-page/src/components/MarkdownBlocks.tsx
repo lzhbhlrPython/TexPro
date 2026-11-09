@@ -1,7 +1,8 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { theme } from 'antd';
+import { App, Button, theme } from 'antd';
 import type { DocBlock } from '@/lib/markdown';
+import { useT } from '@/i18n';
 
 /** 行内标记：`代码`、**加粗**、[链接](地址)。其余按纯文本输出。 */
 export function inline(text: string): ReactNode {
@@ -69,6 +70,48 @@ export function inline(text: string): ReactNode {
 }
 
 /** 文档与博客共用的正文渲染：把解析出来的块排成带样式的元素。 */
+function CodeBlock({ text }: { text: string }) {
+  const { token } = theme.useToken();
+  const { message } = App.useApp();
+  const t = useT();
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      message.success(t('已复制'));
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      message.error(t('复制失败，请手动选择'));
+    }
+  };
+
+  return (
+    <div className="code-block" style={{ borderColor: token.colorBorderSecondary }}>
+      <pre
+        className="docs-code"
+        style={{
+          background: token.colorFillQuaternary,
+          color: token.colorText,
+        }}
+      >
+        {text}
+      </pre>
+      <Button
+        type="text"
+        size="small"
+        className="code-copy"
+        onClick={copy}
+        aria-label={t('复制代码')}
+        style={{ color: token.colorTextTertiary, background: token.colorBgContainer }}
+      >
+        {copied ? t('已复制') : t('复制')}
+      </Button>
+    </div>
+  );
+}
+
 export function MarkdownBlocks({ blocks }: { blocks: DocBlock[] }) {
   const { token } = theme.useToken();
 
@@ -104,20 +147,7 @@ export function MarkdownBlocks({ blocks }: { blocks: DocBlock[] }) {
               </ul>
             );
           case 'code':
-            return (
-              <pre
-                key={key}
-                className="docs-code"
-                style={{
-                  background: token.colorFillQuaternary,
-                  borderColor: token.colorBorderSecondary,
-                  borderRadius: token.borderRadius,
-                  color: token.colorText,
-                }}
-              >
-                {block.text}
-              </pre>
-            );
+            return <CodeBlock key={key} text={block.text} />;
           case 'note':
             return (
               <div

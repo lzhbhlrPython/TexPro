@@ -1,10 +1,31 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig, type Plugin } from 'vite';
+import react from '@vitejs/plugin-react';
+
+const here = fileURLToPath(new URL('.', import.meta.url));
+
+/**
+ * 机器可读产物（llms.txt / llms-full.txt / sitemap.xml / robots.txt / feed.*）
+ * 必须在构建期生成，而不是靠人记得先跑 npm script——所以挂进 Vite 生命周期，
+ * 直接 `vite build` 或 `vite dev` 也会得到同样的文件。
+ */
+function contentFiles(): Plugin {
+  const run = (script: string) =>
+    execFileSync(process.execPath, [`scripts/${script}`], { cwd: here, stdio: 'inherit' });
+
+  return {
+    name: 'texpro-content-files',
+    buildStart() {
+      run('gen-feed.mjs');
+      run('gen-llms.mjs');
+    },
+  };
+}
 
 export default defineConfig({
   base: `${(process.env.PAGES_BASE_PATH || '/').replace(/\/$/, '')}/`,
-  plugins: [react()],
+  plugins: [react(), contentFiles()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
