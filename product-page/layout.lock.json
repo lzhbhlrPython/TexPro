@@ -42,7 +42,9 @@
     "src/pages/changelog/index.tsx": "a79494c1192fc410",
     "src/pages/docs/index.tsx": "93d0c3791d296024",
     "src/pages/download/index.tsx": "ca5885e5b7c501e3",
-    "src/pages/easter/index.tsx": "87954618563e8a9a",
+    "src/pages/easter/index.tsx": "f483f5697f9d826c",
+    "src/pages/easter/rose.tex": "a34c72d2111f2bd7",
+    "src/pages/easter/rose.ts": "1853480e828d4735",
     "src/pages/exception/NotFound.tsx": "b89df30d18bcb29b",
     "src/pages/home/Capabilities.tsx": "3a15c32a60d9d62f",
     "src/pages/home/Comparison.tsx": "d62021cdf71465a8",
@@ -60,7 +62,7 @@
     "src/pages/home/Workflow.tsx": "5cb2e22fc1c0601a",
     "src/pages/home/index.tsx": "9d82fe82ac87ce34",
     "src/router/index.tsx": "1d2e9827a078435f",
-    "src/styles/global.css": "1c92f6caa402ce03",
+    "src/styles/global.css": "3ee2a0e5279619d7",
     "src/types/index.ts": "34c40285186170b4",
     "vite.config.ts": "f2d04a5eff31c45a"
   }
