@@ -75,6 +75,8 @@ TeXPro stands on a large number of open-source projects. The table below lists t
 
 | Component | Version | License | Purpose |
 | --- | --- | --- | --- |
+| rtex-ts / realtime-tex Lua/TeX | 0.1.0 / 0.0.7 | MIT | Incremental paragraph typesetting and context capture |
+| fontkit | 2.0.4 | MIT | TeX glyph outlines |
 | Electron | 44.x | MIT | Desktop runtime and native menus |
 | React / React DOM | 19.x | MIT | Rendering-layer interface |
 | CodeMirror | 6.x | MIT | Source editor and extensions |
@@ -97,6 +99,14 @@ A few notes:
 - The table is not a complete list. Indirect and development dependencies (such as electron-builder, Vite plugins, and type definitions) follow their own licenses; the full texts are in `node_modules/<package>/LICENSE`.
 - Third-party code in build artifacts remains bound by its original license. When redistributing installers, keep `LICENSE` and the dependency notices as well; Electron's license information is in `LICENSES.chromium.html`.
 - If you add a dependency, choose an MIT-compatible license and explain it in the PR; AGPL-type dependencies need separate evaluation, and the repository deliberately does not use `codemirror-lang-latex` (AGPL-3.0-or-later) at present.
+
+## Realtime preview provenance and licenses
+
+Realtime preview bundles the independent MIT package [rtex-ts](https://github.com/lzhbhlrPython/rtex-ts). Its TypeScript host closely adapts Henry Yang and the realtime-tex contributors' [realtime-tex](https://github.com/HenryXiaoYang/realtime-tex). Lua/TeX support is retained unchanged from version 0.0.7, revision `fcff7a5c7f33a288ecf40db886843754c62bbdfd`. Original attribution, `Copyright (c) 2026 Henry Yang and the realtime-tex contributors`, and the complete MIT text are preserved. Rewriting does not transfer ownership of those contributions.
+
+Research inspiration comes from Clemens Lode's [Real-Time LuaTeX: Recompiling Large Documents in 1 ms](https://www.tug.org/tug2026/preprints/lode-realtime.pdf), TUG 2026. Citation does not imply endorsement, and upstream performance is not a measurement of this application. The host uses fontkit (MIT, Devon Govett) for glyph outlines. TeX distributions and fonts are installed separately and retain their own licenses.
+
+Redistributors must retain the root THIRD_PARTY_NOTICES.md, rtex-ts LICENSE, UPSTREAM and third-party notices, and the vendored upstream license and manifest. Packaged rtex-ts resides in `app.asar.unpacked/node_modules/rtex-ts/`. See [realtime preview and embedding](/docs/realtime-tex).
 
 ## Font Licenses
 

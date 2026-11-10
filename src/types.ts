@@ -159,6 +159,7 @@ export interface Settings {
   editorWidth: number;
   engine: Engine;
   autoCompile: boolean;
+  realtimePreview: boolean;
   compileMode: 'manual' | 'idle' | 'pdfOpen';
   aiEnabled: boolean;
   aiApiKey: string;

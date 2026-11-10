@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function verifyContents(read, files) {
-  const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
+  const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
   for (const file of required) if (!files.has(file)) throw new Error(`Release is missing ${file}. Run npm run build before packaging.`);
   const html = read('dist/index.html').toString();
   const assets = [...html.matchAll(/(?:src|href)=["'](?:\.\/)?(assets\/[^"']+)["']/g)].map((match) => `dist/${match[1]}`);
@@ -16,6 +16,7 @@ function verifyContents(read, files) {
 
 function verifyDirectory(root) {
   verifyExternalResources(root);
+  verifyRealtimeResources(root);
   const files = new Set();
   const walk = (dir) => {
     for (const entry of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
@@ -24,7 +25,7 @@ function verifyDirectory(root) {
     }
   };
   for (const name of ['dist', 'electron', 'mcp']) if (fs.existsSync(path.join(root, name))) walk(name);
-  if (fs.existsSync(path.join(root, 'package.json'))) files.add('package.json');
+  for (const file of ['package.json', 'THIRD_PARTY_NOTICES.md']) if (fs.existsSync(path.join(root, file))) files.add(file);
   return verifyContents((file) => fs.readFileSync(path.join(root, file)), files);
 }
 
@@ -40,12 +41,29 @@ function verifyExternalResources(root) {
   }
 }
 
+function verifyRealtimeResources(root) {
+  const packageRoot = path.join(root, 'node_modules/rtex-ts');
+  for (const file of ['package.json', 'dist/index.js', 'dist/session.js', 'dist/engine.js', 'dist/document.js', 'dist/process.js', 'dist/display-list.js', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'UPSTREAM.md', 'vendor/realtime-tex/LICENSE', 'vendor/realtime-tex/manifest.json']) {
+    if (!fs.existsSync(path.join(packageRoot, file))) throw new Error(`Release is missing realtime dependency: rtex-ts/${file}`);
+  }
+  const manifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'vendor/realtime-tex/manifest.json'), 'utf8'));
+  for (const [file, hash] of Object.entries(manifest.files)) {
+    if (!(file === 'LICENSE' || /^tex\/[a-zA-Z0-9._/-]+$/.test(file)) || file.split('/').includes('..')) throw new Error('Invalid realtime support manifest');
+    const source = path.join(packageRoot, 'vendor/realtime-tex', file);
+    if (!fs.existsSync(source) || require('node:crypto').createHash('sha256').update(fs.readFileSync(source)).digest('hex') !== hash) throw new Error(`Realtime support file missing or modified: ${file}`);
+  }
+  for (const file of ['electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', ...['fontkit', '@swc/helpers', 'brotli', 'base64-js', 'clone', 'dfa', 'fast-deep-equal', 'restructure', 'tiny-inflate', 'unicode-properties', 'unicode-trie', 'pako'].map(name => `node_modules/${name}/package.json`)]) {
+    if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing realtime dependency: ${file}`);
+  }
+}
+
 function verifyPackagedApp(archive) {
   verifyExternalResources(archive + '.unpacked');
+  verifyRealtimeResources(archive + '.unpacked');
   return verifyArchive(archive);
 }
 
-module.exports = { verifyContents, verifyDirectory, verifyArchive, verifyExternalResources, verifyPackagedApp };
+module.exports = { verifyContents, verifyDirectory, verifyArchive, verifyExternalResources, verifyRealtimeResources, verifyPackagedApp };
 if (require.main === module) {
   try {
     const target = path.resolve(process.argv[2] || '.');

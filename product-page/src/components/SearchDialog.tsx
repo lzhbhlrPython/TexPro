@@ -12,7 +12,7 @@ interface Props {
   onClose: () => void;
 }
 
-/** ⌘K / Ctrl+K 打开的站内搜索：19 篇文档 + 博客。 */
+/** ⌘K / Ctrl+K 打开的站内搜索：文档 + 博客。 */
 export function SearchDialog({ open, onClose }: Props) {
   const navigate = useNavigate();
   const t = useT();

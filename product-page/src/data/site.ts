@@ -38,10 +38,10 @@ export const SECTION_LINKS: SectionLink[] = [
 ];
 
 export const HERO_METRICS = [
-  { value: '89', label: '条回归用例', source: 'tests' },
-  { value: '87', label: '个 IPC 通道', source: 'ipc' },
-  { value: '16', label: '个安装包 / 次夜构', source: 'releases' },
-  { value: '21 × 2', label: '篇文档，中英各一版', source: 'docs' },
+  { value: '100', label: '条回归用例', source: 'tests' },
+  { value: '96', label: '个 IPC 通道', source: 'ipc' },
+  { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
+  { value: '24 × 2', label: '篇文档，中英各一版', source: 'docs' },
 ] as const;
 
 export const HERO_POINTS = ['免登录使用', '离线可编译', '文件留在本机磁盘'] as const;

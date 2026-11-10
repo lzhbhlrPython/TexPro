@@ -356,23 +356,23 @@ export const EN: Record<string, string> = {
   '可以核对的部分': 'The parts you can verify',
   '下面几行来自当前仓库与最近一次夜间构建，不是估算。':
     'The lines below come from the repository and the latest nightly build. Nothing here is estimated.',
-  '89 个用例、14 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    '89 tests across 14 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
-  '87 个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
-    '87 IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
-  '每次夜间构建产出 16 个安装包，三个平台来自同一份 main。':
-    'Every nightly build produces 16 installers; all three platforms come from the same main branch.',
-  '21 篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。':
-    '21 documents, each in Chinese and English; when a translation is missing it falls back to Chinese with a note at the top.',
+  '100 个用例、16 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    '100 tests across 16 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '96 个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
+    '96 IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
+  '每次夜间构建产出 8 个安装包，三个平台来自同一份 main。':
+    'Every nightly build produces 8 installers; all three platforms come from the same main branch.',
+  '24 篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。':
+    '24 documents, each in Chinese and English; when a translation is missing it falls back to Chinese with a note at the top.',
   'RSS 订阅': 'RSS feed',
   '可核对：': 'Verifiable: ',
-  '89 条回归用例': '89 regression tests',
-  '87 个 IPC 通道': '87 IPC channels',
-  '每次夜构 16 个安装包': '16 installers per nightly',
-  '21 篇文档，中英各一版': '21 documents in Chinese and English',
+  '100 条回归用例': '100 regression tests',
+  '96 个 IPC 通道': '96 IPC channels',
+  '每次夜构 8 个安装包': '8 installers per nightly',
+  '24 篇文档，中英各一版': '24 documents in Chinese and English',
   '拖动分割线，对比 Studio 与 Night': 'Drag the divider to compare Studio and Night',
-  '条回归用例，14 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    'regression tests across 14 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '条回归用例，16 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    'regression tests across 16 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
   '个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
     'IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
   '个安装包 / 次夜构，三个平台来自同一份 main。':
@@ -416,10 +416,10 @@ export const EN: Record<string, string> = {
   '项目是什么': 'What the project is',
   'TeXPro 是一个本地优先的 LaTeX 桌面工作台：可视编辑、纸面排版与工程化编译放在同一个窗口。它不是 Markdown 编辑器，也不是在线协作平台；源码 .tex 是文档原件，排版以本机 TeX 生成的 PDF 为准。': 'TeXPro is a local-first LaTeX desktop workbench: visual editing, paper-like typesetting and project-aware compilation in one window. It is not a Markdown editor or an online collaboration platform; the .tex source is the document of record and the PDF produced by the local TeX toolchain is the output.',
   '可以引用的事实': 'Facts you can cite',
-  '主进程与 preload 之间有 87 个 IPC 通道，每次读写都先校验工程根目录。': 'The main process and preload share 87 IPC channels; every read and write checks the project root first.',
-  'tests/ 下有 14 个测试文件、89 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 14 files and 89 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
-  '文档 21 篇，中文与英文各一版；博客只写简体中文。': '21 documentation pages, one Chinese and one English version each; the blog is written in Simplified Chinese only.',
-  '夜间构建三平台各出一份安装包，共 16 个资产。': 'A nightly build ships one installer per platform, 16 assets in total.',
+  '主进程与 preload 使用 96 个 IPC 通道，其中 91 个请求、5 类事件。': 'The main process and preload use 96 IPC channels: 91 requests and 5 event types.',
+  'tests/ 下有 16 个测试文件、100 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 16 files and 100 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
+  '文档 24 篇，中文与英文各一版；博客只写简体中文。': '24 documentation pages, one Chinese and one English version each; the blog is written in Simplified Chinese only.',
+  '当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。': 'The current nightly configuration produces 8 distribution packages: 2 for macOS, 3 for Windows and 3 for Linux.',
   '机器可读入口': 'Machine-readable entry points',
   'llms.txt：站点结构与文档、博客的纯文本索引': 'llms.txt: plain-text index of the site, docs and blog',
   'llms-full.txt：全部中文文档正文拼接': 'llms-full.txt: every Chinese doc concatenated',
@@ -461,18 +461,18 @@ export const EN: Record<string, string> = {
   '主文件解析、latexmk 调用、日志到诊断的转换。': 'Main-file resolution, latexmk invocation and log-to-diagnostic conversion.',
   'SyncTeX 正向与反向的坐标换算。': 'Forward and inverse SyncTeX coordinate mapping.',
   'MusiXTeX 乐谱源码生成与预览渲染。': 'MusiXTeX score generation and preview rendering.',
-  'stdio MCP 服务：16 个工具、资源与提示词，路径限制在工程内。': 'stdio MCP server: 16 tools, resources and prompts, with paths confined to the project.',
+  'stdio MCP 服务：19 个工具，另有资源与提示词；路径限制在工程内。': 'stdio MCP server: 19 tools, plus resources and prompts, with paths confined to the project.',
   '出错': 'Errors',
   '边界': 'Limits',
   '占位符': 'Placeholder',
   '参考文献': 'References',
   '正文里的每个上标、每个数字都在这张表里：左边是出处，右边是那句结论，编号与正文一一对应。': 'Every superscript and every number on this page appears in this table: source on the left, the claim on the right, numbered to match the text.',
-  '条回归用例': 'regression tests across 14 files',
+  '条回归用例': 'regression tests across 16 files',
   '个 IPC 通道': 'IPC channels, one-to-one with the preload bridge',
   '个安装包 / 次夜构': 'installers per nightly build, three platforms',
   '篇文档，中英各一版': 'docs, Chinese and English editions',
   '正文里的每个上标都能在这里找到出处：左边是文件，右边是那句结论，编号与正文一一对应。': 'Every superscript on this page points back here: the file on the left, the claim on the right, numbered to match the text.',
-  '个 IPC 通道，preload 与主进程逐条对应。': 'IPC channels: preload mirrors the main process one for one.',
+  '个 IPC 通道（91 个请求、5 类事件）。': 'IPC channels (91 requests and 5 event types).',
   '个安装包 / 次夜构，三平台同一份 main。': 'installers per nightly build, all three platforms from the same main branch.',
   '篇文档，中英各一版；缺译文时回落中文并在页头注明。': 'documents, Chinese and English editions; missing translations fall back to Chinese with a note.',
   '检测到的平台': 'Detected platform',

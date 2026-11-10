@@ -8,6 +8,10 @@ const tex = require('./services/tex.cjs');
 const collab = require('./services/collab.cjs');
 const mcpClient = require('./services/mcp-client.cjs');
 const paperApi = require('./services/paper-api.cjs');
+const { RealtimeHost } = require('./services/realtime-tex.cjs');
+let realtimeHost = null;
+let realtimeOwner = null;
+let realtimeSerial = Promise.resolve();
 const elicitationRequests = new Map();
 let elicitationSeq = 0;
 
@@ -365,7 +369,14 @@ function createWindow() {
     // Finish outside the IPC callback so native window teardown is not reentrant.
     finish: () => setImmediate(() => { if (quitting) app.quit(); else if (!guardedWindow.isDestroyed()) guardedWindow.close(); }),
   });
+  mainWindow.webContents.on('render-process-gone', () => {
+    void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null;
+  });
+  mainWindow.webContents.on('did-start-navigation', (_event, _url, isInPlace, isMainFrame) => {
+    if (isMainFrame && !isInPlace) { void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null; }
+  });
   mainWindow.on('closed', () => {
+    void realtimeHost?.stop(); realtimeHost = null;
     mainWindow = null;
   });
 
@@ -381,6 +392,34 @@ function createWindow() {
 }
 
 function registerIpc() {
+  const realtimeOperation = task => {
+    const result = realtimeSerial.then(task);
+    realtimeSerial = result.catch(() => {});
+    return result;
+  };
+  const assertRealtimeSender = event => {
+    if (!mainWindow || event.sender !== mainWindow.webContents) throw new Error('Invalid realtime sender');
+  };
+  ipcMain.handle('realtime:start', (event, options) => realtimeOperation(async () => {
+    assertRealtimeSender(event);
+    if (!options || typeof options.root !== 'string' || !isAllowed(options.root)) throw new Error('Project is not open');
+    if (typeof options.sessionId !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(options.sessionId)) throw new Error('Invalid realtime session');
+    await realtimeHost?.stop();
+    realtimeOwner = event.sender;
+    realtimeHost = new RealtimeHost(options, payload => {
+      if (!event.sender.isDestroyed()) event.sender.send('realtime:event', payload);
+    });
+    return realtimeHost.id;
+  }));
+  ipcMain.handle('realtime:update', (event, id, documents) => {
+    assertRealtimeSender(event);
+    if (!realtimeHost || realtimeOwner !== event.sender || realtimeHost.id !== id) return false;
+    realtimeHost.update(documents); return true;
+  });
+  ipcMain.handle('realtime:stop', (event, id) => realtimeOperation(async () => {
+    assertRealtimeSender(event);
+    if (realtimeHost?.id === id && realtimeOwner === event.sender) { await realtimeHost.stop(); realtimeHost = null; }
+  }));
   ipcMain.handle('dialog:openProject', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'Open a LaTeX project',

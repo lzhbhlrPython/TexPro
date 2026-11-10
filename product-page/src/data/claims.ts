@@ -49,7 +49,7 @@ export const CLAIMS: Claim[] = [
     id: 'mcp',
     file: 'mcp/server.mjs',
     href: `${REPO}/blob/main/mcp/server.mjs`,
-    note: 'stdio MCP 服务：16 个工具、资源与提示词，路径限制在工程内。',
+    note: 'stdio MCP 服务：19 个工具，另有资源与提示词；路径限制在工程内。',
   },
 ];
 

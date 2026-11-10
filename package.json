@@ -28,7 +28,9 @@
     "test:assets:ui": "node scripts/test-ui.cjs --assets",
     "test:continuity:ui": "node scripts/test-ui.cjs --continuity",
     "test:flow:ui": "node scripts/test-flow-ui.cjs",
-    "test:aids:ui": "node scripts/test-flow-ui.cjs --aids"
+    "test:aids:ui": "node scripts/test-flow-ui.cjs --aids",
+    "test:realtime": "node scripts/test-realtime.cjs",
+    "test:realtime:ui": "node scripts/test-flow-ui.cjs --realtime"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.0",
@@ -39,6 +41,7 @@
     "@codemirror/state": "^6.5.0",
     "@codemirror/view": "^6.38.0",
     "@lezer/highlight": "^1.2.1",
+    "fontkit": "2.0.4",
     "ink-stroke-modeler-ts": "github:WhiteboardCX/ink-stroke-modeler-ts#240d80f2c78c2f70317b498d37564f90fcddfe0c",
     "katex": "^0.19.0",
     "lucide-react": "^0.544.0",
@@ -46,12 +49,14 @@
     "perfect-freehand": "^1.2.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "rtex-ts": "0.1.0",
     "ws": "^8.22.0",
     "y-codemirror.next": "^0.3.6",
     "y-protocols": "^1.0.7",
     "yjs": "^13.6.33"
   },
   "devDependencies": {
+    "@electron/asar": "3.4.1",
     "@types/katex": "^0.16.7",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
@@ -63,8 +68,7 @@
     "electron-builder": "^26.0.0",
     "typescript": "^5.9.0",
     "vite": "^8.3.4",
-    "wait-on": "^9.0.0",
-    "@electron/asar": "3.4.1"
+    "wait-on": "^9.0.0"
   },
   "build": {
     "appId": "dev.texpro.app",
@@ -84,7 +88,8 @@
       "!node_modules/@napi-rs/canvas/**",
       "!node_modules/@napi-rs/canvas-*/**",
       "!**/node_modules/@napi-rs/canvas*/**",
-      "!**/.playwright-mcp/**"
+      "!**/.playwright-mcp/**",
+      "THIRD_PARTY_NOTICES.md"
     ],
     "mac": {
       "category": "public.app-category.productivity",
@@ -123,7 +128,22 @@
       "electron/services/font-report.cjs",
       "electron/services/music.cjs",
       "electron/services/writing-aids.cjs",
-      "electron/services/writing-aids-core.mjs"
+      "electron/services/writing-aids-core.mjs",
+      "electron/services/realtime-tex.cjs",
+      "electron/services/realtime-scene.cjs",
+      "node_modules/rtex-ts/**",
+      "node_modules/fontkit/**",
+      "node_modules/@swc/helpers/**",
+      "node_modules/brotli/**",
+      "node_modules/base64-js/**",
+      "node_modules/clone/**",
+      "node_modules/dfa/**",
+      "node_modules/fast-deep-equal/**",
+      "node_modules/restructure/**",
+      "node_modules/tiny-inflate/**",
+      "node_modules/unicode-properties/**",
+      "node_modules/unicode-trie/**",
+      "node_modules/pako/**"
     ],
     "nsis": {
       "artifactName": "${productName}-${version}-windows-${arch}-setup.${ext}"

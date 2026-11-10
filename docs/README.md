@@ -17,6 +17,7 @@
 | 问题 | 入口 |
 | --- | --- |
 | 保存、改名、关闭、退出 | [写作可靠性](writing-reliability.md) |
+| 实时 LuaLaTeX 预览、rtex-ts 嵌入与打包 | [实时 TeX 预览](realtime-tex.md) |
 | 连续编辑、选择、粘贴、修订 | [写作](writing.md) |
 | 乐谱源码、依赖与预览 | [乐谱](music.md) |
 | 素材与文件树联动 | [素材](assets.md) |

@@ -5,8 +5,19 @@
     <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
     <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 08 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>未保存的这一句，也可以先排出来</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex</guid>
+      <pubDate>Tue, 10 Nov 2026 16:00:00 GMT</pubDate>
+      <description>将独立的 rtex-ts 接入 TeXPro：普通段落先更新，完整布局随后校正，正式 PDF 继续走原有构建链。</description>
+      <category>实时预览</category>
+      <category>LuaLaTeX</category>
+      <category>rtex-ts</category>
+      <category>连续写作</category>
+    </item>
     <item>
       <title>缺一张图，也可以把这一段写完</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos</link>

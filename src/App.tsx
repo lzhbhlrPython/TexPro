@@ -103,6 +103,9 @@ import { ProblemsPanel } from './components/ProblemsPanel';
 import { StatusBar } from './components/StatusBar';
 const PdfPane = lazy(() => import('./components/PdfPane').then(module => ({ default: module.PdfPane })));
 
+import { useRealtimePreview } from './hooks/useRealtimePreview';
+const RealtimePane = lazy(() => import('./components/RealtimePane').then(module => ({ default: module.RealtimePane })));
+
 import { Welcome } from './components/Welcome';
 import { CommandPalette, type PaletteAction } from './components/CommandPalette';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -249,6 +252,11 @@ export default function App() {
 
   useEffect(() => { if (project?.root && activePath) rememberActiveFile(project.root, activePath); }, [project?.root, activePath]);
   const activeDoc = activePath ? docs[activePath] : undefined;
+  const [composing, setComposing] = useState(false);
+  const [showRealtime, setShowRealtime] = useState(true);
+  const realtimeFiles = useMemo(() => project ? flattenFiles(project.tree).map(file => file.path).sort().join('\0') : '', [project?.tree]);
+  const realtime = useRealtimePreview(Boolean(settings.realtimePreview && pdfOpen && showRealtime), project?.root || null, project?.rootFile || null, settings.engine, docs, composing, realtimeFiles);
+  useEffect(() => { setComposing(false); }, [activePath]);
   const deferredContent = useDeferredValue(activeDoc?.content || '');
 
   const pushToast = useCallback((message: string, kind: ToastItem['kind'] = 'info', detail?: string) => {
@@ -1044,7 +1052,7 @@ export default function App() {
   }, [cursor.line, cursor.column, settings.followCursor, pdfOpen, pdfPath, activePath, compiling, forwardSync]);
 
   useEffect(() => {
-    if (!settings.autoCompile || settings.compileMode === 'manual' || !activeDoc) return;
+    if (realtime.running || !settings.autoCompile || settings.compileMode === 'manual' || !activeDoc) return;
     if (settings.compileMode === 'pdfOpen' && !pdfOpen) return;
     const key = `${activeDoc.path}:${activeDoc.content}`;
     if (autoCompilePath.current !== activeDoc.path) {
@@ -1058,7 +1066,7 @@ export default function App() {
       if (!compilingRef.current) void runCompile();
     }, 2200);
     return () => window.clearTimeout(timer);
-  }, [activeDoc?.content, activeDoc?.path, settings.autoCompile, settings.compileMode, pdfOpen, runCompile]);
+  }, [activeDoc?.content, activeDoc?.path, settings.autoCompile, settings.compileMode, pdfOpen, realtime.running, runCompile]);
 
   useEffect(() => {
     if (!pdfPath) {
@@ -2510,6 +2518,7 @@ export default function App() {
                   settings={settings}
                   symbols={effectiveSymbols}
                   diagnostics={activeDiagnostics}
+                  onCompositionChange={setComposing}
                   onChange={(content) => {
                     const current = docsRef.current;
                       const doc = current[activeDoc.path];
@@ -2556,7 +2565,13 @@ export default function App() {
           </main>
 
           {pdfOpen && (
-            <Suspense fallback={<aside className="editor-loading" role="status">{t('Opening PDF preview…')}</aside>}><PdfPane
+            <Suspense fallback={<aside className="editor-loading" role="status">{t('Opening PDF preview…')}</aside>}>
+            <div className={settings.realtimePreview ? 'pdf-pane realtime-shell' : 'preview-standard'}>
+            {settings.realtimePreview && <div className="preview-switch" role="group" aria-label={t('Preview mode')}>
+              <button aria-pressed={showRealtime} onClick={() => setShowRealtime(true)}>{t('Realtime TeX preview')}</button>
+              <button aria-pressed={!showRealtime} onClick={() => setShowRealtime(false)}>{t('Compiled PDF')}</button>
+            </div>}
+            {settings.realtimePreview && showRealtime ? <RealtimePane preview={realtime} /> : <PdfPane
               bytes={pdfBytes}
               previousBytes={previousPdfBytes}
               pdfPath={pdfPath}
@@ -2569,7 +2584,8 @@ export default function App() {
               onOpenPdf={openPdf}
               onReveal={revealPdf}
               onPageChange={setPage}
-            /></Suspense>
+            />}
+            </div></Suspense>
           )}
         </div>
       )}

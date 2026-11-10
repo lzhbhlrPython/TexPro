@@ -7,7 +7,7 @@
 - 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。
 - 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。
 - 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。
-- 中文文档 23 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
+- 中文文档 24 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
 - 许可：MIT。
 
 ## 文档
@@ -15,6 +15,7 @@
 - [安装与第一个工程](https://lzhbhlrpython.github.io/TexStudioPro/docs/start): TeXPro 是桌面应用，不依赖服务端。这一节只讲四件事：装好、打开、编译、看结果。
 - [导入、模板与素材](https://lzhbhlrpython.github.io/TexStudioPro/docs/import): 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程、把图片收进素材目录，这三件事各有入口和边界。
 - [编译与诊断](https://lzhbhlrpython.github.io/TexStudioPro/docs/compile): 编译是一层薄壳：定位主文件、挑引擎、跑 latexmk、把日志读成可跳转的诊断。理解这四步，「为什么没出 PDF」大多能自己回答。
+- [实时 TeX 预览](https://lzhbhlrpython.github.io/TexStudioPro/docs/realtime-tex): 使用内置 rtex-ts 和本机 LuaLaTeX 预览未保存段落，了解完整版面回退、正式 PDF 和当前边界。
 - [PDF 与源码双向定位](https://lzhbhlrpython.github.io/TexStudioPro/docs/synctex): SyncTeX 把 PDF 的坐标映射回源码行。TeXPro 每轮编译都带 -synctex=1，正向跟随与反向点选都建立在这份映射上。
 - [写作模式与主题](https://lzhbhlrpython.github.io/TexStudioPro/docs/writing): 同一份 .tex 有几种屏幕投影：可视层把结构画出来，专注、打字机与零界面决定屏幕上还剩多少东西，主题只改界面配色。
 - [占位符与修订备忘](https://lzhbhlrpython.github.io/TexStudioPro/docs/writing-aids): 缺素材时继续写，在原段落留下修订线索；内容留在 TeX 中，可查找、可撤销、可交接。
@@ -38,6 +39,7 @@
 
 ## 博客
 
+- [未保存的这一句，也可以先排出来](https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex): 将独立的 rtex-ts 接入 TeXPro：普通段落先更新，完整布局随后校正，正式 PDF 继续走原有构建链。
 - [缺一张图，也可以把这一段写完](https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos): 开发记录 09：占位符、修订备忘与中文正文配置，让未完成内容留在线索里，而不是打断当前句子。
 - [可靠保存，应该覆盖关闭窗口的最后一秒](https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown): 开发回顾 07：保存队列、文件移动和 macOS 退出收尾，补齐写作数据的最后一段路径。
 - [Nightly 的日期，要从版本号一直走到发布标签](https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly): 开发回顾 08：只在有变更时构建，让各平台共享日期版本，避免标签和安装包彼此错位。

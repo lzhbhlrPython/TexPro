@@ -75,6 +75,8 @@ TeXPro 站在大量开源项目上。下表列出主要依赖及其真实许可�
 
 | 组件 | 版本 | 许可证 | 用途 |
 | --- | --- | --- | --- |
+| rtex-ts / realtime-tex Lua/TeX | 0.1.0 / 0.0.7 | MIT | 实时段落排版与上下文捕获 |
+| fontkit | 2.0.4 | MIT | TeX 字形轮廓 |
 | Electron | 44.x | MIT | 桌面运行时与原生菜单 |
 | React / React DOM | 19.x | MIT | 渲染层界面 |
 | CodeMirror | 6.x | MIT | 源码编辑器与扩展 |
@@ -97,6 +99,14 @@ TeXPro 站在大量开源项目上。下表列出主要依赖及其真实许可�
 - 上表不是完整清单。间接依赖与开发依赖（如 electron-builder、Vite 插件、类型定义）同样遵循各自许可，完整文本在 `node_modules/<包名>/LICENSE`。
 - 构建产物中的第三方代码仍受原许可约束。再分发安装包时，请一并保留 `LICENSE` 与依赖声明；Electron 的许可信息在 `LICENSES.chromium.html` 中。
 - 如果你新增依赖，请选择与 MIT 兼容的许可，并在 PR 中说明；AGPL 类依赖需要单独评估，仓库目前刻意没有采用 `codemirror-lang-latex`（AGPL-3.0-or-later）。
+
+## 实时预览的来源与许可
+
+实时预览内置独立 MIT 包 [rtex-ts](https://github.com/lzhbhlrPython/rtex-ts)，TypeScript 层高度参考 Henry Yang 与 realtime-tex contributors 的 [realtime-tex](https://github.com/HenryXiaoYang/realtime-tex)。Lua/TeX 支持代码原样保留，参考版本为 0.0.7、revision `fcff7a5c7f33a288ecf40db886843754c62bbdfd`。保留原作者 `Copyright (c) 2026 Henry Yang and the realtime-tex contributors` 及 MIT 全文，改写不改变这部分贡献的归属。
+
+研究灵感来自 Clemens Lode 的 [Real-Time LuaTeX: Recompiling Large Documents in 1 ms](https://www.tug.org/tug2026/preprints/lode-realtime.pdf)，TUG 2026。引用不是官方背书，上游性能也不是本应用实测指标。宿主用 fontkit（MIT，Devon Govett）提取字形轮廓；TeX 发行版和字体由用户另行安装，各自许可不变。
+
+再分发须保留根 `THIRD_PARTY_NOTICES.md`、rtex-ts 的 LICENSE、UPSTREAM、第三方声明，以及 vendor 中的上游许可证和文件清单。安装包中的 rtex-ts 位于 `app.asar.unpacked/node_modules/rtex-ts/`。详见[实时预览与嵌入](/docs/realtime-tex)。
 
 ## 字体许可
 

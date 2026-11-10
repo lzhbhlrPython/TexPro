@@ -1,3 +1,4 @@
+import type { RealtimeDocument, RealtimeEvent } from './lib/realtimeTypes';
 import type {
   AppInfo,
   AssetItem,
@@ -12,6 +13,10 @@ import type {
 } from './types';
 
 export interface TexProApi {
+  startRealtime: (options: { root: string; engine: Engine; sessionId: string; documents: RealtimeDocument[] }) => Promise<string>;
+  updateRealtime: (id: string, documents: RealtimeDocument[]) => Promise<boolean>;
+  stopRealtime: (id: string) => Promise<void>;
+  onRealtime: (callback: (event: RealtimeEvent) => void) => () => void;
   openProjectDialog: () => Promise<Project | null>;
   openProject: (root: string) => Promise<Project>;
   createDemoProject: () => Promise<Project>;

@@ -191,6 +191,13 @@ export function SettingsPanel({
 
           <div className="settings-section">
             <div className="settings-section-title">{t('Build')}</div>
+            <Toggle
+              label={t('Realtime TeX preview (experimental)')}
+              detail={t('Uses local LuaLaTeX while the realtime preview is open. Runs document code with your permissions.')}
+              checked={settings.realtimePreview}
+              onChange={value => onChange({ realtimePreview: value })}
+            />
+            <p className="settings-hint">{t('rtex-ts is included. Install LuaLaTeX separately. For CTeX/fontspec projects, add % !TeX program = lualatex to the main file. Compile the PDF for final output.')}</p>
             <label className="select-row">
               <span>{t('Default engine')}</span>
               <select

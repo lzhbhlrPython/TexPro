@@ -1967,6 +1967,7 @@ async function synctexInverse({ projectRoot, pdfFile, page, x, y }) {
 }
 
 module.exports = {
+  detectEngine,
   parseDiagnostics,
   renderMusicPreview,
   ...history,

@@ -42,6 +42,7 @@ pnpm dev
 | 工程入口与磁盘操作 | `electron/services/project-root.cjs`、`project-operations.cjs`、`project-files.cjs` |
 | 可视编辑、智能格式与选择 | `src/editor/EditorPane.tsx`、`visual.ts`、`smartInput.ts`、`writingTargets.ts` |
 | 位置恢复、修订与诊断 | `src/editor/writingSession.ts`、`writingReview.ts`、`writingFeedback.ts` |
+| 实时预览 | `docs/realtime-tex.md`、`electron/services/realtime-tex.cjs`、`src/hooks/useRealtimePreview.ts` |
 | 编译与同步 | `electron/services/tex.cjs`、`src/components/PdfPane.tsx`、`src/lib/pdfSync.ts` |
 | 占位符和备忘 | `electron/services/writing-aids-core.mjs`、`writing-aids.cjs`、`src/lib/writingAids.ts` |
 | 窗口关闭与退出 | `electron/window-close.cjs`、`quit-watchdog.cjs`、`electron/main.cjs` |
@@ -59,6 +60,7 @@ pnpm dev
 | 写作交互 | 对应 `test:flow:ui`、`test:continuity:ui`、`test:writing:ui` |
 | 占位符、中文排版、备忘 | `test:aids:ui` 及实际 TeX 编译 |
 | 乐谱、素材、导入、MCP | 对应 `test:music`、`test:assets:ui`、`test:import`、`test:mcp` |
+| 实时 LuaLaTeX 预览 | `test:realtime`、`test:realtime:ui`；需要真实 LuaLaTeX、CTeX/Fandol 和 unicode-math |
 | 打包依赖 | `npm run verify:release`；发布前检查实际 ASAR 和安装后的应用 |
 | 官网内容 | `pnpm check:layout`、`pnpm typecheck`、`pnpm build` |
 | 官网壳层 | 加验桌面、窄屏、键盘、主题及 Pages 子路径 |

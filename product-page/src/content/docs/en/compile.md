@@ -92,3 +92,7 @@ Doctor also lists orphan `.tex` files, missing packages, broken links, missing i
 - Import, templates and assets: `/docs/import`
 - Shortcuts: `/docs/shortcuts`
 - Compiling internals: `/docs/dev-arch`
+
+## Realtime paragraph preview
+
+Optional [realtime TeX preview](/docs/realtime-tex) receives unsaved paragraphs through bundled rtex-ts and supports LuaLaTeX only. It does not replace the formal build above: normal automatic compilation is paused while realtime mode runs, while manual compilation, bibliography tools and SyncTeX retain their existing flow.

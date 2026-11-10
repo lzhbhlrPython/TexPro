@@ -11,25 +11,25 @@ const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 const FIGURES = [
   {
     source: 'tests/',
-    figure: '89',
-    text: '条回归用例，14 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
+    figure: '100',
+    text: '条回归用例，16 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
     href: `${REPO}/tree/main/tests`,
   },
   {
     source: 'electron/',
-    figure: '87',
-    text: '个 IPC 通道，preload 与主进程逐条对应。',
+    figure: '96',
+    text: '个 IPC 通道（91 个请求、5 类事件）。',
     href: `${REPO}/blob/main/electron/preload.cjs`,
   },
   {
     source: 'Releases',
-    figure: '16',
+    figure: '8',
     text: '个安装包 / 次夜构，三平台同一份 main。',
     href: SITE_LINKS.releases,
   },
   {
     source: 'docs/',
-    figure: '21 × 2',
+    figure: '24 × 2',
     text: '篇文档，中英各一版；缺译文时回落中文并在页头注明。',
     to: '/docs',
   },

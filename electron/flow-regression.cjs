@@ -44,6 +44,9 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     fs.writeFileSync(chapter, '\\section{Child}\\label{sec:child}\nChapter writing.\n\\ref{sec:start} and \\cref{sec:child,sec:start}.\n');
     await click(el('.welcome-project-row')); await wait(`!!document.querySelector('.cm-content')`);
     await js(`window.__flowErrors=[];addEventListener('error',e=>__flowErrors.push(e.message));addEventListener('unhandledrejection',e=>__flowErrors.push(String(e.reason)));true`);
+    if (process.env.TEXPRO_REALTIME_REGRESSION === '1') {
+      await require('./realtime-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return;
+    }
     if (process.env.TEXPRO_AIDS_REGRESSION === '1') {
       await require('./writing-aids-regression.cjs')({ window, key, wait, type, click, line, open, save, shot, js, main }); app.quit(); return;
     }

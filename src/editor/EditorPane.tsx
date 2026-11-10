@@ -116,6 +116,7 @@ interface Props {
   onRenameLabel: (before: string, after: string) => Promise<number>;
   onProjectHistory: (redo: boolean) => boolean;
   onChange: (value: string) => void;
+  onCompositionChange?: (composing: boolean) => void;
   onCursor: (cursor: CursorInfo) => void;
   onSave: () => void;
   onCompile: () => void;
@@ -430,6 +431,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         compartments.focus.of(props.settings.focus ? focusMode() : []),
         compartments.typewriter.of(props.settings.typewriter ? typewriterMode() : []),
         EditorView.domEventHandlers({
+          compositionstart() { propsRef.current.onCompositionChange?.(true); return false; },
+          compositionend() { propsRef.current.onCompositionChange?.(false); return false; },
           copy(event, view) {
             if (!event.clipboardData || (event.target instanceof Element && event.target.closest('.cm-table-cell'))) return false;
             const selected = view.state.selection.ranges.filter(range => !range.empty).map(range => view.state.sliceDoc(range.from, range.to)).join('\n');
@@ -561,6 +564,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       view.scrollDOM.removeEventListener('scroll', schedulePersist); view.contentDOM.removeEventListener('keyup', schedulePersist); view.contentDOM.removeEventListener('pointerup', schedulePersist); window.removeEventListener('beforeunload', persist);
       props.sessions.set(props.path, { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft });
       cancelAnimationFrame(cursorFrame.current);
+      propsRef.current.onCompositionChange?.(false);
       view.destroy();
       viewRef.current = null;
     };

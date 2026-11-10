@@ -7,6 +7,20 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex",
+      "title": "未保存的这一句，也可以先排出来",
+      "summary": "将独立的 rtex-ts 接入 TeXPro：普通段落先更新，完整布局随后校正，正式 PDF 继续走原有构建链。",
+      "content_text": "将独立的 rtex-ts 接入 TeXPro：普通段落先更新，完整布局随后校正，正式 PDF 继续走原有构建链。",
+      "date_published": "2026-11-10T16:00:00.000Z",
+      "tags": [
+        "实时预览",
+        "LuaLaTeX",
+        "rtex-ts",
+        "连续写作"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
       "title": "缺一张图，也可以把这一段写完",

@@ -11,6 +11,7 @@ export const defaultSettings: Settings = {
   editorWidth: 760,
   engine: 'pdflatex',
   autoCompile: true,
+  realtimePreview: false,
   compileMode: 'idle',
   aiEnabled: false,
   aiApiKey: '',

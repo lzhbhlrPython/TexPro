@@ -92,3 +92,7 @@ Doctor 还会列孤立 `.tex`、缺包、断链、缺图、未定义引用、缺
 - 导入、模板与素材：`/docs/import`
 - 快捷键：`/docs/shortcuts`
 - 编译实现细节：`/docs/dev-arch`
+
+## 实时段落预览
+
+可选的[实时 TeX 预览](/docs/realtime-tex)通过内置 rtex-ts 接收未保存段落，仅支持 LuaLaTeX。它不替代上述正式构建：实时模式运行时暂停重复的普通自动编译，手动编译、文献工具与 SyncTeX 保持原流程。

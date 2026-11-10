@@ -51,6 +51,8 @@ PAGES_BASE_PATH=/TexStudioPro pnpm exec vite preview --host 127.0.0.1
 
 访问 `/TexStudioPro/`。默认本地开发不设置 base，使用 `/`。只写内容前后运行版式检查，基线应该一致；只有已授权并核对完的壳层改动才重建基线。
 
+首页、证据表和 AI 入口的数字要同步核对源码与中英文词典：回归用例来自实际测试清单，IPC 统计 preload 的请求与事件通道，文档按中英文同 slug 核对，发行包种类按 Nightly 工作流核对。用例数量不代表本次全部通过，发行包种类也不代表某次远端发布已完成。2026-11-11 按用户要求修订这些数字，未改变页面结构或样式。
+
 ## 版本信息
 
 dev 和 build 先执行 fetch-release.mjs，刷新 src/config/release.json。普通构建可在离线或限流时沿用旧快照；显式 TEXPRO_RELEASE_TAG 必须取得准确 Release，失败就终止构建。CI 可更新旧入口 APP_VERSION，本地内容构建不改写 constants.ts。

@@ -46,10 +46,10 @@ export default function AiPage() {
           <section>
             <h2 style={{ color: token.colorTextHeading }}>{t('可以引用的事实')}</h2>
             <ul>
-              <li>{t('主进程与 preload 之间有 87 个 IPC 通道，每次读写都先校验工程根目录。')}</li>
-              <li>{t('tests/ 下有 14 个测试文件、89 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。')}</li>
-              <li>{t('文档 21 篇，中文与英文各一版；博客只写简体中文。')}</li>
-              <li>{t('夜间构建三平台各出一份安装包，共 16 个资产。')}</li>
+              <li>{t('主进程与 preload 使用 96 个 IPC 通道，其中 91 个请求、5 类事件。')}</li>
+              <li>{t('tests/ 下有 16 个测试文件、100 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。')}</li>
+              <li>{t('文档 24 篇，中文与英文各一版；博客只写简体中文。')}</li>
+              <li>{t('当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。')}</li>
             </ul>
           </section>
 
