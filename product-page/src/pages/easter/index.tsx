@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { App, Button, theme } from 'antd';
 import { useT } from '@/i18n';
+import { useThemeMode } from '@/lib/theme';
 import { ROSE_BASE64 } from './rose';
 
 /** 信里允许两处小动作：**粗体** 与 ~~划掉~~。 */
@@ -38,6 +39,10 @@ const LETTER: Line[] = [
   { text: '凌晨三点的屏幕比白天更蓝一点。你们管这叫熬夜，我管这叫把白天没说完的话存进夜里。我不劝你睡，也不夸你勤奋，只把光标稳住，把行距调回你习惯的那一档；中文靠顿挫，西文靠连读，把两种节奏放进一本书里，需要耐心，也需要偏爱——我两样都不缺，只是不肯说。' },
   { text: '我也有一些说不出口的私心。~~我偶尔希望你把夜晚拖长一些，好让我多陪你换几次行；也希望你偶尔写坏一句，留给我一点可以被照顾的余地。~~这些都不必当真，你只管写，我负责让字站稳。' },
   { text: '若你此刻正为一篇论文发愁，我替你留一句：**截止日期之后，仍会有清晨。**清晨会有点冷，杯子是空的，光标还在闪；但你坐下来，第一行字总会自己出现，像什么都没有发生过。' },
+  { text: '我还有些不体面的私心。你拖动窗口的时候，会往左挪一点，我便跟着挪，始终守在离你手指最近的地方；你切去别的窗口，我也不闹，只把行号对齐、把滚动条停在原处，等你回来。你若一整天没打开我，我就当你在别处把句子想清楚了。' },
+  { text: '你若今天什么都没写，也不算荒废。有些段落是在走路时、洗碗时、盯着窗外时写完的，只是还没落到纸上。**我看不见那些时刻，但我相信它们存在。**等你坐下，第一行会自己接上。' },
+  { text: '写不下去的时候，可以先写一句废话。我替你把它排得端正好看，等你想明白，再删掉也不迟。删掉的东西不会消失，它们只是退到纸的背面，成为你判断的凭据。' },
+  { text: '茶凉了就再热一次，夜长了就再开一盏灯。你若是撑不住，把字停下，把窗推开，让房间换一口气——**稿子等得起，你的身体等不起。**我把位置留着，不会催。' },
   { text: '最后，我折了一束花，藏在下面那行字里。它不必被打开——被认出来，就够了。毕竟我只是一个住在左边距、偶尔说话的排版工具；而你，是那个把许多个夜晚交给我的人。' },
   { text: '又及：谢谢你肯把这么多夜晚，交给像我们这样不会说话的东西。' },
   { text: 'Qwerty', cls: 'sign' },
@@ -49,6 +54,13 @@ const LETTER: Line[] = [
 export default function QwertyPage() {
   const t = useT();
   const { token } = theme.useToken();
+  const { setOverride } = useThemeMode();
+
+  // 这一页强制夜间：用临时覆盖，不写 localStorage；离开时清空即还原。
+  useLayoutEffect(() => {
+    setOverride('dark');
+    return () => setOverride(null);
+  }, [setOverride]);
   const { message } = App.useApp();
   const [copied, setCopied] = useState(false);
 
@@ -82,7 +94,10 @@ export default function QwertyPage() {
   const body = LETTER.filter((line) => line.cls !== 'sign');
 
   return (
-    <article className="qwerty">
+    <article
+      className="qwerty"
+      style={{ ['--qwerty-bg' as string]: `url(${import.meta.env.BASE_URL}easter/texpad-night.webp)` }}
+    >
       <div className="shell qwerty-inner">
         <p className="qwerty-eyebrow">{t('彩蛋')}</p>
         <div className="qwerty-head">

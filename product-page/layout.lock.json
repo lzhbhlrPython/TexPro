@@ -34,7 +34,7 @@
     "src/lib/release.ts": "cba43f2b2bfef3fc",
     "src/lib/search.ts": "6f7765ac0f390d15",
     "src/lib/section.ts": "1aafe28ee9402031",
-    "src/lib/theme.tsx": "0a27cc3a6014f2f8",
+    "src/lib/theme.tsx": "d50459bdf1a8c6ad",
     "src/main.tsx": "fdb2dcd1f64c48f6",
     "src/pages/ai/index.tsx": "362d0e244dd4678e",
     "src/pages/blog/index.tsx": "0c015d0113593c31",
@@ -42,7 +42,7 @@
     "src/pages/changelog/index.tsx": "a79494c1192fc410",
     "src/pages/docs/index.tsx": "93d0c3791d296024",
     "src/pages/download/index.tsx": "ca5885e5b7c501e3",
-    "src/pages/easter/index.tsx": "af3ef71bd559b095",
+    "src/pages/easter/index.tsx": "eb3cfdb749aa1529",
     "src/pages/easter/rose.tex": "a34c72d2111f2bd7",
     "src/pages/easter/rose.ts": "1853480e828d4735",
     "src/pages/exception/NotFound.tsx": "b89df30d18bcb29b",
@@ -62,7 +62,7 @@
     "src/pages/home/Workflow.tsx": "5cb2e22fc1c0601a",
     "src/pages/home/index.tsx": "9d82fe82ac87ce34",
     "src/router/index.tsx": "1d2e9827a078435f",
-    "src/styles/global.css": "3ee2a0e5279619d7",
+    "src/styles/global.css": "7753b7186a33a392",
     "src/types/index.ts": "34c40285186170b4",
     "vite.config.ts": "f2d04a5eff31c45a"
   }
