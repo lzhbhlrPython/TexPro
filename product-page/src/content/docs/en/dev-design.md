@@ -1,0 +1,37 @@
+---
+slug: dev-design
+title: Design language and interface guidance
+group: 开发
+order: 14.1
+summary: Record the paper identity in Google DESIGN.md format and apply Material Design roles and accessibility guidance.
+---
+
+## Canonical reference
+
+The root DESIGN.md is the design-language reference. It contains YAML tokens and eight sections: Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, and Do's and Don'ts. Its structure follows the [Google Labs DESIGN.md format](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md).
+
+It records TeXPro's existing paper identity. It does not require a Material component-library migration or a switch to Roboto. Separate design requirements from verified compliance of existing interfaces.
+
+## Principles
+
+Writing remains central and tools recede. Math, tables, music, circuits and structural formulas share one writing flow. Source remains accessible and visualization assists. Ordinary edits must not depend on studios, modals or completion buttons. Assistance preserves the file, caret, selection, scroll, IME and undo.
+
+## Color and type
+
+Use [Material Design color roles](https://m3.material.io/styles/color/the-color-system) to reason about surfaces, text, emphasis and states. Desktop tokens live in src/styles/app.css; paper has later overrides, so do not copy only the first declaration. Studio uses dark chrome and light paper, night uses dark paper, and paper is light. The website has separate Ant Design tokens and site variables.
+
+Writing uses serif type, controls use the system UI stack, and source and logs use monospace. Display, headline, title, body and label describe roles rather than instructing a global font replacement. Screen themes must not alter author colors or final PDF ink.
+
+## Accessibility and states
+
+For new or changed components, check actual color combinations against project targets of 4.5:1 for ordinary text and 3:1 for large text and essential non-text controls. Use Google's 48dp touch-target guidance as a reference; evaluate web hit areas and compact desktop controls separately rather than equating dp and CSS px.
+
+Interactive elements need names, visible keyboard focus and an exit path. Do not communicate state through color alone. Check long English copy, Chinese punctuation, zoom, all desktop themes and reduced motion. These are acceptance targets, not certification of every legacy component.
+
+## Motion and components
+
+Reuse the website's existing duration, ease-out, rise and Reveal rhythm. Reduced motion must keep all content visible. Writing and navigation must not wait for decorative animations. Keep Lucide on desktop and Ant Design on the website; completions, menus and placeholders use their existing surface language.
+
+## Before and after changes
+
+Read PRODUCT.md, DESIGN.md and relevant source styles and components. Content cleanup does not authorize a layout redesign. Run layout checks before and after website content work, and maintain both languages. Updating a design specification does not mean the interface has been redesigned.

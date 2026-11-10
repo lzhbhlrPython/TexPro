@@ -74,7 +74,7 @@ Explicitly undecided or constrained facts:
 
 - Product name: **TeXPro**.
 - Voice: direct, technical, calm, and precise; bilingual Chinese/English UI.
-- Visual identity commitment: Typora-like paper feel, quiet chrome, and a single-column writing surface; Apple Human Interface Guidelines inform hierarchy and interaction quality; Lucide SVG icons.
+- Visual identity commitment: Typora-like paper feel, quiet chrome, and a single-column writing surface; DESIGN.md captures the existing visual language using the Google Labs DESIGN.md format; Material Design informs semantic roles and accessibility, while native platform conventions govern window behavior; Lucide SVG icons.
 - The app icon is part of the identity and must remain consistent across Dock, window, bundle, favicon, and in-app logo.
 - No Liquid Glass revival without a new explicit decision.
 
@@ -105,4 +105,4 @@ Release builds validate renderer assets before packing and inspect the resulting
 - Keyboard-first editing and command access; visible focus rings on interactive controls.
 - Reduced-motion support for modal and menu animations.
 - Bilingual Chinese/English UI with code and technical content kept readable in either language.
-- No confirmed formal accessibility standard (for example WCAG level) has been adopted; this is an open decision.
+- DESIGN.md defines acceptance targets for new and changed controls, including contrast, keyboard access and reduced motion. These targets do not assert a completed accessibility audit or certification of existing screens.

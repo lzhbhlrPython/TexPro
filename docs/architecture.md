@@ -1,5 +1,7 @@
 # 架构与维护
 
+本文说明当前实现；不可破坏的规则见 [技术契约](technical-contracts.md)，开发和验收见 [开发指南](development.md)，设计语言见 [DESIGN.md](../DESIGN.md)。
+
 TeXPro 保留普通 LaTeX 源文件。渲染进程负责编辑与展示，preload 提供类型化 IPC，主进程负责本地文件、外部进程和服务。可视组件是编辑辅助，最终排版来自 TeX 编译。
 
 ## 模块边界
@@ -76,7 +78,7 @@ SyncTeX 的 `x/y` 是文字锚点，`h/v/W/H` 是排版盒子；不能把锚点�
 1. 定时和手动触发先按上海时区检查当天提交（committer 时间、first-parent 历史）。空提交不计；当天无实际文件变更则跳过测试、打包、发布。有变更时测试任务运行回归测试、类型检查与前端构建。
 2. 检查任务只生成一次上海日期和 `v{当前版本号}-YYYYMMDD-Nightly` 版本标签。每个平台在独立 checkout 中安装依赖、按该日期设置版本、构建前端；包内版本省略 `v`，同步 package 与 lockfile，不提交生成版本，也不递增正式版本号。
 3. `scripts/before-pack.cjs` 校验实际待打包目录，缺少入口/资源即失败。
-4. electron-builder 创建应用；`scripts/after-pack.cjs` 读取实际 ASAR 并复核资源，同时检查外部 MCP 服务及其六个服务依赖。MCP 由普通 Node 启动，不能依赖 Electron 的 ASAR 加载能力。
+4. electron-builder 创建应用；`scripts/after-pack.cjs` 读取实际 ASAR 并复核资源，同时检查外部 MCP 服务及其所需服务依赖。MCP 由普通 Node 启动，不能依赖 Electron 的 ASAR 加载能力。
 5. 三个平台成功后，release job 收集安装包，以日期版本标签和同名标题发布 Nightly prerelease。同日重跑更新当天的标签指向和安装包，确保标签与构建提交一致；不同日期保留独立版本。
 
 本地运行 `npm run package -- --publish never` 可生成未签名 macOS 目录包。校验依赖开发依赖 `@electron/asar`。验收还需从安装后的应用启动测试；其他系统安装包的存在不证明编译工具、字体、外部命令和文件操作在该系统可用。

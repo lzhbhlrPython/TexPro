@@ -41,7 +41,7 @@ const posts = fs.existsSync(blogDir)
       .filter((file) => file.endsWith('.md'))
       .map((file) => {
         const [meta, body] = frontMatter(fs.readFileSync(path.join(blogDir, file), 'utf8'));
-        return { slug: file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''), date: meta.date ?? '', title: meta.title ?? '', summary: meta.summary ?? '', body };
+        return { slug: meta.slug ?? file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''), date: meta.date ?? '', title: meta.title ?? '', summary: meta.summary ?? '', body };
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1))
   : [];
@@ -55,8 +55,8 @@ lines.push('## 事实');
 lines.push('');
 lines.push('- 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。');
 lines.push('- 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。');
-lines.push('- 主进程与 preload：87 个 IPC 通道；tests/ 下 14 个测试文件、89 条用例。');
-lines.push('- 文档 21 篇（中文 + 英文各一版）；博客只写简体中文，只记录应用本体开发。');
+lines.push('- 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。');
+lines.push(`- 中文文档 ${docs.length} 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。`);
 lines.push('- 许可：MIT。');
 lines.push('');
 lines.push('## 文档');

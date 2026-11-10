@@ -6,8 +6,8 @@
 
 - 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。
 - 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。
-- 主进程与 preload：87 个 IPC 通道；tests/ 下 14 个测试文件、89 条用例。
-- 文档 21 篇（中文 + 英文各一版）；博客只写简体中文，只记录应用本体开发。
+- 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。
+- 中文文档 23 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
 - 许可：MIT。
 
 ## 文档
@@ -23,14 +23,16 @@
 - [导出与 arXiv](https://lzhbhlrpython.github.io/TexStudioPro/docs/export): PDF 来自编译；导出文档把当前文件转成 Markdown / Typst / HTML；arXiv 包收集源码与素材，生成可上传的 zip。
 - [AI 助手（可选）](https://lzhbhlrpython.github.io/TexStudioPro/docs/ai): AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你按下 Run 时才会把上下文发出去，结果需要你确认才写入。
 - [快捷键](https://lzhbhlrpython.github.io/TexStudioPro/docs/shortcuts): 菜单与编辑器里真实绑定的快捷键。macOS 用 ⌘，Windows / Linux 把 ⌘ 换成 Ctrl、⌥ 换成 Alt。
-- [开发环境](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-setup): 单仓库、两套运行时：渲染层由 Vite 打包成 ES 模块，主进程与服务层是直接跑的 CommonJS。装好 Node 22 与 npm 就能起界面，TeX 只在编译和预览时才需要。
+- [开发环境](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-setup): 从安装依赖到启动应用与官网；按修改范围选择检查，不混用包管理器。
 - [常见问题](https://lzhbhlrpython.github.io/TexStudioPro/docs/faq): 装不上、编不过、找不到字体、担心上传——把第一次使用时最容易卡住的十来件事集中回答一遍。
-- [进程与信任边界](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-arch): 主进程碰文件系统，preload 只转发白名单通道，渲染层拿不到 Node。87 条 IPC、一套路径闸门、一份收紧的 CSP，构成了这个应用全部的信任边界。
-- [渲染层](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-renderer): 没有路由也没有状态库：一个 App.tsx 编排全部状态，编辑器是 CodeMirror 6，可视层靠 decoration 投影，工作室面板按需懒加载。读代码先认这四层。
-- [测试与冒烟](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-testing): 单元测试用 node --test，集成脚本直接跑真实服务，界面回归拉起真 Electron 并把截图留在 artifacts/。三层各管一段，提交前至少过前两层。
+- [架构与信任边界](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-arch): 按主进程、preload、渲染层与外部 MCP 理解文件、编译和发布边界。
+- [渲染层与连续写作](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-renderer): 按编辑状态、源码投影、异步身份与可选面板理解渲染层，不以大文件行数代替架构。
+- [测试与冒烟](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-testing): 按风险选择类型、源码回归、真实编译、原生交互与发布检查；报告实际结果和跳过项。
 - [构建与发布](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-release): 打包配置全在 package.json 的 build 字段：mac 出 universal DMG 与 zip，Windows 出 NSIS、免安装 exe 与 zip，Linux 出 AppImage、deb、rpm。nightly 由 GitHub Actions 每天生成。
+- [设计语言与界面规范](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-design): 以 Google DESIGN.md 格式记录纸面品牌；用 Material Design 的语义角色和可访问性方法约束新增界面。
+- [新会话接手与文档导航](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-handoff): 用少量稳定入口接手项目，区分规范、实现、历史与当前验证结果。
 - [MCP：把工程交给 AI](https://lzhbhlrpython.github.io/TexStudioPro/docs/mcp): TeXPro 自带一个 MCP server，让外部的 AI 客户端能读工程、查符号、跑编译、定位 PDF。这一页讲怎么接、接上之后能做什么、以及它被限制在哪里。
-- [给 AI 的二次开发指南](https://lzhbhlrpython.github.io/TexStudioPro/docs/ai-guide): 让模型在这个仓库里改代码，需要给它三样东西：能改的边界、不能动的约束、改完怎么验证。这一页就是这三样东西本身。
+- [给 AI 的二次开发指南](https://lzhbhlrpython.github.io/TexStudioPro/docs/ai-guide): 接手前读清规则与技术契约；按任务修改，保留作者内容，报告实际验证。
 - [关于 TeXPro](https://lzhbhlrpython.github.io/TexStudioPro/docs/about): TeXPro 是什么、为谁而做，以及设计哲学、设计语言、交互思路、版本与文档地图。
 - [版权与许可](https://lzhbhlrpython.github.io/TexStudioPro/docs/copyright): TeXPro 的 MIT 许可、本站内容、第三方依赖与字体许可、商标与隐私说明。
 

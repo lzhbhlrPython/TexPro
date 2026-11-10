@@ -3,7 +3,7 @@ slug: dev-release
 title: Building and releasing
 group: 开发
 order: 14
-summary: Packaging is configured entirely in the build field of package.json: mac produces a universal DMG and zip, Windows produces NSIS, a portable exe and a zip, Linux produces AppImage, deb and rpm. Nightly builds are generated daily by GitHub Actions.
+summary: "Packaging is configured entirely in the build field of package.json: mac produces a universal DMG and zip, Windows produces NSIS, a portable exe and a zip, Linux produces AppImage, deb and rpm. Nightly builds are generated daily by GitHub Actions."
 ---
 
 ## What this layer is
@@ -130,3 +130,9 @@ node scripts/verify-release.cjs release/mac-arm64/TeXPro.app/Contents/Resources/
 ```
 
 The last one runs the packaging check against a real ASAR and is the closest thing to a user-side check available locally. Signing, notarization, and an update channel are not yet part of the repository, so a published package needs manual approval on first launch. CI packaging is not runtime acceptance; for UI regression see `/docs/dev-testing`.
+
+## Website refresh after a release
+
+A successful Nightly release explicitly dispatches the Product page workflow with its exact tag. Skipped or failed releases do not refresh the site. A pinned release fetch must fail the build rather than deploy stale metadata. Ordinary website builds can use a previous snapshot when offline.
+
+Pages also builds for product-page changes; PRs validate, while main deploys. A local build does not prove deployment. See docs/product-page-deployment.md in the repository.

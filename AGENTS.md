@@ -2,6 +2,15 @@
 
 适用于整个仓库，以及在此工作的开发者、AI 和自动化。先阅读本文件，再阅读所改目录的说明。用户当前明确指示优先于本文件；目录规则只在其范围内细化约束，不能自行扩大任务授权。规则变化时同步维护本文件，避免把过时审计结论当成现状。
 
+## 新会话入口与文档权责
+
+先读本文件，再读 [文档导航](docs/README.md)、[PRODUCT.md](PRODUCT.md) 与 [DESIGN.md](DESIGN.md)。按任务查阅 [开发指南](docs/development.md)、[技术契约](docs/technical-contracts.md) 和具体源码，避免加载全部历史聊天或博客。
+
+- 本文件约束协作，PRODUCT.md 约束产品，DESIGN.md 记录设计语言，docs/ 解释技术契约，官网提供中英任务文档；不要互相复制整篇。
+- 设计语言按 Google Labs DESIGN.md 格式组织，参考 Material Design 的语义角色与可访问性方法，保留现有纸面风格。规范目标不等于历史组件已全部达标，不自动授权 UI 改版。
+- 实现现状以源码、配置和实际验证为据；不把行数、IPC 数量、测试条数或旧审计固定为当前事实。历史文章保留日期和上下文。
+- 官网文档与仓库文档同轮核对；内容变更重新生成机器可读产物，不手改生成结果。写法见 [文档维护规则](docs/documentation.md)。
+
 ## 1. 产品与任务边界
 
 - 产品名为 **TeXPro**；定位是以写作为核心、具有 Typora 连续编辑质感的 LaTeX 工具。`PRODUCT.md` 是产品定位和交互原则的详细依据。
@@ -179,4 +188,6 @@
 - 乐谱与素材：`docs/music.md`、`docs/assets.md`
 - 产品页规则与部署：`product-page/README.md`、`docs/product-page-deployment.md`
 - MCP：`mcp/README.md`
+- 新会话与开发：`docs/README.md`、`docs/development.md`、`docs/technical-contracts.md`
+- 设计与文档：`DESIGN.md`、`docs/documentation.md`
 - 具体命令以相应 `package.json`、工作流和实现为准；新增事实同步文档，不能靠修改本文件掩盖代码缺陷。

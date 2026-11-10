@@ -3,7 +3,7 @@ slug: start
 title: Installation and Your First Project
 group: 开始
 order: 1
-summary: TeXPro is a desktop application that does not depend on a server. This section covers only four things: install it, open it, compile, and look at the result.
+summary: "TeXPro is a desktop application that does not depend on a server. This section covers only four things: install it, open it, compile, and look at the result."
 ---
 
 ## What TeXPro Is

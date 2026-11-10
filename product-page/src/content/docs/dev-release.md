@@ -130,3 +130,9 @@ node scripts/verify-release.cjs release/mac-arm64/TeXPro.app/Contents/Resources/
 ```
 
 最后一条用真实 ASAR 走一遍打包校验，是本地最接近用户的检查。签名、公证与更新通道都还没纳入仓库，发出去的包首次打开需要手动放行。CI 打包不等于运行时验收，界面回归见 `/docs/dev-testing`。
+
+## 发布后的官网刷新
+
+Nightly 发布成功后显式 dispatch Product page 工作流，传入准确标签；跳过或失败不刷新。指定标签获取失败必须停止构建，不能部署旧版本并宣称更新。普通官网构建离线时才允许旧快照。
+
+产品页路径变化也会构建 Pages；PR 只验证，main 才部署。本地构建不能证明已上线，详见仓库 docs/product-page-deployment.md。

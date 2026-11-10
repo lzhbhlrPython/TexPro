@@ -3,7 +3,7 @@ slug: compile
 title: Compiling and diagnostics
 group: 使用
 order: 3
-summary: Compiling is a thin shell: locate the main file, pick an engine, run latexmk, turn the log into jumpable diagnostics. Understand those four steps and most questions about a missing PDF answer themselves.
+summary: "Compiling is a thin shell: locate the main file, pick an engine, run latexmk, turn the log into jumpable diagnostics. Understand those four steps and most questions about a missing PDF answer themselves."
 ---
 
 TeXPro does not implement TeX; it drives the local latexmk. A build really only does four things: write the changes to disk, decide what to build, decide which engine to use, and translate the log into signals on screen. Know those four steps and errors stop being a black box.

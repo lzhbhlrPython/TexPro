@@ -1,0 +1,38 @@
+---
+slug: dev-handoff
+title: 新会话接手与文档导航
+group: 开发
+order: 14.2
+summary: 用少量稳定入口接手项目，区分规范、实现、历史与当前验证结果。
+---
+
+## 推荐阅读顺序
+
+1. 仓库 AGENTS.md：协作规则、范围与不可破坏的约束。
+2. PRODUCT.md：写作优先的产品定位。
+3. DESIGN.md：真实设计 token、纸面语言及 Google 规范参考。
+4. docs/README.md、docs/development.md：文档导航、开发与验证入口。
+5. docs/architecture.md、docs/technical-contracts.md：模块职责及数据契约。
+
+官网可从[开发环境](/docs/dev-setup)、[架构](/docs/dev-arch)、[渲染层](/docs/dev-renderer)、[测试](/docs/dev-testing)、[发布](/docs/dev-release)和[设计语言](/docs/dev-design)依次阅读。
+
+## 开工先确认
+
+```sh
+git status --short --branch
+git log -5 --oneline
+```
+
+保留已有修改。根据用户当前目标确定范围，核对当前分支与源码，不重复执行已经完成的旧任务。文件行数、测试条数与截图是历史证据，不是永久契约。
+
+## 不可遗失的上下文
+
+原件是普通 TeX；主文件与当前标签分离；保存成功只确认相应快照；异步结果必须校验身份；工具不打断写作。乐谱优先沿用 TeX 工具链，ISO 方案已取消，Liquid Glass 已否定。
+
+主文件、保存、编译、引用更新和 MCP 不能各自决定入口。官网属于独立静态站，使用 pnpm；桌面使用 npm。内容更新不授权改路由或布局。
+
+## 交接要写清
+
+交接说明目标、改动、关键取舍、验证命令与实际结果、未覆盖的风险、分支及提交状态。提交、推送、合并、发版和线上部署分别说明。不要把输出 PASS 当成进程已退出，也不要把本地构建当成已发布。
+
+长期规则更新对应公开文档；私人聊天、凭据、superpowers 记录和临时计划不进入 Git。博客只记应用开发历史，不用于保存当前任务队列。
