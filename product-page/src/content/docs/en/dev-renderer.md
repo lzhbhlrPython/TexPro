@@ -48,3 +48,18 @@ npm run build
 ```
 
 Add relevant native UI regressions for input, selection, focus, scrolling and undo. Check project switching, closure, IME, asynchronous failures and tool cancellation. A normal screenshot alone does not verify continuous writing.
+
+## Frontend implementation rules
+
+The repository's docs/frontend.md is the implementation contract; DESIGN.md is its visual reference. Both apply.
+
+- Keep project coordination, editor transactions, optional tools and pure logic in their existing modules. Native access goes through typed preload APIs.
+- Reuse each surface's theme tokens, typography, states and icons. Check desktop paper/studio/night separately from website light/dark.
+- Preserve source, selection, IME, undo and scroll. Routine content edits must not require a studio or completion dialog.
+- Validate project, file, request and source identity before applying asynchronous results. Cancellation alone is insufficient.
+- Desktop dialogs use the shared focus hook; website dialogs use Ant Design focus management. Check keyboard names, Tab, Escape and focus return.
+- Express loading, empty, error and applicable selection states. Failure must retain source and provide a useful next step.
+- Reuse lazy loading and caches; avoid unbounded work on input. Support reduced motion and long bilingual text.
+- Maintain both languages and design documentation with code changes. Choose native interaction checks for input behavior; builds alone do not verify it.
+
+Continue on the same task branch, commit verified work promptly and push when authorized. Merging main and publishing releases remain separate actions.

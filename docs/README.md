@@ -10,6 +10,8 @@
 4. [架构](architecture.md)与[技术契约](technical-contracts.md)：模块职责、数据流及不可破坏的约束。
 5. [文档维护](documentation.md)：官网、中英文、生成产物和历史记录的维护方式。
 
+前端开发同时遵守 [前端设计与实现约束](frontend.md)，不要只读视觉 token。
+
 ## 按问题查阅
 
 | 问题 | 入口 |

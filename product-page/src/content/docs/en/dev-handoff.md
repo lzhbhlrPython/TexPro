@@ -36,3 +36,7 @@ Saving, compilation, reference maintenance and MCP must share main-file resoluti
 Record the objective, changes, decisions, verification commands and actual results, uncovered risks, branch and commit state. Distinguish committing, pushing, merging, releasing and deploying. PASS output does not prove process exit; a local build does not prove publication.
 
 Update public documents for lasting rules. Keep private chat, credentials, superpowers records and temporary plans out of Git. Blogs record application development history, not the current task queue.
+
+## Task branches and timely Git updates
+
+Reuse the current task branch for follow-ups, checks and documentation. A message, session or commit does not require a new branch. Create a branch for a separate task. Commit coherent, verified changes promptly and push the task branch when its remote is configured and authorized. Respect explicit local-only or no-push requests. Merging main and publishing releases still require the corresponding authorization. Report remote failures without claiming synchronization.

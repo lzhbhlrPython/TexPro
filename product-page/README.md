@@ -2,6 +2,8 @@
 
 本目录是独立静态站，React、TypeScript、Ant Design 与 Vite，使用 pnpm 和自身锁文件，不参与 Electron 打包。协作规则见根 [AGENTS.md](../AGENTS.md)，设计规范见 [DESIGN.md](../DESIGN.md)，全仓文档导航见 [docs/README.md](../docs/README.md)。
 
+前端行为与验收还须遵守 [前端设计与实现约束](../docs/frontend.md)，不能只校对视觉 token。
+
 ## 修改边界
 
 默认内容工作只修改 `src/content/docs/**` 与 `src/content/blog/*.md`。布局、样式、组件、路由、数据、依赖、脚本和配置需要用户明确授权。整理文档不等于改版，不能用 `layout:update` 掩盖版式变化。
@@ -28,7 +30,7 @@
 
 首页区块在 `src/pages/home/`；文档、博客、更新记录和 AI 入口由 `src/router/index.tsx` 组织。组件与路由是实现依据，避免在此复制会过期的页面数量和区块表。
 
-品牌色在 `src/config/design.ts`；明暗主题在 `src/App.tsx`、`src/lib/theme.tsx`；字体、宽度及动效变量在 `src/styles/global.css`。现有截图在 public/shots，必须来自真实应用。具体设计语言和主题区别见根 DESIGN.md。
+品牌色在 `src/config/design.ts`；明暗主题在 `src/App.tsx`、`src/lib/theme.tsx`；字体、宽度及动效变量在 `src/styles/global.css`。现有截图在 public/shots，必须来自真实应用。具体设计语言和主题区别见根 [DESIGN.md 的官网约束](../DESIGN.md#官网的适用范围)，包括明暗色表、字体、控件尺寸、响应式导航、动效、打印和彩蛋页主题覆盖。新增区块沿用这些规范，不从桌面三主题直接推导站点样式。
 
 ## 构建和预览
 

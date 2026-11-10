@@ -35,3 +35,9 @@ summary: 以 Google DESIGN.md 格式记录纸面品牌；用 Material Design 的
 ## 修改前后
 
 先读 PRODUCT.md、DESIGN.md 与所属样式和组件；用户要求内容整理不等于允许改布局。官网内容工作前后运行版式检查，中文与英文同时维护。设计规范更新并不代表界面已改版。
+
+## 官网专属规范
+
+根 DESIGN.md 同时记录官网的明暗表面角色、衬线字体回退、控件尺寸与圆角、响应式导航、动效和打印规则。站点 token 来自 product-page/src/App.tsx、src/config/design.ts 与 src/styles/global.css，主题状态和临时覆盖在 src/lib/theme.tsx；现有彩蛋页临时使用 dark，退出后恢复原选择。
+
+官网使用自身 light / dark 色板，不套用桌面 paper / studio / night。保留既有纸面区块、规格行、参考文献式脚注与真实截图，分别检查窄屏、长译文、键盘和打印。内容工作不修改布局锁。

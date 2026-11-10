@@ -35,3 +35,9 @@ Reuse the website's existing duration, ease-out, rise and Reveal rhythm. Reduced
 ## Before and after changes
 
 Read PRODUCT.md, DESIGN.md and relevant source styles and components. Content cleanup does not authorize a layout redesign. Run layout checks before and after website content work, and maintain both languages. Updating a design specification does not mean the interface has been redesigned.
+
+## Website-specific reference
+
+The root DESIGN.md also documents the website: light and dark surface roles, serif fallbacks, control sizes and radii, responsive navigation, motion and print styles. Website tokens come from product-page/src/App.tsx, src/config/design.ts and src/styles/global.css. Theme state and temporary overrides live in src/lib/theme.tsx; the existing easter-egg page temporarily forces dark mode and restores the previous choice on exit.
+
+The website uses its own light/dark palette, not the desktop paper/studio/night modes. Preserve the existing paper sections, specification rows, linked references and real screenshots. Check narrow layouts, long translations, keyboard operation and printing separately. Content work does not change the layout lock.

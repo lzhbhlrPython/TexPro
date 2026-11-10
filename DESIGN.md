@@ -16,12 +16,25 @@ colors:
   night-text: "#ddd9d0"
   site-primary: "#bc4f30"
   site-bg: "#f7f2ea"
+  site-surface: "#fffcf7"
+  site-text: "#2a231e"
+  site-heading: "#1c1613"
+  site-border: "#e0d3c0"
+  site-dark-bg: "#141110"
+  site-dark-surface: "#1d1917"
+  site-dark-elevated: "#241f1b"
+  site-dark-text: "#e9e3da"
+  site-dark-heading: "#f5efe6"
+  site-dark-border: "#3a322c"
 typography:
   editor-body:
     fontFamily: '"New York", "Charter", "Iowan Old Style", "Palatino", "Songti SC", "Noto Serif CJK SC", Georgia, serif'
     fontSize: "18px"
 rounded:
   desktop-base: "10px"
+  site-sm: "6px"
+  site-base: "8px"
+  site-lg: "10px"
 ---
 
 # TeXPro design system
@@ -33,6 +46,10 @@ rounded:
 本文件使用 [Google Labs DESIGN.md 格式](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md)的 YAML token 与八节结构；它是可移交的设计规范，不是 Material 组件库迁移计划。设计方法参考 [Material Design 色彩角色](https://m3.material.io/styles/color/the-color-system)和[字体角色](https://m3.material.io/styles/typography/applying-type)，原生窗口交互遵守各平台惯例。沿用 Lucide 桌面图标和 Ant Design 官网组件，不为外观统一引入第二套组件库。
 
 YAML 记录当前代码的默认值，不是另一个自动生效的主题配置。修改 token 时同步源码与本文；若出现差异，先检查 CSS 级联及用户设置，再修正规范。本次整理于 2026-11-10；未声明全产品已经通过无障碍认证。
+
+### 官网的适用范围
+
+官网首页用于介绍产品，文档与博客用于阅读，下载页用于辨认实际发行资产；它们继承纸面品牌，但不照搬桌面工作台布局或三主题。产品页规范同时适用于首页、文档、博客、更新记录、AI 入口及已有彩蛋页。站点维护入口是 [product-page/README.md](product-page/README.md)，样式事实来自站点源码；以下记录现状与后续约束，不在本次改动页面。
 
 ## Colors
 
@@ -49,11 +66,30 @@ YAML 记录当前代码的默认值，不是另一个自动生效的主题配置
 
 作为后续验收目标，普通文本对比度至少 4.5:1，大文本至少 3:1，关键控件边界及状态至少 3:1；逐主题测量实际组合，透明色必须合成后测量。这里是项目验收要求，不是对当前所有 token 的通过声明。
 
+### 官网配色与主题
+
+| 语义角色 | light | dark |
+| --- | --- | --- |
+| 布局背景 | #f7f2ea | #141110 |
+| 容器 | #fffcf7 | #1d1917 |
+| 浮层 | #fffcf7 | #241f1b |
+| 正文 | #2a231e | #e9e3da |
+| 标题 | #1c1613 | #f5efe6 |
+| 边框 / 次级边框 | #e0d3c0 / #ebe1d2 | #3a322c / #332c27 |
+
+表中来自 `product-page/src/App.tsx` 的 LIGHT_PALETTE / DARK_PALETTE；品牌值来自 `src/config/design.ts`。Ant Design 的色彩算法会参与派生状态色，不能只验证表中的基础色。
+
+`src/lib/theme.tsx` 管理用户模式和临时 override；默认值先查本地选择，再查初次加载时的系统偏好，不承诺持续自动跟随系统变化。页面临时主题覆盖退出时应清空，不写坏持久选择。CSS 的 `--site-*` 部分由 App 的 ConfigEffects 注入；只改 :root 默认值不代表改完运行时主题。已有诊断等语义色例外需要按明暗分别检查，不能把“全站所有颜色已 token 化”当成事实。
+
 ## Typography
 
 Material 的 display、headline、title、body、label 表示内容角色，TeXPro 按角色映射现有字体，不强制换成 Roboto。编辑正文使用衬线栈，工具界面使用 `--font-ui`，TeX 源码、日志和快捷键使用 `--font-mono`。官网使用自身 `--serif`、`--serif-latin`、`--mono`。
 
 桌面默认正文 18px、写作宽度 760px 来自 `app.css`，允许设置调整。UI 字号与 PDF 中 TeX 字号互不替代。中文标题、括号、行距和中英混排要实际检查，不能仅凭拉丁字母样张验收。字体不可用时回退系统字体，页面仍须可读。
+
+### 官网排字
+
+全站正文沿用思源宋体与系统宋体回退，英文专门排字可用 `--serif-latin`，代码用 `--mono`。字体 CDN 加载失败不能使正文消失。首屏、文档与博客使用各自已有字号和行距，不能为了匹配桌面 18px 一刀切。CSS 有重复声明及断点覆盖，检查最终 computed style，不以首个 hero-title 声明当成全屏统一尺寸。正文层次靠字号、字重、留白和分隔，不以大量胶囊、渐变字或厚卡片替代。
 
 ## Layout
 
@@ -62,6 +98,15 @@ Material 的 display、headline、title、body、label 表示内容角色，TeXP
 官网布局上限来自 `--site-max: 1200px`，窄屏导航沿用现有 Drawer。缩放和窄窗口下不得隐藏关闭、保存、取消等必要操作。禁止因切换预览重置整个编辑器。
 
 新组件优先使用已有间距和密度，不把 Material Android dp 直接当作 Electron CSS px。Google 的[触控目标建议](https://support.google.com/accessibility/android/answer/7101858?hl=en)为 48dp；本项目将官网触控入口约 48 CSS px 的可点区域作为设计目标，桌面紧凑控件需保留键盘入口、可见焦点和足够间隔。视觉图标尺寸与实际命中区域分别检查。
+
+### 官网导航、响应式与打印
+
+- `.shell` 采用现有 1200px 上限和横向内边距；沿用实际 1100 / 991 / 767 / 640px 附近的分区断点，先查组件再复用，不另建不相容的断点体系。
+- Header 负责站点入口，窄屏收进 Drawer；SectionRail 的页内圆点导航在 1280px 及以上显示。文档正文、侧栏和页内目录按现有断点重排，收起导航后仍能访问全部篇目。
+- 长英文、代码块、表格、下载资产名和 SHA256 必须可阅读或局部滚动，不能撑破整个视口；本页锚点不能藏在吸顶导航后。
+- 纸面分隔、能力规格表、参考文献式脚注和真实截图属于既有官网表达。保留它们的视觉层级，新增内容沿用同类区块；真实性要求不因营销页面而放宽。
+- `@media print` 目前采用 A4 与 24mm / 22mm / 22mm 页边距；打印隐藏交互外壳、去除阴影，表格保持表头与合理分页。打印是独立验收表面，dark 屏幕色不能直接当作打印配色。
+- 资源、字体、路由与链接兼容 BASE_URL，预览与构建使用相同 PAGES_BASE_PATH。网页路径不等于磁盘路径。
 
 ## Elevation & Depth
 
@@ -72,6 +117,12 @@ Material 的 display、headline、title、body、label 表示内容角色，TeXP
 ## Shapes
 
 桌面基础 `--radius: 10px`；按钮、输入和弹层沿用所属组件的现有规则，不能把所有元素强制改为同一圆角。官网圆角由 Ant Design token 及既有 CSS 决定。不用大胶囊和卡片包装普通正文，也不以 Liquid Glass 替换纸面品牌。
+
+### 官网控件形状与尺寸
+
+当前 Ant Design 控件使用 6 / 8 / 10px 圆角，常规 / 小型 / 大型高度为 40 / 32 / 48px，按钮字重 500，定义在 `product-page/src/App.tsx`。这些是现状值，不等于所有触控命中区域均已达标；紧凑图标按钮需单独检查命中区域。自定义组件沿用所属类型的既有形状，不能把参考文献、规格行、诊断标签都改成 Ant Design 卡片或 Tag。
+
+前端行为、组件边界和验收的完整规范见 [前端设计与实现约束](docs/frontend.md)。
 
 ## Components
 
@@ -87,6 +138,12 @@ Material 的 display、headline、title、body、label 表示内容角色，TeXP
 | 官网文档 | 中英同 slug，代码可复制，站内链接兼容 Pages 子路径 |
 
 文案写任务和结果，避免让用户理解 IPC、runId 或内部缓存。中文界面说明用中文，英文界面用英文；LaTeX、PDF、MCP、代码与品牌名保留技术标识。桌面字符串走 `src/i18n.ts`，官网走 `product-page/src/i18n/`。
+
+### 官网交互与内容约束
+
+搜索与快捷键弹层、移动导航和主题入口复用已有可访问名称、键盘与关闭机制；文档代码复制要提供成功和失败反馈，博客筛选不能使正文入口不可达。主题对照滑块保留指针与键盘操作。彩蛋页沿用同一字体、主题和 reduced motion 规则，不另起设计体系或引入新的产品能力承诺。
+
+官网 UI 字符串同轮维护中文与英文；文档同名同 slug，博客保持简体中文并在英文界面说明语言。内容修改不改布局锁；已授权壳层改动核对后才更新基线。Release 版本、资产、体积和校验摘要来自实际数据，不在页面中硬写示例值。机器可读内容由生成器维护，不手改输出。
 
 ## Do's and Don'ts
 
