@@ -22,7 +22,7 @@ Pages 提供的 `base_path` 同时用于 Vite 资源路径和 React Router 的 `
 cd product-page
 pnpm install --frozen-lockfile
 PAGES_BASE_PATH=/TexStudioPro pnpm run build
-pnpm exec vite preview --host 127.0.0.1
+PAGES_BASE_PATH=/TexStudioPro pnpm exec vite preview --host 127.0.0.1
 ```
 
 访问预览服务器的 `/TexStudioPro/`。普通本地开发不设环境变量即可使用 `/`。

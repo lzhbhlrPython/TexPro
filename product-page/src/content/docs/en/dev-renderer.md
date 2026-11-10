@@ -1,121 +1,65 @@
 ---
 slug: dev-renderer
-title: The renderer
+title: Renderer and continuous writing
 group: 开发
 order: 12
-summary: No router and no state library: one App.tsx orchestrates all state, the editor is CodeMirror 6, the visual layer projects through decorations, and studio panels lazy-load on demand. Learn these four layers first when reading the code.
+summary: Understand editing state, source projections, asynchronous identity and optional tools.
 ---
 
-## What this layer is
+## Responsibilities
 
-The renderer is a single-page React app with entry `src/main.tsx`, mounting `src/App.tsx`. There is no router, no Redux or Zustand, and no data-fetching layer — all cross-component state is orchestrated in `App.tsx` with `useState` and `useRef`, and every interaction with disk, compiling, and Git goes through `window.texpro` over IPC.
-
-The UI has four parts: `components/Sidebar.tsx` on the left (file tree, symbols, search), `editor/EditorPane.tsx` in the middle (CodeMirror), `components/PdfPane.tsx` on the right (PDF.js), and 29 studio panels opened on demand. Themes and typography all live in `src/styles/app.css`.
-
-## File table
-
-| File | Lines | Role |
-| --- | --- | --- |
-| `src/App.tsx` | 2846 | Top-level state, effects, compile and close orchestration, keyboard shortcuts |
-| `src/editor/EditorPane.tsx` | 939 | CodeMirror instance, per-file EditorState cache, change write-back |
-| `src/editor/visual.ts` | 1174 | Visual-layer decorations: math, tables, TikZ, scores, sections |
-| `src/components/PdfPane.tsx` | 885 | PDF.js rendering, zoom, inverse lookup |
-| `src/components/Sidebar.tsx` | 721 | File tree, assets, symbols, search |
-| `src/i18n.ts` | 1845 | English-and-Chinese dictionary keyed by the English source string |
-| `src/app/lazyTools.tsx` | 70 | Lazy loading and crash isolation for 29 studios |
-| `src/styles/app.css` | 9602 | Three themes, editor and panel styles |
-
-`src/lib/` holds another 36 pure-logic modules (latex, pdfSync, lineDiff, templates, importers and so on) that do not depend on React and can be covered directly by `node --test`.
-
-## Concurrency: drop late results with generations
-
-At any moment a project switch, a recompile, a forward lookup, an inverse lookup, or reopening the same file may overlap, and by the time those async results come back the context may no longer hold. The approach is one incrementing ref per kind of operation, compared right after `await`:
-
-```ts
-const run = ++compileRunId.current;
-const result = await window.texpro.compile({ ...args });
-if (run !== compileRunId.current) return;        // this round is already stale
-if (generation !== projectGeneration.current) return;
-```
-
-One incrementing ref per async domain: `compileRunId` for compiling, `projectGeneration` for project switches, `syncGeneration` and `inverseGeneration` for the two SyncTeX directions, `navigationGeneration` for outline and search jumps, and `openRequest` for repeated opens of the same file. Copy this pattern for new async flows; do not use a "cancelled" flag or a bare `setState`.
-
-## The save queue
-
-Writes to disk are serialized. The comment on `SaveQueue` in `src/app/saveQueue.ts` puts it plainly: make it impossible for an older write to finish after a newer one. `saveDoc()` first waits for an in-flight file operation, rewrites the path with `movedPath`, and then enters the queue:
-
-```ts
-await fileOperation.current;                     // wait for the move/rename to settle
-const target = movedPath(path, operation);
-await saveQueue.current.run(() => window.texpro.writeFile(target, content));
-```
-
-`saveAll()` loops at most 5 rounds collecting dirty documents, then does one more pass after `await saveQueue.current.idle()`. It is called before closing a window, switching projects, and compiling — any new code that bypasses the queue and writes to disk directly reintroduces the "old content overwrites new content" problem.
-
-## The compiler only orchestrates here
-
-The order inside `runCompile()` is worth remembering: when busy, park the request in `pendingCompile`; generate a runId of `run-<timestamp>`; call `saveAll()` first; then `openProject(root)` to re-read the root file configuration (if the root file changed, clear the PDF, diagnostics and hot spots, and increment the generation); then send `compile`; and before writing results back, verify that both the project generation and the runId still match.
-
-Compile output is streamed; `onCompileOutput` filters on `output.runId === compileRunId.current`, handles `stream === 'meta'` separately, and keeps only the last 90000 characters of the log. After the window closes the main process skips `sender.send`, and the renderer discards by generation.
-
-## The editor: five compartments
-
-`EditorPane` does not rebuild the EditorState; runtime switching goes through `Compartment.reconfigure()`:
-
-| Compartment | What it switches |
+| Entry | Responsibility |
 | --- | --- |
-| `visual` | Mutual exclusion between visual-layer decorations and source mode |
-| `focus` | Focus on the current paragraph, everything else dimmed |
-| `typewriter` | Typewriter scrolling |
-| `lineNumbers` | Line number gutter |
-| `collab` | Yjs collaboration extension |
+| src/App.tsx, src/app/ | Project, buffers, saving, compilation and close coordination |
+| src/editor/EditorPane.tsx | CodeMirror instances, per-file sessions and input propagation |
+| src/editor/visual.ts | Source projections for math, tables, headings and figures |
+| src/editor/writingTargets.ts | Source-range mapping and invalidation for assistance |
+| src/editor/writingSession.ts | Editing state and position restoration |
+| src/components/PdfPane.tsx | PDF.js reading and bidirectional navigation |
+| src/app/lazyTools.tsx | Deferred optional tools and error isolation |
+| src/styles/, src/i18n.ts | Themes, surface styles and bilingual copy |
 
-The notable entries in the extension list are `history`, `writingTargets`, `stableViewport`, `writingReview`, `bracketMatching`, `closeBrackets`, `autocompletion` (which overrides the completion sources, with `maxRenderedOptions: 80` and `defaultKeymap: false`), and `foldGutter`. In the keymap, `Mod-z` / `Mod-Shift-z` / `Mod-y` bypass CodeMirror history and call back into `onProjectHistory` for project-level undo; Tab accepts a completion only when `!view.composing`; `ArrowUp` / `ArrowDown` go through `moveLogicalLine` so the cursor moves by logical line when crossing visual blocks.
+App.tsx still coordinates substantial state. Extract along existing boundaries rather than replacing the state architecture at once. Styles are split across writing, PDF, artwork, music and other surfaces; do not append everything to app.css.
 
-Each file's `EditorState` lives in a `sessions: Map`; on switching back it is reused — scroll position included — when `cached.state.doc.toString() === props.value`, and otherwise `EditorState.create()` runs again. On a project switch, `App` replaces the whole Map instead of clearing entries one by one.
+## Source and projections
 
-## Visual layer: one scan, first come first served
+CodeMirror transactions edit source and enter history; decorations display visual results. Range scanners must handle balanced braces, nesting, comments and verbatim content. Keep a source fallback for complex input. Preview updates must not rebuild the whole document or interrupt IME composition.
 
-`buildDecorations()` in `visual.ts` rescans the whole document on every document or selection change, and an `occupied` interval table guarantees a single decoration per position. The scan order is fixed (top to bottom), and where a new block-level element is inserted decides whether earlier blocks swallow it:
+Simple tables support direct cell editing; complex tables remain editable TeX. Music, circuits and structural formulas belong to the same writing flow. Tool panels are optional helpers, not prerequisites for ordinary composition.
 
-- Score blocks (`musicWidget`)
-- Tables (`writingTable` / `tableWidget`)
-- Heading lines
-- Inline and display math, including `equation`, `align`, `gather`, `multline`, `eqnarray`
-- Figures, tables, code blocks
-- Labels and references
-- Wrap-up (section badges, writing targets, and so on)
+## Saving and asynchronous writes
 
-Math renders through KaTeX with `throwOnError: true`, `strict: 'ignore'`, `trust: false`, `maxExpand: 500`, plus five macros: `\R`, `\N`, `\Z`, `\C`, `\dd`. Results go into `mathHtmlCache`, keyed by `d:` or `i:` plus the TeX source, with LRU eviction beyond 800 entries. A failed render returns an empty string and the UI falls back to source.
+saveQueue.ts orders writes; input entered during saving remains dirty until saved. Compilation saves relevant buffers before resolving the project main file again.
 
-Clicking a visual block returns to source: `bind()` on `LatexWidget` intercepts mousedown and puts the cursor at the start of the block. TikZ and diagram previews additionally deduplicate through `tikzRequests` and then fetch the image with `rasterizeTexPdf`.
+Validate project, file, request identity and source ranges before applying results. writingTargets maps surrounding edits but rejects results after the target text changes. Cancellation does not replace receiver-side validation. Preserve active projections during IME composition.
 
-## Lazy loading and crash isolation
+## Preview and themes
 
-`deferredTool()` in `src/app/lazyTools.tsx` does three things: it returns `null` when the tool has never been opened (not even issuing `import()`); it calls `lazy(load)` only on first open; and an outer `RecoveryBoundary` catches render exceptions so only that one panel fails. `generation` serves as the key, which allows a single panel to be rebuilt without refreshing the whole page.
+KaTeX handles supported math. Full TeX, figures and music use local compilation and PDF.js display paths. Main compilation and auxiliary previews have separate cancellation, caching and result identities. Publish preview caches only after successful compilation.
 
-The path for a new panel: register in `lazyTools.tsx` → write the panel in `components/` → add a block in `app.css` → add both languages in `i18n.ts`. Panels load only when the user opens them; never statically `import` one at the top level of `App.tsx`.
+Studio combines dark chrome with light paper; night also darkens the writing surface; paper is light. Monochrome previews can adapt to the theme while author colors and final PDFs retain their meaning. See [design language](/docs/dev-design).
 
-## Making changes
+## Verify
 
-Adding a visual element: define the interval and `WidgetType` in `visual.ts`, insert it at the right place in `buildDecorations()`, make sure the `overlaps()` logic covers it, then add the styles in `theme.ts`. Do not start a second ViewPlugin in `EditorPane` for the same kind of work.
-
-Adding a setting: add the default to `defaultSettings` in `src/app/settings.ts`, handle migration of old values in `loadSettings`, then wire it into the state and UI in `App.tsx`. The persistence key is `texpro.settings.v1`, and `aiApiKey` is deliberately stripped so it never reaches localStorage.
-
-Adding an async flow: first decide which generation it belongs to, capture the current value of the matching ref, and compare on return; anything that writes to disk goes through `SaveQueue` first.
-
-## Pitfalls
-
-- Calling `setState` directly on the result of an `await`: with no generation check, old data lands in the new view after a project switch
-- Editing the doc of an `EditorState` by hand instead of going through the `textChange` diff: replacing the whole document sends the cursor to the top
-- Doing heavy computation in decorations: `buildDecorations` runs on every keystroke, so heavy work belongs in a cache or in the main process
-- Statically importing heavy dependencies (PDF.js, KaTeX) in a panel: it bloats the main bundle and defeats lazy loading
-
-## Verification
-
-```bash
+```sh
 npm run typecheck
-npm run build && npm run smoke
+npm run test:regression
+npm run build
 ```
 
-The smoke run walks through real interactions and screenshots into `artifacts/`; look at `smoke-*.png` to see the effect of a visual-layer change. The test matrix is in `/docs/dev-testing`, and the boundary between the editor and the main process is in `/docs/dev-arch`.
+Add relevant native UI regressions for input, selection, focus, scrolling and undo. Check project switching, closure, IME, asynchronous failures and tool cancellation. A normal screenshot alone does not verify continuous writing.
+
+## Frontend implementation rules
+
+The repository's docs/frontend.md is the implementation contract; DESIGN.md is its visual reference. Both apply.
+
+- Keep project coordination, editor transactions, optional tools and pure logic in their existing modules. Native access goes through typed preload APIs.
+- Reuse each surface's theme tokens, typography, states and icons. Check desktop paper/studio/night separately from website light/dark.
+- Preserve source, selection, IME, undo and scroll. Routine content edits must not require a studio or completion dialog.
+- Validate project, file, request and source identity before applying asynchronous results. Cancellation alone is insufficient.
+- Desktop dialogs use the shared focus hook; website dialogs use Ant Design focus management. Check keyboard names, Tab, Escape and focus return.
+- Express loading, empty, error and applicable selection states. Failure must retain source and provide a useful next step.
+- Reuse lazy loading and caches; avoid unbounded work on input. Support reduced motion and long bilingual text.
+- Maintain both languages and design documentation with code changes. Choose native interaction checks for input behavior; builds alone do not verify it.
+
+Continue on the same task branch, commit verified work promptly and push when authorized. Merging main and publishing releases remain separate actions.
