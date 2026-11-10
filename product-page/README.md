@@ -110,7 +110,7 @@ pnpm layout:update # 经用户同意改版后，重建 layout.lock.json 基线
 - 页面是一封写给仍在改稿的人的信（Qwerty 的独白，允许加粗与划掉的句子），版式沿用站点既有的 token 与字号，不引入第二套视觉；中文首行缩进两字、两端对齐，英文左对齐、按词断行，靠 `html[lang]` 区分。
 - 背景用 `public/easter/texpad-night.webp`（1600×900，193K，`sips` + `cwebp` 生成），只在进入本页后请求；本页通过 `theme.tsx` 的 `setOverride('dark')` 临时强制夜间，离开即还原，不写 `localStorage`。
 - 头像在 hover 时旋转一圈（`transition: transform .9s`，`prefers-reduced-motion` 下关闭）。
-- 页面是 Qwerty 写给仍在改稿的人的一封信，段落偏长、允许加粗与划掉句；正文里的 `\ref` / `\cite` 用行内代码样式标出。哲学与文学的意思织进日常细节（书脊、纽扣、雨伞、信封），不直接点名引用，保持私密、克制的叙事语气。
+- 页面是 Qwerty 写给仍在改稿的人的一封信，正文约 3900 字（中文），段落偏长、允许加粗与划掉句；正文里的 `\ref` / `\cite` 用行内代码样式标出。哲学与文学的意思织进日常细节（书脊、纽扣、雨伞、信封），不直接点名引用，保持私密、克制的叙事语气。
 - 底部是一段 Base64 文本，编码的是 `src/pages/easter/rose.tex`（一束主题色的 TikZ 玫瑰）；右上角「复制」按钮把原文整段写入剪贴板。页面不渲染这张图，也不写解码说明。
 - 文案全部走 i18n（`src/i18n/en.ts` 的键就是中文原文），排版按 `html[lang]` 分开：中文首行缩进两字 + 两端对齐，英文 `--serif-latin` + 左对齐 + 按词断行；英文段落里的 `的 / 地 / 其实` 是刻意保留的语言样本。
 - 页面自己写 `document.title = 'Qwerty · TeXPro'`，并临时插入 `<meta name="robots" content="noindex, nofollow">`，离开时移除。
