@@ -3552,7 +3552,7 @@ html[data-theme='dark'] .diag-warning {
   padding: 96px 0 128px;
   background-color: var(--site-bg);
   background-image:
-    linear-gradient(90deg, rgba(8, 7, 6, 0.92) 0%, rgba(8, 7, 6, 0.88) 52%, rgba(8, 7, 6, 0.16) 100%),
+    linear-gradient(90deg, rgba(8, 7, 6, 0.94) 0%, rgba(8, 7, 6, 0.9) 62%, rgba(8, 7, 6, 0.62) 82%, rgba(8, 7, 6, 0.12) 100%),
     linear-gradient(180deg, rgba(8, 7, 6, 0.34) 0%, rgba(8, 7, 6, 0.58) 100%),
     var(--qwerty-bg);
   background-size: cover, cover, cover;
