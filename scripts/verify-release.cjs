@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function verifyContents(read, files) {
-  const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
+  const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
   for (const file of required) if (!files.has(file)) throw new Error(`Release is missing ${file}. Run npm run build before packaging.`);
   const html = read('dist/index.html').toString();
   const assets = [...html.matchAll(/(?:src|href)=["'](?:\.\/)?(assets\/[^"']+)["']/g)].map((match) => `dist/${match[1]}`);
@@ -36,7 +36,7 @@ function verifyArchive(archive) {
 }
 
 function verifyExternalResources(root) {
-  for (const file of ['mcp/server.mjs', 'electron/services/writing-aids-core.mjs', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)]) {
+  for (const file of ['mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)]) {
     if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing external MCP dependency: ${file}`);
   }
 }

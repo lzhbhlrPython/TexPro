@@ -129,6 +129,7 @@
       "electron/services/music.cjs",
       "electron/services/writing-aids.cjs",
       "electron/services/writing-aids-core.mjs",
+      "electron/services/tex-engine.mjs",
       "electron/services/realtime-tex.cjs",
       "electron/services/realtime-scene.cjs",
       "node_modules/rtex-ts/**",

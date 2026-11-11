@@ -42,7 +42,7 @@ pnpm dev
 | 工程入口与磁盘操作 | `electron/services/project-root.cjs`、`project-operations.cjs`、`project-files.cjs` |
 | 可视编辑、智能格式与选择 | `src/editor/EditorPane.tsx`、`visual.ts`、`smartInput.ts`、`writingTargets.ts` |
 | 位置恢复、修订与诊断 | `src/editor/writingSession.ts`、`writingReview.ts`、`writingFeedback.ts` |
-| 实时预览 | `docs/realtime-tex.md`、`electron/services/realtime-tex.cjs`、`src/hooks/useRealtimePreview.ts` |
+| 实时预览 | `docs/realtime-tex.md`、`electron/services/realtime-tex.cjs`、`src/hooks/useRealtimePreview.ts`、`src/components/PdfPane.tsx`、`electron/services/tex-engine.mjs` |
 | 编译与同步 | `electron/services/tex.cjs`、`src/components/PdfPane.tsx`、`src/lib/pdfSync.ts` |
 | 占位符和备忘 | `electron/services/writing-aids-core.mjs`、`writing-aids.cjs`、`src/lib/writingAids.ts` |
 | 窗口关闭与退出 | `electron/window-close.cjs`、`quit-watchdog.cjs`、`electron/main.cjs` |

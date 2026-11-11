@@ -6,50 +6,42 @@ order: 3.5
 summary: Preview unsaved paragraphs with bundled rtex-ts and local LuaLaTeX, with full-layout fallback, formal PDF output and explicit limits.
 ---
 
-## Get started
+## Open the existing PDF preview
 
-Realtime TeX preview is an optional experimental feature, disabled by default. TeXPro bundles the independent open-source [rtex-ts](https://github.com/lzhbhlrPython/rtex-ts) package. No VS Code, extension or Rust executable is required. Install LuaLaTeX and the packages/fonts your document needs separately.
+Realtime TeX rendering is an L0 enhancement inside the existing PDF preview. There is no experimental switch or preview mode to select. With automatic compilation enabled and the compile mode set to something other than manual, compatible LuaLaTeX projects automatically use the bundled [rtex-ts](https://github.com/lzhbhlrPython/rtex-ts). Disabling automatic compilation also disables realtime sessions. No VS Code, extension or Rust executable is required. Local LuaLaTeX, document packages and fonts are still needed.
 
-- Confirm the project's main file. Select it in Project Structure if there are multiple candidates.
-- Add `% !TeX program = lualatex` to the actual main file after checking that your template supports LuaLaTeX. CTeX/fontspec detection normally prefers XeLaTeX; changing only the default engine setting does not override that detection.
-- Open Settings → Build and enable “Realtime TeX preview (experimental)”.
-- Open PDF preview and select “Realtime TeX preview” in the sidebar. You can keep writing while the first layout is prepared.
+- Confirm the project main file; select it explicitly if multiple candidates exist.
+- Keep the author's engine choice. CTeX/fontspec detection usually selects XeLaTeX. After checking template compatibility, the author can declare `% !TeX program = lualatex` in the actual main file.
+- Open PDF preview and keep writing. Page preparation, zoom, navigation and scrolling use the existing preview surface.
 
-The application does not automatically change existing fonts, templates or engine declarations. LuaLaTeX executes document code with your permissions. Enable it for trusted projects; this is not a sandbox.
+TeXPro does not rewrite fonts, templates or engine declarations. Unsupported projects use the existing compilation workflow. Like regular compilation, LuaLaTeX executes document code with your permissions; this is not a sandbox. No cloud document transfer is added.
 
 ## Writing and layout
 
-Ordinary paragraphs and inline mathematics can update after context and old-paragraph probe validation. Background compilation then corrects global pagination and references. Headings, tables, TikZ and other environments, unknown macros and uncertain results wait for full layout. Pages with unsupported fonts or drawing operations fall back to the matching PDF.
+Validated prose and inline mathematics can update glyphs before background layout corrects pagination and references. Headings, tables, TikZ, unknown macros and unreliable results wait for full layout. Unsupported fonts or drawing operations use the matching PDF page without extra fallback badges or a list of engine states.
 
-The preview receives unsaved buffers without forcing source files to be saved. Normal autosave remains controlled by its own setting. Updates are deferred during input composition, and preview updates do not take editor focus or replace undo history. Editing a child file does not make it the compilation main file.
+Live updates accept unsaved buffers without forcing a save. Autosave keeps its existing setting. Composition defers synchronization without taking editor focus or undo history. Editing a child file preserves the project main file. Paragraph positions, pagination and references can remain provisional until full layout; formal PDF output remains authoritative.
 
-| Status | Meaning |
-| --- | --- |
-| Realtime preview ready | Persistent LuaLaTeX is ready |
-| Paragraph updated | A local typesetting result is available |
-| Updating pagination and references | Placement is provisional until full layout |
-| Waiting for full layout | This edit needs background compilation |
-| References have not converged | A pass limit or similar boundary was reached; this is not a final result |
-| Realtime preview unavailable | Check the engine, packages or diagnostics, correct the issue and retry |
+## One toolbar, PDF preparation when needed
 
-## Use the compiled PDF
+Zoom, fit width, page navigation, spreads and presentation share the existing toolbar and scroll state. Search, thumbnails, copying, comparison, opening or revealing the PDF, and region navigation prepare a formal PDF when needed: relevant buffers are saved and compiled before the operation continues. No manual mode switch is required. Failed builds or source changes during preparation prevent actions on stale results.
 
-Switch to “Compiled PDF” for search, text selection, comparison and SyncTeX. The live view does not offer the formal PDF's positioning tools. Manual compilation remains available: it saves relevant buffers and uses the existing build pipeline.
+Manual compilation also displays the formal PDF. The next source edit resumes live updates automatically. PDF inspection may save files; live glyph updates themselves do not. A running realtime session suppresses duplicate automatic compilation. Closing it or an acceleration failure restores the existing policy. Bibliography, indexes, export and submission still use the full build chain.
 
-While realtime mode runs, duplicate normal automatic compilation is paused; leaving it or a failure restores your previous policy. rtex-ts does not automatically invoke BibTeX, Biber or index tools. Use the existing complete build for submission and export. Paragraph growth or shrinkage also needs background layout correction.
+Explicit source-to-PDF navigation prepares a current formal result. Holding ⌘ / Ctrl and clicking a live page first prepares the formal PDF and enables region selection; then select the target region. Provisional coordinates are never guessed against a different layout. Automatic cursor following uses only a formal result matching the current buffers.
 
-## Errors and retry
+## Errors and recovery
 
-If LuaLaTeX is missing, install a TeX distribution and confirm the executable is available. Install missing packages or fonts according to TeX diagnostics. The last usable view is retained. Select “Retry realtime preview”, or switch to the compiled PDF to inspect the complete build log.
+Acceleration failures and TeX diagnostics use the existing problems panel, without a separate engine panel or persistent success messages. Available pages remain until regular compilation replaces them. Install missing LuaLaTeX, packages or fonts, or use normal formal compilation. Close and reopen PDF preview after fixing dependencies to rebuild the session.
 
-Hiding the pane, switching to the formal PDF or closing the project stops the realtime session. Its cache is isolated from formal builds in `.texpro/realtime/`. Each session attempts to remove its own directory after closing; locked files may remain. Retry after external programs modify already-loaded source or dependencies at the same path: this version does not promise automatic watching of every external change.
+Closing preview, disabling automatic compilation or closing the project stops the session. Caches live in `.texpro/realtime/`, separate from formal builds. Teardown attempts to remove its own session directory; locked files may remain. External editor changes and dependencies replaced at the same path are not comprehensively watched; reopen preview or compile formally.
 
 ## Embedding and attribution
 
-TeXPro runs rtex-ts in a Node worker, passing buffers and previews through restricted IPC without giving Node access to the editor. fontkit reads actual glyph outlines; PDF.js renders unsupported pages. Packaging keeps Lua/TeX support outside ASAR and verifies its upstream hashes.
+TeXPro hosts rtex-ts in a Node worker through restricted IPC. Fontkit draws actual glyph outlines; PDF.js renders fallback pages. `PdfPane` owns the shared tools, zoom and scrolling. Live pages never reuse an old PDF text layer or SyncTeX map. A pure engine policy is shared with compilation. Workers, dependencies and Lua/TeX support files are unpacked from ASAR, and upstream hashes are verified.
 
-The TypeScript adaptation closely follows [Henry Yang's realtime-tex](https://github.com/HenryXiaoYang/realtime-tex), retaining its Lua/TeX support files unchanged. Both use MIT with original copyright notices preserved. Research inspiration comes from Clemens Lode's [TUG 2026 paper](https://www.tug.org/tug2026/preprints/lode-realtime.pdf). This is an independent adaptation, not an official port or a promise of complete API/performance equivalence. Upstream's approximately 1 ms figures are not TeXPro measurements.
+The TypeScript implementation closely references [Henry Yang's realtime-tex](https://github.com/HenryXiaoYang/realtime-tex). Lua/TeX support files are retained unchanged. Both use MIT with original notices preserved. Research inspiration comes from Clemens Lode's [TUG 2026 paper](https://www.tug.org/tug2026/preprints/lode-realtime.pdf). This is an independent adaptation, not an official port or a promise of API or performance equivalence. Upstream's approximately 1 ms figure is not a TeXPro measurement.
 
-See the [rtex-ts embedding guide](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.md) for the library API, UTF-8 edits, event versions, geometry and licenses, and the [TeXPro repository guide](https://github.com/lzhbhlrPython/TexStudioPro/blob/codex/realtime-tex/docs/realtime-tex.md) for host implementation and distribution contracts. The standalone package's cross-platform CI does not establish end-to-end validation of TeXPro installers on every platform. MiKTeX and real Windows TeX integration require separate verification.
+See the [rtex-ts embedding guide](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.md) for library APIs, versions, coordinates and licensing, and the [TeXPro host contract](https://github.com/lzhbhlrPython/TexStudioPro/blob/codex/realtime-tex/docs/realtime-tex.md) for integration boundaries. This TeXPro native validation runs on macOS; package CI does not replace real TeX application testing on Windows and Linux. MiKTeX still needs separate verification.
 
-Related guides: [Compilation and diagnostics](/docs/compile), [PDF source navigation](/docs/synctex), [Copyright and license](/docs/copyright).
+Related: [Compilation and diagnostics](/docs/compile), [Bidirectional PDF navigation](/docs/synctex), [Copyright and licenses](/docs/copyright).

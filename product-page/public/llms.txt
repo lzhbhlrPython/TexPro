@@ -40,6 +40,7 @@
 ## 博客
 
 - [未保存的这一句，也可以先排出来](https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex): 将独立的 rtex-ts 接入 TeXPro：普通段落先更新，完整布局随后校正，正式 PDF 继续走原有构建链。
+- [让实时排版退回写作背后：一次 L0 交互修订](https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview): 移除实时预览的独立开关、模式标签和状态栏，让 rtex-ts 成为现有 PDF 预览的内部增强。
 - [缺一张图，也可以把这一段写完](https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos): 开发记录 09：占位符、修订备忘与中文正文配置，让未完成内容留在线索里，而不是打断当前句子。
 - [可靠保存，应该覆盖关闭窗口的最后一秒](https://lzhbhlrpython.github.io/TexStudioPro/blog/save-and-shutdown): 开发回顾 07：保存队列、文件移动和 macOS 退出收尾，补齐写作数据的最后一段路径。
 - [Nightly 的日期，要从版本号一直走到发布标签](https://lzhbhlrpython.github.io/TexStudioPro/blog/dated-nightly): 开发回顾 08：只在有变更时构建，让各平台共享日期版本，避免标签和安装包彼此错位。

@@ -19,6 +19,16 @@
       <category>连续写作</category>
     </item>
     <item>
+      <title>让实时排版退回写作背后：一次 L0 交互修订</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview</guid>
+      <pubDate>Tue, 10 Nov 2026 16:00:00 GMT</pubDate>
+      <description>移除实时预览的独立开关、模式标签和状态栏，让 rtex-ts 成为现有 PDF 预览的内部增强。</description>
+      <category>[&quot;编辑器&quot;</category>
+      <category>&quot;实时预览&quot;</category>
+      <category>&quot;交互设计&quot;]</category>
+    </item>
+    <item>
       <title>缺一张图，也可以把这一段写完</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos</guid>

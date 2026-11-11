@@ -44,7 +44,7 @@ export function StatusBar({
         ) : (
           <span className="status-item muted"><Circle size={8} /> {t('Ready')}</span>
         )}
-        <span className="status-item muted">{compileResult?.engine || 'pdfLaTeX'}</span>
+        {compileResult?.engine && <span className="status-item muted">{compileResult.engine}</span>}
         {compileResult?.ok && <span className="status-item muted">{t('SyncTeX on')}</span>}
       </div>
       <div className="status-center">

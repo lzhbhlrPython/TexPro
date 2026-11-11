@@ -26,6 +26,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { BoxHotspot, SyncTarget } from '../types';
+import type { useRealtimePreview } from '../hooks/useRealtimePreview';
+import { RealtimePageView } from './RealtimePageView';
 import { useI18n } from '../i18n';
 import { buildPdfDiff } from '../lib/pdfDiff';
 import { dragRect, intersects, mergeTextRects, sampleRegion, toSyncPoint, toViewportRect, type PdfPoint, type PdfRect } from '../lib/pdfSync';
@@ -33,6 +35,9 @@ import { dragRect, intersects, mergeTextRects, sampleRegion, toSyncPoint, toView
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 interface Props {
+  realtime?: ReturnType<typeof useRealtimePreview>;
+  formalCurrent?: boolean;
+  onEnsureCompiled?: () => Promise<boolean>;
   bytes: Uint8Array | null;
   previousBytes: Uint8Array | null;
   pdfPath: string | null;
@@ -141,7 +146,7 @@ function PdfPageView({ doc, pageNumber, scale, syncTarget, onInverse, selectRegi
 
   useEffect(() => {
     let cancelled = false;
-    void doc.getPage(pageNumber).then((page) => {
+    void Promise.resolve().then(() => doc.getPage(pageNumber)).then((page) => {
       if (cancelled) return;
       const next = page.getViewport({ scale });
       viewportRef.current = next;
@@ -415,6 +420,9 @@ function PdfPageView({ doc, pageNumber, scale, syncTarget, onInverse, selectRegi
 }
 
 export function PdfPane({
+  realtime,
+  formalCurrent = true,
+  onEnsureCompiled,
   bytes,
   previousBytes,
   pdfPath,
@@ -433,6 +441,8 @@ export function PdfPane({
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [pageCount, setPageCount] = useState(0);
   const [pageWidth, setPageWidth] = useState(595);
+  const [pageHeight, setPageHeight] = useState(842);
+  const scrollInteraction = useRef(0);
   const [zoom, setZoom] = useState(0.9);
   const [fitMode, setFitMode] = useState(true);
   const [containerWidth, setContainerWidth] = useState(720);
@@ -454,6 +464,33 @@ export function PdfPane({
   const [selectRegion, setSelectRegion] = useState(false);
   const pdfPaneRef = useRef<HTMLElement | null>(null);
   const loadedPath = useRef<string | null>(null);
+  const [loadedBytes, setLoadedBytes] = useState<Uint8Array | null>(null);
+  const [preparing, setPreparing] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const [pendingCopy, setPendingCopy] = useState(false);
+  const live = Boolean(realtime?.pages.length && !formalCurrent);
+  const visibleBytes = live ? realtime?.pdf ?? null : bytes;
+  const activeDoc = loadedBytes === visibleBytes ? doc : null;
+  const displayIdentity = useRef(visibleBytes); displayIdentity.current = formalCurrent ? visibleBytes : null;
+  const displayedCount = live ? realtime!.pages.length : pageCount;
+  const ready = formalCurrent && !live && !loading && loadedBytes === bytes && Boolean(doc);
+  const prepare = async (action: () => void) => {
+    if (preparing || compiling) return;
+    if (!live && formalCurrent) { action(); return; }
+    setPreparing(true);
+    try { if (await onEnsureCompiled?.() && mounted.current) action(); }
+    finally { setPreparing(false); }
+  };
+  // A new edit resumes the quiet live path. PDF tools never operate on an old text layer.
+  useEffect(() => {
+    if (formalCurrent) return;
+    setSearchOpen(false); setSelectRegion(false); setDiffMode(false); setShowThumbs(false); setPendingCopy(false);
+  }, [formalCurrent]);
+  useEffect(() => {
+    if (live && realtime?.pages[0]) setPageWidth(realtime.pages[0].width);
+  }, [live, realtime?.pages]);
+
 
   useEffect(() => {
     if (!selectRegion) return;
@@ -480,22 +517,25 @@ export function PdfPane({
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [Boolean(visibleBytes || live), loadError]);
 
   useEffect(() => {
     let cancelled = false;
-    if (!bytes || bytes.length === 0) {
+    if (!visibleBytes || visibleBytes.length === 0) {
       setDoc(null);
       setPageCount(0);
+      setLoadedBytes(null);
+      setLoading(false);
       setLoadError(null);
       return;
     }
     setLoading(true);
     setLoadError(null);
-    const sameDocument = loadedPath.current === pdfPath;
+    const sameDocument = loadedPath.current === pdfPath || loadedPath.current === null;
+    const interaction = scrollInteraction.current;
     const position = sameDocument ? { top: scrollRef.current?.scrollTop || 0, left: scrollRef.current?.scrollLeft || 0 } : { top: 0, left: 0 };
     const task = pdfjsLib.getDocument({
-      data: bytes.slice(),
+      data: visibleBytes.slice(),
       useSystemFonts: true,
       disableFontFace: false,
     });
@@ -506,14 +546,17 @@ export function PdfPane({
           return;
         }
         const firstPage = await document.getPage(1);
+        if (cancelled) return;
         const viewport = firstPage.getViewport({ scale: 1 });
         setPageWidth(viewport.width);
+        setPageHeight(viewport.height);
         setDoc(document);
+        setLoadedBytes(visibleBytes);
         setPageCount(document.numPages);
         setLoading(false);
         loadedPath.current = pdfPath;
         setCurrentPage((page) => sameDocument ? Math.min(page, document.numPages) : 1);
-        requestAnimationFrame(() => { if (!cancelled) scrollRef.current?.scrollTo({ ...position, behavior: 'auto' }); });
+        requestAnimationFrame(() => { if (!cancelled && scrollInteraction.current === interaction) scrollRef.current?.scrollTo({ ...position, behavior: 'auto' }); });
       })
       .catch((loadFailure) => {
         if (cancelled) return;
@@ -524,7 +567,7 @@ export function PdfPane({
       cancelled = true;
       void task.destroy();
     };
-  }, [bytes, pdfPath]);
+  }, [visibleBytes, pdfPath]);
 
   useEffect(() => {
     if (!previousBytes || previousBytes.length === 0) {
@@ -553,7 +596,7 @@ export function PdfPane({
 
   useEffect(() => {
     const element = scrollRef.current;
-    if (!element || !doc) return;
+    if (!element || !displayedCount) return;
     let frame = 0;
     const handleScroll = () => {
       cancelAnimationFrame(frame);
@@ -579,10 +622,10 @@ export function PdfPane({
       element.removeEventListener('scroll', handleScroll);
       cancelAnimationFrame(frame);
     };
-  }, [doc, onPageChange]);
+  }, [displayedCount, onPageChange]);
 
   useEffect(() => {
-    if (!searchOpen || !doc || query.trim().length < 2) {
+    if (!searchOpen || !ready || !doc || query.trim().length < 2) {
       setSearchHits([]);
       setSearchIndex(0);
       return;
@@ -614,17 +657,17 @@ export function PdfPane({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [searchOpen, query, doc]);
+  }, [searchOpen, query, doc, ready]);
 
   const goToPage = useCallback(
     (page: number) => {
-      const target = Math.max(1, Math.min(pageCount, page));
+      const target = Math.max(1, Math.min(displayedCount, page));
       const element = scrollRef.current?.querySelector<HTMLElement>(`[data-page="${target}"]`);
       element?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       setCurrentPage(target);
       onPageChange(target);
     },
-    [pageCount, onPageChange],
+    [displayedCount, onPageChange],
   );
 
   const zoomIn = () => {
@@ -644,16 +687,23 @@ export function PdfPane({
   };
 
   const copyPageText = async () => {
-    if (!doc) return;
+    if (!ready || !doc) return;
     const page = await doc.getPage(currentPage);
     const content = await page.getTextContent();
     const text = content.items.map((item) => ('str' in item ? item.str : '')).join(' ');
+    if (displayIdentity.current !== bytes) return;
     await navigator.clipboard?.writeText(text);
     setCopiedPage(true);
     window.setTimeout(() => setCopiedPage(false), 1200);
   };
 
-  if (!bytes || loadError) {
+  useEffect(() => {
+    if (!pendingCopy || !ready) return;
+    setPendingCopy(false);
+    void copyPageText().catch(() => setCopiedPage(false));
+  }, [pendingCopy, ready]);
+
+  if ((!visibleBytes && !live) || loadError) {
     return (
       <section className="pdf-pane" ref={pdfPaneRef}>
         <div className="pdf-toolbar">
@@ -677,11 +727,11 @@ export function PdfPane({
               <span />
             </div>
           </div>
-          {compiling ? (
+          {(compiling || realtime?.running) && !loadError ? (
             <>
               <Loader2 size={22} className="spin" />
               <h3>{t('Typesetting…')}</h3>
-              <p>{t('latexmk is compiling your project.')}</p>
+              <p>{t('You can keep writing while the page is prepared.')}</p>
             </>
           ) : loadError ? (
             <>
@@ -713,14 +763,14 @@ export function PdfPane({
           <FileText size={14} />
           <span>{t('PDF Preview')}</span>
           <span className="pdf-counter">
-            {currentPage} / {pageCount}
+            {currentPage} / {displayedCount}
           </span>
         </div>
         <div className="pdf-toolbar-actions">
           <button className="icon-btn" onClick={() => goToPage(currentPage - 1)} title={t('Previous page')} aria-label={t('Previous page')} disabled={currentPage <= 1}>
             <ChevronLeft size={14} />
           </button>
-          <button className="icon-btn" onClick={() => goToPage(currentPage + 1)} title={t('Next page')} aria-label={t('Next page')} disabled={currentPage >= pageCount}>
+          <button className="icon-btn" onClick={() => goToPage(currentPage + 1)} title={t('Next page')} aria-label={t('Next page')} disabled={currentPage >= displayedCount}>
             <ChevronRight size={14} />
           </button>
           <span className="toolbar-sep" />
@@ -742,7 +792,8 @@ export function PdfPane({
           <button
             className={`icon-btn ${showThumbs ? 'active' : ''}`}
             data-testid="pdf-thumb-toggle"
-            onClick={() => setShowThumbs((value) => !value)}
+            onClick={() => void prepare(() => setShowThumbs(value => !value))}
+            disabled={preparing || compiling}
             title={t('Page thumbnails')}
             aria-label={t('Page thumbnails')}
             aria-pressed={showThumbs}
@@ -752,7 +803,8 @@ export function PdfPane({
           <button
             className={`icon-btn ${searchOpen ? 'active' : ''}`}
             data-testid="pdf-search-toggle"
-            onClick={() => setSearchOpen((value) => !value)}
+            onClick={() => void prepare(() => setSearchOpen(value => !value))}
+            disabled={preparing || compiling}
             title={t('Search in PDF')}
             aria-label={t('Search in PDF')}
             aria-pressed={searchOpen}
@@ -763,7 +815,8 @@ export function PdfPane({
           <button
             className={`icon-btn ${selectRegion ? 'active' : ''}`}
             data-testid="pdf-region-toggle"
-            onClick={() => setSelectRegion((value) => !value)}
+            onClick={() => void prepare(() => setSelectRegion(value => !value))}
+            disabled={preparing || compiling}
             title={t('Select PDF region')}
             aria-label={t('Select PDF region')}
             aria-pressed={selectRegion}
@@ -781,7 +834,7 @@ export function PdfPane({
             </button>
             {viewMenuOpen && (
               <div className="pdf-view-popover" role="menu">
-                <button role="menuitemcheckbox" aria-checked={diffMode} onClick={() => setDiffMode((value) => !value)} disabled={!previousDoc}>
+                <button role="menuitemcheckbox" aria-checked={diffMode} onClick={() => void prepare(() => setDiffMode(value => !value))} disabled={!previousDoc || preparing || compiling}>
                   <GitCompare size={13} /> {t('Compare with previous compile')}
                 </button>
                 {diffMode && <input className="pdf-diff-opacity" type="range" min={0.15} max={0.9} step={0.05} value={diffOpacity} onChange={(event) => setDiffOpacity(Number(event.target.value))} title={t('Diff opacity')} />}
@@ -792,9 +845,9 @@ export function PdfPane({
                   <Presentation size={13} /> {t('Presentation mode')}
                 </button>
                 <span className="pdf-view-sep" />
-                <button role="menuitem" onClick={() => void copyPageText()}><Copy size={13} /> {t('Copy page text')}</button>
-                <button role="menuitem" onClick={onOpenPdf} disabled={!pdfPath}><ExternalLink size={13} /> {t('Open PDF in default viewer')}</button>
-                <button role="menuitem" onClick={onReveal} disabled={!pdfPath}><FolderOpen size={13} /> {t('Reveal PDF in Finder')}</button>
+                <button role="menuitem" onClick={() => void prepare(() => setPendingCopy(true))} disabled={preparing || compiling}><Copy size={13} /> {t('Copy page text')}</button>
+                <button role="menuitem" onClick={() => void prepare(onOpenPdf)} disabled={preparing || compiling}><ExternalLink size={13} /> {t('Open PDF in default viewer')}</button>
+                <button role="menuitem" onClick={() => void prepare(onReveal)} disabled={preparing || compiling}><FolderOpen size={13} /> {t('Reveal PDF in Finder')}</button>
               </div>
             )}
           </div>
@@ -823,13 +876,13 @@ export function PdfPane({
         </div>
       )}
       <div className="pdf-main">
-        {showThumbs && doc && (
+        {showThumbs && activeDoc && (
           <aside className="pdf-thumb-rail">
             <div className="pdf-thumb-scroll">
               {Array.from({ length: pageCount }, (_, index) => (
                 <PdfThumbnail
                   key={index + 1}
-                  doc={doc}
+                  doc={activeDoc}
                   pageNumber={index + 1}
                   active={currentPage === index + 1}
                   onClick={() => goToPage(index + 1)}
@@ -838,8 +891,8 @@ export function PdfPane({
             </div>
           </aside>
         )}
-      <div className="pdf-scroll" ref={scrollRef}>
-        {syncTarget && (
+      <div className="pdf-scroll" ref={scrollRef} onWheel={() => { scrollInteraction.current++; }} onPointerDown={() => { scrollInteraction.current++; }} onKeyDown={() => { scrollInteraction.current++; }}>
+        {formalCurrent && syncTarget && (
           <div className="pdf-sync-banner">
             <Crosshair size={12} />
             {t('Synced to page {page}', { page: syncTarget.page })}{syncTarget.sourceLine ? ` · ${t('line')} ${syncTarget.sourceLine}` : ''}
@@ -851,25 +904,34 @@ export function PdfPane({
             <span><i className="added" /> {t('Added')}</span>
           </div>
         )}
-        <div className={`pdf-pages ${spread ? 'spread' : ''}`} style={{ opacity: loading ? 0.4 : 1 }}>
-          {doc &&
+        <div onPointerDownCapture={event => {
+          if (!live && !formalCurrent && (event.metaKey || event.ctrlKey)) { event.preventDefault(); event.stopPropagation(); void prepare(() => setSelectRegion(true)); }
+        }} className={`pdf-pages ${spread ? 'spread' : ''}`} style={{ opacity: !live && loading ? 0.4 : 1 }}>
+          {live ? realtime!.pages.map(page => <RealtimePageView key={page.page} page={page} pdf={activeDoc} scale={zoom}
+            onError={setLoadError} onPrepareSource={() => void prepare(() => setSelectRegion(true))} />) : activeDoc &&
             Array.from({ length: pageCount }, (_, index) => (
               <PdfPageView
                 key={index + 1}
-                doc={doc}
+                doc={activeDoc}
                 pageNumber={index + 1}
                 scale={zoom}
-                syncTarget={syncTarget}
-                onInverse={onInverse}
+                syncTarget={formalCurrent ? syncTarget : null}
+                onInverse={(...args) => { if (ready && formalCurrent) onInverse(...args); }}
                 selectRegion={selectRegion}
                 previousDoc={previousDoc}
                 diffMode={diffMode}
                 diffOpacity={diffOpacity}
-                hotspots={hotspots}
+                hotspots={formalCurrent ? hotspots : []}
               />
             ))}
+          {!live && !activeDoc && Array.from({ length: pageCount }, (_, index) => (
+            <div className="pdf-page-shell" data-page={index + 1} key={index + 1}>
+              <div className="pdf-page-label">{t('Page {page}', { page: index + 1 })}</div>
+              <div className="pdf-page" style={{ width: pageWidth * zoom, height: pageHeight * zoom }} />
+            </div>
+          ))}
         </div>
-        {loading && (
+        {(preparing || (!live && loading)) && (
           <div className="pdf-loading-overlay">
             <Loader2 size={18} className="spin" />
             {t('Rendering pages')}

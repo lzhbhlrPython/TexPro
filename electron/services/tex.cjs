@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('node:fs');
+const { detectEngine } = require('./tex-engine.mjs');
 const path = require('node:path');
 const { spawn, execFile, execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
@@ -1556,15 +1557,6 @@ function texEnvironment(projectRoot) {
   return env;
 }
 
-function detectEngine(text, requested) {
-  const magic = text.match(/^\s*%\s*!TEX\s+program\s*=\s*(\w+)/im);
-  const value = (magic?.[1] || '').toLowerCase();
-  if (value === 'xelatex' || value === 'lualatex' || value === 'pdflatex') return value;
-  if (/\\documentclass(?:\[[^\]]*\])?\{(?:ltjs|luatexja)|\\usepackage(?:\[[^\]]*\])?\{luatexja\}/.test(text)) return 'lualatex';
-  if (/\\documentclass(?:\[[^\]]*\])?\{ctex|\\usepackage(?:\[[^\]]*\])?\{[^}]*\b(?:ctex|xeCJK|fontspec|polyglossia)\b|\\setCJKmainfont/.test(text)) return 'xelatex';
-  if (requested && ['pdflatex', 'xelatex', 'lualatex'].includes(requested)) return requested;
-  return 'pdflatex';
-}
 
 
 function cleanLogText(text) {

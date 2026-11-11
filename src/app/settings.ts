@@ -11,7 +11,6 @@ export const defaultSettings: Settings = {
   editorWidth: 760,
   engine: 'pdflatex',
   autoCompile: true,
-  realtimePreview: false,
   compileMode: 'idle',
   aiEnabled: false,
   aiApiKey: '',
@@ -34,6 +33,7 @@ export function loadSettings(): Settings {
   try {
     const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     delete stored.aiApiKey;
+    delete stored.realtimePreview; // Retired experimental UI preference.
     if (stored.theme === 'glass') stored.theme = 'paper';
     return { ...defaultSettings, ...stored, aiApiKey: '' };
   } catch {

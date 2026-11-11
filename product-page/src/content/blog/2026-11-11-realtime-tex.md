@@ -36,3 +36,5 @@ rtex-ts 高度参考 [Henry Yang 的 realtime-tex](https://github.com/HenryXiaoY
 独立包的 Linux、macOS、Windows 单元与安装包检查，以及 Linux 真实 TeX CI 已通过；本轮 TeXPro 原生与目录包验证在 macOS 进行。Windows 真实 TeX、MiKTeX 和三平台完整安装流程仍需分别验收。实时预览执行本机文档代码，不是沙箱，也不增加云端文档服务。
 
 开启步骤与限制见[实时 TeX 预览](/docs/realtime-tex)，宿主嵌入与版权分发见仓库的 `docs/realtime-tex.md` 和 `THIRD_PARTY_NOTICES.md`。中英文使用文档与桌面文案随本轮实现同步维护。
+
+> 后续修订：本篇记录首次集成时的可选双模式界面。随后按 L0 原则取消开关和模式标签，统一 PDF 操作，见[让实时排版退回写作背后](/blog/quiet-realtime-preview)。当前操作以使用文档为准。

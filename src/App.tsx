@@ -104,7 +104,6 @@ import { StatusBar } from './components/StatusBar';
 const PdfPane = lazy(() => import('./components/PdfPane').then(module => ({ default: module.PdfPane })));
 
 import { useRealtimePreview } from './hooks/useRealtimePreview';
-const RealtimePane = lazy(() => import('./components/RealtimePane').then(module => ({ default: module.RealtimePane })));
 
 import { Welcome } from './components/Welcome';
 import { CommandPalette, type PaletteAction } from './components/CommandPalette';
@@ -230,6 +229,8 @@ export default function App() {
   const renameHistory = useRef<{ items: Array<{ before: Record<string, string>; after: Record<string, string>; edits: Record<string, ChangeSet>; context: Record<string, string> }>; cursor: number }>({ items: [], cursor: 0 });
   const writingTrail = useRef<WritingPosition[]>([]);
   const compiledSources = useRef<Record<string, string>>({});
+  const currentSources = useRef<{ key: string; documents: Record<string, string> } | null>(null);
+  const publishedSources = useRef<typeof currentSources.current>(null);
   const toastId = useRef(0);
   const openRequest = useRef(0);
   const autoCompileBase = useRef('');
@@ -253,9 +254,18 @@ export default function App() {
   useEffect(() => { if (project?.root && activePath) rememberActiveFile(project.root, activePath); }, [project?.root, activePath]);
   const activeDoc = activePath ? docs[activePath] : undefined;
   const [composing, setComposing] = useState(false);
-  const [showRealtime, setShowRealtime] = useState(true);
   const realtimeFiles = useMemo(() => project ? flattenFiles(project.tree).map(file => file.path).sort().join('\0') : '', [project?.tree]);
-  const realtime = useRealtimePreview(Boolean(settings.realtimePreview && pdfOpen && showRealtime), project?.root || null, project?.rootFile || null, settings.engine, docs, composing, realtimeFiles);
+  const realtime = useRealtimePreview(pdfOpen && settings.autoCompile && settings.compileMode !== 'manual', project?.root || null, project?.rootFile || null, settings.engine, docs, composing, realtimeFiles);
+  // Keep identity across save flags, but invalidate closed/reopened buffers and engine changes too.
+  useMemo(() => {
+    const key = [project?.root, project?.rootFile, settings.engine, realtimeFiles].join('\0');
+    const documents = Object.fromEntries(Object.values(docs).map(doc => [doc.path, doc.content]));
+    const previous = currentSources.current;
+    if (!previous || previous.key !== key || Object.keys(previous.documents).length !== Object.keys(documents).length || Object.entries(documents).some(([path, text]) => previous.documents[path] !== text)) {
+      currentSources.current = { key, documents };
+    }
+  }, [docs, project?.root, project?.rootFile, settings.engine, realtimeFiles]);
+  const pdfCurrent = Boolean(pdfBytes && publishedSources.current === currentSources.current);
   useEffect(() => { setComposing(false); }, [activePath]);
   const deferredContent = useDeferredValue(activeDoc?.content || '');
 
@@ -894,6 +904,7 @@ export default function App() {
         pushToast(tr('Choose main file'), 'error', compileProject.rootError || undefined);
         return;
       }
+      const publication = currentSources.current;
       const sourceSnapshot = Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content]));
       const result = await window.texpro.compile({
         projectRoot: currentProject.root,
@@ -914,6 +925,8 @@ export default function App() {
         const bytes = await window.texpro.readPdf(result.pdfPath);
         if (generation !== projectGeneration.current || compileRunId.current !== runId) return;
         if (pdfBytesRef.current?.length) setPreviousPdfBytes(pdfBytesRef.current);
+        publishedSources.current = publication;
+        pdfBytesRef.current = bytes;
         setPdfBytes(bytes);
         setPdfPath(result.pdfPath);
         pdfPathRef.current = result.pdfPath;
@@ -940,6 +953,15 @@ export default function App() {
       }
     }
   }, [pushToast, saveAll]);
+
+  const ensureCompiled = useCallback(async () => {
+    if (compilingRef.current || closingProject.current) return false;
+    const generation = projectGeneration.current;
+    const current = () => Boolean(pdfBytesRef.current && publishedSources.current && publishedSources.current === currentSources.current);
+    if (current()) return true;
+    await runCompile();
+    return generation === projectGeneration.current && current();
+  }, [runCompile]);
 
   const handleCloseProject = useCallback(async () => {
     if (!projectRef.current || closingProject.current) return;
@@ -1040,16 +1062,16 @@ export default function App() {
   );
 
   const manualForwardSync = useCallback(() => {
-    void forwardSync(cursorRef.current.line, cursorRef.current.column, false);
-  }, [forwardSync]);
+    void ensureCompiled().then(ready => { if (ready) void forwardSync(cursorRef.current.line, cursorRef.current.column, false); });
+  }, [forwardSync, ensureCompiled]);
 
   useEffect(() => {
-    if (!settings.followCursor || !pdfOpen || !pdfPath || !activePath || compiling) return;
+    if (!pdfCurrent || !settings.followCursor || !pdfOpen || !pdfPath || !activePath || compiling) return;
     const timer = window.setTimeout(() => {
-      void forwardSync(cursor.line, cursor.column, true);
+      if (document.activeElement?.closest('.cm-editor')) void forwardSync(cursor.line, cursor.column, true);
     }, 650);
     return () => window.clearTimeout(timer);
-  }, [cursor.line, cursor.column, settings.followCursor, pdfOpen, pdfPath, activePath, compiling, forwardSync]);
+  }, [cursor.line, cursor.column, settings.followCursor, pdfOpen, pdfPath, activePath, compiling, forwardSync, pdfCurrent]);
 
   useEffect(() => {
     if (realtime.running || !settings.autoCompile || settings.compileMode === 'manual' || !activeDoc) return;
@@ -1116,11 +1138,11 @@ export default function App() {
 
   useEffect(() => {
     if (!project || pdfBytes || compiling || demoCompileAttempted.current) return;
-    if (project.name !== 'demo-project') return;
+    if (project.name !== 'demo-project' || realtime.running || !settings.autoCompile || settings.compileMode === 'manual' || (settings.compileMode === 'pdfOpen' && !pdfOpen)) return;
     demoCompileAttempted.current = true;
     const timer = window.setTimeout(() => void runCompile(), 1100);
     return () => window.clearTimeout(timer);
-  }, [project, pdfBytes, compiling, runCompile]);
+  }, [project, pdfBytes, compiling, runCompile, realtime.running, settings.autoCompile, settings.compileMode, pdfOpen]);
 
   const gotoLocation = useCallback(
     async (file: string | undefined, line: number, column?: number, flash = false, endLine?: number, select = false) => {
@@ -2412,7 +2434,9 @@ export default function App() {
 
   moreActionsRef.current = moreActions;
 
-  const activeDiagnostics = diagnostics;
+  const activeDiagnostics = useMemo<Diagnostic[]>(() => [...diagnostics, ...realtime.diagnostics.map(item => ({
+    ...item, severity: (item.severity === 'error' || item.severity === 'warning' ? item.severity : 'info') as Diagnostic['severity'], source: 'rtex-ts',
+  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: t('References have not converged'), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${t('Preview acceleration unavailable; regular compilation remains available.')} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
   const errors = activeDiagnostics.filter((item) => item.severity === 'error').length;
 
   return (
@@ -2566,12 +2590,10 @@ export default function App() {
 
           {pdfOpen && (
             <Suspense fallback={<aside className="editor-loading" role="status">{t('Opening PDF preview…')}</aside>}>
-            <div className={settings.realtimePreview ? 'pdf-pane realtime-shell' : 'preview-standard'}>
-            {settings.realtimePreview && <div className="preview-switch" role="group" aria-label={t('Preview mode')}>
-              <button aria-pressed={showRealtime} onClick={() => setShowRealtime(true)}>{t('Realtime TeX preview')}</button>
-              <button aria-pressed={!showRealtime} onClick={() => setShowRealtime(false)}>{t('Compiled PDF')}</button>
-            </div>}
-            {settings.realtimePreview && showRealtime ? <RealtimePane preview={realtime} /> : <PdfPane
+            <PdfPane
+              realtime={realtime}
+              formalCurrent={pdfCurrent}
+              onEnsureCompiled={ensureCompiled}
               bytes={pdfBytes}
               previousBytes={previousPdfBytes}
               pdfPath={pdfPath}
@@ -2584,15 +2606,15 @@ export default function App() {
               onOpenPdf={openPdf}
               onReveal={revealPdf}
               onPageChange={setPage}
-            />}
-            </div></Suspense>
+            />
+            </Suspense>
           )}
         </div>
       )}
 
       {project && (
         <StatusBar
-          compileResult={compileResult}
+          compileResult={compileResult?.ok && !pdfCurrent ? null : compileResult}
           compiling={compiling}
           cursor={cursor}
           words={stats.words}

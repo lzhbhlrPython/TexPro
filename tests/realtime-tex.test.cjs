@@ -67,6 +67,9 @@ test('host keeps only the newest buffered update until the worker acknowledges',
   assert.throws(() => host.update([{ path: 'main.tex', text: 'x'.repeat(4 * 1024 * 1024 + 1) }]));
 });
 test('host rejects a non-LuaLaTeX main file before starting a TeX process', async t => {
+  const { detectEngine } = await import('../electron/services/tex-engine.mjs');
+  assert.equal(detectEngine('% !TeX program = lualatex\n\\documentclass{ctexart}', 'pdflatex'), 'lualatex');
+  assert.equal(detectEngine('\\documentclass{ctexart}', 'lualatex'), 'xelatex');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-realtime-engine-'));
   const file = path.join(root, 'main.tex'), text = '\\documentclass{article}\n\\begin{document}Text.\\end{document}';
   fs.writeFileSync(file, text);

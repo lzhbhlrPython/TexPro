@@ -12,6 +12,23 @@ The root DESIGN.md is the design-language reference. It contains YAML tokens and
 
 It records TeXPro's existing paper identity. It does not require a Material component-library migration or a switch to Roboto. Separate design requirements from verified compliance of existing interfaces.
 
+## Choose interaction scope by task
+
+Interface complexity should match task complexity rather than feature count. Before implementation, state the task, level, suitability of existing spaces, justification for a new page and risk of duplicate entry points.
+
+| Level | Surface |
+| --- | --- |
+| L0 invisible enhancement | Internal automatic work with no new interface; realtime TeX belongs here |
+| L1 in-place enhancement | Editor, preview, completion, diagnostics or existing contextual actions |
+| L2 on-demand tool | Existing dialog, sidebar, Studio or tool view |
+| L3 independent workspace | A page or workbench for a complete independent workflow |
+
+Choose the lowest level that fully supports the task, preserving clarity, efficiency and usability. Independent workflows, large canvases, persistent multi-stage state, different focused contexts or an overcrowded existing surface can justify a page with a clear responsibility. Importance or implementation complexity alone cannot.
+
+Simple status, extra button options, capabilities naturally belonging to saving or preview, and duplicate tools stay in existing spaces. Reveal complexity when needed, restore writing context on exit, and keep necessary errors visible. Do not require a new page for an already fluent operation.
+
+Reuse visual language, routes, focus management, state and undo. Realtime preview uses the existing PDF toolbar, accelerates automatically and prepares formal results for inspection without asking authors to understand rendering modes. The full page decision and validation policy is in AGENTS.md.
+
 ## Principles
 
 Writing remains central and tools recede. Math, tables, music, circuits and structural formulas share one writing flow. Source remains accessible and visualization assists. Ordinary edits must not depend on studios, modals or completion buttons. Assistance preserves the file, caret, selection, scroll, IME and undo.

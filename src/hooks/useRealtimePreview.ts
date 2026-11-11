@@ -1,27 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { detectEngine } from '../../electron/services/tex-engine.mjs';
 import type { Engine, OpenDoc } from '../types';
 import type { RealtimeEvent, RealtimePage } from '../lib/realtimeTypes';
 
+const EMPTY_PAGES: RealtimePage[] = [];
+const EMPTY_DIAGNOSTICS: NonNullable<RealtimeEvent['diagnostics']> = [];
+
+/** An internal acceleration path of the existing preview, with no user mode. */
 export function useRealtimePreview(enabled: boolean, root: string | null, rootFile: string | null, engine: Engine, docs: Record<string, OpenDoc>, composing: boolean, projectFiles = '') {
-  const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState('Starting');
   const [error, setError] = useState('');
   const [pages, setPages] = useState<RealtimePage[]>([]);
   const [pdf, setPdf] = useState<Uint8Array | null>(null);
   const [diagnostics, setDiagnostics] = useState<NonNullable<RealtimeEvent['diagnostics']>>([]);
+  const [diskMain, setDiskMain] = useState<{ path: string; text: string } | null>(null);
   const session = useRef<string | null>(null);
   const docsRef = useRef(docs); docsRef.current = docs;
-  // A closed, renamed or deleted buffer may still exist in the engine snapshot.
+  const committedDocs = useRef(docs);
+  const composingRef = useRef(composing); composingRef.current = composing;
+  if (!composing) committedDocs.current = docs;
+  const sourceDocs = composing ? committedDocs.current : docs;
+  const mainText = rootFile ? sourceDocs[rootFile]?.content ?? (diskMain?.path === rootFile ? diskMain.text : undefined) : undefined;
+  const selectedEngine = useMemo(() => mainText === undefined ? null : detectEngine(mainText, engine), [mainText, engine]);
+  const eligible = enabled && Boolean(root && rootFile) && selectedEngine === 'lualatex';
+  // Closed or removed buffers must also leave the engine snapshot.
   const documentPaths = Object.keys(docs).sort().join('\0');
-  const snapshot = () => Object.values(docsRef.current).filter(doc => /\.(tex|ltx)$/i.test(doc.path)).map(doc => ({ path: doc.path, text: doc.content }));
+  const owner = [root, rootFile, engine].join('\0');
+  const dataOwner = useRef('');
+  const snapshot = () => Object.values(composingRef.current ? committedDocs.current : docsRef.current).filter(doc => /\.(tex|ltx)$/i.test(doc.path)).map(doc => ({ path: doc.path, text: doc.content }));
   useEffect(() => {
-    setPages([]); setPdf(null); setError(''); setDiagnostics([]); setState('Starting');
-    if (!enabled || !root || !rootFile) return;
+    if (!enabled || !rootFile || docsRef.current[rootFile]) return;
+    let cancelled = false;
+    void window.texpro.readFile(rootFile).then(text => { if (!cancelled) setDiskMain({ path: rootFile, text }); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [enabled, root, rootFile, documentPaths, projectFiles]);
+  useEffect(() => {
+    if (dataOwner.current !== owner || !eligible) { setPages([]); setPdf(null); }
+    dataOwner.current = owner;
+    setError(''); setDiagnostics([]); setState('Starting');
+    if (!eligible || !root || !rootFile) return;
     const id = crypto.randomUUID(); session.current = id;
     const unsubscribe = window.texpro.onRealtime(event => {
       if (event.sessionId !== id || session.current !== id) return;
       if (event.error || event.kind === 'error') { setError(event.error || 'Realtime preview unavailable'); setState('Failed'); }
-      if (event.state) setState(event.partial ? 'Partial' : event.state);
+      else if (event.state) setState(event.partial ? 'Partial' : event.state);
       if (event.kind === 'diagnostics') setDiagnostics(event.diagnostics || []);
       if (event.pages) setPages(previous => {
         const next = new Map(previous.map(page => [page.page, page]));
@@ -30,15 +52,14 @@ export function useRealtimePreview(enabled: boolean, root: string | null, rootFi
         return [...next.values()].sort((a, b) => a.page - b.page);
       });
       if (event.pdf) { setPdf(event.pdf); setError(''); }
-      if (event.state === 'Ready') setError('');
     });
     void window.texpro.startRealtime({ root, engine, sessionId: id, documents: snapshot() }).then(() => {
       if (session.current === id) return window.texpro.updateRealtime(id, snapshot());
     }).catch(failure => { if (session.current === id) { setError(String(failure)); setState('Failed'); } });
     return () => { session.current = null; unsubscribe(); void window.texpro.stopRealtime(id).catch(() => {}); };
-  }, [enabled, root, rootFile, engine, attempt, documentPaths, projectFiles]);
+  }, [eligible, root, rootFile, engine, documentPaths, projectFiles]);
   useEffect(() => {
-    if (!enabled || composing || !session.current) return;
+    if (!eligible || composing || !session.current || state === 'Failed') return;
     const id = session.current;
     const timer = setTimeout(() => {
       void window.texpro.updateRealtime(id, snapshot()).catch(failure => {
@@ -46,6 +67,7 @@ export function useRealtimePreview(enabled: boolean, root: string | null, rootFi
       });
     }, 35);
     return () => clearTimeout(timer);
-  }, [docs, enabled, composing, attempt]);
-  return { state, error, pages, pdf, diagnostics, retry: () => setAttempt(value => value + 1), running: enabled && state !== 'Failed' };
+  }, [docs, eligible, composing]);
+  const current = eligible && dataOwner.current === owner;
+  return { state, error: current ? error : '', pages: current ? pages : EMPTY_PAGES, pdf: current ? pdf : null, diagnostics: current ? diagnostics : EMPTY_DIAGNOSTICS, running: eligible && state !== 'Failed' };
 }

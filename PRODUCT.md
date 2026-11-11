@@ -57,6 +57,10 @@ Confirmed capabilities include:
 - Git-first versioning: when a project has a Git repository, internal snapshot creation is suspended.
 - Compile Theater, MCP Crew, Writing Room presence, Plugin Market, Paper as API, Referee Mode, and Zero-interface mode are first-class workflows.
 
+Interaction complexity follows the task rather than the number of features. Choose the lowest level that fully serves it: L0 internal enhancement, L1 in-place interaction, L2 on-demand tool, or L3 independent workspace. Complex independent workflows may justify a dedicated page or large canvas when existing spaces cannot reasonably hold them; reuse navigation, focus, visual language, state and undo. Ordinary writing stays quiet and tools restore its context. Necessary errors remain visible. State this decision before implementation; see AGENTS.md for page criteria.
+
+Realtime TeX preview is L0: eligible LuaLaTeX projects automatically use rtex-ts inside the existing PDF pane, with one toolbar, zoom and scroll state. Authors do not select an engine-specific preview mode. PDF inspection prepares a matching formal build when necessary; source editing resumes live updates.
+
 Durable constraints confirmed by the user:
 
 - **Writing comes first:** every interaction must serve continuous writing. Learn from Typora's editing behavior, not only its paper appearance. This applies equally to prose, formulas, tables, music, circuit diagrams, logic gates, chemical structural formulas, skeletal formulas, and other document content. Visualization is auxiliary; ordinary content entry and revision must not require a studio, configuration form, or apply/finish ceremony. This is a product requirement for future changes, not a claim that every existing interaction already meets it.

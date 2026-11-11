@@ -21,6 +21,19 @@
       ]
     },
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview",
+      "title": "让实时排版退回写作背后：一次 L0 交互修订",
+      "summary": "移除实时预览的独立开关、模式标签和状态栏，让 rtex-ts 成为现有 PDF 预览的内部增强。",
+      "content_text": "移除实时预览的独立开关、模式标签和状态栏，让 rtex-ts 成为现有 PDF 预览的内部增强。",
+      "date_published": "2026-11-10T16:00:00.000Z",
+      "tags": [
+        "[\"编辑器\"",
+        "\"实时预览\"",
+        "\"交互设计\"]"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/placeholders-and-memos",
       "title": "缺一张图，也可以把这一段写完",
