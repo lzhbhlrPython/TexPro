@@ -1,0 +1,10 @@
+{
+  "name": "@texpro/extension-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public extension contracts for TeXPro API 1; local distribution preview",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "main": "index.cjs",
+  "files": ["index.cjs", "index.d.ts", "LICENSE", "README.md"]
+}
