@@ -1350,6 +1350,8 @@ Nightly 每日 Asia/Shanghai 21:23（UTC 13:23，cron `23 13 * * *`）检查 mai
 
 Nightly 与正式版共用 `_release-build.yml`：固定源码 SHA 和版本，运行完整回归（零跳过／TODO）、类型检查与构建，再分别打包 macOS universal DMG／ZIP、Windows x64 NSIS／portable／ZIP、Linux x64 AppImage／deb／rpm。打包器使用 `--publish never`，保留打包前和真实 ASAR 后校验。三平台均成功后，Nightly 上传草稿、更新当天日期标签并公开预发布，再刷新官网。所有发布共用 `texpro-release` 排队锁，不取消正在发布的版本。
 
+共享 Ubuntu 测试任务先安装 latexmk、pdfLaTeX／XeLaTeX／LuaLaTeX 和 CTeX/Fandol，真实编译用例才具备运行条件；缺少引擎时应失败，不能跳过。
+
 ## 手动发布正式版本
 
 在 Actions 选择 **Release major**、**Release minor** 或 **Release patch**，选择 main 并运行。它们分别产生 X+1.0.0、X.Y+1.0、X.Y.Z+1，复用 `_release-stable.yml`，不会直接发布 npm SDK。

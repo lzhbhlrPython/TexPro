@@ -19,6 +19,8 @@ git log -5 --oneline
 
 CI 使用 Node.js 22；根目录使用 npm 和 `package-lock.json`。本机 TeX 编译需要 TeX Live／MacTeX 中的 `latexmk`、所选引擎及 `synctex`。编辑器与文档站构建不等于 TeX 编译验证。
 
+共享发布测试任务显式安装 `latexmk`、pdfLaTeX／XeLaTeX／LuaLaTeX 与 CTeX/Fandol（Ubuntu 的 texlive-xetex、texlive-luatex、texlive-lang-chinese、texlive-latex-extra），然后执行完整基线。GitHub 的标准 Node runner 不保证提供 TeX；缺少引擎必须补齐环境，不能跳过真实编译用例。
+
 ```sh
 npm ci
 npm run dev

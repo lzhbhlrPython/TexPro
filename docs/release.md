@@ -17,3 +17,5 @@ Nightly 每日上海时间 21:23 检查相对上一次成功公开、含资产�
 ## 验证
 
 `tests/stable-release.test.cjs` 使用临时裸 Git 远端验证原子提交／标签、同次重试、main 前进拒绝和独立包版本保留，以模拟 GitHub 响应验证草稿上传失败不会公开。`tests/nightly.test.cjs` 验证成功基线选择与提交范围；`tests/product-page-release.test.cjs` 验证准确版本、分页及失败回退。工作流另做 YAML 与 actionlint 检查；本地测试不等于远端三平台安装验收。
+
+共享测试任务先安装三种 TeX 引擎、CTeX/Fandol 和所需宏包，再运行基线中的真实编译。首次远端运行发现标准 Ubuntu runner 缺少 pdflatex，发布被测试闸门阻止；应补齐工具链而非删除或跳过用例。

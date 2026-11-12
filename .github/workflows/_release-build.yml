@@ -22,6 +22,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Install TeX engines for the complete baseline
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-xetex texlive-luatex texlive-lang-chinese texlive-latex-extra
       - run: npm ci
       - name: Stamp tested version
         env:

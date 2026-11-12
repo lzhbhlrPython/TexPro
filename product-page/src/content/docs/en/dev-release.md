@@ -60,6 +60,8 @@ Nightly checks main daily at 21:23 Asia/Shanghai (13:23 UTC, cron `23 13 * * *`)
 
 Nightly and stable releases share `_release-build.yml`: pin the source SHA and version, run the full regression baseline with zero skips/TODOs, typecheck and build, then package macOS universal DMG/ZIP, Windows x64 NSIS/portable/ZIP and Linux x64 AppImage/deb/rpm. Builders use `--publish never`, retaining pre-pack and actual ASAR verification. Only after all platforms succeed does Nightly upload a draft, update its dated tag, publish the prerelease and refresh the website. All release workflows share the `texpro-release` queue without cancelling an active release.
 
+The shared Ubuntu test job first installs latexmk, pdfLaTeX/XeLaTeX/LuaLaTeX and CTeX/Fandol for actual compilation. Missing engines must fail the baseline rather than skip its compile tests.
+
 ## Publish a stable version manually
 
 In Actions choose **Release major**, **Release minor** or **Release patch**, select main and run. They produce X+1.0.0, X.Y+1.0 or X.Y.Z+1 through `_release-stable.yml`. They do not publish the npm SDK.
