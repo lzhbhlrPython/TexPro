@@ -1,25 +1,28 @@
 # @gardenialiu/qwertysay
 
-作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。当前源码是 **`0.2.0-dev.0`，未发布**；npm 上已验证的 `0.1.0` 保留原有 TS／JS／CSS 脚手架，不包含下述新构建能力。本轮不执行发布、部署或发布认证。
+作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.2.0`** 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
 
 [English](README.md)
 
-## 从源码使用
+## 创建扩展
 
-在 TeXPro 检出中执行 `npm ci`，然后使用本地 CLI：
+使用固定版本的 qwertysay：
 
 ```sh
-node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
 ```
 
-进入生成目录，同时安装同一检出的本地 SDK 与脚手架，避免从 npm 请求尚未发布的开发版本：
+进入生成目录，安装依赖并明确执行构建：
 
 ```sh
-npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+cd my-plugin
+npm install
 npm run build
 npm run check:extension
 npm run pack:extension
 ```
+
+维护源码时，在 TeXPro 中执行 `npm ci`，使用本地 CLI，并在生成工程中同时安装同一检出的 SDK 与脚手架路径。
 
 默认 `--type plugin --language ts`。主题示例：`--type theme --style tcss`。开发时加载 **`dist/package`**，检查、安装停用快照并明确启用。插件分发为 `.tpp`，主题分发为 `.tpt`；源码后缀和运行入口后缀不等于安装包后缀，两种安装包内部均为受限 ZIP，不能直接使用 `.zip` 安装。
 

@@ -13,7 +13,7 @@ The independent npm SDK `@gardenialiu/texpro-extension-sdk` provides API 1 contr
 The design draws on Koishi's disposable lifecycle and service organization. TeXPro implements its own protocol and includes no Koishi runtime, console source or market service. Koishi plugin formats are not compatible. New TeXPro code and examples are MIT; third-party materials retain their own licenses.
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
 cd my-plugin
 npm install
 npm run build
@@ -21,18 +21,18 @@ npm run check:extension
 npm run pack:extension
 ```
 
-TypeScript is the default. Use `--language js` to omit the build step, or `--type theme` for themes. Output is outside the source directory and never overwrites files. The CLI does not install dependencies, access networks or execute extensions; `npx` may download the SDK. Use `qwertysay check` for directories/archives and `qwertysay pack` to package them.
+TypeScript is the default. Use `--language js` for JavaScript or `--type theme` for themes; all new projects build explicitly. Output is outside the source directory and never overwrites files. Init/check/pack do not install dependencies, access networks or execute extensions. Explicit build runs trusted compiler/project code and may download dependencies; `npx` may download tools. Use `qwertysay check` for directories/archives and `qwertysay pack` to package them.
 
 ## npm releases
 
-Both packages were first published on 2026-11-12 by Baolin Liu (gardenialiu), under MIT:
+Version 0.1.0 was first published on 2026-11-12. Current version 0.2.0 adds multilingual builds; both packages are authored by Baolin Liu (gardenialiu), under MIT:
 
 | npm package | Version | Responsibility |
 | --- | --- | --- |
-| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.1.0 | API 1 types and shared validation core |
-| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.1.0 | qwertysay scaffolding, validation and packaging |
+| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.2.0 | API 1 types and shared validation core |
+| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.2.0 | qwertysay scaffolding, validation and packaging |
 
-Registry versions and integrity digests match the tested tarballs. Independent registry installs verified TypeScript, JavaScript and theme scaffolds, compilation, archives and rejection paths. Published developer tooling does not imply a public plugin marketplace; extension artifacts are still shared manually.
+Release verification checks registry versions and integrity digests against tested tarballs, then independently installs the registry packages to verify TypeScript, JavaScript and theme scaffolds, compilation, archives and rejection paths. Published developer tooling does not imply a public plugin marketplace; extension artifacts are still shared manually.
 
 ## Format and handlers
 
@@ -74,18 +74,19 @@ L3 workspaces share host navigation and focus recovery. macOS navigation reserve
 
 Packages use `.tpp` for plugins and `.tpt` for themes (both are ZIP containers). A `.tpt` contains only theme configuration, CSS and assets, with no executable entry, actions or other plugin contributions. Renaming a code package to `.tpt` is rejected; file suffixes are not a safety certification.
 
-## Language and theme compilation (unreleased source)
+## Language and theme compilation
 
-The current source version is `0.2.0-dev.0`. Published npm `0.1.0` retains the original TS/JS/CSS scaffolds and does not provide these new features. Publication, deployment and publication authentication are paused. Use the local CLI and install both matching local package paths from one checkout.
+SDK/qwertysay `0.2.0` provides the following build features while retaining API version 1. Version `0.1.0` contains the original TS/JS/CSS scaffolds.
 
 ```sh
-node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
 ```
 
-In the generated project, install the matching development packages; do not request an unpublished version from npm:
+In the generated project, install dependencies and build explicitly:
 
 ```sh
-npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+cd my-plugin
+npm install
 npm run build
 npm run check:extension
 npm run pack:extension

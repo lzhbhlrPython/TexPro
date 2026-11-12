@@ -5,7 +5,7 @@ description: Develop, debug, package, and review TeXPro local extensions and the
 
 # TeXPro extension development
 
-Build against the checked-out TeXPro contracts. Use `@gardenialiu/texpro-extension-sdk` for public API 1 types and `@gardenialiu/qwertysay` for offline scaffolding/check/pack. The verified first release of both packages is 0.1.0 (2026-11-12). Pin verified releases for npm use. The source-only 0.2.0-dev.0 authoring expansion is unreleased; use matching local SDK/CLI paths together, not an invented npm release. Read docs/extension-authoring.md for compiler/build/bridge work. Find the TeXPro repository for host work; do not guess internal contracts. Source is maintained in `packages/extension-sdk`, independently of Electron.
+Build against the checked-out TeXPro contracts. Use `@gardenialiu/texpro-extension-sdk` for public API 1 types and `@gardenialiu/qwertysay` for offline scaffolding/check/pack. Version 0.2.0 includes multilingual builds and static theme compilation; API version remains 1. Pin matching SDK/CLI releases for npm use, or install matching local paths together for source development. Read docs/extension-authoring.md for compiler/build/bridge work. Find the TeXPro repository for host work; do not guess internal contracts. Source is maintained in `packages/extension-sdk`, independently of Electron.
 
 ## Establish the contract
 
@@ -15,7 +15,7 @@ Classify the author task as L0–L3. Rendering stays L0; ordinary writing stays 
 
 ## Implement a local package
 
-1. Start with `npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init <directory> --id author.name --author "Your name"`; This 0.1.0 command uses the published original scaffold. For the unreleased multi-language/static-style builder, use the local CLI and read [build and bridge checks](references/build-and-bridge.md). Install/build explicitly as documented; the CLI never does this automatically. Create `texpro.extension.json` with API version 1, a namespaced lowercase id, bilingual names, author, semantic version, license, and only the required capabilities. Include LICENSE.
+1. Start with `npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init <directory> --id author.name --author "Your name"`; for multilingual/static-style builds, read [build and bridge checks](references/build-and-bridge.md). Install/build explicitly as documented; the CLI never does this automatically. Create `texpro.extension.json` with API version 1, a namespaced lowercase id, bilingual names, author, semantic version, license, and only the required capabilities. Include LICENSE.
 2. Prefer data-only completions, templates, snippets and theme tokens when sufficient. Theme colors use allowlisted 6/8-digit hex tokens. Font families, bounded dimensions and optional package CSS/local assets are supported; read the current theme contract in `docs/extension-development.md`. Declare `theme.styles` for CSS, explain spoofing/hidden-control risks, and test native recovery and `--safe-mode`. No remote assets or JavaScript theme injection.
 3. For code, provide a self-contained `.cjs` or `.mjs` entry with `activate(ctx)`. Register only declared action ids via `ctx.handle()`. Clean up external effects through `ctx.onDispose()` or the returned disposer. Do not depend on install scripts, native binaries, runtime npm installation, or an existing node_modules directory.
 4. Return serializable results. Use checked edit proposals for document changes. Preserve UTF-16 positions; never mutate the editor DOM or replace all source to perform a local edit.

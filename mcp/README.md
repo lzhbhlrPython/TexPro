@@ -80,12 +80,12 @@ The test starts the real stdio server against `demo/`, performs initialize, tool
 
 These tools operate on **saved files**, not unsaved editor buffers. Save before handing work to an external client and review external changes when returning. Unresolved placeholders produce draft compile warnings and block arXiv submission packaging. Memos are `% MEMO:` / `% MEMO-DONE:` source comments and never enter the PDF.
 
-## Extension authoring inspection (unreleased source)
+## Extension authoring inspection
 
 `texpro_extension_capabilities` returns the SDK's shared language/style catalog, `.tpp`/`.tpt` suffixes and trust boundaries without requiring an open project. `texpro_inspect_extension` accepts `{ "path": "extensions/example.tpp" }` or a project-relative **built** directory such as `extensions/example/dist/package`. It returns the validated manifest, SHA-256, package kind, file count, size and risk notices. Absolute/outside paths and symlink escapes are rejected. Inspection never imports an entry, compiles sources, installs, trusts, enables or invokes a plugin. Use the actual built directory; author sources such as `.purs`, `.elm` or `.tcss` are not installable packages.
 
 The manifest's `mcp` action remains an experimental in-app provider, not automatic external `tools/list` registration. A future bridge could add explicitly enabled tool allowlists, stable schemas, cancellation and hash-guarded edit proposals; these invocation features are not implemented by the inspection tools. The standalone server reads disk, not unsaved editor buffers.
 
-The new source SDK/CLI is `0.2.0-dev.0`, not a published npm release. Public `0.1.0` does not contain this authoring expansion. See [the authoring contract](../docs/extension-authoring.md). Normal Node execution outside ASAR also requires the shared SDK validation modules and the complete PostCSS dependency closure; unpack patterns and dependency checks are maintained alongside these imports.
+SDK/CLI `0.2.0` provides this authoring expansion; `0.1.0` contains the original scaffolds. See [the authoring contract](../docs/extension-authoring.md). Normal Node execution outside ASAR also requires the shared SDK validation modules and the complete PostCSS dependency closure; unpack patterns and dependency checks are maintained alongside these imports.
 
 Test the real inspection protocol and non-execution/path boundaries with `node --test tests/mcp-extensions.test.cjs`. This supplements `npm run test:mcp`; neither test publishes or deploys anything.

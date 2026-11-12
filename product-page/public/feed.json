@@ -25,8 +25,8 @@
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes",
       "title": "多语言插件与静态主题：把作者工具和宿主运行时分开",
-      "summary": "扩展 SDK 与 qwertysay 的源码开发版加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程，新能力尚未发布。",
-      "content_text": "扩展 SDK 与 qwertysay 的源码开发版加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程，新能力尚未发布。",
+      "summary": "扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。",
+      "content_text": "扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。",
       "date_published": "2026-11-11T16:00:00.000Z",
       "tags": [
         "[扩展",

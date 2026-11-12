@@ -1,25 +1,26 @@
 # 多语言插件与主题构建
 
-本文对应源码开发版本 `0.2.0-dev.0`，**未发布**。npm 上已验证的 SDK／qwertysay `0.1.0` 只提供原有 TS／JS／CSS 脚手架；不要把本文命令替换成不存在的 npm 新版本。发布、部署与发布认证已暂停。本轮工作不新增桌面页面：语言与样式在开发时编译，安装仍使用既有扩展管理。
+本文对应 SDK／qwertysay `0.2.0`，API 版本仍为 1。`0.1.0` 只提供原有 TS／JS／CSS 脚手架。本轮工作不新增桌面页面：语言与样式在开发时编译，安装仍使用既有扩展管理。
 
-## 本地使用
+## 使用 npm 工具
 
-在 TeXPro 检出中运行 `npm ci`，使用本地 CLI：
+使用固定版本的 CLI 创建工程：
 
 ```sh
-node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
 ```
 
-进入生成目录，先把同一检出的两项开发依赖同时指向本地源码，再构建：
+进入生成目录，安装模板声明的依赖后构建：
 
 ```sh
-npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+cd my-plugin
+npm install
 npm run build
 npm run check:extension
 npm run pack:extension
 ```
 
-本地路径按实际位置替换。只安装其中一个包会使另一个开发版本尝试从 npm 解析而失败。初始化不安装依赖；`check`、`pack`、安装包检查和 MCP 检查都不执行构建代码。只有明确执行 `build` 才启动开发者信任的编译器及工程配置；工具链可能下载 npm、PureScript、Elm、Maven 或 Go 依赖。不要构建不可信的来源。
+维护源码时可在 TeXPro 检出中运行 `npm ci`，再使用本地 CLI；生成工程中以一次 `npm install --save-dev` 同时安装两个本地包路径，避免混用检出版本和注册表版本。初始化不安装依赖；`check`、`pack`、安装包检查和 MCP 检查都不执行构建代码。只有明确执行 `build` 才启动开发者信任的编译器及工程配置；工具链可能下载 npm、PureScript、Elm、Maven 或 Go 依赖。不要构建不可信的来源。
 
 ## 插件语言与后缀
 

@@ -177,8 +177,8 @@ The parameter names of `texpro_*` tools are a stable interface — renaming a pa
 
 Newly added: `texpro_writing_aids`, `texpro_edit_writing_aid`, and `texpro_ctex_typography`, used respectively to list placeholders and revision memos, to protect edits by hash, and to preview the Chinese typesetting of the root file. For full usage see [Placeholders and revision memos](/docs/writing-aids) and [CTeX Chinese typesetting](/docs/ctex-typography). These tools operate on saved files and never read an unsaved editor buffer.
 
-## Read-only extension authoring inspection (unreleased source)
+## Read-only extension authoring inspection
 
 `texpro_extension_capabilities` reports plugin languages, theme styles, toolchains and `.tpp`/`.tpt` artifact suffixes without an open project. `texpro_inspect_extension` accepts a built directory or artifact inside the current project, e.g. `{"path":"extensions/example/dist/package"}`. It returns the manifest, digest, size and risk notices, rejecting outside paths and symlink escapes. It never builds, imports an entry, installs, trusts, enables or invokes a plugin.
 
-Experimental manifest `mcp` actions still do not become external tools automatically. Controlled invocation can be developed further with explicit enabling and tool allowlists. The standalone service reads disk, not unsaved buffers. New authoring features are unreleased and distinct from npm `0.1.0`; see [extension development](/docs/extension-development).
+Experimental manifest `mcp` actions still do not become external tools automatically. Controlled invocation can be developed further with explicit enabling and tool allowlists. The standalone service reads disk, not unsaved buffers. Authoring builds use SDK/qwertysay `0.2.0`, distinct from the original `0.1.0`; see [extension development](/docs/extension-development).

@@ -53,6 +53,6 @@ The local extension lifecycle and service organization draw conceptual inspirati
 
 Theme styles are parsed using [PostCSS](https://github.com/postcss/postcss), MIT, Copyright (c) 2013 Andrey Sitnik, and [postcss-value-parser](https://github.com/TrySound/postcss-value-parser), MIT, Copyright (c) Bogdan Chadkin. The complete notices supplied in each distributed dependency are retained. Parsing and resource restrictions do not constitute a CSS or Node security sandbox.
 
-## Extension authoring toolchains (unreleased source)
+## Extension authoring toolchains
 
 TeXPro SDK and qwertysay original code remain MIT, copyright Baolin Liu (gardenialiu). Language and stylesheet compilers are author development tools, not added Electron interpreters. Generated plugin code may embed upstream runtime libraries under their own licenses. qwertysay includes unmodified upstream license texts with source links in `packages/qwertysay/notices/` for Elm, Scala/Scala.js, Go/GopherJS and ClojureScript/Closure; PureScript build dependencies retain their package LICENSE files. The builder collects notices for its starter outputs; extension authors remain responsible for additional dependencies and assets. esbuild and vanilla-extract retain their own licenses in their npm distributions. Thematic CSS compilation uses the separately installed official tcss-cli; no TCSS compiler code is embedded in TeXPro. No compiler source is relicensed as TeXPro MIT.

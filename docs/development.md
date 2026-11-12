@@ -78,6 +78,6 @@ pnpm dev
 
 ## 扩展作者编译矩阵
 
-未发布的多语言作者工具另有 `npm run test:extensions:authoring -- --tools /absolute/compiler-prefix`，可在末尾指定单项如 `plugin-elm` 或 `theme-tcss`。默认运行九种插件语言与七种主题样式，缺失编译器直接失败，无跳过分支。`compiler-prefix/node_modules` 需安装脚手架模板声明的 Node 编译器依赖；Java、sbt、匹配版本的 Go／GopherJS 和 tcss 在 PATH 中准备。矩阵明确为临时 Go 工程执行 `go mod tidy`，不会安装全局工具。失败保留临时工程路径，成功清理。
+多语言作者工具另有 `npm run test:extensions:authoring -- --tools /absolute/compiler-prefix`，可在末尾指定单项如 `plugin-elm` 或 `theme-tcss`。默认运行九种插件语言与七种主题样式，缺失编译器直接失败，无跳过分支。`compiler-prefix/node_modules` 需安装脚手架模板声明的 Node 编译器依赖；Java、sbt、匹配版本的 Go／GopherJS 和 tcss 在 PATH 中准备。矩阵明确为临时 Go 工程执行 `go mod tidy`，不会安装全局工具。失败保留临时工程路径，成功清理。
 
-测试使用公开 SDK 文件、实际编译器、`.tpp`／`.tpt` 归档和隔离宿主，补充完整零跳过回归。不要把仅生成模板、直接执行手写 JS 或缺少工具的失败写成语言支持已验收。工具链版本、源码与安装后缀、JSON 桥接、版权和本机平台边界见[多语言构建](extension-authoring.md)。独立源码检查不等于 npm 发布或应用打包；当前发布工作暂停。
+测试使用公开 SDK 文件、实际编译器、`.tpp`／`.tpt` 归档和隔离宿主，补充完整零跳过回归。不要把仅生成模板、直接执行手写 JS 或缺少工具的失败写成语言支持已验收。工具链版本、源码与安装后缀、JSON 桥接、版权和本机平台边界见[多语言构建](extension-authoring.md)。独立源码检查不等于 npm 发布或应用打包。

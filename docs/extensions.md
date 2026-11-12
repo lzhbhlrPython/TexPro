@@ -40,6 +40,6 @@ API 1 提供命令、检查、转换、补全、文本悬浮信息、预览、�
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
 
-## 多语言开发与静态主题构建（未发布）
+## 多语言开发与静态主题构建
 
-源码开发版本的 qwertysay 支持多种编译到 JavaScript 的语言和静态 CSS 编译工具，详见[作者指南](extension-authoring.md)。TeXPro 用户仍安装 `.tpp` 插件或 `.tpt` 主题，不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 等作者源码。`.tpt` 中没有样式生成器 JavaScript；这不消除 CSS 隐藏控件或伪装界面的风险。npm `0.1.0` 不包含本轮构建扩展，发布工作暂停。
+qwertysay 0.2.0 支持多种编译到 JavaScript 的语言和静态 CSS 编译工具，详见[作者指南](extension-authoring.md)。TeXPro 用户仍安装 `.tpp` 插件或 `.tpt` 主题，不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 等作者源码。`.tpt` 中没有样式生成器 JavaScript；这不消除 CSS 隐藏控件或伪装界面的风险。npm `0.1.0` 不包含这些构建扩展；使用 `0.2.0`。

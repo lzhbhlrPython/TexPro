@@ -40,4 +40,4 @@ summary: 安装、信任、配置和手动更新 TeXPro 扩展，保留本地优
 
 ## 主题开发源码与安装包
 
-开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。新编译能力属于未发布源码，操作见[扩展开发](/docs/extension-development)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。
+开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。使用 qwertysay 0.2.0 编译，操作见[扩展开发](/docs/extension-development)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。

@@ -3,7 +3,7 @@
 API 1 SDK 独立为 `@gardenialiu/texpro-extension-sdk`，离线脚手架独立为 `@gardenialiu/qwertysay`（命令 `qwertysay`），作者为 Baolin Liu（gardenialiu），MIT；源码位于 `packages/extension-sdk/`，不依赖 Electron／React。插件作者可使用脚手架或 `examples/extensions/`，自行分发 `.tpp` 插件与 `.tpt` 主题；没有公开市场和自动更新服务。
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
 cd my-plugin
 npm install
 npm run build
@@ -11,25 +11,25 @@ npm run check:extension
 npm run pack:extension
 ```
 
-以上 `0.1.0` 示例默认 TypeScript；`--language js` 无需构建，`--type theme` 生成主题包。CLI 不自动安装、联网或执行代码；`npx` 可能下载 SDK。输出位于源码目录外，拒绝覆盖。校验与宿主共用同一核心，不代替实际交互验收。发布维护需先 `npm pack`，再从临时目录通过 `npm run test:extensions:sdk:package -- /absolute/sdk.tgz /absolute/qwertysay.tgz` 验证真正 tarball 的独立安装、TS 构建和归档；注册表发布后使用准确版本重复验证。
+默认 TypeScript；`--language js` 创建 JavaScript 工程，`--type theme` 生成主题包。新工程均显式构建；`init`／`check`／`pack` 不自动安装、联网或执行扩展代码，明确的 `build` 会执行可信编译器及工程配置，并可能下载依赖；`npx` 可能下载工具。输出位于源码目录外，拒绝覆盖。校验与宿主共用同一核心，不代替实际交互验收。发布维护需先 `npm pack`，再从临时目录通过 `npm run test:extensions:sdk:package -- /absolute/sdk.tgz /absolute/qwertysay.tgz` 验证真正 tarball 的独立安装、TS 构建和归档；注册表发布后使用准确版本重复验证。
 
-## 源码中的新构建能力（未发布）
+## 多语言与主题构建
 
-当前源码 `0.2.0-dev.0` 增加 CoffeeScript、PureScript、ReScript、ClojureScript、Elm、Scala.js、GopherJS，以及 SCSS／Sass／Less／Stylus／CSS-in-JS／Thematic CSS。新脚手架统一显式构建到 `dist/package`，插件 `.tpp`、主题 `.tpt`，开发源码后缀与运行入口后缀分别说明。上述 `npx ...@0.1.0` 示例只代表已发布旧版。新版本暂不发布，使用本地源码步骤、编译器前提、JSON 桥接与版权见[多语言构建指南](extension-authoring.md)。
+SDK／qwertysay `0.2.0` 增加 CoffeeScript、PureScript、ReScript、ClojureScript、Elm、Scala.js、GopherJS，以及 SCSS／Sass／Less／Stylus／CSS-in-JS／Thematic CSS。新脚手架统一显式构建到 `dist/package`，插件 `.tpp`、主题 `.tpt`，开发源码后缀与运行入口后缀分别说明。编译器前提、JSON 桥接、本地源码步骤与版权见[多语言构建指南](extension-authoring.md)。
 
 ## npm 发行版
 
-2026-11-12 首次发布，两包均为 MIT，作者为 Baolin Liu（gardenialiu）：
+2026-11-12 首次发布 0.1.0；当前版本为 0.2.0，两包均为 MIT，作者为 Baolin Liu（gardenialiu）：
 
 | 包 | 版本 | 用途 |
 | --- | --- | --- |
-| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.1.0 | API 1 类型、作者辅助函数及共用校验核心 |
-| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.1.0 | qwertysay 脚手架、离线校验与打包 |
+| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.2.0 | API 1 类型、作者辅助函数及共用校验核心 |
+| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.2.0 | qwertysay 脚手架、离线校验与打包 |
 
-注册表版本及完整性摘要已与发布前验收的 tarball 核对。可复现独立注册表安装检查：
+发布验收需核对注册表版本及完整性摘要与实际测试的 tarball。可复现独立注册表安装检查：
 
 ```sh
-npm run test:extensions:sdk:package -- @gardenialiu/texpro-extension-sdk@0.1.0 @gardenialiu/qwertysay@0.1.0
+npm run test:extensions:sdk:package -- @gardenialiu/texpro-extension-sdk@0.2.0 @gardenialiu/qwertysay@0.2.0
 ```
 
 公开 npm 开发工具不代表公开插件市场。自行分发的 `.tpp`／`.tpt` 仍通过宿主安装和确认信任。

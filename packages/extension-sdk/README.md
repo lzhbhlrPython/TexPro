@@ -1,25 +1,28 @@
 # @gardenialiu/texpro-extension-sdk
 
-Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. This checkout is **`0.2.0-dev.0`, unreleased**. The verified npm `0.1.0` release retains the original TS/JS/CSS scaffolds and does not include the new build features below. Publication, deployment and publication authentication are paused.
+Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. Version **`0.2.0`** adds multilingual plugin builds, static theme compilation and the API 1 JSON bridge. Version `0.1.0` contains the original TS/JS/CSS scaffolds.
 
 [简体中文](README.zh-CN.md)
 
-## Use the source checkout
+## Create an extension
 
-Run `npm ci` in TeXPro, then use the local CLI:
+Use the pinned qwertysay release:
 
 ```sh
-node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
 ```
 
-In the generated directory, install both matching local packages together so npm does not request an unpublished development version:
+In the generated directory, install dependencies and build explicitly:
 
 ```sh
-npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+cd my-plugin
+npm install
 npm run build
 npm run check:extension
 npm run pack:extension
 ```
+
+For source development, run `npm ci` in TeXPro and use `node packages/qwertysay/bin/qwertysay.cjs`; install both local package paths together in the generated project.
 
 The default is `--type plugin --language ts`. For a theme, use e.g. `--type theme --style tcss`. Load **`dist/package`** for development, inspect, install disabled, then explicitly enable. Distribute plugins as `.tpp` and themes as `.tpt`. Source and runtime entry suffixes are different from installable package suffixes. Both artifacts are restricted ZIP containers; `.zip` is not an installable suffix.
 

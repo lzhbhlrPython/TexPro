@@ -218,4 +218,4 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 
 ## 编译后插件的第三方版权
 
-未发布的多语言 SDK／脚手架仍以 Baolin Liu（gardenialiu）的 MIT 自有代码为主；作者工程的 LICENSE 不覆盖编译后嵌入的标准库。Elm、Scala／Scala.js、Go／GopherJS、ClojureScript／Closure、PureScript 等代码保留各自许可与通知。构建器附带已知运行时通知并收集包许可证，作者新增依赖和资源仍需审核并补充 THIRD_PARTY_NOTICES.md。Koishi 仅是组织设计灵感，未复制运行时或市场。见[扩展开发](/docs/extension-development)。
+多语言 SDK／脚手架仍以 Baolin Liu（gardenialiu）的 MIT 自有代码为主；作者工程的 LICENSE 不覆盖编译后嵌入的标准库。Elm、Scala／Scala.js、Go／GopherJS、ClojureScript／Closure、PureScript 等代码保留各自许可与通知。构建器附带已知运行时通知并收集包许可证，作者新增依赖和资源仍需审核并补充 THIRD_PARTY_NOTICES.md。Koishi 仅是组织设计灵感，未复制运行时或市场。见[扩展开发](/docs/extension-development)。

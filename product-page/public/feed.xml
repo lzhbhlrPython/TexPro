@@ -24,7 +24,7 @@
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</guid>
       <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
-      <description>扩展 SDK 与 qwertysay 的源码开发版加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程，新能力尚未发布。</description>
+      <description>扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。</description>
       <category>[扩展</category>
       <category>SDK</category>
       <category>qwertysay</category>

@@ -1,7 +1,7 @@
 ---
 title: 多语言插件与静态主题：把作者工具和宿主运行时分开
 date: 2026-11-12
-summary: 扩展 SDK 与 qwertysay 的源码开发版加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程，新能力尚未发布。
+summary: 扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。
 tags: [扩展, SDK, qwertysay, 主题, MCP, 测试]
 author: Baolin Liu
 ---
@@ -48,4 +48,4 @@ SDK 与 qwertysay 自有代码继续以 Baolin Liu（gardenialiu）的 MIT 开�
 
 ## 当前交付状态
 
-新增能力在源码开发版本 `0.2.0-dev.0`，尚未发布。npm 上此前验证的两项 `0.1.0` 不包含这轮编译扩展。发布、部署和发布认证按当前安排暂停。开发命令、后缀、工具链、版权与边界已经同步到中英文作者说明和开发 Skill；操作见[扩展开发](/docs/extension-development)。
+SDK 与 qwertysay `0.2.0` 包含本轮编译扩展，API 版本保持 1；原有 `0.1.0` 不包含这些构建能力。开发命令、后缀、工具链、版权与边界已经同步到中英文作者说明和开发 Skill；操作见[扩展开发](/docs/extension-development)。
