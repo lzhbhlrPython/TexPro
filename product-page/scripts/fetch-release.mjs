@@ -7,7 +7,7 @@
  * 运行期仍会再试一次（见 src/lib/release.ts），失败就静默用这份快照。
  *
  * 用法：node scripts/fetch-release.mjs [--repo owner/name]
- * 普通构建离线时保留旧快照；TEXPRO_RELEASE_TAG 指定 Nightly 时必须同步成功。
+ * 普通构建离线时保留旧快照；TEXPRO_RELEASE_TAG 指定版本 时必须同步成功。
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -66,7 +66,7 @@ export async function fromApi(repo, pinnedTag = '', fetcher = fetch) {
   const version = VERSION_RE.exec(release.tag_name)?.[0] ?? versionFromAssets(release.assets);
   if (!version) throw new Error('Release has no supported version');
   const assets = compactAssets(release.assets);
-  if (pinnedTag && !assets.length) throw new Error('Published Nightly has no downloadable assets');
+  if (pinnedTag && !assets.length) throw new Error('Published release has no downloadable assets');
   return {
     version,
     channel: release.prerelease || IS_NIGHTLY_RE.test(version) ? 'nightly' : 'stable',
@@ -99,7 +99,7 @@ async function readPrevious(rootDir) {
 export async function syncRelease({ rootDir = root, repo, pinnedTag = process.env.TEXPRO_RELEASE_TAG || '', fetcher = fetch, updateConstants = process.env.CI === 'true' } = {}) {
   repo ??= await readRepoFromConstants(rootDir);
   if (!repo) throw new Error('Could not determine the release repository');
-  if (pinnedTag && !/^v\d+\.\d+\.\d+-\d{8}-Nightly$/.test(pinnedTag)) throw new Error('Invalid dated Nightly tag');
+  if (pinnedTag && !/^v\d+\.\d+\.\d+(?:-\d{8}-Nightly)?$/.test(pinnedTag)) throw new Error('Invalid stable or dated Nightly tag');
   let info = null;
   if (pinnedTag) {
     // A publication refresh must not silently deploy a stale snapshot.

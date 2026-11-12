@@ -7,6 +7,19 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule",
+      "title": "Nightly 的成功基线与正式版发布入口",
+      "summary": "每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。",
+      "content_text": "每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。",
+      "date_published": "2026-11-11T16:00:00.000Z",
+      "tags": [
+        "[Nightly",
+        "CI",
+        "发布]"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces",
       "title": "本地插件、自由主题，以及有职责的工作台",

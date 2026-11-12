@@ -42,6 +42,7 @@ const SKIP = [
   /^src\/content\//,
   // 每次 dev/build 都会刷新 syncedAt，锁它必然误报
   /^src\/config\/release\.json$/,
+  /^src\/config\/stable-releases\.json$/,
 ];
 
 async function walk(entry, out = []) {

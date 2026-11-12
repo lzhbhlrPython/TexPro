@@ -139,3 +139,22 @@ test('project SDK reads saved text only and rejects realpath escape and expired 
   const pending=manager.invoke(m.id,'read',context,{path:'main.tex',delay:true}); manager.event('projectChanged',null);
   await assert.rejects(pending,/expired/);
 });
+
+test('minimal color-only .tpt needs only manifest and license, without stylesheet, code or compiler', async t => {
+  const { readPackage, directoryFiles } = require('../electron/services/extensions/packages.cjs');
+  const sample = path.join(__dirname, '../examples/extensions/accent-only');
+  const m = JSON.parse(fs.readFileSync(path.join(sample, 'texpro.extension.json'), 'utf8'));
+  const { dir, manager } = fixture(t, m);
+  const archive = path.join(dir, 'accent.tpt'); fs.writeFileSync(archive, pack(directoryFiles(sample)));
+  const packageData = readPackage(archive);
+  assert.equal(packageData.files.size, 2);
+  assert.equal(packageData.manifest.entry, undefined);
+  assert.deepEqual(packageData.manifest.capabilities, []);
+  await manager.install(archive, manager.inspect(archive).digest);
+  assert.equal(manager.list()[0].enabled, false);
+  await manager.enable(m.id, true);
+  assert.equal(manager.list()[0].enabled, true);
+  assert.deepEqual(manager.list()[0].manifest.contributes.themes[0].tokens, { accent: '#9c472b' });
+  assert.deepEqual(manager.list()[0].themeStyles, { accent: '' });
+  await manager.enable(m.id, false); assert.equal(manager.list()[0].enabled, false);
+});

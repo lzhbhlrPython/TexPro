@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
-const { changedCommitsToday, shanghaiDay } = require('../scripts/nightly-changes.cjs');
+const { commitsSinceNightly, publishedNightly, shanghaiDay } = require('../scripts/nightly-changes.cjs');
 const now = new Date('2026-10-21T03:17:00Z');
 
 function repository(t) {
@@ -20,33 +20,55 @@ function repository(t) {
   return { root, git };
 }
 
-test('nightly skips yesterday and empty commits today', (t) => {
+test('nightly compares the published tag, including old-dated and empty new commits', t => {
   const { root, git } = repository(t);
-  assert.deepEqual(changedCommitsToday(root, now), []);
-  git(['commit', '--allow-empty', '-m', 'empty'], '2026-10-21T01:00:00Z');
-  assert.deepEqual(changedCommitsToday(root, now), []);
+  git(['tag', 'v0.1.0-20261020-Nightly']);
+  assert.deepEqual(commitsSinceNightly(root, 'v0.1.0-20261020-Nightly'), []);
+  git(['commit', '--allow-empty', '-m', 'empty'], '2026-10-01T01:00:00Z');
+  const next = git(['rev-parse', 'HEAD']);
+  assert.deepEqual(commitsSinceNightly(root, 'v0.1.0-20261020-Nightly'), [next]);
+  assert.deepEqual(commitsSinceNightly(root, 'v0.1.0-20261020-Nightly'), [next], 'A failed attempt does not advance the published baseline');
 });
 
-test('nightly counts Shanghai midnight by committer time, including old authored changes', (t) => {
+test('nightly first build includes history and annotated tags resolve to their commit', t => {
   const { root, git } = repository(t);
-  fs.writeFileSync(path.join(root, 'source.tex'), 'changed'); git(['add', '.']);
-  git(['commit', '-m', 'change'], '2026-10-20T16:00:00Z', '2026-10-19T10:00:00Z');
-  assert.deepEqual(changedCommitsToday(root, now), [git(['rev-parse', 'HEAD'])]);
+  const first = git(['rev-parse', 'HEAD']);
+  assert.deepEqual(commitsSinceNightly(root, null), [first]);
+  git(['tag', '-a', 'nightly', '-m', 'published']);
+  assert.deepEqual(commitsSinceNightly(root, 'nightly'), []);
+  assert.throws(() => commitsSinceNightly(root, 'v0.1.0-20261019-Nightly'), /missing locally/);
+  assert.throws(() => commitsSinceNightly(root, 'main'), /Invalid Nightly/);
 });
 
-test('nightly ignores future dated commits', (t) => {
+test('nightly includes merged commits regardless of date and rejects unrelated baselines', t => {
   const { root, git } = repository(t);
-  fs.writeFileSync(path.join(root, 'source.tex'), 'future'); git(['add', '.']);
-  git(['commit', '-m', 'change'], '2026-10-22T01:00:00Z');
-  assert.deepEqual(changedCommitsToday(root, now), []);
-});
-
-test('nightly counts a merge today when its first-parent tree changed', (t) => {
-  const { root, git } = repository(t);
+  git(['tag', 'nightly']);
   git(['checkout', '-b', 'feature']);
-  fs.writeFileSync(path.join(root, 'source.tex'), 'feature'); git(['add', '.']); git(['commit', '-m', 'feature']);
-  git(['checkout', 'main']); git(['merge', '--no-ff', 'feature', '-m', 'merge'], '2026-10-21T01:00:00Z');
-  assert.deepEqual(changedCommitsToday(root, now), [git(['rev-parse', 'HEAD'])]);
+  git(['commit', '--allow-empty', '-m', 'feature']); const feature = git(['rev-parse', 'HEAD']);
+  git(['checkout', 'main']); git(['merge', '--no-ff', 'feature', '-m', 'merge']);
+  assert.deepEqual(commitsSinceNightly(root, 'nightly'), [feature, git(['rev-parse', 'HEAD'])]);
+  git(['checkout', '--orphan', 'unrelated']); git(['commit', '--allow-empty', '-m', 'unrelated']);
+  assert.throws(() => commitsSinceNightly(root, 'nightly'), /not an ancestor/);
+});
+
+test('nightly baseline selects a published Nightly, skips drafts/stable/empty releases and paginates', async () => {
+  const release = { tag_name: 'v0.1.0-20261020-Nightly', published_at: '2026-10-20', assets: [{ state: 'uploaded', size: 100 }] };
+  const calls = [];
+  const first = Array.from({ length: 100 }, () => ({ ...release, tag_name: 'v0.1.0' }));
+  const result = await publishedNightly('owner/repo', { token: 'fixture', fetcher: async (url, options) => {
+    calls.push(url); assert.equal(options.headers.Authorization, 'Bearer fixture');
+    return { ok: true, json: async () => calls.length === 1 ? first : [{ ...release, draft: true }, { ...release, assets: [] }, release] };
+  } });
+  assert.equal(result, release.tag_name); assert.equal(calls.length, 2); assert.match(calls[1], /page=2$/);
+  const republished = { ...release, tag_name: 'v0.1.0-20261019-Nightly', published_at: '2026-10-25' };
+  assert.equal(await publishedNightly('owner/repo', { fetcher: async () => ({ ok: true, json: async () => [release, republished] }) }), republished.tag_name);
+  assert.equal(await publishedNightly('owner/repo', { fetcher: async () => ({ ok: true, json: async () => [] }) }), null);
+});
+
+test('nightly baseline API errors fail instead of pretending this is the first build', async () => {
+  await assert.rejects(publishedNightly('owner/repo', { fetcher: async () => ({ ok: false, status: 403 }) }), /HTTP 403/);
+  await assert.rejects(publishedNightly('owner/repo', { fetcher: async () => ({ ok: true, json: async () => ({}) }) }), /Invalid GitHub/);
+  await assert.rejects(publishedNightly('invalid'), /GITHUB_REPOSITORY/);
 });
 
 test('nightly date follows Shanghai midnight instead of the runner timezone', () => {

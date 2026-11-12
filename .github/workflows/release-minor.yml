@@ -1,0 +1,16 @@
+name: Release minor
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: texpro-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/_release-stable.yml
+    with:
+      bump: minor
+    secrets: inherit

@@ -102,7 +102,7 @@ The process boundary is explicit: the rendering layer is responsible only for ed
 
 ## Versions and Release Cadence
 
-The current version is `0.1.0`. The application uses nightly builds: GitHub Actions checks every day at `03:17 UTC` (11:17 Beijing time) whether there are commits on `main` from that day; if so, it runs regression tests, type checks, and the build, and publishes the installers as a `nightly` prerelease.
+Download versions come from actual GitHub Releases and the website version pages; the root package files manage the application base version. The application uses nightly builds: GitHub Actions checks every day at `13:23 UTC` (21:23 Asia/Shanghai) whether `main` has new commits since the last successfully published Nightly; if so, it runs regression tests, type checks, and the build, and publishes the installers with a dated `v{baseVersion}-YYYYMMDD-Nightly` prerelease tag.
 
 | Platform | Artifacts |
 | --- | --- |
@@ -112,7 +112,7 @@ The current version is `0.1.0`. The application uses nightly builds: GitHub Acti
 
 A few practical constraints:
 
-- No commits that day means no new build
+- No new commits since the last successful Nightly means no new build
 - Nightly builds are unsigned; macOS may warn that the developer cannot be verified, and Windows may trigger SmartScreen
 - A failed build produces no installers; the latest artifacts shown on the download page are authoritative
 - There is no fixed stable release cadence yet; keep your own backups and version history for important work
@@ -178,3 +178,5 @@ The documentation is organized into six groups; reading along the usage path is 
 | About | `/docs/about`, `/docs/copyright` |
 
 > First time here? Start with "Installation and Your First Project". To connect AI or build your own integration, read "MCP: Handing the Project to AI" and "A Second-Development Guide for AI".
+
+Stable releases use three manual major/minor/patch workflows, committing the incremented version only after tests and all platform packages pass. See [stable releases](/releases) for history, notes and downloads. Minimal color-only themes still need no stylesheet compiler; see [theme packs](/docs/themes).

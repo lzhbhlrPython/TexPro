@@ -1,0 +1,87 @@
+name: Shared release build
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      source_sha:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Stamp tested version
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: node scripts/release-version.cjs stamp "$BUILD_VERSION"
+      - run: npm run test:regression
+      - run: npm run typecheck
+      - run: npm run build
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macos
+            args: --mac --universal
+          - os: windows-latest
+            platform: windows
+            args: --win nsis portable zip --x64
+          - os: ubuntu-latest
+            platform: linux
+            args: --linux AppImage deb rpm --x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fakeroot rpm libarchive-tools
+      - run: npm ci
+      - name: Stamp packaged version
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: node scripts/release-version.cjs stamp "$BUILD_VERSION"
+      - run: npm run build
+      - run: npm run verify:release
+      - name: Package without publishing
+        run: npx electron-builder ${{ matrix.args }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+            release/*.rpm
+          if-no-files-found: error

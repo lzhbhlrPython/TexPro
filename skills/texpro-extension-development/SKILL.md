@@ -7,6 +7,8 @@ description: Develop, debug, package, and review TeXPro local extensions and the
 
 Build against the checked-out TeXPro contracts. Use `@gardenialiu/texpro-extension-sdk` for public API 1 types and `@gardenialiu/qwertysay` for offline scaffolding/check/pack. Version 0.2.0 includes multilingual builds and static theme compilation; API version remains 1. Pin matching SDK/CLI releases for npm use, or install matching local paths together for source development. Read docs/extension-authoring.md for compiler/build/bridge work. Find the TeXPro repository for host work; do not guess internal contracts. Source is maintained in `packages/extension-sdk`, independently of Electron.
 
+Keep the minimal color-only theme path: `texpro.extension.json` plus `LICENSE`, `capabilities: []`, and only required `contributes.themes[].tokens` such as `accent`. Use `examples/extensions/accent-only`. No stylesheet, executable entry, build configuration or compiler is required; check/pack the directory directly as `.tpt`. Do not force preprocessing on token-only authors.
+
 ## Establish the contract
 
 Read the repository's `AGENTS.md`, `PRODUCT.md`, `DESIGN.md`, `docs/extensions.md`, and `packages/extension-sdk/index.d.ts`. Read [authoring checks](references/authoring.md) for the task-specific workflow. Prefer `examples/extensions/quiet-paper` for data packages and `writing-kit` for executable providers.

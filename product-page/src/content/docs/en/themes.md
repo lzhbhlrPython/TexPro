@@ -28,4 +28,28 @@ If the interface becomes unusable, use the native **View → Reset Appearance an
 
 ## Develop a theme
 
+For color-only customization, a minimal `.tpt` still needs just `texpro.extension.json` and `LICENSE`. CSS, JavaScript, compilers and `qwertysay.build.json` are optional. Omitted tokens inherit the base theme. Example manifest:
+
+```json
+{
+  "id": "example.accent-only",
+  "name": { "zh": "只改主题色", "en": "Accent only" },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "Your name",
+  "license": "MIT",
+  "capabilities": [],
+  "contributes": {
+    "themes": [{
+      "id": "accent",
+      "title": { "zh": "暖色强调", "en": "Warm accent" },
+      "base": "paper",
+      "tokens": { "accent": "#9c472b" }
+    }]
+  }
+}
+```
+
+Add your own MIT license, then run `qwertysay check ./accent-only` and `qwertysay pack ./accent-only ./accent-only.tpt`. The output must not already exist. The repository includes a working `examples/extensions/accent-only` sample. Only stylesheets require `theme.styles`; token-only packages need neither code nor style trust authorization. Still review the source and color readability.
+
 `examples/extensions/quiet-paper` is a data-only example. See [extension development](/docs/extension-development) for the SDK and Skill. Check writing, menus, selections, syntax, diagnostics, focus and narrow windows, and supply accurate screenshots from the real application.

@@ -44,7 +44,7 @@ MCP 是普通 Node stdio 进程，只读到磁盘；stdout 只输出协议。写
 
 ## 发布契约
 
-Nightly 根据上海当天 first-parent 提交的实际文件差异判断是否构建；空提交不计。日期只算一次，版本 `v{基础版本}-YYYYMMDD-Nightly`，包内省略 v，生成版本不提交回仓库。三平台成功才发布；成功后 dispatch Pages 并传准确 tag。Pages 指定 tag 同步失败必须失败，普通离线构建才允许旧快照。
+Nightly 每日上海时间 21:23 检查相对上一次成功公开且含安装包的 Nightly 是否有新提交；空提交、合并和旧时间戳提交计入，不按当天过滤。读取 API 或标签失败明确报错，不能当作首次构建。日期只算一次，版本 `v{基础版本}-YYYYMMDD-Nightly`，包内省略 v，生成版本不提交回仓库。三平台成功才发布；成功后 dispatch Pages 并传准确 tag。Pages 指定 tag 同步失败必须失败，普通离线构建才允许旧快照。
 
 官网仅产品页路径变化或成功 Nightly 刷新自动重建；PR 只验证，main 才部署。详见 [部署说明](product-page-deployment.md)。
 
@@ -55,3 +55,5 @@ API 1 使用本地 ZIP／目录快照、禁用安装、显式启用、版本回�
 ## 扩展构建与 JSON 桥接
 
 API 1 运行时继续只接收自包含 `.cjs`／`.mjs` 插件与静态主题。SDK JSON bridge v1 通过字符串消息关联调用、取消、服务和生命周期；qwertysay 把作者源码编译后校验并暂存到 `dist/package`。安装包后缀仍为 `.tpp`／`.tpt`，不能与 `.tcss` 等开发后缀混用。MCP 的格式查询与包检查复用 SDK 纯 Node 核心，不构建或执行插件；所需核心及 PostCSS 依赖须同时位于 ASAR 外。详细协议与开发工具前提见[扩展构建](extension-authoring.md)。
+
+正式版三个 main 手动入口共用测试和三平台构建，固定受测 SHA；全部成功后原子推送根版本提交与不可覆盖的正式标签，草稿资产完整后才公开，随后准确刷新官网列表。版本提交不修改独立 SDK／CLI 版本；Nightly 自动继承新的应用基础版本。同次运行失败重试复用已提交版本，main 前进时拒绝基于旧源码创建新版本。

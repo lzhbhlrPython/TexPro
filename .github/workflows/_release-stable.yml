@@ -1,0 +1,63 @@
+name: Shared stable release
+on:
+  workflow_call:
+    inputs:
+      bump:
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: write
+jobs:
+  prepare:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: version
+        env:
+          VERSION_BUMP: ${{ inputs.bump }}
+        run: node scripts/release-version.cjs plan "$VERSION_BUMP"
+  build:
+    permissions:
+      contents: read
+    needs: prepare
+    uses: ./.github/workflows/_release-build.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      source_sha: ${{ github.sha }}
+  publish:
+    needs: [prepare, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+      - name: Commit tested version, publish complete release and refresh site
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+          RELEASE_SOURCE: ${{ github.sha }}
+        run: node scripts/publish-stable.cjs

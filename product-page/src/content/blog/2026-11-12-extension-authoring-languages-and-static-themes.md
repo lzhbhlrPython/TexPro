@@ -49,3 +49,9 @@ SDK 与 qwertysay 自有代码继续以 Baolin Liu（gardenialiu）的 MIT 开�
 ## 当前交付状态
 
 SDK 与 qwertysay `0.2.0` 包含本轮编译扩展，API 版本保持 1；原有 `0.1.0` 不包含这些构建能力。开发命令、后缀、工具链、版权与边界已经同步到中英文作者说明和开发 Skill；操作见[扩展开发](/docs/extension-development)。
+
+2026-11-12 发布核验：SDK 与 qwertysay 0.2.0 已发布到 npm，注册表 SHA-512 与验收 tarball 一致；随后从注册表重新独立安装，完成 TypeScript／JavaScript／主题构建、归档及拒绝路径验收。完整桌面基线为 135 项通过、零失败、零跳过、零 TODO。三平台应用安装包与官网部署仍以对应 Actions 的实际结果为准。
+
+## 保留只改配色的入口
+
+主题编译器是可选能力。最简主题仍只需 `texpro.extension.json` 和 `LICENSE`，声明需要的颜色 token 后可直接分发 `.tpt`，无需 CSS、脚本或构建配置。`examples/extensions/accent-only` 的实际打包、安装、启停回归验证了这条路径；其他颜色继承基础主题，停用后恢复。配色仍需检查来源与可读性，高自由度 CSS 主题的伪装风险说明继续保留。

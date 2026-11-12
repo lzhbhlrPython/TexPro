@@ -75,11 +75,11 @@ SyncTeX 的 `x/y` 是文字锚点，`h/v/W/H` 是排版盒子；不能把锚点�
 
 ## 构建与发布
 
-1. 定时和手动触发先按上海时区检查当天提交（committer 时间、first-parent 历史）。空提交不计；当天无实际文件变更则跳过测试、打包、发布。有变更时测试任务运行回归测试、类型检查与前端构建。
+1. 每日 Asia/Shanghai 21:23（UTC 13:23）定时触发，也可手动触发；检查相对上一次成功公开且含安装包的 Nightly 标签的新提交，不按日期、空提交或 first-parent 过滤。无新提交跳过；读取失败或标签非祖先则明确失败。有变更时测试任务运行回归测试、类型检查与前端构建。
 2. 检查任务只生成一次上海日期和 `v{当前版本号}-YYYYMMDD-Nightly` 版本标签。每个平台在独立 checkout 中安装依赖、按该日期设置版本、构建前端；包内版本省略 `v`，同步 package 与 lockfile，不提交生成版本，也不递增正式版本号。
 3. `scripts/before-pack.cjs` 校验实际待打包目录，缺少入口/资源即失败。
 4. electron-builder 创建应用；`scripts/after-pack.cjs` 读取实际 ASAR 并复核资源，同时检查外部 MCP 服务及其所需服务依赖。MCP 由普通 Node 启动，不能依赖 Electron 的 ASAR 加载能力。
-5. 三个平台成功后，release job 收集安装包，以日期版本标签和同名标题发布 Nightly prerelease。同日重跑更新当天的标签指向和安装包，确保标签与构建提交一致；不同日期保留独立版本。
+5. 三个平台成功后，release job 收集安装包并先上传为草稿，以日期版本标签和同名标题发布 Nightly prerelease。同日重跑更新当天的标签指向和安装包，确保标签与构建提交一致；不同日期保留独立版本。
 
 本地运行 `npm run package -- --publish never` 可生成未签名 macOS 目录包。校验依赖开发依赖 `@electron/asar`。验收还需从安装后的应用启动测试；其他系统安装包的存在不证明编译工具、字体、外部命令和文件操作在该系统可用。
 
@@ -99,3 +99,5 @@ SyncTeX 的 `x/y` 是文字锚点，`h/v/W/H` 是排版盒子；不能把锚点�
 ## 扩展、命令与工作空间
 
 本地包服务位于 `electron/services/extensions/`，公开数据契约在 `packages/extension-sdk/`；进程运行代码，主进程拥有文件安装和显式服务边界。`src/app/commands/` 合并内置与包命令目录，`writingPort.ts` 和纯结果校验隔离编辑器，`extensions/` 负责快照与提供器，`themes/` 负责主题级联和样式清理。`inspection.ts` 共用工程检查，`workspaces.ts` 管理互斥专业工作区，`WorkspaceFrame` 共用返回和焦点。没有拆解全部历史模块；新能力按这些边界增长，避免进一步扩大 App 和 tex 服务。API、信任、恢复与适配矩阵见 [扩展架构](extensions.md) 和 [开发指南](extension-development.md)。
+
+正式版由 `release-major.yml`、`release-minor.yml`、`release-patch.yml` 手动进入 `_release-stable.yml`；与 Nightly 共用 `_release-build.yml`。测试和三平台打包通过后，`publish-stable.cjs` 确认 main 未变化，以原子 Git 推送同步版本提交与标签，再上传草稿并公开正式 Release。同一运行可重试，已有正式标签不覆盖。源码变更需开启新运行重建。详见[发布指南](release.md)。

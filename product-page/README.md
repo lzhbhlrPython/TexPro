@@ -53,6 +53,8 @@ PAGES_BASE_PATH=/TexStudioPro pnpm exec vite preview --host 127.0.0.1
 
 首页、证据表和 AI 入口的数字要同步核对源码与中英文词典：回归用例来自实际测试清单，IPC 统计 preload 的请求与事件通道，文档按中英文同 slug 核对，发行包种类按 Nightly 工作流核对。用例数量不代表本次全部通过，发行包种类也不代表某次远端发布已完成。2026-11-11 按用户要求修订这些数字，未改变页面结构或样式。
 
+文档数由 `src/data/documentation.ts` 通过 Vite 文件清单自动统计，首页、证据表和 AI 入口共用，不手填总数。中英齐全时显示 `N × 2`，有缺译文时显示实际中文／英文数量；孤立英文文件不算作已配对译文。开发时随文件变更刷新，线上随正常内容构建更新；统计不把 Markdown 正文加载到首页。`pnpm test:docs` 验证增删篇目、缺译文与孤立译文，不修改真实内容。
+
 ## 版本信息
 
 dev 和 build 先执行 fetch-release.mjs，刷新 src/config/release.json。普通构建可在离线或限流时沿用旧快照；显式 TEXPRO_RELEASE_TAG 必须取得准确 Release，失败就终止构建。CI 可更新旧入口 APP_VERSION，本地内容构建不改写 constants.ts。
@@ -67,10 +69,16 @@ vite.config.ts 的 contentFiles 插件在 buildStart 执行 gen-feed.mjs 与 gen
 
 ## 发布与验收
 
-Pages 自动来源仅产品页路径变化与成功 Nightly 的准确 tag 刷新；PR 仅构建，main 才部署，保留手动入口。详见 [部署文档](../docs/product-page-deployment.md)。
+Pages 自动来源仅产品页路径变化与成功 Nightly／正式版的准确 tag 刷新；PR 仅构建，main 才部署，保留手动入口。详见 [部署文档](../docs/product-page-deployment.md)。
 
 内容交付核对中英 slug、站内链接、front matter、实际命令、生成产物、版式检查、类型与构建。壳层变更另验窄屏、主题、键盘、reduced motion 和子路径。dist、缓存、本地环境及私人记录沿用 .gitignore，不进入提交。
 
 2026-11-12：按本地扩展／工作台改造授权更新实际预览图、扩展展示、统计和单一目标语言切换；保持现有区块、Ant Design 与纸面视觉。图像来源和原始摘要见 `public/shots/README.md`。当前统计由完整基线、preload 和双语同 slug 文档核对；SDK 与 qwertysay 的发布入口同步到开发文档。
 
-2026-11-12：多语言作者工具源码修订后，当前完整基线为 126 项／20 个根测试文件、外部 MCP 为 21 个工具；单独的真实编译矩阵为九种插件语言与七种样式。只同步事实数字、中英文案与开发内容，作者工具版本为 0.2.0，发布和部署分别核验实际结果。
+2026-11-12：多语言作者工具源码修订后，当前完整基线为 135 项／21 个根测试文件、外部 MCP 为 21 个工具；单独的真实编译矩阵为九种插件语言与七种样式。只同步事实数字、中英文案与开发内容，作者工具版本为 0.2.0，发布和部署分别核验实际结果。
+
+## 正式版本列表
+
+`/releases` 使用现有 SectionHeading、Ant Design Flex／Table 与纸面 token，入口位于页脚资源区；`/changelog` 保留当前构建。`vite.config.ts` 的 contentFiles 自动分页同步真实正式 Release，排除草稿和预发布；失败回退明确标识的旧快照，首次失败显示不可用，不能虚构空列表。正式版准确 tag 刷新要求列表包含本次版本与资产。说明作为纯文本显示，下载使用原始 URL。站点预览核对中英、明暗、390px、减少动态效果及 Pages 子路径。
+
+本次官网真实版本页预览及来源记录见 `docs/screenshots/site/`；这组图不替代桌面应用展示截图，也不包含私有版本夹具。

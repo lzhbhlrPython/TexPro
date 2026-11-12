@@ -54,32 +54,27 @@ The two Windows installers override `artifactName` in `build.nsis` and `build.po
 
 Cross-platform packaging is not recommended: NSIS and AppImage are most reliable on their own platforms, cross-building needs extra toolchains, and CI also runs the three platforms separately.
 
-## The nightly workflow
+## Nightly and stable releases
 
-`.github/workflows/nightly.yml` is triggered by `schedule: cron '17 3 * * *'` (03:17 UTC, 11:17 Beijing time, deliberately off the hour) and by `workflow_dispatch`; the `concurrency` group is `nightly-release`, so a new run cancels the old one.
+Nightly checks main daily at 21:23 Asia/Shanghai (13:23 UTC, cron `23 13 * * *`) and supports manual runs. Build whenever commits exist after the last successfully published Nightly tag with downloadable assets. Empty, merged and old-timestamp commits count; there is no same-day filter. No new commits means skip. With no previous Nightly, build existing history. API, missing-tag and ancestry errors fail explicitly. Failed builds never advance the successful baseline, so later runs retry.
 
-| job | Platform | What it does |
-| --- | --- | --- |
-| `changes` | ubuntu | Runs `nightly-changes.cjs` to decide whether today has commits with file changes, outputting `build` |
-| `test` | ubuntu | `npm ci`, `test:regression`, `typecheck`, `build` |
-| `macos` | macos-latest | Set version, build, verify, `--mac --universal`, upload dmg and zip |
-| `windows` | windows-latest | Same as above, with `--win nsis portable zip --x64` |
-| `linux` | ubuntu-latest | Install `fakeroot rpm libarchive-tools` first, then `--linux AppImage deb rpm --x64` |
-| `release` | ubuntu | Collect artifacts from the three platforms and publish a pre-release tagged with the day's date (`v0.1.0-20261109-Nightly`) |
+Nightly and stable releases share `_release-build.yml`: pin the source SHA and version, run the full regression baseline with zero skips/TODOs, typecheck and build, then package macOS universal DMG/ZIP, Windows x64 NSIS/portable/ZIP and Linux x64 AppImage/deb/rpm. Builders use `--publish never`, retaining pre-pack and actual ASAR verification. Only after all platforms succeed does Nightly upload a draft, update its dated tag, publish the prerelease and refresh the website. All release workflows share the `texpro-release` queue without cancelling an active release.
 
-If `test` fails, none of the three packaging jobs run; `release` runs only on the main branch and overwrites assets with the same name via `softprops/action-gh-release@v2`. All packages are unsigned: CI sets `CSC_IDENTITY_AUTO_DISCOVERY` to `false`.
+## Publish a stable version manually
+
+In Actions choose **Release major**, **Release minor** or **Release patch**, select main and run. They produce X+1.0.0, X.Y+1.0 or X.Y.Z+1 through `_release-stable.yml`. They do not publish the npm SDK.
+
+Only after tests and all platform packages pass does the workflow verify main still matches the tested source, then atomically push the root `package.json`/`package-lock.json` version commit and `vX.X.X` tag. If main advanced, start a new run on the latest source; never force push. Stable tags cannot be overwritten. Assets upload to a draft, which becomes public only when complete, then refreshes the [stable releases page](/releases). Retry the same Actions run after an upload or website-refresh failure: it does not increment the committed version again or reupload a published release. Do not start a new version increment to fix the same failed upload. Branch/tag protection or environment reviews may still require repository administration.
 
 ## Version numbers
 
-The nightly version is computed by a script, not edited by hand:
+`release-version.cjs` computes stable versions and synchronizes the root package and lockfile. SDK/qwertysay versions stay independent. Subsequent Nightlies automatically use the new base as `v{base}-YYYYMMDD-Nightly`; installed package versions omit v. The Shanghai date is calculated once for every platform. Same-day Nightlies replace that day's tag/assets; different dates retain separate records.
 
 ```bash
 npm run nightly:version
 ```
 
-`set-nightly-version.mjs` exports `nightlyVersion(version, date)`: it strips the old nightly suffix (`-nightly.20261025` or `-20261109-Nightly`) from the `package.json` version to get the base, then appends the date: `${base}-${YYYYMMDD}-Nightly`. The date is the current day in `Asia/Shanghai` and can be overridden with `NIGHTLY_DATE`; `--dry-run` prints without touching files. It also syncs `version` and `packages[''].version` in `package-lock.json` (skipped when the lockfile is absent).
-
-`nightly-changes.cjs` decides whether to publish: it takes commits from `git log --first-parent` within the current day in `Asia/Shanghai`, confirms with `git diff --name-only` that each one really changed files (using `diff-tree --root` for the root commit), and skips the whole pipeline when none of them changed anything, avoiding a nightly that spins up with identical content.
+`set-nightly-version.mjs` accepts `NIGHTLY_DATE=YYYYMMDD` and `--dry-run`. Nightly stamps only the build checkout, never committing dated versions or incrementing the stable version. 21:23 is the scheduled check; Actions may queue it later.
 
 ## Release verification
 
@@ -133,6 +128,6 @@ The last one runs the packaging check against a real ASAR and is the closest thi
 
 ## Website refresh after a release
 
-A successful Nightly release explicitly dispatches the Product page workflow with its exact tag. Skipped or failed releases do not refresh the site. A pinned release fetch must fail the build rather than deploy stale metadata. Ordinary website builds can use a previous snapshot when offline.
+A successful Nightly or stable release explicitly dispatches the Product page workflow with its exact tag. Skipped or failed releases do not refresh the site. A pinned release fetch must fail the build rather than deploy stale metadata. Ordinary website builds can use a previous snapshot when offline.
 
 Pages also builds for product-page changes; PRs validate, while main deploys. A local build does not prove deployment. See docs/product-page-deployment.md in the repository.

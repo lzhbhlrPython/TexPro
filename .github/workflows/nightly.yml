@@ -2,20 +2,24 @@ name: Nightly
 
 on:
   schedule:
-    # 03:17 UTC — 11:17 Asia/Shanghai. Deliberately off the top of the hour.
-    - cron: '17 3 * * *'
+    # 13:23 UTC — 21:23 Asia/Shanghai.
+    # Eta paska ovo: 1999.09.23 — la naskiĝtago de Song Yuqi.
+    - cron: '23 13 * * *'
   workflow_dispatch:
 
 concurrency:
-  group: nightly-release
-  cancel-in-progress: true
+  group: texpro-release
+  cancel-in-progress: false
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   changes:
-    name: Check today's changes (Asia/Shanghai)
+    permissions:
+      contents: read
+    name: Check commits since published Nightly
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -31,6 +35,8 @@ jobs:
         with:
           node-version: 22
       - id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/nightly-changes.cjs
       - name: Prepare nightly version
         id: version
@@ -39,117 +45,19 @@ jobs:
           NIGHTLY_DATE: ${{ steps.changes.outputs.date }}
         run: node scripts/set-nightly-version.mjs --dry-run
 
-  test:
-    name: Typecheck and build
+  build:
+    permissions:
+      contents: read
     needs: changes
     if: needs.changes.outputs.build == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run test:regression
-      - run: npm run typecheck
-      - run: npm run build
-
-  macos:
-    name: macOS universal
-    needs: [changes, test]
-    runs-on: macos-latest
-    timeout-minutes: 45
-    env:
-      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: node scripts/set-nightly-version.mjs
-      - run: npm run build
-      - run: npm run verify:release
-      - name: Build DMG and ZIP
-        run: npx electron-builder --mac --universal --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nightly-macos
-          path: |
-            release/*.dmg
-            release/*.zip
-          if-no-files-found: error
-
-  windows:
-    name: Windows x64
-    needs: [changes, test]
-    runs-on: windows-latest
-    timeout-minutes: 40
-    env:
-      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: node scripts/set-nightly-version.mjs
-      - run: npm run build
-      - run: npm run verify:release
-      - name: Build installer, portable and zip
-        run: npx electron-builder --win nsis portable zip --x64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nightly-windows
-          path: |
-            release/*.exe
-            release/*.zip
-          if-no-files-found: error
-
-  linux:
-    name: Ubuntu and CentOS packages
-    needs: [changes, test]
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      NIGHTLY_DATE: ${{ needs.changes.outputs.date }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install Linux packaging tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            fakeroot rpm libarchive-tools
-      - run: npm ci
-      - run: node scripts/set-nightly-version.mjs
-      - run: npm run build
-      - run: npm run verify:release
-      - name: Build AppImage, deb and rpm
-        run: npx electron-builder --linux AppImage deb rpm --x64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nightly-linux
-          path: |
-            release/*.AppImage
-            release/*.deb
-            release/*.rpm
-          if-no-files-found: error
+    uses: ./.github/workflows/_release-build.yml
+    with:
+      version: ${{ needs.changes.outputs.version }}
+      source_sha: ${{ github.sha }}
 
   release:
     name: Publish nightly prerelease
-    needs: [changes, macos, windows, linux]
+    needs: [changes, build]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -161,12 +69,6 @@ jobs:
         with:
           path: release
           merge-multiple: true
-      - name: Point today's nightly tag at the built commit
-        env:
-          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
-        run: |
-          git tag --force "$NIGHTLY_TAG" "$GITHUB_SHA"
-          git push --force origin "refs/tags/$NIGHTLY_TAG"
       - name: Publish dated nightly tag
         uses: softprops/action-gh-release@v2
         with:
@@ -174,6 +76,7 @@ jobs:
           name: ${{ needs.changes.outputs.tag }}
           target_commitish: ${{ github.sha }}
           prerelease: true
+          draft: true
           overwrite_files: true
           fail_on_unmatched_files: true
           body: |
@@ -190,6 +93,17 @@ jobs:
 
             These builds are unsigned and intended for testing.
           files: release/**/*
+      - name: Point today's nightly tag at the built commit
+        env:
+          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
+        run: |
+          git tag --force "$NIGHTLY_TAG" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$NIGHTLY_TAG"
+      - name: Publish completed Nightly
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIGHTLY_TAG: ${{ needs.changes.outputs.tag }}
+        run: gh release edit "$NIGHTLY_TAG" --draft=false --repo "$GITHUB_REPOSITORY"
       - name: Refresh product page after publishing
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

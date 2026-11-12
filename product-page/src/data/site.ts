@@ -1,4 +1,5 @@
 import type { SupportLevel } from '@/types';
+import { DOC_METRIC } from './documentation';
 
 export interface NavItem {
   label: string;
@@ -38,10 +39,10 @@ export const SECTION_LINKS: SectionLink[] = [
 ];
 
 export const HERO_METRICS = [
-  { value: '126', label: '条回归用例', source: 'tests' },
+  { value: '135', label: '条回归用例', source: 'tests' },
   { value: '106', label: '个 IPC 通道', source: 'ipc' },
   { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
-  { value: '27 × 2', label: '篇文档，中英各一版', source: 'docs' },
+  { value: DOC_METRIC.value, label: DOC_METRIC.label, source: 'docs' },
 ] as const;
 
 export const HERO_POINTS = ['免登录使用', '离线可编译', '文件留在本机磁盘'] as const;
@@ -216,6 +217,7 @@ export const FOOTER_GROUPS = [
       { label: 'MCP 教程', to: '/docs/mcp' },
       { label: '常见问题', to: '/docs/faq' },
       { label: '更新日志', to: '/changelog' },
+      { label: '正式版本列表', to: '/releases' },
       { label: 'RSS 订阅', href: `${import.meta.env.BASE_URL}feed.xml`, external: true },
       { label: '给 AI 的入口', to: '/ai' },
     ],

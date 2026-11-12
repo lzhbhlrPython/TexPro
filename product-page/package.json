@@ -8,6 +8,7 @@
     "build": "node scripts/fetch-release.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test:docs": "node scripts/test-doc-count.mjs",
     "check:layout": "node scripts/layout-lock.mjs",
     "layout:update": "node scripts/layout-lock.mjs --update",
     "release:sync": "node scripts/fetch-release.mjs",

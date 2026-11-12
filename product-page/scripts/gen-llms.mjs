@@ -98,6 +98,7 @@ const urls = [
   'docs',
   'blog',
   'changelog',
+  'releases',
   'ai',
   ...docs.map((doc) => `docs/${doc.slug}`),
   ...posts.map((post) => `blog/${post.slug}`),

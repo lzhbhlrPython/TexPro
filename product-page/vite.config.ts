@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { syncStableReleases } from './scripts/fetch-stable-releases.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 
@@ -16,7 +17,8 @@ function contentFiles(): Plugin {
 
   return {
     name: 'texpro-content-files',
-    buildStart() {
+    async buildStart() {
+      await syncStableReleases();
       run('gen-feed.mjs');
       run('gen-llms.mjs');
     },

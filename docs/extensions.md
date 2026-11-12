@@ -42,4 +42,6 @@ API 1 提供命令、检查、转换、补全、文本悬浮信息、预览、�
 
 ## 多语言开发与静态主题构建
 
+最简主题继续支持仅 `texpro.extension.json` 与 `LICENSE`：在 `contributes.themes[].tokens` 声明 `accent` 等所需颜色，其他值继承基础模式。无入口、CSS、构建配置及依赖，`capabilities: []`，可直接 check／pack 为 `.tpt`，无需代码或样式信任授权。完整示例为 `examples/extensions/accent-only`；实际回归覆盖打包、安装、启停与 token 恢复。构建工具仅供需要预处理样式的作者使用。
+
 qwertysay 0.2.0 支持多种编译到 JavaScript 的语言和静态 CSS 编译工具，详见[作者指南](extension-authoring.md)。TeXPro 用户仍安装 `.tpp` 插件或 `.tpt` 主题，不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 等作者源码。`.tpt` 中没有样式生成器 JavaScript；这不消除 CSS 隐藏控件或伪装界面的风险。npm `0.1.0` 不包含这些构建扩展；使用 `0.2.0`。

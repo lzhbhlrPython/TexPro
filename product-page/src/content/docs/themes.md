@@ -28,4 +28,28 @@ CSS 清单项为 `stylesheet`，需声明 `theme.styles`。普通规则位于主
 
 ## 开发主题
 
+只改主题色时，仍支持最简 `.tpt`：目录中只放 `texpro.extension.json` 和 `LICENSE`，无需 CSS、JavaScript、编译器或 `qwertysay.build.json`。未指定的 token 继承基础主题。例如清单：
+
+```json
+{
+  "id": "example.accent-only",
+  "name": { "zh": "只改主题色", "en": "Accent only" },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "Your name",
+  "license": "MIT",
+  "capabilities": [],
+  "contributes": {
+    "themes": [{
+      "id": "accent",
+      "title": { "zh": "暖色强调", "en": "Warm accent" },
+      "base": "paper",
+      "tokens": { "accent": "#9c472b" }
+    }]
+  }
+}
+```
+
+补上作者自己的 MIT 许可证后，直接运行 `qwertysay check ./accent-only` 和 `qwertysay pack ./accent-only ./accent-only.tpt`，输出文件须不存在。仓库 `examples/extensions/accent-only` 提供可打包示例。只有声明样式表时才需要 `theme.styles`；纯 token 包不需要代码或样式信任授权，但仍应检查来源与配色可读性。
+
 仓库的 `examples/extensions/quiet-paper` 是无代码示例，SDK 与 Skill 入口见[插件开发](/docs/extension-development)。请逐项检查正文、菜单、选区、语法、诊断、焦点和窄窗口，并提供准确的真实截图。

@@ -3,6 +3,21 @@
  * 这样组件里只需要 t('中文')，缺条目时自动回落成中文，不会白屏。
  */
 export const EN: Record<string, string> = {
+  '复制完整校验值': 'Copy complete checksum',
+  "正式版本列表": "Stable releases",
+  "正式版本列表 · TeXPro": "Stable releases \u00b7 TeXPro",
+  "选择一个正式版本": "Choose a stable release",
+  "这里收录已公开的正式 Release，提供发布说明和原始安装包。Nightly 继续在更新日志中展示。": "Published stable releases, their notes and original downloads. Nightly builds remain in the changelog.",
+  "查看最新构建": "View latest build",
+  "构建时已同步 GitHub": "Synced from GitHub at build time",
+  "GitHub 暂不可用，显示此前快照": "GitHub is unavailable; showing a previous snapshot",
+  "暂时无法获取正式版本，请前往 GitHub 查看": "Release data is unavailable; check GitHub",
+  "暂无正式版本；可在更新日志中获取 Nightly。": "No stable releases yet. Find Nightly builds in the changelog.",
+  "原始发布说明": "Original release notes",
+  "此版本未提供发布说明。": "No release notes provided.",
+  "完整内容请查看原始发布说明。": "See the original release notes for the full text.",
+  "此版本没有可下载的安装包。": "This release has no downloadable assets.",
+
 "正文原位预览，复杂绘图进入工作台": "Inline previews, a workspace for complex diagrams",
 "乐谱、曲线和图示仍在正文中预览。需要多区域操作时，电路、逻辑门和结构式使用完整画布，完成后返回此前的写作位置。": "Music, plots and diagrams still preview in the document. Circuits, logic and chemical structures use a full canvas when multiple regions are needed, then return you to writing.",
 "电路工作台：元件栏、完整画布、检查器与实际 TeX 预览": "Circuit workspace: components, full canvas, inspector and actual TeX preview",
@@ -369,23 +384,20 @@ export const EN: Record<string, string> = {
   '可以核对的部分': 'The parts you can verify',
   '下面几行来自当前仓库与最近一次夜间构建，不是估算。':
     'The lines below come from the repository and the latest nightly build. Nothing here is estimated.',
-  '126 个用例、20 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    '126 tests across 20 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '135 个用例、21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    '135 tests across 21 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
   '106 个 IPC 通道，preload 与主进程对应，按能力校验路径、参数和状态。':
     '106 IPC channels: preload matches the main process, with capability-specific path, argument and state validation.',
   '每次夜间构建产出 8 个安装包，三个平台来自同一份 main。':
     'Every nightly build produces 8 installers; all three platforms come from the same main branch.',
-  '27 篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。':
-    '27 documents, each in Chinese and English; when a translation is missing it falls back to Chinese with a note at the top.',
   'RSS 订阅': 'RSS feed',
   '可核对：': 'Verifiable: ',
-  '126 条回归用例': '126 regression tests',
+  '135 条回归用例': '135 regression tests',
   '106 个 IPC 通道': '106 IPC channels',
   '每次夜构 8 个安装包': '8 installers per nightly',
-  '27 篇文档，中英各一版': '27 documents in Chinese and English',
   '拖动分割线，对比 Studio 与 Night': 'Drag the divider to compare Studio and Night',
-  '条回归用例，20 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    'regression tests across 20 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '条回归用例，21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    'regression tests across 21 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
   '个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
     'IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
   '个安装包 / 次夜构，三个平台来自同一份 main。':
@@ -430,8 +442,10 @@ export const EN: Record<string, string> = {
   'TeXPro 是一个本地优先的 LaTeX 桌面工作台：可视编辑、纸面排版与工程化编译放在同一个窗口。它不是 Markdown 编辑器，也不是在线协作平台；源码 .tex 是文档原件，排版以本机 TeX 生成的 PDF 为准。': 'TeXPro is a local-first LaTeX desktop workbench: visual editing, paper-like typesetting and project-aware compilation in one window. It is not a Markdown editor or an online collaboration platform; the .tex source is the document of record and the PDF produced by the local TeX toolchain is the output.',
   '可以引用的事实': 'Facts you can cite',
   '主进程与 preload 使用 106 个 IPC 通道，其中 100 个请求、6 类事件。': 'The main process and preload use 106 IPC channels: 100 requests and 6 event types.',
-  'tests/ 下有 20 个测试文件、126 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 20 files and 126 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
-  '文档 27 篇，中文与英文各一版；博客只写简体中文。': '27 documentation pages, one Chinese and one English version each; the blog is written in Simplified Chinese only.',
+  'tests/ 下有 21 个测试文件、135 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 21 files and 135 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
+  '文档：{zh} 篇中文、{en} 篇英文；博客只写简体中文。': '{zh} Chinese and {en} English documentation pages; the blog is written in Simplified Chinese only.',
+  '篇文档（中文 / 英文）': 'docs (Chinese / English)',
+  '篇文档（中文 / 英文）；缺译文时回落中文并在页头注明。': 'documents (Chinese / English); missing translations fall back to Chinese with a note.',
   '当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。': 'The current nightly configuration produces 8 distribution packages: 2 for macOS, 3 for Windows and 3 for Linux.',
   '机器可读入口': 'Machine-readable entry points',
   'llms.txt：站点结构与文档、博客的纯文本索引': 'llms.txt: plain-text index of the site, docs and blog',
@@ -480,7 +494,7 @@ export const EN: Record<string, string> = {
   '占位符': 'Placeholder',
   '参考文献': 'References',
   '正文里的每个上标、每个数字都在这张表里：左边是出处，右边是那句结论，编号与正文一一对应。': 'Every superscript and every number on this page appears in this table: source on the left, the claim on the right, numbered to match the text.',
-  '条回归用例': 'regression tests across 20 files',
+  '条回归用例': 'regression tests across 21 files',
   '个 IPC 通道': 'IPC channels, one-to-one with the preload bridge',
   '个安装包 / 次夜构': 'installers per nightly build, three platforms',
   '篇文档，中英各一版': 'docs, Chinese and English editions',

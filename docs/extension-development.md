@@ -111,3 +111,7 @@ node scripts/pack-extension.cjs examples/extensions/quiet-paper /tmp/quiet-paper
 配套 Skill 位于 `skills/texpro-extension-development/`，可复制整个目录安装到所用 AI 工具的技能目录；TeXPro 不自动修改全局技能。交接时提交清单、源代码、许可证、包、测试说明及限制。宿主改动必须完整基线零跳过，并同步官网中英文、i18n、实际截图和博客。
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
+
+## 最简配色主题
+
+仅改变强调色时不需要样式编译：`examples/extensions/accent-only` 只包含 `texpro.extension.json` 和 `LICENSE`，`capabilities: []`，声明 `contributes.themes[].tokens.accent`，其他 token 继承基础模式。可直接 check／pack 为 `.tpt`，无需可执行入口、stylesheet、构建配置及依赖。`theme.styles` 只对 CSS 必需；纯 token 包不需要代码或样式信任授权。回归覆盖两文件归档、安装、启用和停用恢复。

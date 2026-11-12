@@ -3,6 +3,7 @@ import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { SITE_LINKS } from '@/config/constants';
 import { CLAIMS } from '@/data/claims';
+import { DOC_METRIC } from '@/data/documentation';
 import { useT } from '@/i18n';
 
 const REPO = SITE_LINKS.repo.replace(/\/$/, '');
@@ -11,8 +12,8 @@ const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 const FIGURES = [
   {
     source: 'tests/',
-    figure: '126',
-    text: '条回归用例，20 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
+    figure: '135',
+    text: '条回归用例，21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
     href: `${REPO}/tree/main/tests`,
   },
   {
@@ -29,8 +30,8 @@ const FIGURES = [
   },
   {
     source: 'docs/',
-    figure: '27 × 2',
-    text: '篇文档，中英各一版；缺译文时回落中文并在页头注明。',
+    figure: DOC_METRIC.value,
+    text: DOC_METRIC.description,
     to: '/docs',
   },
 ];

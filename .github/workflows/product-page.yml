@@ -8,6 +8,10 @@ on:
     paths: ['product-page/**']
   workflow_dispatch:
     inputs:
+      release_tag:
+        description: Published stable or dated Nightly tag to refresh
+        required: false
+        type: string
       nightly_tag:
         description: Published Nightly tag to refresh (blank for latest release)
         required: false
@@ -48,7 +52,7 @@ jobs:
       - name: Typecheck and build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TEXPRO_RELEASE_TAG: ${{ inputs.nightly_tag || '' }}
+          TEXPRO_RELEASE_TAG: ${{ inputs.release_tag || inputs.nightly_tag || '' }}
           PAGES_BASE_PATH: ${{ (github.event_name == 'pull_request' || github.ref != 'refs/heads/main') && format('/{0}/', github.event.repository.name) || steps.pages.outputs.base_path }}
         run: pnpm run build
       - name: Support direct links to client routes

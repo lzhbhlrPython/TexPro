@@ -29,10 +29,10 @@ PAGES_BASE_PATH=/TexStudioPro pnpm exec vite preview --host 127.0.0.1
 工作流将入口复制为 `404.html`，供 Pages 在直接访问客户端路由时载入应用；
 GitHub Pages 的此类回退仍返回 HTTP 404，新增需要搜索引擎索引的页面时应改为静态预渲染。
 
-## Nightly 版本刷新
+## 发布后的版本刷新
 
-Nightly 的 release job 在安装包上传并成功发布之后，以 `actions: write` 权限
-显式 dispatch 产品页工作流，传入本次 `nightly_tag`。无有效变更而跳过 Nightly、
+Nightly／正式版的发布任务 在安装包上传并成功发布之后，以 `actions: write` 权限
+显式 dispatch 产品页工作流，传入本次 `release_tag`（兼容旧 `nightly_tag`）。无新提交而跳过 Nightly、
 打包失败或发布失败时不会触发。不要依赖 `GITHUB_TOKEN` 创建 Release 自动启动
 另一个 release 事件工作流。
 
@@ -42,7 +42,11 @@ Pages 构建调用 `product-page/scripts/fetch-release.mjs`，将准确标签传
 不会把旧版本当成新发布成功部署；普通构建离线仍可保留旧快照。
 这些生成变更只用于构建，不提交回 Git，也不触发新的 Nightly。
 
-产品页内容变更和 Nightly 版本刷新是两条允许的自动重建来源；手动入口继续保留。
+产品页内容变更和成功发布后的版本刷新是两条允许的自动重建来源；手动入口继续保留。
 构建和部署规则需要合并到 `main` 后才作用于定时发布。`main` 之外的手动构建不部署。
 
 本地内容构建只刷新不受版式锁约束的版本快照，不改写 `constants.ts`；旧入口常量适配限定在 CI 构建中。
+
+Nightly 每日于 Asia/Shanghai 21:23（UTC 13:23，cron `23 13 * * *`）检查相对上次成功 Nightly 是否有新提交；支持手动触发。Actions 定时任务可能因排队延后，配置时间不是构建完成或安装包上线时间。
+
+`/releases` 展示正式版本，排除草稿和预发布；构建时 Vite 自动调用 `fetch-stable-releases.mjs` 分页读取真实 GitHub Release，写入版本列表快照。正式版标签刷新要求列表包含本次准确版本及资产，失败即停止构建。普通构建可保留带明确提示的旧快照，第一次获取失败不能声称暂无正式版。列表、说明与下载来自同一记录，说明按纯文本呈现，不执行 HTML。

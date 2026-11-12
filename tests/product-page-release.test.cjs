@@ -41,7 +41,7 @@ test('pinned refresh rejects unavailable, wrong, draft and assetless releases in
   for (const fetcher of [async()=>({ok:false,status:404,statusText:'Not Found'}),async()=>ok(release({tag_name:'nightly'})),async()=>ok(release({draft:true})),async()=>ok(release({assets:[]}))]) {
     await assert.rejects(syncRelease({rootDir:root,repo:'owner/repo',pinnedTag:tag,fetcher})); assert.equal(fs.readFileSync(snapshot,'utf8'),before);
   }
-  await assert.rejects(syncRelease({rootDir:root,repo:'owner/repo',pinnedTag:'not-a-nightly',fetcher:async()=>{throw Error('must not fetch');}}),/Invalid dated Nightly/);
+  await assert.rejects(syncRelease({rootDir:root,repo:'owner/repo',pinnedTag:'not-a-nightly',fetcher:async()=>{throw Error('must not fetch');}}),/Invalid stable or dated Nightly/);
 });
 test('ordinary offline builds preserve the previous version and its original sync time', async t => {
   const { syncRelease } = await releaseModule, {root,snapshot}=fixture(t);
@@ -49,4 +49,24 @@ test('ordinary offline builds preserve the previous version and its original syn
   await syncRelease({rootDir:root,repo:'owner/repo',updateConstants:false,fetcher:async()=>{throw Error('offline');}});
   assert.equal(fs.readFileSync(path.join(root,'src/config/constants.ts'),'utf8'),constants);
   const data=JSON.parse(fs.readFileSync(snapshot,'utf8')); assert.equal(data.version,'0.1.0-20261108-Nightly'); assert.equal(data.syncedAt,'2026-11-08T03:30:00Z'); assert.equal(data.source,'stale');
+});
+test('pinned stable refresh accepts the exact formal version and download metadata', async t => {
+  const { syncRelease } = await releaseModule, {root,snapshot}=fixture(t);
+  await syncRelease({rootDir:root,repo:'owner/repo',pinnedTag:'v1.2.3',fetcher:async()=>ok(release({tag_name:'v1.2.3',prerelease:false}))});
+  const data=JSON.parse(fs.readFileSync(snapshot)); assert.equal(data.version,'1.2.3');assert.equal(data.channel,'stable');
+});
+test('stable history paginates past Nightlies, filters drafts and rejects incomplete pinned refreshes', async t => {
+  const { fetchStableReleases }=await import('../product-page/src/lib/stable-releases.mjs');
+  const { syncStableReleases }=await import('../product-page/scripts/fetch-stable-releases.mjs');
+  const stable=release({tag_name:'v1.2.3',prerelease:false,body:'Real release notes',html_url:'https://github.com/owner/repo/releases/tag/v1.2.3'});
+  const pages=[];
+  const history=await fetchStableReleases('owner/repo',{fetcher:async url=>{pages.push(url);return ok(pages.length===1?Array(100).fill(release()):[stable,{...stable,draft:true}]);}});
+  assert.equal(pages.length,2);assert.equal(history.length,1);assert.equal(history[0].notes,'Real release notes');assert.equal(history[0].assets.length,1);
+  const {root}=fixture(t),target=path.join(root,'src/config/stable-releases.json');
+  await syncStableReleases({rootDir:root,repo:'owner/repo',pinnedTag:'v1.2.3',fetcher:async()=>ok([stable])});
+  const before=fs.readFileSync(target,'utf8');
+  await assert.rejects(syncStableReleases({rootDir:root,repo:'owner/repo',pinnedTag:'v1.2.3',fetcher:async()=>ok([])}),/missing/);
+  assert.equal(fs.readFileSync(target,'utf8'),before);
+  await syncStableReleases({rootDir:root,repo:'owner/repo',fetcher:async()=>{throw Error('offline');}});
+  const stale=JSON.parse(fs.readFileSync(target));assert.equal(stale.source,'stale');assert.equal(stale.releases[0].tag,'v1.2.3');assert.equal(stale.syncedAt,JSON.parse(before).syncedAt);
 });

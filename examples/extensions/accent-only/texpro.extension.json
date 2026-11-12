@@ -1,0 +1,17 @@
+{
+  "id": "texpro.accent-only",
+  "name": { "en": "Accent only", "zh": "只改主题色" },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "Baolin Liu",
+  "license": "MIT",
+  "capabilities": [],
+  "contributes": {
+    "themes": [{
+      "id": "accent",
+      "title": { "en": "Warm accent", "zh": "暖色强调" },
+      "base": "paper",
+      "tokens": { "accent": "#9c472b" }
+    }]
+  }
+}
