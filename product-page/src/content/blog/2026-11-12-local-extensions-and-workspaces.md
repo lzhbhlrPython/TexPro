@@ -37,3 +37,13 @@ rtex-ts 精确升级到 0.1.11，保留 Henry Yang 与 realtime-tex 的版权来
 完整回归要求零失败、零跳过、零 TODO，不能用定向补跑代替整套结果。测试包含真实子进程、包完整性与路径、所有示例处理器、工程过期身份、CodeMirror 撤销与 IME 防护。原生旅程验证实际安装、信任、主题预览和恢复、输入、焦点、专业画布及中英文。发行校验另检查 ASAR 与外部 worker；本机目录包再运行实际插件和 LuaLaTeX 会话。
 
 macOS arm64 是本轮实际原生与目录包验收环境，Windows／Linux 的路径约束和样式分支有自动检查，尚不能称为两个系统均完成原生验收。公开开发契约、双语文档、真实截图及配套开发 Skill 用于下一轮交接，发布与合并状态另以 Git 和远端记录为准。
+
+## SDK 与 qwertysay 发布
+
+2026-11-12，[@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) 与 [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) 的 0.1.0 均以 Baolin Liu（gardenialiu）名义、MIT 协议发布。注册表版本和完整性摘要与发布前的 tarball 一致；发布后从注册表重新安装，验证三类脚手架、实际 TypeScript 编译、校验、归档和拒绝路径。公开的是开发工具，插件仍按本地包自行分发。
+
+```sh
+npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init my-plugin --id author.example --author "Your name"
+```
+
+npm 发布、任务分支推送、应用合并与安装包发布各有独立状态；开发工具已发布不代表 TeXPro 主分支已合并或新应用版本已上线。

@@ -1,6 +1,6 @@
 ---
 slug: extension-development
-title: 插件 SDK 与开发 Skill
+title: 插件 SDK、qwertysay 与开发 Skill
 group: 开发
 order: 65
 summary: 使用 API 1 开发和分发本地插件包、工具和主题，理解契约、测试与当前边界。
@@ -13,7 +13,7 @@ summary: 使用 API 1 开发和分发本地插件包、工具和主题，理解�
 机制借鉴 Koishi 的生命周期与服务组织思路，使用 TeXPro 自有实现与协议，不复用其运行时、控制台源码或市场服务，也不兼容 Koishi 插件格式。TeXPro 新增代码及示例为 MIT；第三方内容保留各自许可。
 
 ```sh
-npx --package @gardenialiu/qwertysay qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
+npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
 cd my-plugin
 npm install
 npm run build
@@ -22,6 +22,17 @@ npm run pack:extension
 ```
 
 默认生成 TypeScript；`--language js` 无需构建，`--type theme` 生成主题。输出到源码目录外，拒绝覆盖。CLI 不自动安装依赖、联网或执行扩展代码；`npx` 可能下载 SDK。也可使用 `qwertysay check` 校验目录／归档，或 `qwertysay pack` 打包。
+
+## npm 发行版
+
+2026-11-12，两包均以 Baolin Liu（gardenialiu）名义按 MIT 首次发布：
+
+| npm 包 | 版本 | 职责 |
+| --- | --- | --- |
+| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.1.0 | API 1 类型与共用校验核心 |
+| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.1.0 | qwertysay 脚手架、校验与打包 |
+
+注册表版本及完整性摘要与测试过的 tarball 一致，已从注册表独立安装，验证 TypeScript／JavaScript／主题脚手架、编译、归档及拒绝路径。npm 开发工具的发布不等于公开插件市场；插件包继续自行分发。
 
 ## 包格式与处理器
 

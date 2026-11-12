@@ -1,6 +1,6 @@
 ---
 slug: extension-development
-title: Extension SDK and development Skill
+title: Extension SDK, qwertysay and development Skill
 group: Development
 order: 65
 summary: Develop and distribute local API 1 extensions, tools and themes with explicit contracts and verification.
@@ -13,7 +13,7 @@ The independent npm SDK `@gardenialiu/texpro-extension-sdk` provides API 1 contr
 The design draws on Koishi's disposable lifecycle and service organization. TeXPro implements its own protocol and includes no Koishi runtime, console source or market service. Koishi plugin formats are not compatible. New TeXPro code and examples are MIT; third-party materials retain their own licenses.
 
 ```sh
-npx --package @gardenialiu/qwertysay qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
+npx --package @gardenialiu/qwertysay@0.1.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
 cd my-plugin
 npm install
 npm run build
@@ -22,6 +22,17 @@ npm run pack:extension
 ```
 
 TypeScript is the default. Use `--language js` to omit the build step, or `--type theme` for themes. Output is outside the source directory and never overwrites files. The CLI does not install dependencies, access networks or execute extensions; `npx` may download the SDK. Use `qwertysay check` for directories/archives and `qwertysay pack` to package them.
+
+## npm releases
+
+Both packages were first published on 2026-11-12 by Baolin Liu (gardenialiu), under MIT:
+
+| npm package | Version | Responsibility |
+| --- | --- | --- |
+| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.1.0 | API 1 types and shared validation core |
+| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.1.0 | qwertysay scaffolding, validation and packaging |
+
+Registry versions and integrity digests match the tested tarballs. Independent registry installs verified TypeScript, JavaScript and theme scaffolds, compilation, archives and rejection paths. Published developer tooling does not imply a public plugin marketplace; extension artifacts are still shared manually.
 
 ## Format and handlers
 

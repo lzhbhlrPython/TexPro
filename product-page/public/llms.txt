@@ -38,7 +38,7 @@
 - [版权与许可](https://lzhbhlrpython.github.io/TexStudioPro/docs/copyright): TeXPro 的 MIT 许可、本站内容、第三方依赖与字体许可、商标与隐私说明。
 - [本地插件包](https://lzhbhlrpython.github.io/TexStudioPro/docs/extensions): 安装、信任、配置和手动更新 TeXPro 扩展，保留本地优先的写作流程。
 - [主题包](https://lzhbhlrpython.github.io/TexStudioPro/docs/themes): 预览和应用本地主题包，保留三种基础模式及正式 PDF 的原始颜色。
-- [插件 SDK 与开发 Skill](https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-development): 使用 API 1 开发和分发本地插件包、工具和主题，理解契约、测试与当前边界。
+- [插件 SDK、qwertysay 与开发 Skill](https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-development): 使用 API 1 开发和分发本地插件包、工具和主题，理解契约、测试与当前边界。
 
 ## 博客
 
