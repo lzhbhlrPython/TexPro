@@ -1,4 +1,5 @@
 import type { RealtimeDocument, RealtimeEvent } from './lib/realtimeTypes';
+import type { InstalledExtension, PackageManifest, ExtensionSnapshot, ExtensionResult } from '../packages/extension-sdk';
 import type {
   AppInfo,
   AssetItem,
@@ -13,6 +14,19 @@ import type {
 } from './types';
 
 export interface TexProApi {
+  safeMode: boolean;
+  platform: string;
+  extensionsList: () => Promise<InstalledExtension[]>;
+  extensionsChoose: (development: boolean) => Promise<{ token: string; manifest: PackageManifest; digest: string; development: boolean } | null>;
+  extensionsInstall: (token: string) => Promise<InstalledExtension[]>;
+  extensionsEnable: (id: string, enabled: boolean, trusted?: boolean) => Promise<InstalledExtension[]>;
+  extensionsConfigure: (id: string, config: Record<string, unknown>) => Promise<InstalledExtension[]>;
+  extensionsRemove: (id: string) => Promise<InstalledExtension[]>;
+  extensionsReload: (id: string) => Promise<InstalledExtension[]>;
+  extensionsRollback: (id: string) => Promise<InstalledExtension[]>;
+  extensionsInvoke: (id: string, action: string, snapshot: ExtensionSnapshot, input: Record<string, unknown>) => Promise<ExtensionResult>;
+  extensionsEvent: (name: 'projectChanged' | 'buildFinished', payload: unknown) => Promise<boolean>;
+  onExtensionsChanged: (callback: () => void) => () => void;
   startRealtime: (options: { root: string; engine: Engine; sessionId: string; documents: RealtimeDocument[] }) => Promise<string>;
   updateRealtime: (id: string, documents: RealtimeDocument[]) => Promise<boolean>;
   stopRealtime: (id: string) => Promise<void>;

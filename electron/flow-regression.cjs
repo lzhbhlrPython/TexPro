@@ -24,7 +24,13 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
   const key = async (keyCode, modifiers = []) => { for (const type of ['keyDown', 'keyUp']) window.webContents.sendInputEvent({ type, keyCode, modifiers }); await pause(60); };
   const type = async text => { await window.webContents.insertText(text); await pause(120); };
   const endLine = async text => { await click(line(text)); await key('Right', ['meta']); };
-  const open = async id => { await click(el('[data-testid="more-menu"]')); await click(el(`[data-action="${id}"]`)); };
+  const open = async id => {
+    if (id === 'language-en' || id === 'language-zh') {
+      const language = id.slice(-2); if (await js('document.documentElement.lang') === (language === 'zh' ? 'zh-CN' : 'en')) return;
+      id = 'language';
+    }
+    await click(el('[data-testid="more-menu"]')); await click(el(`[data-action="${id}"]`));
+  };
   const save = async () => { await key('s', ['meta']); await pause(180); };
   const shot = async name => {
     await js(`document.querySelectorAll('.toast button').forEach(e=>e.click())`);
@@ -44,6 +50,9 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     fs.writeFileSync(chapter, '\\section{Child}\\label{sec:child}\nChapter writing.\n\\ref{sec:start} and \\cref{sec:child,sec:start}.\n');
     await click(el('.welcome-project-row')); await wait(`!!document.querySelector('.cm-content')`);
     await js(`window.__flowErrors=[];addEventListener('error',e=>__flowErrors.push(e.message));addEventListener('unhandledrejection',e=>__flowErrors.push(String(e.reason)));true`);
+    if (process.env.TEXPRO_EXTENSION_REGRESSION === '1') {
+      await require('./extensions-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main }); app.quit(); return;
+    }
     if (process.env.TEXPRO_REALTIME_REGRESSION === '1') {
       await require('./realtime-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return;
     }
@@ -123,8 +132,8 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
 
     for(const language of ['zh','en']) {
       await key('k',['meta']); await wait(`!!document.querySelector('.palette')`);
-      await type(language==='en'?'language: English':'主题');
-      if(language==='en') { await key('Enter'); await key('k',['meta']); }
+      await type(language==='en'?'English':'主题');
+      if(language==='en') { await key('Enter'); await wait(`document.documentElement.lang==='en'`); await key('k',['meta']); await wait(`!!document.querySelector('.palette')`); }
       window.webContents.selectAll(); await key('Backspace');
       for(const theme of ['paper','studio','night']) { await js(`document.documentElement.dataset.theme=${JSON.stringify(theme)}`); await shot(`palette-${language}-${theme}`); }
       const content=await js(`document.querySelector('.palette').textContent`);

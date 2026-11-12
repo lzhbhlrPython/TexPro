@@ -154,6 +154,7 @@ export interface ProjectFileOperation {
 
 export interface Settings {
   theme: ThemeName;
+  themePackage?: string;
   language: Language;
   fontSize: number;
   editorWidth: number;

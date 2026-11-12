@@ -1,3 +1,5 @@
+import { WorkspaceFrame } from './WorkspaceFrame';
+import { parseInkDraft } from '../lib/inkDraft';
 import { useEffect, useRef, useState } from 'react';
 import { Activity, Eraser, PenLine, Redo2, Sparkles, Trash2, Undo2, X } from 'lucide-react';
 import { getStroke } from 'perfect-freehand';
@@ -41,6 +43,19 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
+  const [draftRoot, setDraftRoot] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState(false);
+  useEffect(() => {
+    setDraftError(false); setRedoStack([]);
+    try { setStrokes(projectRoot ? parseInkDraft(JSON.parse(localStorage.getItem(`texpro.ink.${projectRoot}`) || '[]')) : []); }
+    catch { setStrokes([]); setDraftError(true); }
+    setDraftRoot(projectRoot);
+  }, [projectRoot]);
+  useEffect(() => {
+    if (!projectRoot || draftRoot !== projectRoot) return;
+    try { parseInkDraft(strokes); localStorage.setItem(`texpro.ink.${projectRoot}`, JSON.stringify(strokes)); }
+    catch { setDraftError(true); }
+  }, [strokes, projectRoot, draftRoot]);
   const [redoStack, setRedoStack] = useState<Stroke[]>([]);
   const [color, setColor] = useState('#b4492c');
   const [width, setWidth] = useState(4.5);
@@ -225,8 +240,7 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
   };
 
   return (
-    <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="ink-studio" data-testid="ink-studio" data-strokes={strokes.length} onMouseDown={(event) => event.stopPropagation()}>
+    <WorkspaceFrame title={t('Ink studio')} className="ink-studio" onClose={onClose} testId="ink-studio" dataStrokes={strokes.length}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><PenLine size={18} /></div>
@@ -241,6 +255,7 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
           </div>
         </header>
 
+        {draftError && <p role="alert" className="extension-error">{t('Could not preserve this workspace draft. Export it before closing.')}</p>}
         <div className="ink-toolbar">
           <input type="color" value={color} onChange={(event) => setColor(event.target.value)} title={t('Ink color')} />
           <input type="range" min={1} max={14} step={0.5} value={width} onChange={(event) => setWidth(Number(event.target.value))} title={t('Ink width')} />
@@ -280,7 +295,6 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
           <button className="secondary-btn" onClick={() => { onInsert(toTikz()); onClose(); }} disabled={!strokes.length}>{t('Insert TikZ')}</button>
           <button className="primary-btn" onClick={() => void savePng()} disabled={!strokes.length || !projectRoot || saving}>{t('Save PNG & insert')}</button>
         </footer>
-      </section>
-    </div>
+    </WorkspaceFrame>
   );
 }

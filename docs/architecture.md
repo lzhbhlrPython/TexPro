@@ -95,3 +95,7 @@ SyncTeX 的 `x/y` 是文字锚点，`h/v/W/H` 是排版盒子；不能把锚点�
 `writingNotes`、`writingStructure`、`writingRevisions`、`writingFigure` 负责纯源码转换；CodeMirror 的 `writingTargets` 保护异步插入范围，`writingSession` 按文件保留 EditorState 与滚动，工程切换丢弃旧会话。组合输入状态由 `writing.ts` 统一管理，预览、修订与编译反馈在 IME 组合期间仅映射现有装饰，结束后刷新。
 
 引用索引提供来源位置、题注/标题及 BibTeX 元数据；打开缓冲区覆盖磁盘标签和待办。`writingReview` 只在文档内投影比较结果；Git 基线通过校验哈希及工程内路径的只读 IPC 获取，不 checkout、不写仓库。恢复段落与完整内容移动隔离为单次撤销，图片文件与源码撤销各自独立。编译反馈绑定本次输入，源文修改后标为过期。详见 [连续写作](writing.md)。
+
+## 扩展、命令与工作空间
+
+本地包服务位于 `electron/services/extensions/`，公开数据契约在 `packages/extension-sdk/`；进程运行代码，主进程拥有文件安装和显式服务边界。`src/app/commands/` 合并内置与包命令目录，`writingPort.ts` 和纯结果校验隔离编辑器，`extensions/` 负责快照与提供器，`themes/` 负责主题级联和样式清理。`inspection.ts` 共用工程检查，`workspaces.ts` 管理互斥专业工作区，`WorkspaceFrame` 共用返回和焦点。没有拆解全部历史模块；新能力按这些边界增长，避免进一步扩大 App 和 tex 服务。API、信任、恢复与适配矩阵见 [扩展架构](extensions.md) 和 [开发指南](extension-development.md)。

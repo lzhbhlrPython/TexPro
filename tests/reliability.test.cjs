@@ -59,6 +59,8 @@ function fixture(root) {
     'dist/index.html': '<script src="./assets/index-a.js"></script><link href="./assets/index-a.css" rel="stylesheet">',
     'dist/assets/index-a.js': '', 'dist/assets/index-a.css': '', 'dist/assets/pdf.worker-a.mjs': '',
   })) { fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true }); fs.writeFileSync(path.join(root, name), content); }
+  fs.cpSync(path.join(__dirname, '../electron/services/extensions'), path.join(root, 'electron/services/extensions'), { recursive: true });
+  fs.cpSync(path.join(__dirname, '../packages/extension-sdk/lib'), path.join(root, 'packages/extension-sdk/lib'), { recursive: true });
   fs.cpSync(path.join(__dirname, '../node_modules/rtex-ts'), path.join(root, 'node_modules/rtex-ts'), { recursive: true });
   for (const name of ['fontkit', '@swc/helpers', 'brotli', 'base64-js', 'clone', 'dfa', 'fast-deep-equal', 'restructure', 'tiny-inflate', 'unicode-properties', 'unicode-trie', 'pako']) {
     const file = path.join(root, 'node_modules', name, 'package.json'); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, '{}');

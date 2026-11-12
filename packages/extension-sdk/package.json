@@ -1,10 +1,61 @@
 {
-  "name": "@texpro/extension-sdk",
+  "name": "@gardenialiu/texpro-extension-sdk",
   "version": "0.1.0",
-  "private": true,
-  "description": "Public extension contracts for TeXPro API 1; local distribution preview",
+  "description": "TeXPro API 1 TypeScript contracts, authoring helpers and shared .tpp/.tpt validation core",
   "license": "MIT",
   "types": "index.d.ts",
   "main": "index.cjs",
-  "files": ["index.cjs", "index.d.ts", "LICENSE", "README.md"]
+  "files": [
+    "index.cjs",
+    "index.d.ts",
+    "lib/",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md",
+    "package-tools.cjs"
+  ],
+  "author": {
+    "name": "Baolin Liu",
+    "url": "https://www.npmjs.com/~gardenialiu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lzhbhlrPython/TexPro.git",
+    "directory": "packages/extension-sdk"
+  },
+  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/packages/extension-sdk",
+  "bugs": {
+    "url": "https://github.com/lzhbhlrPython/TexPro/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "texpro",
+    "latex",
+    "plugin",
+    "theme",
+    "sdk",
+    "scaffold"
+  ],
+  "dependencies": {
+    "postcss": "8.5.32",
+    "postcss-value-parser": "4.2.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.cjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.cjs"
+    },
+    "./package-tools": "./package-tools.cjs"
+  }
 }

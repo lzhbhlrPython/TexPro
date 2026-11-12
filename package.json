@@ -20,7 +20,7 @@
     "package:win": "npm run build && electron-builder --win nsis portable zip --x64",
     "package:linux": "npm run build && electron-builder --linux AppImage deb rpm --x64",
     "verify:release": "node scripts/verify-release.cjs",
-    "test:regression": "node --test tests/*.test.cjs",
+    "test:regression": "node scripts/test-regression.mjs",
     "test:ui": "node scripts/test-ui.cjs",
     "test:music": "node scripts/test-music.cjs",
     "test:music:ui": "node scripts/test-ui.cjs --music",
@@ -30,7 +30,11 @@
     "test:flow:ui": "node scripts/test-flow-ui.cjs",
     "test:aids:ui": "node scripts/test-flow-ui.cjs --aids",
     "test:realtime": "node scripts/test-realtime.cjs",
-    "test:realtime:ui": "node scripts/test-flow-ui.cjs --realtime"
+    "test:realtime:ui": "node scripts/test-flow-ui.cjs --realtime",
+    "test:extensions:ui": "node scripts/test-flow-ui.cjs --extensions",
+    "test:extensions": "node --test tests/extensions.test.cjs tests/extension-renderer.test.cjs",
+    "extension:pack": "node scripts/pack-extension.cjs",
+    "test:extensions:sdk:package": "node scripts/test-extension-sdk-package.cjs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.0",
@@ -47,9 +51,11 @@
     "lucide-react": "^0.544.0",
     "pdfjs-dist": "^6.4.299",
     "perfect-freehand": "^1.2.3",
+    "postcss": "8.5.32",
+    "postcss-value-parser": "4.2.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "rtex-ts": "0.1.0",
+    "rtex-ts": "0.1.11",
     "ws": "^8.22.0",
     "y-codemirror.next": "^0.3.6",
     "y-protocols": "^1.0.7",
@@ -68,7 +74,8 @@
     "electron-builder": "^26.0.0",
     "typescript": "^5.9.0",
     "vite": "^8.3.4",
-    "wait-on": "^9.0.0"
+    "wait-on": "^9.0.0",
+    "@gardenialiu/texpro-extension-sdk": "file:packages/extension-sdk"
   },
   "build": {
     "appId": "dev.texpro.app",
@@ -89,7 +96,10 @@
       "!node_modules/@napi-rs/canvas-*/**",
       "!**/node_modules/@napi-rs/canvas*/**",
       "!**/.playwright-mcp/**",
-      "THIRD_PARTY_NOTICES.md"
+      "THIRD_PARTY_NOTICES.md",
+      "packages/extension-sdk/lib/**",
+      "packages/extension-sdk/LICENSE",
+      "packages/extension-sdk/package.json"
     ],
     "mac": {
       "category": "public.app-category.productivity",
@@ -144,7 +154,8 @@
       "node_modules/tiny-inflate/**",
       "node_modules/unicode-properties/**",
       "node_modules/unicode-trie/**",
-      "node_modules/pako/**"
+      "node_modules/pako/**",
+      "electron/services/extensions/worker.cjs"
     ],
     "nsis": {
       "artifactName": "${productName}-${version}-windows-${arch}-setup.${ext}"

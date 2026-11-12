@@ -1,0 +1,36 @@
+.extensions-panel, .extension-tool { display: flex; flex-direction: column; width: min(1060px, 94vw); height: min(740px, 88vh); color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 24px 90px #0005; overflow: hidden; }
+.extension-install, .extension-buttons, .extension-footer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 20px; }
+.extension-install { border-bottom: 1px solid var(--border); }
+.extensions-body { display: grid; grid-template-columns: 240px minmax(0, 1fr); flex: 1; min-height: 0; }
+.extensions-list { border-right: 1px solid var(--border); overflow: auto; padding: 12px; }
+.extensions-list > button { display: flex; flex-direction: column; gap: 5px; text-align: left; width: 100%; padding: 12px; border-radius: 6px; margin-bottom: 4px; }
+.extensions-list > button:hover, .extensions-list > button.active { background: var(--accent-soft); }
+.extensions-list small, .extension-contribution small { display: block; color: var(--text-muted); font-size: 11px; }
+.extension-details, .extension-tool-body { padding: 24px; overflow: auto; min-width: 0; flex: 1; }
+.extension-details h3, .extension-empty h3 { font-size: 19px; margin: 0 0 10px; }
+.extension-details h4 { font-size: 12px; margin: 24px 0 8px; }
+.extension-details p { font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.extension-id { font: 11px/1.6 var(--font-mono); color: var(--text-muted); overflow-wrap: anywhere; }
+.extension-buttons { padding: 12px 0 20px; }
+.extension-setting { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 0; font-size: 12px; }
+.extension-setting input:not([type="checkbox"]), .extension-input textarea { color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; min-width: 0; }
+.extension-contribution { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 0; border-top: 1px solid var(--border); font-size: 12px; }
+.extension-contribution > :first-child { margin-right: auto; }
+.extension-contribution strong { font-weight: 500; }
+.extension-trust { display: flex; align-items: flex-start; gap: 8px; padding: 12px 0; font-size: 12px; line-height: 1.6; }
+.extension-trust-note { padding-left: 12px; border-left: 2px solid var(--warning); color: var(--text-muted); }
+.extension-error { margin: 10px 20px; color: var(--danger); font-size: 12px; overflow-wrap: anywhere; }
+.extension-footer { border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); }
+.extension-empty { max-width: 420px; margin: 65px auto; color: var(--text-muted); }
+.extension-empty svg { color: var(--accent); margin-bottom: 20px; }
+.extension-empty h3 { color: var(--text); }
+.extension-input { display: flex; flex-direction: column; gap: 10px; font-size: 12px; margin: 0 0 14px; }
+.extension-input textarea { min-height: 85px; resize: vertical; font: 12px/1.6 var(--font-mono); }
+.extension-result { margin-top: 24px; font-size: 13px; line-height: 1.7; }
+.extension-result pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.7 var(--font-mono); padding: 14px; background: var(--bg); border-radius: 6px; max-height: 330px; overflow: auto; }
+.extension-edit { border-left: 2px solid var(--accent); padding-left: 12px; margin: 12px 0; }
+.extension-edit del { display: block; color: var(--danger); white-space: pre-wrap; }
+.extensions-panel :focus-visible, .extension-tool :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 720px) { .extensions-body { grid-template-columns: 170px minmax(0, 1fr); } .extension-details, .extension-tool-body { padding: 16px; } .extension-install, .extension-footer { padding: 10px 12px; } }
+@media (max-width: 520px) { .extensions-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } .extensions-list { max-height: 130px; border-right: 0; border-bottom: 1px solid var(--border); } }
+.extension-safety { margin: 0; padding: 10px 20px; color: var(--text-muted); background: var(--warning-soft); border-block: 1px solid var(--border); font-size: 11px; line-height: 1.6; flex-shrink: 0; }

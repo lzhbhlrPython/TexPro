@@ -3,6 +3,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function verifyContents(read, files) {
+  for (const name of ['theme', 'schema', 'archive', 'packages', 'manager', 'process', 'worker', 'ipc']) {
+    const file = `electron/services/extensions/${name}.cjs`;
+    if (!files.has(file)) throw new Error(`Release is missing ${file}`);
+  }
+  for (const name of ['schema', 'archive', 'packages', 'theme']) if (!files.has(`packages/extension-sdk/lib/${name}.cjs`)) throw new Error('Release is missing shared extension SDK core: ' + name);
   const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
   for (const file of required) if (!files.has(file)) throw new Error(`Release is missing ${file}. Run npm run build before packaging.`);
   const html = read('dist/index.html').toString();
@@ -24,7 +29,7 @@ function verifyDirectory(root) {
       if (entry.isDirectory()) walk(relative); else files.add(relative);
     }
   };
-  for (const name of ['dist', 'electron', 'mcp']) if (fs.existsSync(path.join(root, name))) walk(name);
+  for (const name of ['dist', 'electron', 'mcp', 'packages/extension-sdk']) if (fs.existsSync(path.join(root, name))) walk(name);
   for (const file of ['package.json', 'THIRD_PARTY_NOTICES.md']) if (fs.existsSync(path.join(root, file))) files.add(file);
   return verifyContents((file) => fs.readFileSync(path.join(root, file)), files);
 }
@@ -58,6 +63,7 @@ function verifyRealtimeResources(root) {
 }
 
 function verifyPackagedApp(archive) {
+  if (!fs.existsSync(path.join(archive + '.unpacked', 'electron/services/extensions/worker.cjs'))) throw new Error('Release is missing unpacked extension worker');
   verifyExternalResources(archive + '.unpacked');
   verifyRealtimeResources(archive + '.unpacked');
   return verifyArchive(archive);

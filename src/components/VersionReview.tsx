@@ -147,6 +147,7 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
         ) : (
         <div className="version-body">
           <aside className="version-list">
+            <button className="secondary-btn" onClick={onOpenGit}>{t('Use Git version control')}</button>
             <button className="primary-btn version-snapshot" onClick={() => void snapshotNow()} disabled={busy}>
               <Check size={12} /> {t('Create snapshot')}
             </button>

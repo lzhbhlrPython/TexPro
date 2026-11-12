@@ -1,3 +1,11 @@
+import { useEditorProviders } from './app/extensions/useEditorProviders';
+import { useWorkspaces } from './app/workspaces';
+import { commandRegistry } from './app/commands/types';
+import { builtinCommands } from './app/commands/builtins';
+import { useExtensions } from './app/extensions/useExtensions';
+import { useExtensionRunner } from './app/extensions/useExtensionRunner';
+import { localize } from './app/extensions/contracts';
+import { ExtensionTool } from './components/ExtensionTool';
 import { ChangeSet, Text, Transaction } from '@codemirror/state';
 import { renameLabels, textChange } from './lib/labelRename';
 import { planPlaceholder } from './lib/writingAids';
@@ -14,7 +22,7 @@ import { writingPackages, writingSnippets } from './lib/writingSnippets';
 import type { WritingTarget } from './editor/writingTargets';
 import type { WritingPosition, WritingSessions } from './editor/writingSession';
 import { musicBlock, newScore } from './lib/music';
-import { TemplateGallery, PgfplotsStudio, PluginMarket, PaperStudio, CrewPanel, CompileTheater, CommandStudio, PackageManager, GitPanel, InkStudio, SchematicStudio, BackupPanel, VersionReview, FontCoverage, ProjectGraph, ArxivPanel, McpPanel, AIAssistant, CommentsPanel, ExportStudio, ProjectDoctor, TableStudio, ImportStudio, TemplateWorkshop, ProjectStudio, BibManager, FormulaStudio, LayoutStudio, TikzStudio } from './app/lazyTools';
+import { TemplateGallery, PgfplotsStudio, ExtensionsPanel, PaperStudio, PaperApiPanel, CrewPanel, CommandStudio, PackageManager, GitPanel, InkStudio, SchematicStudio, BackupPanel, VersionReview, FontCoverage, ProjectGraph, ArxivPanel, McpPanel, AIAssistant, CommentsPanel, ExportStudio, ProjectDoctor, TableStudio, ImportStudio, TemplateWorkshop, ProjectStudio, BibManager, FormulaStudio, LayoutStudio, TikzStudio } from './app/lazyTools';
 import { SETTINGS_KEY, RECENT_KEY, loadSettings, loadRecent } from './app/settings';
 import { findFirstTex, flattenFiles, isTextPath, normalizeFile, fileFromBuild, reanchorComments } from './app/project';
 import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -125,6 +133,7 @@ const WELCOME_ONLY = PAGE_PARAMS.get('welcome') === '1';
 export default function App() {
   const { t, language } = useI18n();
   const [settings, setSettings] = useState<Settings>(loadSettings);
+  const extensions = useExtensions(settings);
   const [project, setProject] = useState<Project | null>(null);
   const [docs, setDocs] = useState<Record<string, OpenDoc>>({});
   const [activePath, setActivePath] = useState<string | null>(null);
@@ -146,7 +155,7 @@ export default function App() {
   const projectConfigRef = useRef(projectConfig);
   const [projectStudioOpen, setProjectStudioOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const [workshopOpen, setWorkshopOpen] = useState(false);
+  const { workshopOpen, setWorkshopOpen, schematicMode, setSchematicMode, inkOpen, setInkOpen } = useWorkspaces(project?.root || null);
   const [tableRequest, setTableRequest] = useState<{ source: string; focusPos: number; insert: boolean } | null>(null);
   const [doctorOpen, setDoctorOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
@@ -160,8 +169,8 @@ export default function App() {
   const [fontOpen, setFontOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
-  const [schematicMode, setSchematicMode] = useState<SchematicMode | null>(null);
-  const [inkOpen, setInkOpen] = useState(false);
+
+
   const [collabOpen, setCollabOpen] = useState(false);
   const [collabExtension, setCollabExtension] = useState<Extension | null>(null);
   const [collabFile, setCollabFile] = useState<string | null>(null);
@@ -172,7 +181,9 @@ export default function App() {
   gitManagedRef.current = gitManaged;
   const [packageOpen, setPackageOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
-  const [theaterOpen, setTheaterOpen] = useState(false);
+  const [logRequest, setLogRequest] = useState(0);
+  const openBuildDetails = useCallback(() => { setProblemsOpen(true); setLogRequest(value => value + 1); }, []);
+  const [paperApiOpen, setPaperApiOpen] = useState(false);
   const [zeroMode, setZeroMode] = useState(false);
   const [crewOpen, setCrewOpen] = useState(false);
   const [paperOpen, setPaperOpen] = useState(false);
@@ -281,10 +292,6 @@ export default function App() {
     setLanguage(settings.language);
     void window.texpro.setMenuLanguage(settings.language).catch(() => undefined);
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...settings, aiApiKey: '' }));
-    const root = document.documentElement;
-    root.dataset.theme = settings.theme;
-    root.style.setProperty('--editor-font-size', `${settings.fontSize}px`);
-    root.style.setProperty('--editor-width', `${settings.editorWidth}px`);
   }, [settings]);
 
   useEffect(() => {
@@ -780,7 +787,7 @@ export default function App() {
     };
   }, [loadProject, pushToast]);
 
-  useEffect(() => { applyCustomCompletions(customCompletions); }, [customCompletions]);
+
 
   useEffect(() => {
     if (!collabExtension || !collabFile || !activePath) return;
@@ -813,7 +820,7 @@ export default function App() {
 
   useEffect(() => {
     if (!project) {
-      applyCustomCompletions([]);
+
       setCustomCompletions([]);
       setActions(defaultActions);
       return;
@@ -841,7 +848,7 @@ export default function App() {
       });
       const items = [...uniqueCwl, ...parseMacros(macros)];
       setCustomCompletions(items);
-      applyCustomCompletions(items);
+
       setActions(parseActions(actionText) || defaultActions);
     }).catch(() => undefined);
     return () => { cancelled = true; };
@@ -987,7 +994,7 @@ export default function App() {
       setProjectStudioOpen(false); setLayoutOpen(false); setTableRequest(null); setTikzOpen(false); setChartOpen(false);
       setBibOpen(false); setDoctorOpen(false); setExportOpen(false); setCommentsOpen(false); setAiOpen(false);
       setArxivOpen(false); setGraphOpen(false); setFontOpen(false); setVersionOpen(false); setBackupOpen(false);
-      setInkOpen(false); setGitOpen(false); setPackageOpen(false); setCommandOpen(false); setTheaterOpen(false);
+      setInkOpen(false); setGitOpen(false); setPackageOpen(false); setCommandOpen(false); setPaperApiOpen(false);
       setCrewOpen(false); setPaperOpen(false); setPluginOpen(false); setPaletteOpen(false); setZeroMode(false);
     } catch (error) { pushToast(tr('Could not close project'), 'error', String(error)); }
     finally { closingProject.current = false; setClosing(false); }
@@ -1896,7 +1903,7 @@ export default function App() {
   }, [editMainFile, pushToast, t]);
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
-    setSettings((current) => ({ ...current, ...patch }));
+    setSettings((current) => ({ ...current, ...('theme' in patch ? { themePackage: undefined } : {}), ...patch }));
   }, []);
 
   const toggleVisual = useCallback(() => {
@@ -1917,7 +1924,7 @@ export default function App() {
   const toggleDayNight = useCallback(() => {
     setSettings((current) => ({
       ...current,
-      theme: current.theme === 'paper' ? 'night' : 'paper',
+      theme: current.theme === 'paper' ? 'night' : 'paper', themePackage: undefined,
     }));
   }, []);
 
@@ -2008,6 +2015,7 @@ export default function App() {
 
   useEffect(() => {
     return window.texpro.onMenuAction((action) => {
+      if (action === 'reset-appearance') { extensions.preview(undefined); updateSettings({ theme: 'paper', themePackage: undefined }); }
       if (action === 'open-folder') void handleOpenFolder();
       if (action === 'close-project') void handleCloseProject();
       if (action === 'save') void saveActive();
@@ -2036,407 +2044,108 @@ export default function App() {
     toggleVisual,
   ]);
 
-  const paletteActions: PaletteAction[] = useMemo(
-    () => [
-      { id: 'placeholder', label: t('Insert placeholder'), shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
-      { id: 'placeholders', label: t('Placeholders'), group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
-      { id: 'revision-memo', label: t('Leave a revision memo'), shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => editorRef.current?.leaveNote() },
-      { id: 'revision-memos', label: t('Revision memos'), shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
-      { id: 'ctex-typography', label: t('Apply Chinese writing typography'), shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
-      { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
-      { id: 'close-project', label: t('Close project and return to Welcome'), group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
-      {
-        id: 'compile',
-        label: t('Compile document'),
-        detail: project ? t('Build {name}', { name: project.name }) : t('Open a project first'),
-        shortcut: '⌘↩',
-        group: 'Build',
-        icon: Play,
-        run: () => void runCompile(),
-      },
-      {
-        id: 'save',
-        label: t('Save project files'),
-        shortcut: '⌘S',
-        group: 'Build',
-        icon: Save,
-        run: () => void saveActive(),
-      },
-      {
-        id: 'forward',
-        label: t('Forward search PDF'),
-        detail: 'Jump from the cursor to the typeset page',
-        shortcut: '⌘⇧J',
-        group: 'Build',
-        icon: Focus,
-        run: manualForwardSync,
-      },
-      {
-        id: 'visual',
-        label: settings.visual ? t('Switch to source mode') : t('Switch to visual mode'),
-        detail: 'Toggle inline rendering',
-        shortcut: '⌘⇧M',
-        group: 'View',
-        icon: settings.visual ? EyeOff : Eye,
-        run: toggleVisual,
-      },
-      {
-        id: 'focus',
-        label: settings.focus ? t('Leave focus mode') : t('Enter focus mode'),
-        shortcut: '⌘⇧F',
-        group: 'View',
-        icon: Focus,
-        run: toggleFocus,
-      },
-      {
-        id: 'typewriter',
-        label: settings.typewriter ? t('Disable typewriter scrolling') : t('Enable typewriter scrolling'),
-        shortcut: '⌘⇧T',
-        group: 'View',
-        icon: Type,
-        run: toggleTypewriter,
-      },
-      {
-        id: 'sidebar',
-        label: sidebarOpen ? t('Hide sidebar') : t('Show sidebar'),
-        shortcut: '⌘\\',
-        group: 'View',
-        icon: PanelLeft,
-        run: () => setSidebarOpen((value) => !value),
-      },
-      {
-        id: 'pdf',
-        label: pdfOpen ? t('Hide PDF preview') : t('Show PDF preview'),
-        shortcut: '⌘⌥P',
-        group: 'View',
-        icon: PanelRight,
-        run: () => setPdfOpen((value) => !value),
-      },
-      {
-        id: 'settings',
-        label: t('Open settings'),
-        group: 'View',
-        icon: Settings2,
-        run: () => setSettingsOpen(true),
-      },
-      {
-        id: 'open-folder',
-        label: t('Open another folder'),
-        shortcut: '⌘O',
-        group: 'Project',
-        icon: FolderOpen,
-        run: () => void handleOpenFolder(),
-      },
-      {
-        id: 'demo',
-        label: t('Open demo project'),
-        detail: 'A complete visual LaTeX sample',
-        group: 'Project',
-        icon: Sparkles,
-        run: () => void handleDemo(),
-      },
-      {
-        id: 'templates',
-        label: t('Open template library'),
-        detail: 'Start a project from a built-in or user template',
-        group: 'Project',
-        icon: LayoutTemplate,
-        run: () => setTemplatesOpen(true),
-      },
-      {
-        id: 'assets',
-        label: t('Open asset library'),
-        detail: 'Preview, import and insert project images',
-        group: 'Project',
-        icon: FileImage,
-        run: () => {
-          setSidebarOpen(true);
-          setSidebarTab('assets');
-        },
-      },
-      {
-        id: 'chart',
-        label: t('Open chart studio'),
-        detail: 'Edit CSV data, preview native pgfplots and insert LaTeX',
-        group: 'Tools',
-        icon: BarChart3,
-        run: () => { if (beginWritingHelper('chart')) setChartOpen(true); },
-      },
-      {
-        id: 'tikz',
-        label: t('Open TikZ studio'),
-        detail: 'Live TikZ preview with the current document preamble',
-        group: 'Tools',
-        icon: PenTool,
-        run: () => {
-          setTikzSource(null);
-          if (beginWritingHelper('tikz')) setTikzOpen(true);
-        },
-      },
-      {
-        id: 'project-structure',
-        label: 'Project structure',
-        detail: 'Modules, directories and table of contents',
-        group: 'Project',
-        icon: FolderTree,
-        run: () => setProjectStudioOpen(true),
-      },
-      {
-        id: 'bibliography',
-        label: 'Bibliography manager',
-        detail: 'Edit .bib entries and insert citations',
-        group: 'Insert',
-        icon: BookMarked,
-        run: () => setBibOpen(true),
-      },
-      {
-        id: 'import',
-        label: 'Import Markdown / Typst',
-        detail: 'Convert a document into portable LaTeX',
-        group: 'Insert',
-        icon: FileInput,
-        run: () => setImportOpen(true),
-      },
-      {
-        id: 'workshop',
-        label: 'Template workshop',
-        detail: 'Design and save a document template',
-        group: 'Project',
-        icon: Paintbrush,
-        run: () => setWorkshopOpen(true),
-      },
-      {
-        id: 'formula',
-        label: 'Formula editor',
-        detail: 'Compose KaTeX math and insert LaTeX',
-        group: 'Tools',
-        icon: Sigma,
-        run: openFormula,
-      },
-      {
-        id: 'layout',
-        label: 'Page layout',
-        detail: 'Margins, columns, spacing, language and headers',
-        group: 'Insert',
-        icon: Columns3,
-        run: () => void editMainFile(() => setLayoutOpen(true)),
-      },
-      {
-        id: 'search',
-        label: t('Search project'),
-        group: 'Project',
-        icon: Search,
-        run: () => {
+  useEditorProviders(extensions.items, () => ({ editor: editorRef.current, project: projectRef.current, generation: projectGeneration.current }), language);
+  const extensionRunner = useExtensionRunner({ items: extensions.items, language, source: activeDoc?.content || '', file: activePath,
+    current: () => ({ editor: editorRef.current, project: projectRef.current, generation: projectGeneration.current }),
+    compile: runCompile,
+    create: async payload => { const next = await window.texpro.createProject(payload); if (next) await loadProject(next); },
+  });
+  useEffect(() => { applyCustomCompletions([...customCompletions, ...extensions.completions, ...extensionRunner.completions]); }, [customCompletions, JSON.stringify(extensions.completions), extensionRunner.completions]);
+  useEffect(() => { void window.texpro.extensionsEvent('projectChanged', project ? { root: project.root, rootFile: project.rootFile } : null).catch(() => {}); }, [project?.root, project?.rootFile]);
+  useEffect(() => { if (compileResult) void window.texpro.extensionsEvent('buildFinished', { ok: compileResult.ok, engine: compileResult.engine }).catch(() => {}); }, [compileResult]);
+  const commandHandlers: Record<string, () => void> = {
+    "placeholder": () => void insertPlaceholder(),
+    "placeholders": () => { setSidebarOpen(true); setSidebarTab('placeholders'); },
+    "ctex-typography": () => void applyChineseTypography(),
+    "rename-label": () => editorRef.current?.renameLabel(),
+    "close-project": () => void handleCloseProject(),
+    "review-writing": () => editorRef.current?.toggleReview(),
+    "return-writing": () => void returnToWriting(),
+    "writing-note": () => { editorRef.current?.leaveNote(); },
+    "writing-notes": () => { setSidebarOpen(true); setSidebarTab('notes'); },
+    "move-content-up": () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr('No complete neighboring content to move.'), 'info'); },
+    "move-content-down": () => { if (!editorRef.current?.moveContent(1)) pushToast(tr('No complete neighboring content to move.'), 'info'); },
+    "music": () => void handleInsertMusic(),
+    "formula": openFormula,
+    "import": () => setImportOpen(true),
+    "equation": () => insert(snippetLibrary.find((item) => item.id === 'equation')?.template || ''),
+    "table": () => insert(snippetLibrary.find((item) => item.id === 'table')?.template || ''),
+    "table-editor": () => beginWritingHelper('table') && setTableRequest({ source: editorRef.current?.getSelection() || '', focusPos: 0, insert: true }),
+    "figure": () => insert(snippetLibrary.find((item) => item.id === 'figure')?.template || ''),
+    "code": () => insert(snippetLibrary.find((item) => item.id === 'code')?.template || ''),
+    "chart": () => { if (beginWritingHelper('chart')) setChartOpen(true); },
+    "circuit-studio": () => beginWritingHelper('schematic') && setSchematicMode('circuit'),
+    "logic-studio": () => beginWritingHelper('schematic') && setSchematicMode('logic'),
+    "structure-studio": () => beginWritingHelper('schematic') && setSchematicMode('structure'),
+    "ink": () => beginWritingHelper('ink') && setInkOpen(true),
+    "collab": () => setCollabOpen(true),
+    "git": () => setGitOpen(true),
+    "tikz": () => { setTikzSource(null); if (beginWritingHelper('tikz')) setTikzOpen(true); },
+    "layout": () => void editMainFile(() => setLayoutOpen(true)),
+    "packages": () => void editMainFile(() => setPackageOpen(true)),
+    "commands": () => setCommandOpen(true),
+    "compile-theater": () => openBuildDetails(),
+    "zero-mode": () => setZeroMode(true),
+    "crew": () => setCrewOpen(true),
+    "paper-studio": () => setPaperOpen(true),
+    "paper-api": () => setPaperApiOpen(true),
+    "plugin-market": () => setPluginOpen(true),
+    "bold": () => editorRef.current?.wrapSelection('\\textbf{', '}'),
+    "italic": () => editorRef.current?.wrapSelection('\\textit{', '}'),
+    "templates": () => setTemplatesOpen(true),
+    "assets": () => { setSidebarOpen(true); setSidebarTab('assets'); },
+    "bibliography": () => setBibOpen(true),
+    "project-structure": () => setProjectStudioOpen(true),
+    "doctor": () => setDoctorOpen(true),
+    "convert-svgs": () => { const current = projectRef.current; if (!current) return; void window.texpro.convertSvgReferences(current.root).then((result) => { pushToast(tr('SVG assets converted'), 'success', `${result.converted} images`); void refreshProjectData(); }).catch((error) => pushToast(tr('Could not convert SVG assets'), 'error', String(error))); },
+    "export": () => setExportOpen(true),
+    "arxiv": () => { void saveAll().then(saved => { if (saved) setArxivOpen(true); }); },
+    "backup": () => setBackupOpen(true),
+    "graph": () => setGraphOpen(true),
+    "font": () => setFontOpen(true),
+    "version": () => { const root = projectRef.current?.root; if (!root) return; void window.texpro.gitStatus(root).then(status => { if (projectRef.current?.root !== root) return; if (status.initialized) setGitOpen(true); else setVersionOpen(true); }).catch(error => pushToast(t('Could not open version history'), 'error', String(error))); },
+    "comments": () => setCommentsOpen(true),
+    "ai": () => setAiOpen(true),
+    "mcp": () => setMcpOpen(true),
+    "workshop": () => setWorkshopOpen(true),
+    "open-folder": () => void handleOpenFolder(),
+    "visual": toggleVisual,
+    "focus": toggleFocus,
+    "typewriter": toggleTypewriter,
+    "day-night": toggleDayNight,
+    "settings": () => setSettingsOpen(true),
+    "palette": () => setPaletteOpen(true),
+    "compile": () => void runCompile(),
+    "save": () => void saveActive(),
+    "forward": manualForwardSync,
+    "sidebar": () => setSidebarOpen((value) => !value),
+    "pdf": () => setPdfOpen((value) => !value),
+    "demo": () => void handleDemo(),
+    "search": () => {
           setSidebarOpen(true);
           setSidebarTab('search');
         },
-      },
-      {
-        id: 'outline',
-        label: t('Show outline'),
-        group: 'Project',
-        icon: List,
-        run: () => {
+    "outline": () => {
           setSidebarOpen(true);
           setSidebarTab('outline');
         },
-      },
-      {
-        id: 'insert-equation',
-        label: t('Insert display equation'),
-        group: 'Insert',
-        icon: Sigma,
-        run: () => insert(snippetLibrary.find((item) => item.id === 'equation')?.template || ''),
-      },
-      { id: 'music', label: t('Insert music'), group: 'Insert', icon: Music2, run: () => void handleInsertMusic() },
-      ...writingSnippets.map(item => ({ id: item.id, label: t(item.label), group: 'Insert', icon: item.id === 'circuit' ? CircuitBoard : item.id === 'logic' ? GitBranch : item.id === 'structure' || item.id === 'skeletal' ? FlaskConical : PenTool, run: () => void writeAtCaret('\n' + item.text + '\n\n', item.packages, item.cursor + 1) })),
-      {
-        id: 'insert-table',
-        label: t('Insert table'),
-        group: 'Insert',
-        icon: Table2,
-        run: () => insert(snippetLibrary.find((item) => item.id === 'table')?.template || ''),
-      },
-      {
-        id: 'insert-figure',
-        label: t('Insert figure'),
-        group: 'Insert',
-        icon: Image,
-        run: () => insert(snippetLibrary.find((item) => item.id === 'figure')?.template || ''),
-      },
-      {
-        id: 'insert-list',
-        label: t('Insert itemized list'),
-        group: 'Insert',
-        icon: List,
-        run: () => insert(snippetLibrary.find((item) => item.id === 'list')?.template || ''),
-      },
-      {
-        id: 'theme-studio',
-        label: t('Theme: Studio'),
-        group: 'Appearance',
-        icon: Sun,
-        run: () => updateSettings({ theme: 'studio' }),
-      },
-      {
-        id: 'theme-night',
-        label: t('Theme: Night'),
-        group: 'Appearance',
-        icon: Moon,
-        run: () => updateSettings({ theme: 'night' }),
-      },
-      {
-        id: 'theme-paper',
-        label: t('Theme: Paper'),
-        group: 'Appearance',
-        icon: BookOpen,
-        run: () => updateSettings({ theme: 'paper' }),
-      },
-      {
-        id: 'day-night',
-        label: t('Toggle day / night'),
-        detail: 'Switch between the Paper and Night themes',
-        shortcut: '⌘⇧L',
-        group: 'Appearance',
-        icon: settings.theme === 'paper' ? Moon : Sun,
-        run: toggleDayNight,
-      },
-      {
-        id: 'language-zh',
-        label: 'Interface language: Chinese',
-        detail: 'Switch the interface to Chinese',
-        group: 'Appearance',
-        icon: Command,
-        run: () => updateSettings({ language: 'zh' }),
-      },
-      {
-        id: 'language-en',
-        label: 'Interface language: English',
-        detail: 'Switch the interface to English',
-        group: 'Appearance',
-        icon: Command,
-        run: () => updateSettings({ language: 'en' }),
-      },
-      {
-        id: 'reveal-pdf',
-        label: t('Reveal PDF in Finder'),
-        group: 'Build',
-        icon: FolderOpen,
-        run: revealPdf,
-      },
-      {
-        id: 'open-pdf',
-        label: t('Open PDF in default viewer'),
-        group: 'Build',
-        icon: Command,
-        run: openPdf,
-      },
-    ],
-    [
-      project,
-      insertPlaceholder,
-      applyChineseTypography,
-      handleCloseProject,
-      handleInsertMusic,
-      writeAtCaret,
-      beginWritingHelper,
-      editMainFile,
-      settings.visual,
-      settings.focus,
-      settings.typewriter,
-      sidebarOpen,
-      pdfOpen,
-      runCompile,
-      saveActive,
-      manualForwardSync,
-      toggleVisual,
-      toggleFocus,
-      toggleTypewriter,
-      toggleDayNight,
-      handleOpenFolder,
-      t,
-      handleDemo,
-      insert,
-      openFormula,
-      updateSettings,
-      revealPdf,
-      openPdf,
-    ],
-  );
-
-  const moreActions: MoreAction[] = useMemo(
-    () => [
-      { id: 'placeholder', label: 'Insert placeholder', shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: () => void insertPlaceholder() },
-      ...(['figure', 'table', 'citation', 'data'] as PlaceholderKind[]).map(kind => ({ id: `placeholder-${kind}`, label: `${kind[0].toUpperCase() + kind.slice(1)} placeholder`, group: 'Insert', icon: FileText, run: () => void insertPlaceholder(kind) })),
-      { id: 'placeholders', label: 'Placeholders', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('placeholders'); } },
-      { id: 'ctex-typography', label: 'Apply Chinese writing typography', shortcut: '⌘⌥⇧C', group: 'Format', icon: Type, run: () => void applyChineseTypography() },
-      { id: 'rename-label', label: t('Rename label and references'), shortcut: 'F2', group: 'Edit', icon: Link2, run: () => editorRef.current?.renameLabel() },
-      { id: 'close-project', label: 'Close project and return to Welcome', group: 'File', icon: FolderOpen, run: () => void handleCloseProject() },
-      { id: 'review-writing', label: 'Review in writing', group: 'Tools', icon: History, run: () => editorRef.current?.toggleReview() },
-      { id: 'return-writing', label: 'Back to writing position', group: 'Edit', icon: BookOpen, run: () => void returnToWriting() },
-      { id: 'writing-note', label: 'Leave a revision memo', shortcut: '⌘⇧N', group: 'Insert', icon: MessageSquare, run: () => { editorRef.current?.leaveNote(); } },
-      { id: 'writing-notes', label: 'Revision memos', shortcut: '⌘⇧U', group: 'Tools', icon: List, run: () => { setSidebarOpen(true); setSidebarTab('notes'); } },
-      { id: 'move-content-up', label: 'Move content up', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
-      { id: 'move-content-down', label: 'Move content down', group: 'Edit', icon: List, run: () => { if (!editorRef.current?.moveContent(1)) pushToast(tr('No complete neighboring content to move.'), 'info'); } },
-      { id: 'music', label: 'Insert music', group: 'Insert', icon: Music2, run: () => void handleInsertMusic() },
-      ...writingSnippets.map(item => ({ id: item.id, label: item.label, group: 'Insert', icon: item.id === 'circuit' ? CircuitBoard : item.id === 'logic' ? GitBranch : item.id === 'structure' || item.id === 'skeletal' ? FlaskConical : PenTool, run: () => void writeAtCaret('\n' + item.text + '\n\n', item.packages, item.cursor + 1) })),
-      { id: 'formula', label: 'Formula editor', group: 'Tools', icon: Sigma, run: openFormula },
-      { id: 'import', label: 'Import Markdown / Typst', group: 'File', icon: FileInput, run: () => setImportOpen(true) },
-      { id: 'equation', label: 'Insert display equation', group: 'Insert', icon: Sigma, run: () => insert(snippetLibrary.find((item) => item.id === 'equation')?.template || '') },
-      { id: 'table', label: 'Insert table', group: 'Insert', icon: Table2, run: () => insert(snippetLibrary.find((item) => item.id === 'table')?.template || '') },
-      { id: 'table-editor', label: 'Visual table editor', group: 'Tools', icon: Table2, run: () => beginWritingHelper('table') && setTableRequest({ source: editorRef.current?.getSelection() || '', focusPos: 0, insert: true }) },
-      { id: 'figure', label: 'Insert figure', group: 'Insert', icon: Image, run: () => insert(snippetLibrary.find((item) => item.id === 'figure')?.template || '') },
-      { id: 'code', label: 'Insert code block', group: 'Insert', icon: Code2, run: () => insert(snippetLibrary.find((item) => item.id === 'code')?.template || '') },
-      { id: 'chart', label: 'Chart studio', group: 'Tools', icon: BarChart3, run: () => { if (beginWritingHelper('chart')) setChartOpen(true); } },
-      { id: 'circuit-studio', label: 'Circuit studio', group: 'Tools', icon: CircuitBoard, run: () => beginWritingHelper('schematic') && setSchematicMode('circuit') },
-      { id: 'logic-studio', label: 'Logic studio', group: 'Tools', icon: GitBranch, run: () => beginWritingHelper('schematic') && setSchematicMode('logic') },
-      { id: 'structure-studio', label: 'Structure studio', group: 'Tools', icon: FlaskConical, run: () => beginWritingHelper('schematic') && setSchematicMode('structure') },
-      { id: 'ink', label: 'Ink studio', group: 'Tools', icon: PenTool, run: () => beginWritingHelper('ink') && setInkOpen(true) },
-      { id: 'collab', label: 'LAN collaboration', group: 'Tools', icon: Network, run: () => setCollabOpen(true) },
-      { id: 'git', label: 'Version control', group: 'Tools', icon: GitBranch, run: () => setGitOpen(true) },
-      { id: 'tikz', label: 'TikZ studio', group: 'Tools', icon: PenTool, run: () => { setTikzSource(null); if (beginWritingHelper('tikz')) setTikzOpen(true); } },
-      { id: 'layout', label: 'Page layout', group: 'Insert', icon: Columns3, run: () => void editMainFile(() => setLayoutOpen(true)) },
-      { id: 'packages', label: 'Packages & document class', group: 'Project', icon: Package, run: () => void editMainFile(() => setPackageOpen(true)) },
-      { id: 'commands', label: 'Commands & completions', group: 'Project', icon: Terminal, run: () => setCommandOpen(true) },
-      { id: 'compile-theater', label: 'Compile theater', group: 'Build', icon: Clapperboard, run: () => setTheaterOpen(true) },
-      { id: 'zero-mode', label: 'Zero-interface mode', group: 'View', shortcut: '⌘⇧0', icon: Focus, run: () => setZeroMode(true) },
-      { id: 'crew', label: 'MCP crew', group: 'Tools', icon: Users, run: () => setCrewOpen(true) },
-      { id: 'paper-studio', label: 'Paper API & referee', group: 'Tools', icon: Gavel, run: () => setPaperOpen(true) },
-      { id: 'plugin-market', label: 'Plugin market', group: 'Tools', icon: ShoppingBag, run: () => setPluginOpen(true) },
-      { id: 'bold', label: 'Bold', group: 'Format', shortcut: '⌘B', icon: Bold, run: () => editorRef.current?.wrapSelection('\\textbf{', '}') },
-      { id: 'italic', label: 'Italic', group: 'Format', shortcut: '⌘I', icon: Italic, run: () => editorRef.current?.wrapSelection('\\textit{', '}') },
-      { id: 'templates', label: 'Template library', group: 'File', icon: LayoutTemplate, run: () => setTemplatesOpen(true) },
-      { id: 'assets', label: 'Asset library', group: 'Project', icon: FileImage, run: () => { setSidebarOpen(true); setSidebarTab('assets'); } },
-      { id: 'bibliography', label: 'Bibliography', group: 'Project', icon: BookMarked, run: () => setBibOpen(true) },
-      { id: 'project-structure', label: 'Project structure', group: 'Project', icon: FolderTree, run: () => setProjectStudioOpen(true) },
-      { id: 'doctor', label: 'Project doctor', group: 'Project', icon: Stethoscope, run: () => setDoctorOpen(true) },
-      { id: 'convert-svgs', label: 'Convert SVG assets for LaTeX', group: 'Tools', icon: Image, run: () => { const current = projectRef.current; if (!current) return; void window.texpro.convertSvgReferences(current.root).then((result) => { pushToast(tr('SVG assets converted'), 'success', `${result.converted} images`); void refreshProjectData(); }).catch((error) => pushToast(tr('Could not convert SVG assets'), 'error', String(error))); } },
-      { id: 'export', label: 'Export document', group: 'File', icon: Download, run: () => setExportOpen(true) },
-      { id: 'arxiv', label: 'arXiv package', group: 'File', icon: Package, run: () => { void saveAll().then(saved => { if (saved) setArxivOpen(true); }); } },
-      { id: 'backup', label: 'Project backup', group: 'File', icon: CloudUpload, run: () => setBackupOpen(true) },
-      { id: 'graph', label: 'Citation & label graph', group: 'Project', icon: Network, run: () => setGraphOpen(true) },
-      { id: 'font', label: 'Font coverage', group: 'Project', icon: Type, run: () => setFontOpen(true) },
-      { id: 'version', label: 'Version review', group: 'Review', icon: History, run: () => setVersionOpen(true) },
-      { id: 'comments', label: 'Comments', group: 'Review', icon: MessageSquare, run: () => setCommentsOpen(true) },
-      { id: 'ai', label: 'AI assistant', group: 'Review', icon: Bot, run: () => setAiOpen(true) },
-      { id: 'mcp', label: 'MCP server', group: 'Tools', icon: Plug, run: () => setMcpOpen(true) },
-      { id: 'workshop', label: 'Template workshop', group: 'File', icon: Paintbrush, run: () => setWorkshopOpen(true) },
-      { id: 'open-folder', label: 'Open another folder', group: 'File', shortcut: '⌘O', icon: FolderOpen, run: () => void handleOpenFolder() },
-      { id: 'visual', label: settings.visual ? 'Switch to source mode' : 'Switch to visual mode', group: 'View', shortcut: '⌘⇧M', icon: settings.visual ? EyeOff : Eye, run: toggleVisual },
-      { id: 'focus', label: settings.focus ? 'Leave focus mode' : 'Enter focus mode', group: 'View', shortcut: '⌘⇧F', icon: Focus, run: toggleFocus },
-      { id: 'typewriter', label: settings.typewriter ? 'Disable typewriter scrolling' : 'Enable typewriter scrolling', group: 'View', shortcut: '⌘⇧T', icon: Type, run: toggleTypewriter },
-      { id: 'day-night', label: 'Toggle day / night', group: 'View', shortcut: '⌘⇧L', icon: settings.theme === 'paper' ? Moon : Sun, run: toggleDayNight },
-      { id: 'settings', label: 'Settings', group: 'Tools', icon: Settings2, run: () => setSettingsOpen(true) },
-      { id: 'palette', label: 'Command palette', group: 'Tools', shortcut: '⌘K', icon: Command, run: () => setPaletteOpen(true) },
-    ],
-    [insertPlaceholder, applyChineseTypography, returnToWriting, beginWritingHelper, writeAtCaret, handleInsertMusic, editMainFile, handleCloseProject, settings.visual, settings.focus, settings.typewriter, settings.theme, openFormula, insert, toggleVisual, toggleFocus, toggleTypewriter, toggleDayNight, handleOpenFolder, saveActive, runCompile, manualForwardSync, t],
-  );
-
+    "insert-list": () => insert(snippetLibrary.find((item) => item.id === 'list')?.template || ''),
+    "theme-studio": () => updateSettings({ theme: 'studio' }),
+    "theme-night": () => updateSettings({ theme: 'night' }),
+    "theme-paper": () => updateSettings({ theme: 'paper' }),
+    "language-zh": () => updateSettings({ language: 'zh' }),
+    "language-en": () => updateSettings({ language: 'en' }),
+    "reveal-pdf": revealPdf,
+    "open-pdf": openPdf,
+    ...Object.fromEntries(writingSnippets.map(item => [item.id, () => void writeAtCaret('\n' + item.text + '\n\n', item.packages, item.cursor + 1)])),
+  };
+  const moreActions = commandRegistry(builtinCommands(commandHandlers, settings, project, t, sidebarOpen, pdfOpen), extensions.active.flatMap(extension => (extension.manifest.contributes.actions || []).map(action => ({ id: extension.manifest.id + '/' + action.id, label: localize(action.title, language), group: 'Extensions', icon: Plug, run: () => extensionRunner.open(extension, action) }))));
+  const paletteActions = moreActions;
   moreActionsRef.current = moreActions;
 
-  const activeDiagnostics = useMemo<Diagnostic[]>(() => [...diagnostics, ...realtime.diagnostics.map(item => ({
+  const activeDiagnostics = useMemo<Diagnostic[]>(() => [...diagnostics, ...extensionRunner.diagnostics, ...realtime.diagnostics.map(item => ({
     ...item, severity: (item.severity === 'error' || item.severity === 'warning' ? item.severity : 'info') as Diagnostic['severity'], source: 'rtex-ts',
-  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: t('References have not converged'), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${t('Preview acceleration unavailable; regular compilation remains available.')} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
+  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: t('References have not converged'), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${t('Preview acceleration unavailable; regular compilation remains available.')} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, extensionRunner.diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
   const errors = activeDiagnostics.filter((item) => item.severity === 'error').length;
 
   return (
@@ -2578,6 +2287,7 @@ export default function App() {
               )}
             </div>
             <ProblemsPanel
+              logRequest={logRequest}
               open={problemsOpen}
               compiling={compiling}
               diagnostics={activeDiagnostics}
@@ -2626,6 +2336,7 @@ export default function App() {
         />
       )}
 
+      <ExtensionTool runner={extensionRunner} />
       <TextRequestHost projectKey={project?.root || 'welcome'} />
       <CommandPalette
         open={paletteOpen}
@@ -2669,14 +2380,20 @@ export default function App() {
         onClose={() => { setChartOpen(false); closeWritingHelper('chart'); }}
         onInsert={(code) => void applyWritingHelper('chart', code, ['tikz', 'pgfplots'])}
       />
-      <PluginMarket
+      <ExtensionsPanel
         open={pluginOpen}
+        items={extensions.items} hostError={extensions.error} onRefresh={extensions.refresh}
+        themePackage={settings.themePackage} onPreviewTheme={extensions.preview}
+        onApplyTheme={(themePackage, theme) => { updateSettings({ theme, themePackage }); extensions.preview(undefined); }}
+        onRun={extensionRunner.open} onRunPanel={extensionRunner.openPanel}
+        onTemplate={payload => { void (async () => { try { const next = await window.texpro.createProject(payload); if (next) { setPluginOpen(false); await loadProject(next); } } catch (error) { pushToast(t('Could not create project'), 'error', String(error)); } })(); }}
         projectRoot={project?.root || null}
         completions={customCompletions}
         onClose={() => setPluginOpen(false)}
         onCompletionsChange={setCustomCompletions}
         onOpenMcp={() => { setPluginOpen(false); setMcpOpen(true); }}
       />
+      <PaperApiPanel open={paperApiOpen} projectRoot={project?.root || null} onClose={() => setPaperApiOpen(false)} />
       <PaperStudio
         open={paperOpen}
         projectRoot={project?.root || null}
@@ -2688,18 +2405,8 @@ export default function App() {
         projectRoot={project?.root || null}
         rootFile={project?.rootFile || null}
         onClose={() => setCrewOpen(false)}
-        onOpenCompileTheater={() => { setCrewOpen(false); setTheaterOpen(true); }}
+        onOpenBuildDetails={() => { setCrewOpen(false); openBuildDetails(); }}
         onApplied={() => { const current = projectRef.current; if (current) { void refreshProjectData(); const path = activePathRef.current; if (path) void openFile(path); } }}
-      />
-      <CompileTheater
-        open={theaterOpen}
-        compileResult={compileResult}
-        compiling={compiling}
-        diagnostics={activeDiagnostics}
-        log={compileLog}
-        onClose={() => setTheaterOpen(false)}
-        onCompile={() => void runCompile()}
-        onJump={handleDiagnosticClick}
       />
       <CommandStudio
         open={commandOpen}

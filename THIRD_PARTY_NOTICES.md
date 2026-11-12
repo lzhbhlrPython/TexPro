@@ -42,3 +42,13 @@ The host uses [fontkit](https://github.com/foliojs/fontkit), MIT, for drawing th
 宿主使用 fontkit 读取实际字形轮廓，保留其版权和 MIT 许可；间接依赖也分别遵循自身许可。发行包保留依赖自带声明。LuaLaTeX、TeX Live、宏包及字体由用户另行安装，遵循各自许可，不因本项目 MIT 协议而改变。
 
 Other dependencies retain their own licenses, including Electron/Chromium and PDF.js. See the bilingual copyright guide on the product site and each distributed dependency for the full list. Your source documents and exported PDFs remain yours.
+
+## Extension design inspiration / 扩展设计灵感
+
+The local extension lifecycle and service organization draw conceptual inspiration from [Koishi](https://github.com/koishijs/koishi). TeXPro implements its own API, package format and host; no Koishi runtime, console source or marketplace is included. This is not Koishi plugin compatibility or an official integration. New host, SDK and example code is covered by TeXPro's MIT license. Extension authors retain their own code and must preserve licenses for any dependencies they redistribute.
+
+插件系统借鉴 Koishi 的生命周期与服务组织思路，未复制其源码；灵感归属不等同于代码移植。主题资源、字体和插件依赖分别遵循作者许可，TeXPro 的 MIT 不改变它们的许可。
+
+## PostCSS and postcss-value-parser
+
+Theme styles are parsed using [PostCSS](https://github.com/postcss/postcss), MIT, Copyright (c) 2013 Andrey Sitnik, and [postcss-value-parser](https://github.com/TrySound/postcss-value-parser), MIT, Copyright (c) Bogdan Chadkin. The complete notices supplied in each distributed dependency are retained. Parsing and resource restrictions do not constitute a CSS or Node security sandbox.

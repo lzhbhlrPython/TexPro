@@ -87,3 +87,9 @@ pnpm dev
 项目使用 [MIT 许可](LICENSE)，第三方依赖遵守各自许可。TeXPro 为独立项目，与 Typora、TeXstudio 及 Google 没有隶属关系；这些名称用于说明交互参考和设计规范来源，不表示兼容性认证或官方背书。
 
 实时预览的前提、嵌入与版权见 [实时 TeX 预览](docs/realtime-tex.md) 和 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+## 本地扩展与专业工作空间
+
+通过「扩展」安装手工分发的插件／主题包，无公开市场。命令、补全、检查、转换、导入导出和工具使用 API 1；代码插件是受信任 Node 代码，主题可改变布局和字体，两者均有安全风险。原生视图菜单提供重置和停用，`--safe-mode` 可在加载插件前恢复。SDK、示例、开发 Skill 与能力边界见 [扩展架构](docs/extensions.md) 和 [开发指南](docs/extension-development.md)。复杂绘图、手写和模板任务使用共享工作空间；编译详情回到问题面板，论文 API 为独立按需集成。
+
+插件开发工具：独立 npm 包 `@gardenialiu/texpro-extension-sdk` 提供 API 1 类型与校验核心；`@gardenialiu/qwertysay` 提供同名脚手架、校验、打包 CLI（两包均为 MIT，Baolin Liu / gardenialiu）。见[开发指南](docs/extension-development.md)与[双语包说明](packages/extension-sdk/README.md)。

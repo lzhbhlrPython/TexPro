@@ -1,9 +1,9 @@
 /** API 1. Executable packages are trusted Node extensions; the SDK is not a security sandbox. */
 export type Localized = string | { en: string; zh: string };
-export type Capability = 'document.read' | 'document.write' | 'project.read' | 'build.request' | 'storage' | 'network';
+export type Capability = 'document.read' | 'document.write' | 'project.read' | 'build.request' | 'storage' | 'network' | 'theme.styles';
 export type ActionKind = 'command' | 'diagnostic' | 'transform' | 'completion' | 'hover' | 'preview' | 'import' | 'export' | 'bibliography' | 'asset' | 'mcp';
 export interface ExtensionAction { id: string; title: Localized; kind: ActionKind; level?: 'L1' | 'L2' | 'L3'; description?: Localized }
-export interface ThemeContribution { id: string; title: Localized; base: 'paper' | 'studio' | 'night'; tokens: Record<string, string> }
+export interface ThemeContribution { id: string; title: Localized; base: 'paper' | 'studio' | 'night'; tokens: Record<string, string>; stylesheet?: string }
 export interface CompletionContribution { label: string; template: string; detail?: string; type?: string }
 export interface TemplateContribution { id: string; title: Localized; source: string; engine: 'pdflatex' | 'xelatex' | 'lualatex' }
 export interface SettingContribution { key: string; title: Localized; type: 'string' | 'boolean' | 'number'; default: string | boolean | number }
@@ -16,7 +16,7 @@ export interface PackageManifest {
     snippets?: CompletionContribution[]; templates?: TemplateContribution[]; panels?: PanelContribution[]; settings?: SettingContribution[];
   };
 }
-export interface InstalledExtension { manifest: PackageManifest; enabled: boolean; digest: string; config: Record<string, string | boolean | number>; development: boolean; error: string | null }
+export interface InstalledExtension { manifest: PackageManifest; enabled: boolean; digest: string; config: Record<string, string | boolean | number>; development: boolean; canRollback: boolean; error: string | null; themeStyles?: Record<string, string> }
 export interface ExtensionSnapshot {
   language: 'en' | 'zh'; source: string; file?: string; selection: { from: number; to: number };
   project?: { root: string; name: string; rootFile?: string | null };

@@ -1,0 +1,5 @@
+/* CSS is scoped to the active application theme; use :scope for the root. */
+.extensions-panel, .extension-tool { border-radius: var(--radius); }
+.extensions-list > button { padding: calc(var(--space-unit) * 3); }
+.editor-scroll { background-image: url("assets/grain.png"); }
+@media (max-width: 760px) { .extensions-panel { border-radius: 0; } }

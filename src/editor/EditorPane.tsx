@@ -1,4 +1,6 @@
 import { stableViewport } from './stableViewport';
+import { applyExternalEdits } from './externalEdits';
+import { extensionCompletionSource, extensionHover } from './extensionProviders';
 import { labelAt, textChange } from '../lib/labelRename';
 import { t, useI18n } from '../i18n';
 import { smartInput } from './smartInput';
@@ -6,7 +8,7 @@ import { prosePosition, TEX_CLIPBOARD } from '../lib/writingFormats';
 import { rememberWritingPosition, resumePosition } from '../lib/writingResume';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Compartment, EditorState, StateEffect, StateField, Transaction, type ChangeSet, type Extension } from '@codemirror/state';
+import { Compartment, EditorState, StateEffect, StateField, Transaction, ChangeSet, type Extension } from '@codemirror/state';
 import {
   EditorView,
   drawSelection,
@@ -64,9 +66,11 @@ import { findSpellingIssues } from '../lib/spellcheck';
 import { smartPaste } from '../lib/pasteCleaner';
 
 export interface EditorHandle {
+  getDocumentIdentity: () => object | null;
   selectRange: (from: number, to: number) => void;
   renameLabel: () => void;
   applyProjectChanges: (changes: ChangeSet) => void;
+  applyExtensionEdits: (source: string, edits: Array<{ from: number; to: number; insert: string }>) => boolean;
   getSession: () => import('./writingSession').WritingSession | null;
   leaveNote: () => void;
   toggleNote: (note: WritingNote) => boolean;
@@ -296,6 +300,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   };
   const [state] = useState(() => {
     const extensions: Extension[] = [
+      extensionHover,
         compartments.lineNumbers.of(props.settings.showLineNumbers ? lineNumbers() : []),
         highlightActiveLineGutter(),
         highlightSpecialChars(),
@@ -315,7 +320,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         crosshairCursor(),
         autocompletion({
           ...completionAppearance,
-          override: [completionSource],
+          override: [completionSource, extensionCompletionSource],
           activateOnTyping: true,
           maxRenderedOptions: 80,
           defaultKeymap: false,
@@ -667,9 +672,14 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   useImperativeHandle(
     ref,
     () => ({
+      getDocumentIdentity() { return viewRef.current?.state.doc ?? null; },
       renameLabel() { startRename(); },
       getSession() { const view = viewRef.current; return view ? { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft } : null; },
       applyProjectChanges(changes) { const view = viewRef.current; if (view) view.dispatch({ changes, annotations: Transaction.addToHistory.of(false), effects: view.scrollSnapshot() }); },
+      applyExtensionEdits(source, edits) {
+        const view = viewRef.current;
+        return view ? applyExternalEdits(view, source, edits) : false;
+      },
       toggleReview() { setReviewing(current => !current); },
       getPosition() { const view = viewRef.current; return view ? writingPosition(view, props.path) : null; },
       restorePosition(point) { const view = viewRef.current; if (view && point.file === props.path) restoreWritingPosition(view, point); },

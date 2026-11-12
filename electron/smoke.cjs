@@ -590,12 +590,7 @@ module.exports = function installSmoke(mainWindow, { app, isSmokeWelcome }) {
           await mainWindow.webContents.executeJavaScript(`document.querySelector('[data-testid="more-menu"]')?.click(); setTimeout(() => document.querySelector('[data-action="settings"]')?.click(), 80);`);
           await new Promise((resolve) => setTimeout(resolve, 450));
           const englishState = await mainWindow.webContents.executeJavaScript(`new Promise((resolve) => {
-            const selects = document.querySelectorAll('.settings-panel select');
-            const language = selects[0];
-            if (language) {
-              language.value = 'en';
-              language.dispatchEvent(new Event('change', { bubbles: true }));
-            }
+            if (document.documentElement.lang !== 'en') document.querySelector('[data-testid="language-switch"]')?.click();
             setTimeout(() => resolve({
               language: document.documentElement.lang,
               label: document.querySelector('.settings-eyebrow')?.textContent || null,

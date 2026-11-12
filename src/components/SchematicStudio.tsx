@@ -1,3 +1,4 @@
+import { WorkspaceFrame } from './WorkspaceFrame';
 import { configs, generateSchematic, nextId, nodeLabel, restoreSchematic, type SchematicNode, type SchematicEdge } from '../lib/schematic';
 import type { SchematicMode } from '../lib/schematic';
 import { TexArtwork } from './TexArtwork';
@@ -54,7 +55,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
   const [storageError, setStorageError] = useState(false);
   const dialogRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
-  useDialogFocus(open, dialogRef, onClose);
+
   const [history, setHistory] = useState<Array<{ nodes: SchematicNode[]; edges: SchematicEdge[] }>>([]);
   const [future, setFuture] = useState<Array<{ nodes: SchematicNode[]; edges: SchematicEdge[] }>>([]);
   const dragRef = useRef<{ id: string; pointerId: number; target: HTMLElement; offsetX: number; offsetY: number; startNodes: SchematicNode[]; startEdges: SchematicEdge[]; moved: boolean } | null>(null);
@@ -258,8 +259,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
   const Icon = mode === 'circuit' ? CircuitBoard : mode === 'logic' ? GitBranch : FlaskConical;
 
   return (
-    <div className="modal-scrim" onMouseDown={onClose}>
-      <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="schematic-title" tabIndex={-1} className="schematic-studio" data-testid={`${mode}-studio`} onMouseDown={(event) => event.stopPropagation()}>
+    <WorkspaceFrame title={title} className="schematic-studio" onClose={onClose} sectionRef={dialogRef} testId={`${mode}-studio`}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><Icon size={18} /></div>
@@ -415,7 +415,6 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
           <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
           <button className="primary-btn" disabled={!nodes.length} onClick={() => { onInsert(code, config.package); onClose(); }}>{t('Insert diagram')}</button>
         </footer>
-      </section>
-    </div>
+    </WorkspaceFrame>
   );
 }

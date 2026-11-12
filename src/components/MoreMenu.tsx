@@ -5,16 +5,10 @@ import { Search, X, type LucideIcon } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useDialogFocus } from '../hooks/useDialogFocus';
 
-export interface MoreAction {
-  id: string;
-  label: string;
-  group?: string;
-  shortcut?: string;
-  icon: LucideIcon;
-  run: () => void;
-}
+export type MoreAction = import('../app/commands/types').AppCommand;
+
 interface Props { open: boolean; actions: MoreAction[]; onClose: () => void }
-const groupOrder = ['File', 'Edit', 'Insert', 'Format', 'Project', 'Review', 'Tools', 'View', 'Build'];
+const groupOrder = ['File', 'Edit', 'Insert', 'Format', 'Project', 'Review', 'Tools', 'View', 'Build', 'Extensions'];
 
 export function MoreMenu({ open, actions, onClose }: Props) {
   const { t, language } = useI18n();

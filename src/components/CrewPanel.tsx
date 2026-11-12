@@ -7,7 +7,7 @@ interface Props {
   projectRoot: string | null;
   rootFile: string | null;
   onClose: () => void;
-  onOpenCompileTheater: () => void;
+  onOpenBuildDetails: () => void;
   onApplied: () => void;
 }
 
@@ -25,7 +25,7 @@ const roles = [
   { id: 'git', label: 'Git keeper', icon: GitBranch },
 ];
 
-export function CrewPanel({ open, projectRoot, rootFile, onClose, onOpenCompileTheater, onApplied }: Props) {
+export function CrewPanel({ open, projectRoot, rootFile, onClose, onOpenBuildDetails, onApplied }: Props) {
   const { t } = useI18n();
   const [results, setResults] = useState<CrewResult[]>([]);
   const [running, setRunning] = useState(false);
@@ -206,7 +206,7 @@ export function CrewPanel({ open, projectRoot, rootFile, onClose, onOpenCompileT
             {error && <div className="ai-error">{error}</div>}
             <div className="crew-actions">
               <button className="primary-btn" onClick={() => void run()} disabled={running || !projectRoot}><Play size={12} /> {running ? t('Crew is working…') : t('Run crew')}</button>
-              <button className="secondary-btn" onClick={onOpenCompileTheater}><Clapperboard size={12} /> {t('Open compile theater')}</button>
+              <button className="secondary-btn" onClick={onOpenBuildDetails}><Clapperboard size={12} /> {t('Open build details')}</button>
             </div>
           </main>
         </div>

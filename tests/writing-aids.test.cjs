@@ -59,11 +59,14 @@ test('draft placeholders compile with pdfLaTeX and Chinese typography compiles w
   const cache=path.join(dir,'cache'); fs.mkdirSync(cache); const env={...process.env,TEXMFVAR:cache,TEXMFCACHE:cache};
   for(const engine of ['pdflatex','xelatex','lualatex']) {
     const binary=fs.existsSync(path.join(texBin,engine))?path.join(texBin,engine):engine;
-    const probe=spawnSync(binary,['--version'],{encoding:'utf8',timeout:5000}); if(probe.error?.code==='ENOENT') { t.diagnostic(engine+' unavailable'); continue; }
+    const probe=spawnSync(binary,['--version'],{encoding:'utf8',timeout:5000});
+    assert.equal(probe.status,0,engine+' is required for the complete baseline: '+(probe.error||probe.stderr));
     const chinese=engine!=='pdflatex';
     const source=(chinese?'\\documentclass[UTF8,fontset=fandol]{ctexart}\n'+c.ctexWritingSettings+'\n':'\\documentclass{article}\n')+c.placeholderPreamble+'\n\\begin{document}\n'+(chinese?'\\section{中文排版}正文与 English 123，标点。\n\n这是新的段落。\n':'Draft.\n')+c.placeholderSource('text','Text 50% & data')+'\n\n'+c.placeholderSource('figure','Figure later')+'\n\n'+c.placeholderSource('table','Table later')+'\n% MEMO: Must not enter PDF\n\\end{document}';
     fs.writeFileSync(path.join(dir,engine+'.tex'),source);
-    const result=spawnSync(binary,['-interaction=nonstopmode','-halt-on-error',engine+'.tex'],{cwd:dir,env,encoding:'utf8',timeout:45000});
+    // This isolated cache intentionally starts empty. Lua font database discovery can
+    // take minutes on a cold machine; bound setup without skipping actual compilation.
+    const result=spawnSync(binary,['-interaction=nonstopmode','-halt-on-error',engine+'.tex'],{cwd:dir,env,encoding:'utf8',timeout:engine==='lualatex'?180000:45000});
     assert.equal(result.status,0,engine+'\n'+(result.stdout||'').slice(-2500)+'\n'+result.error); assert.ok(fs.existsSync(path.join(dir,engine+'.pdf')));
   }
 });

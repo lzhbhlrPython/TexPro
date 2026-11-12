@@ -32,6 +32,7 @@ class ExtensionProcess {
   }
   async invoke(action, context, input = {}) {
     await this.ready; if (this.closed) throw new Error('Extension is disabled');
+    if (this.pending.size >= 4) throw new Error('Extension is busy; try again');
     const id = randomUUID();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => this.fail(new Error('Extension action timed out')), 10000);

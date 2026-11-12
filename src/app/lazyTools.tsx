@@ -41,10 +41,9 @@ function deferredTool<P extends ToolProps>(load: () => Promise<{ default: Compon
 
 export const TemplateGallery = deferredTool<ComponentProps<typeof import('../components/TemplateGallery')['TemplateGallery']>>(() => import('../components/TemplateGallery').then((m) => ({ default: m.TemplateGallery })));
 export const PgfplotsStudio = deferredTool<ComponentProps<typeof import('../components/PgfplotsStudio')['PgfplotsStudio']>>(() => import('../components/PgfplotsStudio').then((m) => ({ default: m.PgfplotsStudio })));
-export const PluginMarket = deferredTool<ComponentProps<typeof import('../components/PluginMarket')['PluginMarket']>>(() => import('../components/PluginMarket').then((m) => ({ default: m.PluginMarket })));
+export const ExtensionsPanel = deferredTool<ComponentProps<typeof import('../components/ExtensionsPanel')['ExtensionsPanel']>>(() => import('../components/ExtensionsPanel').then((m) => ({ default: m.ExtensionsPanel })));
 export const PaperStudio = deferredTool<ComponentProps<typeof import('../components/PaperStudio')['PaperStudio']>>(() => import('../components/PaperStudio').then((m) => ({ default: m.PaperStudio })));
 export const CrewPanel = deferredTool<ComponentProps<typeof import('../components/CrewPanel')['CrewPanel']>>(() => import('../components/CrewPanel').then((m) => ({ default: m.CrewPanel })));
-export const CompileTheater = deferredTool<ComponentProps<typeof import('../components/CompileTheater')['CompileTheater']>>(() => import('../components/CompileTheater').then((m) => ({ default: m.CompileTheater })));
 export const CommandStudio = deferredTool<ComponentProps<typeof import('../components/CommandStudio')['CommandStudio']>>(() => import('../components/CommandStudio').then((m) => ({ default: m.CommandStudio })));
 export const PackageManager = deferredTool<ComponentProps<typeof import('../components/PackageManager')['PackageManager']>>(() => import('../components/PackageManager').then((m) => ({ default: m.PackageManager })));
 export const GitPanel = deferredTool<ComponentProps<typeof import('../components/GitPanel')['GitPanel']>>(() => import('../components/GitPanel').then((m) => ({ default: m.GitPanel })));
@@ -68,3 +67,4 @@ export const BibManager = deferredTool<ComponentProps<typeof import('../componen
 export const FormulaStudio = deferredTool<ComponentProps<typeof import('../components/FormulaStudio')['FormulaStudio']>>(() => import('../components/FormulaStudio').then((m) => ({ default: m.FormulaStudio })));
 export const LayoutStudio = deferredTool<ComponentProps<typeof import('../components/LayoutStudio')['LayoutStudio']>>(() => import('../components/LayoutStudio').then((m) => ({ default: m.LayoutStudio })));
 export const TikzStudio = deferredTool<ComponentProps<typeof import('../components/TikzStudio')['TikzStudio']>>(() => import('../components/TikzStudio').then((m) => ({ default: m.TikzStudio })));
+export const PaperApiPanel = deferredTool<ComponentProps<typeof import('../components/PaperApiPanel')['PaperApiPanel']>>(() => import('../components/PaperApiPanel').then((m) => ({ default: m.PaperApiPanel })));

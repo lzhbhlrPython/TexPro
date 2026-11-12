@@ -26,7 +26,7 @@
 - `electron/services/realtime-scene.cjs` 用 fontkit 读取实际 TeX 字形轮廓，按 glyph ID 与 sp 坐标输出 SVG。不用浏览器文字重新塑形；不支持的字体或绘制整页回退 PDF。
 - `src/components/PdfPane.tsx` 统一预览工具、缩放和滚动；`RealtimePageView.tsx` 只绘制纸页，不拥有独立工具栏或状态 UI。PDF 专业操作验证正式结果与源文快照一致后再执行。
 
-当前使用 `rtex-ts@0.1.0`。库内计算最小 UTF-8 字节编辑，宿主传完整未保存缓冲区，避免把 CodeMirror 的 UTF-16 偏移当成字节。后台在不可变快照中编译，不保存工程源文件。普通自动保存仍是独立功能，沿用保存队列。
+当前使用 `rtex-ts@0.1.11`。库内计算最小 UTF-8 字节编辑，宿主传完整未保存缓冲区，避免把 CodeMirror 的 UTF-16 偏移当成字节。后台在不可变快照中编译，不保存工程源文件。普通自动保存仍是独立功能，沿用保存队列。
 
 ## 顺序、资源与生命周期
 
@@ -57,6 +57,10 @@ npm run test:realtime:ui
 npm run verify:release
 ```
 
-`test:realtime` 使用临时中文/数学工程，验证真实字形、未保存编辑、PDF 快照及进程清理。原生界面测试单独验证主题、语言、输入、撤销、统一工具栏、PDF 搜索衔接和组合事件同步门控；合成 composition 事件不等同于手工验收操作系统输入法候选窗。独立包的三平台单元/安装包 CI 与 Linux 真实 TeX 成功，不等于 TeXPro 三平台安装包均已验收。最新验证范围以本次交付记录为准。
+`test:realtime` 使用临时中文／数学与普通段落工程，验证真实字形、未保存编辑的新修订、PDF 快照及进程清理。中文工程允许有效的段落或完整布局更新；独立普通段落用例严格要求 ParagraphUpdate，避免回退掩盖快路径故障。原生界面测试单独验证主题、语言、输入、撤销、统一工具栏、PDF 搜索衔接和组合事件同步门控；合成 composition 事件不等同于手工验收操作系统输入法候选窗。独立包的三平台单元/安装包 CI 与 Linux 真实 TeX 成功，不等于 TeXPro 三平台安装包均已验收。最新验证范围以本次交付记录为准。
 
 普通 Node 嵌入示例与库契约见 [rtex-ts 中英文嵌入说明](https://github.com/lzhbhlrPython/rtex-ts/tree/main/docs)。外部 MCP 仍只看到磁盘；实时预览的未保存缓冲区没有通过 MCP 对外暴露。
+
+当前精确依赖 0.1.11，包含上游宏／环境识别与字体缓存复用改进。宿主继续使用原有会话 API、版本过滤与 PDF 回退，不将上游性能数据视为 TeXPro 测量结果；Poppler 对照为上游可选验证工具，不新增应用运行时依赖。
+
+Worker 使用 `trackUnmanagedFds: false`：rtex-ts 的 POSIX FIFO 描述符从 `fs.openSync` 转交给 `net.Socket`，由套接字负责关闭；Worker 默认的 fs 追踪不能看到这种所有权转移，退出时可能再次关闭已被主线程复用的句柄。会话关闭、TeX 进程组清理和 worker 终止仍执行。真实会话测试在 worker 终止前打开 64 个宿主文件句柄，验证它们全部保留有效。Node 的默认追踪语义见 [Worker 文档](https://nodejs.org/download/release/latest/docs/api/worker_threads.html)。

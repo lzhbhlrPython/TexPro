@@ -16,13 +16,14 @@ test('watchdog arms once, only on the final non-cancellable macOS quit event', (
   const other = new EventEmitter(); installQuitWatchdog(other, { platform: 'win32', launch: () => { throw new Error('should not launch'); } }); other.emit('quit');
 });
 
-test('watchdog actually ends its own stalled parent after quit; normal parent exit stays normal', { skip: !canInspectParent ? 'Native parent inspection is unavailable in this sandbox' : false, timeout: 15000 }, async t => {
+test('watchdog runtime ends stalled macOS parents and leaves other platforms and normal exits alone', { timeout: 15000 }, async t => {
+  if (process.platform !== 'win32') assert.ok(canInspectParent, 'Native parent inspection is required; rerun the complete baseline with process inspection permission');
   const helper = path.resolve(__dirname, '../electron/quit-watchdog.cjs');
   const run = normal => new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ['-e', `const {EventEmitter}=require('node:events'); const app=new EventEmitter(); require(${JSON.stringify(helper)}).installQuitWatchdog(app,{platform:'darwin',delaySeconds:0.2}); app.emit('quit',{},0); ${normal ? 'process.exit(0);' : 'setInterval(()=>{},1000);'}`], { stdio: 'pipe' });
+    const child = spawn(process.execPath, ['-e', `const {EventEmitter}=require('node:events'); const app=new EventEmitter(); require(${JSON.stringify(helper)}).installQuitWatchdog(app,{platform:${JSON.stringify(process.platform === 'win32' ? 'win32' : 'darwin')},delaySeconds:0.2}); app.emit('quit',{},0); ${normal ? 'process.exit(0);' : process.platform === 'win32' ? 'setTimeout(()=>process.exit(0),500);' : 'setInterval(()=>{},1000);'}`], { stdio: 'pipe' });
     t.after(() => { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); });
     child.on('error', reject); child.on('exit', (code, signal) => resolve({code,signal}));
   });
-  assert.deepEqual(await run(false), { code: null, signal: 'SIGKILL' });
+  assert.deepEqual(await run(false), process.platform === 'win32' ? { code: 0, signal: null } : { code: null, signal: 'SIGKILL' });
   assert.deepEqual(await run(true), { code: 0, signal: null });
 });

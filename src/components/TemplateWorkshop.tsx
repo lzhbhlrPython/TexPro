@@ -1,3 +1,4 @@
+import { WorkspaceFrame } from './WorkspaceFrame';
 import { useMemo, useState } from 'react';
 import {
   Check,
@@ -50,8 +51,7 @@ export function TemplateWorkshop({ open, onClose, onSave, onApply }: Props) {
   };
 
   return (
-    <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="workshop-studio" data-testid="template-workshop" onMouseDown={(event) => event.stopPropagation()}>
+    <WorkspaceFrame title={t('Template workshop')} className="workshop-studio" onClose={onClose} testId="template-workshop">
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><Paintbrush size={18} /></div>
@@ -200,7 +200,6 @@ export function TemplateWorkshop({ open, onClose, onSave, onApply }: Props) {
             <Save size={13} /> {t('Save template')}
           </button>
         </footer>
-      </section>
-    </div>
+    </WorkspaceFrame>
   );
 }

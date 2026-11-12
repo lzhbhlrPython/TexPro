@@ -47,3 +47,7 @@ MCP 是普通 Node stdio 进程，只读到磁盘；stdout 只输出协议。写
 Nightly 根据上海当天 first-parent 提交的实际文件差异判断是否构建；空提交不计。日期只算一次，版本 `v{基础版本}-YYYYMMDD-Nightly`，包内省略 v，生成版本不提交回仓库。三平台成功才发布；成功后 dispatch Pages 并传准确 tag。Pages 指定 tag 同步失败必须失败，普通离线构建才允许旧快照。
 
 官网仅产品页路径变化或成功 Nightly 刷新自动重建；PR 只验证，main 才部署。详见 [部署说明](product-page-deployment.md)。
+
+## 插件包与主题
+
+API 1 使用本地 ZIP／目录快照、禁用安装、显式启用、版本回退与受信任 Node 子进程。SDK 不传输内部 UI 对象；正文回写校验工程、文件、文档身份和包摘要，通过单次事务保留撤销。主题预览与应用共用主题提供器，清理所有包 token／CSS／字体。代码与主题都需要来源信任，进程与 CSS 作用域不是安全沙箱。原生视图重置与 `--safe-mode` 可停用所有包。详细路径、大小、能力和实验性接入边界见 [插件与主题开发](extension-development.md)。

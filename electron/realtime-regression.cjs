@@ -83,7 +83,7 @@ Drawing page. \pdfextension literal direct {0 0 m 20 20 l S}
   assert.equal(await js(`(()=>{const e=document.querySelector('.pdf-scroll');return e.scrollWidth<=e.clientWidth+1})()`), true, 'Narrow preview must keep its fitted width');
   window.setSize(1380,960);
   await open('settings'); await wait(`!!document.querySelector('.settings-panel')`);
-  await js(`(()=>{const select=document.querySelector('.settings-panel select');select.value='en';select.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
+  await click(`document.querySelector('[data-testid="language-switch"]')`);
   await wait(`document.documentElement.lang==='en'`);
   assert.doesNotMatch(await js(`document.querySelector('.settings-panel').textContent`), /Realtime TeX preview|rtex-ts/);
   assert.equal(await js(`JSON.parse(localStorage.getItem('texpro.settings.v1')).realtimePreview`), undefined);

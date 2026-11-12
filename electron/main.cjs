@@ -9,6 +9,8 @@ const collab = require('./services/collab.cjs');
 const mcpClient = require('./services/mcp-client.cjs');
 const paperApi = require('./services/paper-api.cjs');
 const { RealtimeHost } = require('./services/realtime-tex.cjs');
+const { registerExtensionIpc } = require('./services/extensions/ipc.cjs');
+let extensionManager = null;
 let realtimeHost = null;
 let realtimeOwner = null;
 let realtimeSerial = Promise.resolve();
@@ -16,6 +18,7 @@ const elicitationRequests = new Map();
 let elicitationSeq = 0;
 
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL);
+const safeMode = process.argv.includes('--safe-mode');
 const isSmoke = process.env.TEXPRO_SMOKE === '1';
 const isSmokeWelcome = process.env.TEXPRO_SMOKE_WELCOME === '1';
 if (process.env.TEXPRO_SMOKE === '1' || process.env.TEXPRO_NO_SANDBOX === '1') {
@@ -71,6 +74,7 @@ function sendMenu(action) {
 
 let menuLanguage = 'en';
 const zhMenu = {
+  'Reset Appearance and Disable Extensions': '重置外观并停用扩展',
   'Close Project': '关闭工程', File: '文件', Edit: '编辑', Insert: '插入', Project: '项目', Build: '构建', Navigate: '导航', View: '视图',
   'Open Folder…': '打开文件夹…', Save: '保存',
   'Import Markdown / Typst…': '导入 Markdown / Typst…', 'Export Document…': '导出文档…',
@@ -93,8 +97,8 @@ const zhMenu = {
   'Forward Search': '正向搜索', 'Command Palette…': '命令面板…', 'Toggle PDF Preview': '切换 PDF 预览',
   'Toggle Sidebar': '切换侧栏', 'Toggle Visual Mode': '切换可视模式',
   'Toggle Focus Mode': '切换专注模式', 'Typewriter Mode': '打字机模式',
-  'Toggle Day / Night': '切换日间 / 夜间', 'Compile Theater…': '编译剧场…',
-  'MCP Crew…': 'MCP 剧组…', 'Paper API…': '论文 API…', 'Plugin Market…': '插件市场…',
+  'Toggle Day / Night': '切换日间 / 夜间', 'Build Details…': '构建详情…',
+  'MCP Crew…': 'MCP 剧组…', 'Paper API…': '论文 API…', 'Extensions…': '扩展…',
 };
 
 function localizeMenu(items) {
@@ -227,6 +231,10 @@ function buildMenu() {
         { label: 'Typewriter Mode', accelerator: 'CmdOrCtrl+Shift+T', click: () => sendMenu('toggle-typewriter') },
         { type: 'separator' },
         { label: 'Toggle Day / Night', accelerator: 'CmdOrCtrl+Shift+L', click: () => sendMenu('tool:day-night') },
+        { label: 'Reset Appearance and Disable Extensions', click: async () => {
+          try { await extensionManager?.disableAll(); sendMenu('reset-appearance'); }
+          catch (error) { dialog.showErrorBox('TeXPro', String(error)); }
+        } },
         { type: 'separator' },
         { role: 'reload' },
         { role: 'forceReload' },
@@ -303,6 +311,7 @@ function createWindow() {
       : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
+      additionalArguments: safeMode ? ['--texpro-safe-mode'] : [],
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
@@ -392,6 +401,8 @@ function createWindow() {
 }
 
 function registerIpc() {
+  extensionManager = registerExtensionIpc({ app, ipcMain, dialog, getWindow: () => mainWindow, safeMode,
+    assertRoot: root => { if (!isAllowed(root)) throw new Error('Project access is not authorized'); }, symbols: root => tex.collectProjectSymbols(root) });
   const realtimeOperation = task => {
     const result = realtimeSerial.then(task);
     realtimeSerial = result.catch(() => {});
@@ -950,7 +961,7 @@ require('./quit-watchdog.cjs').installQuitWatchdog(app, {
   },
 });
 app.on('before-quit', () => { quitting = true; });
-app.on('will-quit', () => { mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
+app.on('will-quit', () => { extensionManager?.stop(); mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin' || isSmoke) setImmediate(() => app.quit());

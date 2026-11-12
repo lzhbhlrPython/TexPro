@@ -15,6 +15,7 @@ import { basename, formatDuration } from '../lib/latex';
 import { useI18n } from '../i18n';
 
 interface Props {
+  logRequest?: number;
   open: boolean;
   compiling: boolean;
   diagnostics: Diagnostic[];
@@ -31,6 +32,7 @@ function severityIcon(severity: Diagnostic['severity']) {
 }
 
 export function ProblemsPanel({
+  logRequest,
   open,
   compiling,
   diagnostics,
@@ -41,6 +43,7 @@ export function ProblemsPanel({
 }: Props) {
   const { t } = useI18n();
   const [tab, setTab] = useState<'problems' | 'log'>('problems');
+  useEffect(() => { if (logRequest) setTab('log'); }, [logRequest]);
   const [filter, setFilter] = useState<'all' | 'error' | 'warning'>('all');
   const logRef = useRef<HTMLPreElement | null>(null);
 

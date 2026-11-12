@@ -1,0 +1,52 @@
+{
+  "name": "@gardenialiu/qwertysay",
+  "version": "0.1.0",
+  "description": "qwertysay: offline scaffolding, checking and packaging for TeXPro plugins and themes",
+  "license": "MIT",
+  "files": [
+    "bin/",
+    "lib/",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md"
+  ],
+  "author": {
+    "name": "Baolin Liu",
+    "url": "https://www.npmjs.com/~gardenialiu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lzhbhlrPython/TexPro.git",
+    "directory": "packages/qwertysay"
+  },
+  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/packages/qwertysay",
+  "bugs": {
+    "url": "https://github.com/lzhbhlrPython/TexPro/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "texpro",
+    "latex",
+    "plugin",
+    "theme",
+    "sdk",
+    "scaffold"
+  ],
+  "dependencies": {
+    "@gardenialiu/texpro-extension-sdk": "0.1.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.cjs"
+  },
+  "bin": {
+    "qwertysay": "bin/qwertysay.cjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

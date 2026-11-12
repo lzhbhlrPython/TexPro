@@ -75,16 +75,10 @@ export function SettingsPanel({
         <div className="settings-body">
           <div className="settings-section">
             <div className="settings-section-title">{t('Language')}</div>
-            <label className="select-row">
+            <div className="select-row">
               <span>{t('Interface language')}</span>
-              <select
-                value={settings.language}
-                onChange={(event) => onChange({ language: event.target.value as Settings['language'] })}
-              >
-                <option value="zh">{t('Chinese')}</option>
-                <option value="en">{t('English')}</option>
-              </select>
-            </label>
+              <button className="secondary-btn" data-testid="language-switch" onClick={() => onChange({ language: settings.language === 'zh' ? 'en' : 'zh' })}>{settings.language === 'zh' ? 'English' : '简体中文'}</button>
+            </div>
           </div>
 
           <div className="settings-section">

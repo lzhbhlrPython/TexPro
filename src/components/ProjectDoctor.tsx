@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { projectDiagnosis } from '../app/inspection';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -37,24 +38,29 @@ interface Props {
 export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssue, onCleanBuild }: Props) {
   const { t } = useI18n();
   const [report, setReport] = useState<Report | null>(null);
+  const generation = useRef(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const scan = useCallback(async () => {
     if (!projectRoot) return;
+    const request = ++generation.current;
     setLoading(true);
     setError(null);
     try {
-      setReport(await window.texpro.diagnoseProject(projectRoot));
+      const result = await projectDiagnosis(window.texpro, projectRoot);
+      if (request === generation.current) setReport(result);
     } catch (failure) {
-      setError(String(failure));
+      if (request === generation.current) setError(String(failure));
     } finally {
-      setLoading(false);
+      if (request === generation.current) setLoading(false);
     }
   }, [projectRoot]);
 
   useEffect(() => {
+    setReport(null);
     if (open) void scan();
+    return () => { generation.current++; };
   }, [open, scan]);
 
   if (!open) return null;
@@ -96,8 +102,8 @@ export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssu
             </div>
             {report && !report.tools.find((tool) => tool.name === 'latexmk')?.ok && (
               <div className="doctor-setup">
-                <strong>{t('MacTeX / TeX Live is required')}</strong>
-                <p>{t('Install MacTeX or BasicTeX, then restart TeXPro so latexmk and SyncTeX are available.')}</p>
+                <strong>{t('A local TeX distribution is required')}</strong>
+                <p>{t('Install TeX Live (or MacTeX on macOS), then restart TeXPro so latexmk and SyncTeX are available.')}</p>
               </div>
             )}
             <div className="doctor-stats">

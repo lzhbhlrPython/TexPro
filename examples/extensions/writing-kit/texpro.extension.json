@@ -1,0 +1,170 @@
+{
+  "id": "texpro.writing-kit",
+  "name": {
+    "en": "Writing kit",
+    "zh": "写作工具包"
+  },
+  "description": {
+    "en": "A local SDK example for writing, diagnostics and data providers.",
+    "zh": "用于写作、诊断与数据提供器的本地 SDK 示例。"
+  },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "TeXPro contributors",
+  "license": "MIT",
+  "entry": "index.cjs",
+  "capabilities": [
+    "document.read",
+    "document.write",
+    "project.read",
+    "build.request",
+    "storage"
+  ],
+  "contributes": {
+    "actions": [
+      {
+        "id": "uppercase",
+        "title": {
+          "en": "Uppercase selection",
+          "zh": "大写选中文本"
+        },
+        "kind": "transform",
+        "level": "L2"
+      },
+      {
+        "id": "check-notes",
+        "title": {
+          "en": "Check revision notes",
+          "zh": "检查修订备忘"
+        },
+        "kind": "diagnostic",
+        "level": "L2"
+      },
+      {
+        "id": "completions",
+        "title": {
+          "en": "Writing completions",
+          "zh": "写作补全"
+        },
+        "kind": "completion",
+        "level": "L2"
+      },
+      {
+        "id": "explain",
+        "title": {
+          "en": "Explain writing context",
+          "zh": "写作上下文说明"
+        },
+        "kind": "hover",
+        "level": "L2"
+      },
+      {
+        "id": "source-preview",
+        "title": {
+          "en": "Preview selected source",
+          "zh": "查看选中源码"
+        },
+        "kind": "preview",
+        "level": "L2"
+      },
+      {
+        "id": "plain-import",
+        "title": {
+          "en": "Import plain text",
+          "zh": "导入纯文本"
+        },
+        "kind": "import",
+        "level": "L2"
+      },
+      {
+        "id": "source-export",
+        "title": {
+          "en": "Export current source",
+          "zh": "导出当前源码"
+        },
+        "kind": "export",
+        "level": "L2"
+      },
+      {
+        "id": "bib-entry",
+        "title": {
+          "en": "Create BibTeX entry",
+          "zh": "创建 BibTeX 条目"
+        },
+        "kind": "bibliography",
+        "level": "L2"
+      },
+      {
+        "id": "csv-points",
+        "title": {
+          "en": "CSV to plot coordinates",
+          "zh": "CSV 转绘图坐标"
+        },
+        "kind": "asset",
+        "level": "L2"
+      },
+      {
+        "id": "word-count",
+        "title": {
+          "en": "Word-count tool",
+          "zh": "字数工具"
+        },
+        "kind": "mcp",
+        "level": "L2"
+      },
+      {
+        "id": "request-build",
+        "title": {
+          "en": "Request document build",
+          "zh": "请求文档编译"
+        },
+        "kind": "command",
+        "level": "L2"
+      }
+    ],
+    "panels": [
+      {
+        "id": "writing",
+        "title": {
+          "en": "Writing tools",
+          "zh": "写作工具"
+        },
+        "level": "L2",
+        "actions": [
+          "uppercase",
+          "check-notes",
+          "word-count"
+        ]
+      }
+    ],
+    "settings": [
+      {
+        "key": "note-word",
+        "title": {
+          "en": "Note marker",
+          "zh": "备忘标记"
+        },
+        "type": "string",
+        "default": "TODO"
+      }
+    ],
+    "completions": [
+      {
+        "label": "\\remark",
+        "template": "\\textit{|}",
+        "detail": "Quiet paper resource example"
+      }
+    ],
+    "templates": [
+      {
+        "id": "short-note",
+        "title": {
+          "en": "Short note",
+          "zh": "短笺"
+        },
+        "source": "\\documentclass{article}\n\\begin{document}\nA short note.\n\\end{document}\n",
+        "engine": "pdflatex"
+      }
+    ]
+  }
+}

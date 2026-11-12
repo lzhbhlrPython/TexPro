@@ -41,7 +41,9 @@ class RealtimeHost {
     this.id = options.sessionId || randomUUID(); this.pids = new Set(); this.closed = false; this.ready = false;
     if (!/^[a-zA-Z0-9-]{1,80}$/.test(this.id)) throw new Error('Invalid realtime session');
     this.root = fs.realpathSync(options.root);
-    this.worker = new Worker(__filename.replace(/app\.asar([/\\])/, 'app.asar.unpacked$1'), { workerData: { ...options, sessionId: this.id } });
+    // rtex-ts transfers fs.openSync FIFO descriptors to net.Socket, which owns their close.
+    // Worker fs tracking cannot observe that ownership transfer and may close a reused host FD.
+    this.worker = new Worker(__filename.replace(/app\.asar([/\\])/, 'app.asar.unpacked$1'), { trackUnmanagedFds: false, workerData: { ...options, sessionId: this.id } });
     this.worker.on('message', event => {
       if (event.processes) this.pids = new Set(event.processes);
       else if (event.buildDir) this.buildDir = event.buildDir;

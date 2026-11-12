@@ -1,0 +1,4 @@
+interface:
+  display_name: "TeXPro Extension Development"
+  short_description: "开发和验证 TeXPro 本地插件包与主题包"
+  default_prompt: "Use $texpro-extension-development to build and verify a TeXPro extension or theme pack."

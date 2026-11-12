@@ -140,7 +140,7 @@ test('all literal interface translations and command-palette details have Chines
   const missing=[];
   const visitFile = file => { const ast=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),99,true); const walk=node=>{
     if(ts.isCallExpression(node)&&['t','tr'].includes(node.expression.getText(ast))&&node.arguments[0]&&ts.isStringLiteralLike(node.arguments[0])&&!keys.has(node.arguments[0].text))missing.push(`${file}: ${node.arguments[0].text}`);
-    if(file.endsWith('App.tsx')&&ts.isPropertyAssignment(node)&&node.name.getText(ast)==='detail'&&ts.isStringLiteralLike(node.initializer)&&!keys.has(node.initializer.text))missing.push(`palette: ${node.initializer.text}`);
+    if((file.endsWith('App.tsx')||file.endsWith('commands/builtins.ts'))&&ts.isPropertyAssignment(node)&&['label','detail'].includes(node.name.getText(ast))&&ts.isStringLiteralLike(node.initializer)&&!keys.has(node.initializer.text))missing.push(`palette: ${node.initializer.text}`);
     ts.forEachChild(node,walk);
   };walk(ast); };
   const visitDir=dir=>{for(const item of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,item.name);if(item.isDirectory())visitDir(file);else if(/\.tsx?$/.test(file)&&item.name!=='i18n.ts')visitFile(file);}};

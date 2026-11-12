@@ -6,16 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useDialogFocus } from '../hooks/useDialogFocus';
 
-export interface PaletteAction {
-  id: string;
-  label: string;
-  detail?: string;
-  shortcut?: string;
-  group?: string;
-  keywords?: string;
-  icon: LucideIcon;
-  run: () => void;
-}
+export type PaletteAction = import('../app/commands/types').AppCommand;
 
 interface Props {
   open: boolean;

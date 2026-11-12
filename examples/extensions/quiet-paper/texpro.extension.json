@@ -1,0 +1,41 @@
+{
+  "id": "texpro.quiet-paper",
+  "name": {
+    "en": "Quiet paper",
+    "zh": "静纸"
+  },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "TeXPro contributors",
+  "license": "MIT",
+  "capabilities": [
+    "theme.styles"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "warm",
+        "title": {
+          "en": "Warm paper",
+          "zh": "暖纸"
+        },
+        "base": "paper",
+        "tokens": {
+          "paper": "#fff9ed",
+          "editor-text": "#302c25",
+          "editor-heading": "#211e18",
+          "selection": "#c26c4938",
+          "accent": "#9c472b",
+          "syn-command": "#994321",
+          "syn-comment": "#756c5f",
+          "font-editor": "Charter, Georgia, serif",
+          "editor-font-size": "18px",
+          "editor-width": "820px",
+          "radius": "12px",
+          "space-unit": "4px"
+        },
+        "stylesheet": "theme.css"
+      }
+    ]
+  }
+}

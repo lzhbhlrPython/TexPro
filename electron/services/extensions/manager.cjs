@@ -8,7 +8,7 @@ const { ExtensionProcess } = require('./process.cjs');
 function inside(root, file) { return file === root || file.startsWith(root + path.sep); }
 class ExtensionManager {
   constructor(directory, options = {}) {
-    this.directory = directory; this.workers = new Map(); this.errors = new Map(); this.options = options;
+    this.directory = directory; this.workers = new Map(); this.errors = new Map(); this.options = options; this.projectEpoch = 0;
     this.stateFile = path.join(directory, 'installed.json'); this.records = {};
     try { this.records = JSON.parse(fs.readFileSync(this.stateFile, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') this.errors.set('host', 'Extension installation state could not be read'); }
     for (const [id, record] of Object.entries(this.records)) {
@@ -21,6 +21,7 @@ class ExtensionManager {
   manifest(id) { return validateManifest(JSON.parse(fs.readFileSync(path.join(this.folder(id), 'texpro.extension.json'), 'utf8'))); }
   save() { atomicJson(this.stateFile, this.records); }
   async start() {
+    if (this.options.safeMode) return this.disableAll();
     for (const [id, record] of Object.entries(this.records)) if (record.enabled) {
       try { await this.activate(id); } catch (error) { record.enabled = false; this.errors.set(id, error.message); }
     }
@@ -28,7 +29,7 @@ class ExtensionManager {
   }
   list() {
     return Object.entries(this.records).map(([id, record]) => {
-      try { return { manifest: this.manifest(id), enabled: record.enabled && (!this.manifest(id).entry || this.workers.has(id)), digest: record.digest, config: record.config || {}, development: Boolean(record.source), error: this.errors.get(id) || null }; }
+      try { const manifest = this.manifest(id); return { manifest, themeStyles: require('./theme.cjs').themeStyles(manifest, readPackage(this.folder(id)).files), enabled: record.enabled && (!manifest.entry || this.workers.has(id)), digest: record.digest, config: record.config || {}, development: Boolean(record.source), canRollback: Boolean(record.previous), error: this.errors.get(id) || null }; }
       catch (error) { return { manifest: { id, name: id, version: 'unknown', capabilities: [], contributes: {} }, enabled: false, error: error.message }; }
     });
   }
@@ -62,7 +63,8 @@ class ExtensionManager {
   }
   async enable(id, enabled, trusted = false) {
     const manifest = this.manifest(id), record = this.records[id];
-    if (enabled && manifest.entry && !trusted) throw new Error('Executable extensions require explicit trust');
+    if (enabled && (manifest.entry || manifest.capabilities.includes('theme.styles')) && !trusted) throw new Error('Executable extensions and custom styles require explicit trust');
+    if (enabled) readPackage(this.folder(id));
     this.workers.get(id)?.stop(); this.workers.delete(id); record.enabled = false;
     try {
       if (enabled) await this.activate(id);
@@ -100,7 +102,7 @@ class ExtensionManager {
     if (!this.records[id].enabled || !action || !this.workers.has(id)) throw new Error('Extension action is unavailable');
     if (!context || typeof context.source !== 'string' || context.source.length > 2 * 1024 * 1024 || !context.selection || !Number.isInteger(context.selection.from) || !Number.isInteger(context.selection.to) || context.selection.from < 0 || context.selection.to < context.selection.from || context.selection.to > context.source.length) throw new Error('Invalid extension document snapshot');
     if (Buffer.byteLength(JSON.stringify(input ?? {})) > 1024 * 1024) throw new Error('Extension input too large');
-    const snapshot = { invocation: randomUUID(), language: context.language === 'zh' ? 'zh' : 'en', selection: context.selection, project: context.project, file: context.file, source: context.source };
+    const snapshot = { invocation: randomUUID(), projectEpoch: this.projectEpoch, language: context.language === 'zh' ? 'zh' : 'en', selection: context.selection, project: context.project, file: context.file, source: context.source };
     if (!manifest.capabilities.includes('document.read')) { snapshot.source = ''; snapshot.selection = { from: 0, to: 0 }; snapshot.file = undefined; }
     if (!manifest.capabilities.includes('project.read')) snapshot.project = undefined;
     const result = await this.workers.get(id).invoke(actionId, snapshot, input);
@@ -120,6 +122,7 @@ class ExtensionManager {
       atomicJson(file, data); return true;
     }
     if (!manifest.capabilities.includes('project.read') || !context.project) throw new Error('Project capability is required');
+    if (context.projectEpoch !== this.projectEpoch) throw new Error('Project context has expired');
     const root = fs.realpathSync(context.project.root); this.options.assertRoot?.(root);
     if (name === 'project.readFile') {
       if (!args || typeof args.path !== 'string') throw new Error('Invalid project file');
@@ -131,11 +134,16 @@ class ExtensionManager {
     throw new Error('Unsupported extension service');
   }
   event(event, payload) {
+    if (event === 'projectChanged') this.projectEpoch++;
     for (const [id, worker] of this.workers) {
       const granted = this.manifest(id).capabilities;
       worker.event(event, granted.includes('project.read') ? payload : { available: Boolean(payload) });
     }
   }
   stop() { for (const worker of this.workers.values()) worker.stop(); this.workers.clear(); }
+  disableAll() {
+    this.stop(); for (const record of Object.values(this.records)) record.enabled = false;
+    this.save(); this.options.changed?.(); return this.list();
+  }
 }
 module.exports = { ExtensionManager };

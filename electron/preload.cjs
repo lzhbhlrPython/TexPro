@@ -9,6 +9,19 @@ function subscribe(channel, callback) {
 }
 
 contextBridge.exposeInMainWorld('texpro', {
+  platform: process.platform,
+  safeMode: process.argv.includes('--texpro-safe-mode'),
+  extensionsList: () => ipcRenderer.invoke('extensions:list'),
+  extensionsChoose: (development) => ipcRenderer.invoke('extensions:choose', development),
+  extensionsInstall: (token) => ipcRenderer.invoke('extensions:install', token),
+  extensionsEnable: (id, enabled, trusted) => ipcRenderer.invoke('extensions:enable', id, enabled, trusted),
+  extensionsConfigure: (id, config) => ipcRenderer.invoke('extensions:configure', id, config),
+  extensionsRemove: (id) => ipcRenderer.invoke('extensions:remove', id),
+  extensionsReload: (id) => ipcRenderer.invoke('extensions:reload', id),
+  extensionsRollback: (id) => ipcRenderer.invoke('extensions:rollback', id),
+  extensionsInvoke: (id, action, snapshot, input) => ipcRenderer.invoke('extensions:invoke', id, action, snapshot, input),
+  extensionsEvent: (name, payload) => ipcRenderer.invoke('extensions:event', name, payload),
+  onExtensionsChanged: (callback) => subscribe('extensions:changed', callback),
   openProjectDialog: () => ipcRenderer.invoke('dialog:openProject'),
   openProject: (root) => ipcRenderer.invoke('project:open', root),
   createDemoProject: () => ipcRenderer.invoke('project:demo'),
