@@ -58,6 +58,7 @@ test('stable commits and tags publish atomically, retry the same run and never o
   assert.equal(git(remote,'rev-parse','refs/heads/main'),commit); assert.equal(git(remote,'rev-parse','refs/tags/v1.2.4'),commit);
   assert.equal(git(work,'rev-parse',`${commit}^`),sourceSha); assert.equal(commitVersion(work,identity),commit);
   assert.throws(()=>commitVersion(work,{...identity,runId:'456'}),/another release/);
+  assert.throws(()=>commitVersion(work,{...identity,runId:'12'}),/another release/);
 });
 test('stable rejects an advanced main and leaves published version unchanged', t => {
   const {work,remote,sourceSha}=fixture(t);

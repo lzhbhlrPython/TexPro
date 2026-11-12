@@ -39,6 +39,15 @@ test('guided CSS theme builds and checks without automatic dependency installati
   assert.ok(output.some(line=>line.includes('permissions')));await main(buildPlan.args);
   const {result:checkPlan}=await plan(['en',directory,'yes'],'check');await main(checkPlan.args);
 });
+test('guided pack keeps data-only completion plugins as tpp without an executable entry',async t=>{
+  const root=fixture(t),directory=path.join(root,'completion'),file=path.join(root,'completion.tpp');
+  fs.mkdirSync(directory);
+  fs.writeFileSync(path.join(directory,'LICENSE'),'MIT License');
+  fs.writeFileSync(path.join(directory,'texpro.extension.json'),JSON.stringify({id:'wizard.completion',name:'Completion',version:'1.0.0',apiVersion:1,author:'Writer',license:'MIT',capabilities:[],contributes:{completions:[{label:'Example',template:'Example'}]}}));
+  const {result}=await plan(['en',directory,file,'yes'],'pack');
+  await main(result.args);assert.equal(readPackage(file).manifest.entry,undefined);
+  assert.equal(readPackage(file).manifest.contributes.completions[0].label,'Example');
+});
 test('cancel, EOF and noninteractive startup do not create files or hang',async t=>{
   const root=fixture(t),directory=path.join(root,'cancelled');
   const {result}=await plan(['en','init','plugin',directory,'wizard.cancel','Writer','ts','']);

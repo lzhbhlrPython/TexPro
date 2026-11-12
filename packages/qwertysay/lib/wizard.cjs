@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const readline = require('node:readline');
-const { languages, styles, validateManifest, readPackage } = require('@gardenialiu/texpro-extension-sdk/package-tools');
+const { languages, styles, validateManifest, readPackage, packageKind } = require('@gardenialiu/texpro-extension-sdk/package-tools');
 const { artifactDirectory } = require('./build.cjs');
 
 class WizardCancelled extends Error {
@@ -76,7 +76,7 @@ async function planInteractive({ ask, write = console.log, command } = {}) {
     plan = { command: action, args: [action, path.resolve(source)] };
     if (action === 'pack') {
       const { manifest } = readPackage(artifactDirectory(path.resolve(source)));
-      const suffix = manifest.entry ? 'tpp' : 'tpt';
+      const suffix = packageKind(manifest) === 'theme' ? 'tpt' : 'tpp';
       const fallback = path.join(path.dirname(path.resolve(source)), `${manifest.id}.${suffix}`);
       plan.args.push(await text(t('新安装包路径（目录外，不覆盖现有文件）', 'New package path (outside source, no overwrite)'), fallback, value => {
         const output = path.resolve(value), relative = path.relative(path.resolve(source), output);
