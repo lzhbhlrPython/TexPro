@@ -22,7 +22,7 @@ It is not a Markdown editor, nor an online collaboration platform. Before you op
 | Windows 10+ | `.exe` | NSIS installer, install path selectable |
 | Linux | `.AppImage` | Make it executable and run it directly; deb / rpm also available |
 
-Installers are hosted on GitHub Releases and packaged automatically on every commit; nightly builds carry a date in the version number.
+Installers are hosted on GitHub Releases. Nightly checks daily at 21:23 Asia/Shanghai for commits since the last successfully published Nightly, then tests, packages and publishes when new commits exist; otherwise it skips. Nightly versions carry a date. Actions queues may delay the scheduled check.
 
 ### TeX Distribution
 

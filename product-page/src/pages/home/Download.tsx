@@ -8,7 +8,7 @@ import { useRelease } from '@/hooks/useRelease';
 import { usePlatform } from '@/lib/platform';
 import { findAsset, formatSize } from '@/lib/release';
 import { DOWNLOADS } from '@/data/site';
-import { useLocale, useLocalize, useT } from '@/i18n';
+import { useLocalize, useT } from '@/i18n';
 
 const { Text, Title } = Typography;
 
@@ -18,7 +18,6 @@ export function Download() {
   const { token } = theme.useToken();
   const t = useT();
   const localize = useLocalize();
-  const { locale } = useLocale();
   const { message } = App.useApp();
   const navigate = useNavigate();
   const release = useRelease();
@@ -42,11 +41,10 @@ export function Download() {
         <SectionHeading
           eyebrow="下载"
           title="装到本机，十分钟开始写"
-          description={
-            locale === 'en'
-              ? `Build v${release.version}, repackaged on every commit. Installers are hosted on GitHub Releases.`
-              : `当前构建 v${release.version}，随每次提交自动打包。安装包托管在 GitHub Releases。`
-          }
+          description={t('当前构建 v{version}。Nightly 每日检查新提交，安装包托管在 GitHub Releases。').replace(
+            '{version}',
+            release.version,
+          )}
         />
 
         {platform && (

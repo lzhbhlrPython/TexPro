@@ -260,8 +260,8 @@ export const EN: Record<string, string> = {
 
   // 下载
   '装到本机，十分钟开始写': 'Install locally, writing in ten minutes',
-  '当前构建 v当前，随每次提交自动打包。安装包托管在 GitHub Releases。':
-    'Build v当前, packaged on every commit. Installers live on GitHub Releases.',
+  '当前构建 v{version}。Nightly 每日检查新提交，安装包托管在 GitHub Releases。':
+    'Build v{version}. Nightly checks for new commits daily; installers are hosted on GitHub Releases.',
   运行前提: 'Requirements',
   '需要本机已安装 TeX Live 或 MacTeX（pdflatex / xelatex / lualatex 任一即可）；TeXPro 会自动探测发行版与可执行文件。安装包未签名，每行右侧的复制按钮给出该安装包的 SHA256。':
     'TeX Live or MacTeX must be installed (any of pdflatex / xelatex / lualatex); TeXPro detects the distribution and binaries. Builds are unsigned — the copy button on each row gives that installer’s SHA256.',

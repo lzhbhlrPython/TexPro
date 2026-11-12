@@ -18,7 +18,7 @@
 | Windows 10+ | `.exe` | NSIS 安装包，可选安装路径 |
 | Linux | `.AppImage` | 赋执行权限后直接运行；也有 deb / rpm |
 
-安装包托管在 GitHub Releases，随每次提交自动打包；nightly 构建的版本号带日期。
+安装包托管在 GitHub Releases。Nightly 每日于 Asia/Shanghai 21:23 检查相对上次成功发布的 Nightly 是否有新提交，有则测试、打包和发布；无新提交则跳过。Nightly 构建的版本号带日期，计划检查时间可能因 Actions 排队延后。
 
 ### TeX 发行版
 
