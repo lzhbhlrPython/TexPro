@@ -21,6 +21,6 @@ version: 0.1.0
 
 ## 交付状态要诚实
 
-实现与测试见[日期版本提交](https://github.com/lzhbhlrPython/TexStudioPro/commit/b39f4ef)。这篇记录解释仓库工作流的设计；远端何时采用它，取决于包含该提交的分支何时合并并被 Actions 使用。本地代码完成，不等于远端已经运行成功。
+实现与测试见[日期版本提交](https://github.com/lzhbhlrPython/TexPro/commit/b39f4ef)。这篇记录解释仓库工作流的设计；远端何时采用它，取决于包含该提交的分支何时合并并被 Actions 使用。本地代码完成，不等于远端已经运行成功。
 
 安装包仍需平台构建与资源检查。版本号一致只解决可追溯性，不能替代实际启动、编译与 MCP 依赖完整性的验证。

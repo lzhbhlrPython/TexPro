@@ -1,5 +1,5 @@
 import type { SupportLevel } from '@/types';
-import { DOC_METRIC } from './documentation';
+export const MCP_METRIC = { value: '21', label: '个 MCP 工具', description: '个 MCP 工具，供 AI 客户端读写工程、编译与定位。' } as const;
 
 export interface NavItem {
   label: string;
@@ -42,7 +42,7 @@ export const HERO_METRICS = [
   { value: '137', label: '条回归用例', source: 'tests' },
   { value: '106', label: '个 IPC 通道', source: 'ipc' },
   { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
-  { value: DOC_METRIC.value, label: DOC_METRIC.label, source: 'docs' },
+  { value: MCP_METRIC.value, label: MCP_METRIC.label, source: 'mcp' },
 ] as const;
 
 export const HERO_POINTS = ['免登录使用', '离线可编译', '文件留在本机磁盘'] as const;

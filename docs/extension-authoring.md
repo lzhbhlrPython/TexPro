@@ -56,7 +56,7 @@ npm run pack:extension
 | CSS-in-JS | `css-in-js` | `.css.ts` | vanilla-extract + esbuild 提取静态 CSS |
 | Thematic CSS | `tcss` | `.tcss` | 官方 tcss-cli 1.0.0 |
 
-SCSS／Sass 当前编译器需要 Node ≥20.19。TCSS 是 [Thematic CSS](https://github.com/tosiiko/TCSS)，不是 Textual 的终端样式。先通过 `cargo install tcss-cli --version 1.0.0 --locked` 安装官方编译器，使 `tcss` 在 PATH 中可用；其文档提及的 `tcss-js` 当前不可从 npm 获取，脚手架不引用它。TCSS 在作者机器上构建，不把 Rust 工具链引入桌面运行时。
+SCSS／Sass 当前编译器需要 Node ≥20.19。TCSS 是 [Thematic CSS](https://docs.rs/crate/tcss-cli/1.0.0)，不是 Textual 的终端样式。先通过 `cargo install tcss-cli --version 1.0.0 --locked` 安装官方编译器，使 `tcss` 在 PATH 中可用；其文档提及的 `tcss-js` 当前不可从 npm 获取，脚手架不引用它。TCSS 在作者机器上构建，不把 Rust 工具链引入桌面运行时。
 
 CSS-in-JS 使用 [vanilla-extract 的 esbuild 集成](https://vanilla-extract.style/documentation/integrations/esbuild/)。只把提取的 CSS 放入分发目录，求值 JavaScript 留在开发输出中。所有样式仍经过同一主题校验，不放宽远程 URL、`@import`、路径逃逸或资源大小限制。构建时的 Sass／TCSS 导入可被编译器展开；最终 CSS 仍存在的 `@import` 会拒绝。
 

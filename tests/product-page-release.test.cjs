@@ -56,12 +56,16 @@ test('pinned stable refresh accepts the exact formal version and download metada
   const data=JSON.parse(fs.readFileSync(snapshot)); assert.equal(data.version,'1.2.3');assert.equal(data.channel,'stable');
 });
 test('stable history paginates past Nightlies, filters drafts and rejects incomplete pinned refreshes', async t => {
-  const { fetchStableReleases }=await import('../product-page/src/lib/stable-releases.mjs');
+  const { fetchStableReleases, groupStableReleases }=await import('../product-page/src/lib/stable-releases.mjs');
   const { syncStableReleases }=await import('../product-page/scripts/fetch-stable-releases.mjs');
   const stable=release({tag_name:'v1.2.3',prerelease:false,body:'Real release notes',html_url:'https://github.com/owner/repo/releases/tag/v1.2.3'});
   const pages=[];
   const history=await fetchStableReleases('owner/repo',{fetcher:async url=>{pages.push(url);return ok(pages.length===1?Array(100).fill(release()):[stable,{...stable,draft:true}]);}});
   assert.equal(pages.length,2);assert.equal(history.length,1);assert.equal(history[0].notes,'Real release notes');assert.equal(history[0].assets.length,1);
+  const groups=groupStableReleases(['v0.1.2','v0.10.0','v0.1.10','v1.0.0','nightly'].map(tag=>({...history[0],tag})),{'0.1':{codename:'Tajpilo'}});
+  assert.deepEqual(groups.map(group=>group.title),['V1.0','V0.10','V0.1 / Tajpilo']);
+  assert.deepEqual(groups[2].releases.map(item=>item.tag),['v0.1.10','v0.1.2']);
+  assert.equal(history[0].tag,'v1.2.3','grouping must not mutate fetched releases');
   const {root}=fixture(t),target=path.join(root,'src/config/stable-releases.json');
   await syncStableReleases({rootDir:root,repo:'owner/repo',pinnedTag:'v1.2.3',fetcher:async()=>ok([stable])});
   const before=fs.readFileSync(target,'utf8');

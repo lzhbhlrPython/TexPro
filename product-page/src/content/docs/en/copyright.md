@@ -201,7 +201,7 @@ The product page is hosted on GitHub Pages, and fonts are loaded from jsDelivr. 
 
 If you believe that code, documentation, screenshots, or demo assets in the repository infringe your rights, raise it in GitHub Issues:
 
-- Repository: `https://github.com/lzhbhlrPython/TexStudioPro`
+- Repository: `https://github.com/lzhbhlrPython/TexPro`
 - State the files, pages, or versions involved
 - Provide proof of rights or a link to the original source
 - State how you would like it handled: attribution, replacement, or removal

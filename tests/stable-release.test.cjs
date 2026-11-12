@@ -70,17 +70,24 @@ test('stable rejects an advanced main and leaves published version unchanged', t
 test('stable keeps uploads draft on failure and retries publication and Pages without incrementing again', t => {
   const {work,sourceSha}=fixture(t), env={RELEASE_VERSION:'1.2.4',RELEASE_SOURCE:sourceSha,GITHUB_RUN_ID:'123',GITHUB_REPOSITORY:'owner/repo'};
   fs.mkdirSync(path.join(work,'release')); const names=['app.dmg','app.exe','app.deb','app.rpm','app.AppImage']; names.forEach(n=>fs.writeFileSync(path.join(work,'release',n),'asset'));
-  let release=null, failUpload=true, dispatches=0;
+  let release=null, failUpload=true, incompleteUpload=false, dispatches=0, draftLookups=0;
   const gh=(...args)=>{
-    if(args[0]==='api') { if(!release) {const error=Error('not found');error.stderr='HTTP 404';throw error;}return JSON.stringify(release); }
-    if(args[1]==='create') release={draft:true,assets:[]};
-    if(args[1]==='upload') {if(failUpload)throw Error('upload interrupted');release.assets=names.map(name=>({name,size:5,state:'uploaded'}));}
+    if(args[0]==='api') {
+      if(args.includes('--slurp')) {draftLookups++;return JSON.stringify([[],release?[release]:[]]);}
+      // Reproduce GitHub's draft response instead of treating it as public.
+      if(!release || release.draft) {const error=Error('not found');error.stderr='HTTP 404';throw error;}
+      return JSON.stringify(release);
+    }
+    if(args[1]==='create') {assert.equal(release,null,'never recreate an existing draft');release={tag_name:'v1.2.4',draft:true,assets:[]};}
+    if(args[1]==='upload') {if(failUpload)throw Error('upload interrupted');release.assets=(incompleteUpload?names.slice(1):names).map(name=>({name,size:5,state:'uploaded'}));}
     if(args[1]==='edit') {release.draft=false;release.prerelease=false;release.published_at=new Date().toISOString();}
     if(args[0]==='workflow')dispatches++;
     return '';
   };
   assert.throws(()=>publish(work,env,gh),/upload interrupted/); assert.equal(release.draft,true);assert.equal(dispatches,0);
-  failUpload=false; publish(work,env,gh); const commit=git(work,'rev-parse','HEAD'); assert.equal(release.draft,false);assert.equal(dispatches,1);
+  failUpload=false; incompleteUpload=true;
+  assert.throws(()=>publish(work,env,gh),/Uploaded assets incomplete/);assert.equal(release.draft,true);assert.equal(dispatches,0);
+  incompleteUpload=false; publish(work,env,gh); const commit=git(work,'rev-parse','HEAD'); assert.equal(release.draft,false);assert.equal(dispatches,1);assert.ok(draftLookups>=4);
   publish(work,env,gh);assert.equal(git(work,'rev-parse','HEAD'),commit);assert.equal(dispatches,2);
 });
 

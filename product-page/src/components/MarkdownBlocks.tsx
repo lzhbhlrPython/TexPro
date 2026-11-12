@@ -112,7 +112,9 @@ function CodeBlock({ text }: { text: string }) {
   );
 }
 
-export function MarkdownBlocks({ blocks }: { blocks: DocBlock[] }) {
+export function MarkdownBlocks({ blocks, idPrefix = 'sec', headingOffset = 0 }: {
+  blocks: DocBlock[]; idPrefix?: string; headingOffset?: 0 | 1 | 2 | 3;
+}) {
   const { token } = theme.useToken();
 
   return (
@@ -121,23 +123,22 @@ export function MarkdownBlocks({ blocks }: { blocks: DocBlock[] }) {
         const key = `${block.kind}-${index}`;
 
         switch (block.kind) {
+          case 'h2':
           case 'h3':
+          case 'h4': {
+            const level = block.kind === 'h2' ? 1 : block.kind === 'h3' ? 2 : 3;
+            const Heading = `h${level + headingOffset}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
             return (
-              <h2
+              <Heading
                 key={key}
-                id={`sec-${index}`}
-                className="docs-section-title"
+                id={`${idPrefix}-${index}`}
+                className={block.kind === 'h4' ? 'docs-h4' : 'docs-section-title'}
                 style={{ color: token.colorTextHeading }}
               >
-                {block.text}
-              </h2>
+                {inline(block.text)}
+              </Heading>
             );
-          case 'h4':
-            return (
-              <h3 key={key} className="docs-h4" style={{ color: token.colorTextHeading }}>
-                {block.text}
-              </h3>
-            );
+          }
           case 'ul':
             return (
               <ul key={key} className="docs-ul" style={{ color: token.colorText }}>

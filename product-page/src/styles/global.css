@@ -908,6 +908,11 @@ a {
   max-width: 720px;
 }
 
+.release-notes {
+  max-width: 75ch;
+  overflow-wrap: anywhere;
+}
+
 .docs-section-title {
   margin: 36px 0 10px;
   font-size: 15px;

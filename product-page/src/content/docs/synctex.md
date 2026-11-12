@@ -26,23 +26,23 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 ## 源码 → PDF
 
-- 光标停在某处、PDF 面板开着、设置里的 PDF follows cursor 保持默认开启：停顿 650 毫秒后自动定位。
-- 想立刻定位：`⇧⌘J`，或 `Build → Forward Search`。
-- PDF 没打开时，手动定位会把面板打开；还没有编译产物时提示 "Compile first to enable SyncTeX"。
-- 命中后 PDF 滚到对应位置，顶部横幅写 `Synced to page 3 · line 128`。
+- 光标停在某处、PDF 面板开着、设置里的 PDF 跟随光标保持默认开启：停顿 650 毫秒后自动定位。
+- 想立刻定位：`⇧⌘J`，或 `构建 → 正向搜索`。
+- PDF 没打开时，手动定位会把面板打开；还没有编译产物时提示 "先编译一次以启用 SyncTeX"。
+- 命中后 PDF 滚到对应位置，顶部横幅写 `已同步到第 3 页 · 第 128 行`。
 
 自动跟随只在「不编译中、有 PDF、有活动文件」时触发。两者都只在目标离开视口时才滚动，并把它停在视口约 40% 处；区别是手动定位用平滑滚动，自动跟随直接跳，避免边打字边看时画面持续滑动。
 
 ## PDF → 源码
 
-在 PDF 上按住 `⌘`（Windows / Linux 为 `Ctrl`）单击，编辑器跳到对应行。反向选区则是按住 `⌘` 拖一个矩形，或先点工具栏的 Select PDF region 进入框选模式。
+在 PDF 上按住 `⌘`（Windows / Linux 为 `Ctrl`）单击，编辑器跳到对应行。反向选区则是按住 `⌘` 拖一个矩形，或先点工具栏的框选 PDF 定位源码进入框选模式。
 
-- 底部提示：`Hold ⌘ / Ctrl and click or drag to locate source`。
-- 框选模式提示：`Drag to select a PDF region and locate its source. Esc cancels.`，`Esc` 退出。
+- 底部提示：`按住 ⌘ / Ctrl 点击或拖框定位源码`。
+- 框选模式提示：`拖框选择 PDF 区域并定位源码 · Esc 取消`，`Esc` 退出。
 - 区域最多取 7 个采样点并行反查。
 - 结果按文件分组，取覆盖行数最多的文件，把最小到最大行整段选中。
-- 几个点落在不同文件时提示 "Region crosses source files. Showing the largest matching range."。
-- 找不到时提示 "No source location at this point"。
+- 几个点落在不同文件时提示 "选区涉及多个源文件，已显示匹配最多的文件范围。"。
+- 找不到时提示 "这个位置没有对应的源码"。
 
 反向定位成功后会暂停自动正向跟随 1800 毫秒，否则同一动作会立刻被光标跟随覆盖回去。
 
@@ -52,18 +52,18 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 | --- | --- |
 | 上一页 / 下一页 | 翻页，标题旁显示当前页与总页数 |
 | 缩放 | 35% 到 180%，步进 10%，默认 90% |
-| Fit page width | 按面板宽度铺满一页 |
+| 适应页宽 | 按面板宽度铺满一页 |
 | 缩略图 | 侧栏页缩略图列表，点击翻到该页 |
 | 搜索 | 至少 2 字符，显示 n/m 命中，Enter 与 Shift-Enter 跳转 |
-| Select PDF region | 进入框选反查，Esc 退出 |
-| Compare with previous compile | 与上一份 PDF 叠影，透明度 15% 到 90% |
-| Two-page spread | 双页并排 |
-| Presentation mode | 面板全屏 |
-| Copy page text | 复制当前页文本 |
-| Open PDF in default viewer | 交给系统阅读器 |
-| Reveal PDF in Finder | 在文件管理器里定位产物 |
+| 框选 PDF 定位源码 | 进入框选反查，Esc 退出 |
+| 与上次编译对比 | 与上一份 PDF 叠影，透明度 15% 到 90% |
+| 双页视图 | 双页并排 |
+| 演示模式 | 面板全屏 |
+| 复制本页文本 | 复制当前页文本 |
+| 用默认阅读器打开 PDF | 交给系统阅读器 |
+| 在访达中显示 PDF | 在文件管理器里定位产物 |
 
-面板空态写 "No PDF yet"，按钮直接触发编译，并提示 `⌘↩ compile · ⌘-click PDF to jump back`。
+面板空态写 "还没有 PDF"，按钮直接触发编译，并提示 `⌘↩ 编译 · ⌘-点击 PDF 跳回源码`。
 
 ## 精度与边界
 
@@ -76,7 +76,7 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 ## 常见坑
 
 - 只在 PDF 面板打开时有意义；面板收起后自动跟随不会触发，但仍可以用 `⇧⌘J` 手动定位。
-- 编译进行中不跟随：正在编译时打字，等状态栏从 Typesetting 变回 PDF ready 再看。
+- 编译进行中不跟随：正在编译时打字，等状态栏从 Typesetting 变回 PDF 就绪再看。
 - 自动编译与光标跟随叠加时，刚保存就跳转可能对到上一版；停顿一拍再定位更稳。
 - 区域反查跨文件时只给一个文件的范围，不是多文件合并结果。
 - 双页与演示模式只改显示方式，不影响坐标换算。
@@ -86,7 +86,7 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 自动编译在停止输入 2.2 秒后触发，编译完成才更新 PDF 与映射。写长段时这会出现一个窗口：屏幕上的 PDF 仍是上一版，光标跟随也会对到旧位置。状态栏左边的 Typesetting 转圈是唯一可靠的信号，转完再读 PDF 就不会错位。
 
-如果只想安静写作，把编译策略切到 Manual only，或在设置里关掉 PDF follows cursor，用 `⇧⌘J` 按需定位。
+如果只想安静写作，把编译策略切到仅手动编译，或在设置里关掉 PDF 跟随光标，用 `⇧⌘J` 按需定位。
 
 ## 相关页面
 

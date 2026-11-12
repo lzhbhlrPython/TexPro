@@ -29,4 +29,4 @@ version: 0.1.0
 
 本轮增加了嵌套源、注释／代码／数学环境排除、过期哈希、符号链接边界和主／子文件安装测试，并用 pdfLaTeX、XeLaTeX、LuaLaTeX 编译草稿。界面操作与主题验证单独进行；不把编译成功等同于所有复杂模板都兼容。使用方法见[占位符与修订备忘](/docs/writing-aids)与[中文排版](/docs/ctex-typography)。
 
-实现见[写作辅助提交](https://github.com/lzhbhlrPython/TexStudioPro/commit/7fa93b8)。本地收尾结果为 88 项回归通过、1 项跳过，真实 Electron 写作辅助流程、三引擎草稿编译、MCP 与发行资源检查通过。占位符额外增加了外边距，减淡边框，保留正文的阅读节奏。
+实现见[写作辅助提交](https://github.com/lzhbhlrPython/TexPro/commit/7fa93b8)。本地收尾结果为 88 项回归通过、1 项跳过，真实 Electron 写作辅助流程、三引擎草稿编译、MCP 与发行资源检查通过。占位符额外增加了外边距，减淡边框，保留正文的阅读节奏。

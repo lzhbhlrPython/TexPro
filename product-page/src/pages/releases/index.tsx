@@ -1,10 +1,13 @@
 import { CopyOutlined } from '@ant-design/icons';
-import { App, Button, Empty, Flex, Space, Table, Typography, theme } from 'antd';
+import { App, Button, Collapse, Empty, Flex, Space, Table, Typography, theme } from 'antd';
 import { Link } from 'react-router-dom';
+import { MarkdownBlocks } from '@/components/MarkdownBlocks';
+import { parseMarkdown } from '@/lib/markdown';
+import releaseSeries from '../../../../release-series.json';
 import { SectionHeading } from '@/components/SectionHeading';
 import { SITE_LINKS } from '@/config/constants';
 import snapshot from '@/config/stable-releases.json';
-import type { StableRelease } from '@/lib/stable-releases.mjs';
+import { groupStableReleases, type StableRelease } from '@/lib/stable-releases.mjs';
 import { formatSize } from '@/lib/release';
 import { useLocale, useT } from '@/i18n';
 
@@ -14,6 +17,7 @@ export default function ReleasesPage() {
   const { token } = theme.useToken();
   const { message } = App.useApp();
   const releases: StableRelease[] = snapshot.releases;
+  const groups = groupStableReleases(releases, releaseSeries);
   const date = (value: string) => new Date(value).toLocaleDateString(
     locale === 'zh' ? 'zh-CN' : 'en-US',
     { year: 'numeric', month: 'long', day: 'numeric' },
@@ -38,7 +42,7 @@ export default function ReleasesPage() {
         <SectionHeading
           eyebrow="正式版本列表"
           title="选择一个正式版本"
-          description="这里收录已公开的正式 Release，提供发布说明和原始安装包。Nightly 继续在更新日志中展示。"
+          description="按系列代号浏览正式版本，展开小版本查看发布说明与安装包。Nightly 继续在更新日志中展示。"
         />
         <Space wrap style={{ marginBlock: 24 }}>
           <Link to="/changelog"><Button>{t('查看最新构建')}</Button></Link>
@@ -53,55 +57,69 @@ export default function ReleasesPage() {
             description={t('暂无正式版本；可在更新日志中获取 Nightly。')}
           />
         ) : null}
-        {releases.map(release => (
-          <section key={release.tag} aria-label={release.tag} style={{ marginBottom: 40 }}>
-            <Flex
-              justify="space-between" align="center" wrap gap={16}
-              style={{ borderBottom: `1px solid ${token.colorBorderSecondary}`, paddingBlock: 24, marginBottom: 24 }}
-            >
-              <div>
-                <Typography.Title level={2} style={{ margin: 0 }}>{release.tag}</Typography.Title>
-                <Typography.Text type="secondary">{t('发布于')} {date(release.publishedAt)}</Typography.Text>
-              </div>
-              <Button
-                href={release.url || `${SITE_LINKS.releases}/tag/${release.tag}`}
-                target="_blank" rel="noreferrer"
-              >
-                {t('原始发布说明')}
-              </Button>
-            </Flex>
-            <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-              {release.notes.slice(0, 4000) || t('此版本未提供发布说明。')}
-              {release.notes.length > 4000 ? `\n${t('完整内容请查看原始发布说明。')}` : ''}
-            </Typography.Paragraph>
-            <Table
-              rowKey="name" size="middle" pagination={false} dataSource={release.assets}
-              scroll={{ x: 640 }}
-              locale={{ emptyText: t('此版本没有可下载的安装包。') }}
-              columns={[
-                {
-                  title: t('安装包'), dataIndex: 'name',
-                  render: (name: string, asset: StableRelease['assets'][number]) => (
-                    <a href={asset.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'var(--mono)' }}>{name}</a>
-                  ),
-                },
-                {
-                  title: t('体积'), dataIndex: 'size', width: 110,
-                  render: (size: number) => formatSize(size) || '—',
-                },
-                {
-                  title: 'SHA256', dataIndex: 'digest', width: 220,
-                  render: (digest: string | null) => digest ? (
+        {groups.map((group, groupIndex) => (
+          <section key={group.key} aria-labelledby={`series-${group.key}`} style={{ marginBottom: token.marginXXL }}>
+            <Typography.Title level={2} id={`series-${group.key}`}>{group.title}</Typography.Title>
+            <Collapse
+              ghost
+              defaultActiveKey={groupIndex === 0 ? [group.releases[0].tag] : []}
+              styles={{
+                header: { paddingBlock: token.paddingLG, paddingInline: 0 },
+                body: { padding: 0 },
+              }}
+              items={group.releases.map(release => ({
+                key: release.tag,
+                label: (
+                  <Flex align="center" justify="space-between" wrap gap={token.marginXS}>
+                    <Typography.Title level={3} style={{ margin: 0, fontSize: token.fontSizeLG }}>{release.tag}</Typography.Title>
+                    <Typography.Text type="secondary">{t('发布于')} {date(release.publishedAt)}</Typography.Text>
+                  </Flex>
+                ),
+                children: (
+                  <>
+                    <div className="release-notes">
+                      {release.notes ? (
+                        <MarkdownBlocks blocks={parseMarkdown(release.notes)} idPrefix={`release-${release.tag}`} headingOffset={3} />
+                      ) : <Typography.Paragraph>{t('此版本未提供发布说明。')}</Typography.Paragraph>}
+                    </div>
                     <Button
-                      type="text" size="small" icon={<CopyOutlined />}
-                      title={t('复制完整校验值')} aria-label={t('复制完整校验值')}
-                      onClick={() => copy(digest)} style={{ fontFamily: 'var(--mono)' }}
+                      href={release.url || `${SITE_LINKS.releases}/tag/${release.tag}`}
+                      target="_blank" rel="noreferrer" style={{ marginBlock: token.marginLG }}
                     >
-                      {digest.replace(/^sha256:/, '').slice(0, 12)}…
+                      {t('原始发布说明')}
                     </Button>
-                  ) : '—',
-                },
-              ]}
+                    <Table
+                      rowKey="name" size="middle" pagination={false} dataSource={release.assets}
+                      scroll={{ x: 640 }}
+                      locale={{ emptyText: t('此版本没有可下载的安装包。') }}
+                      columns={[
+                        {
+                          title: t('安装包'), dataIndex: 'name',
+                          render: (name: string, asset: StableRelease['assets'][number]) => (
+                            <a href={asset.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'var(--mono)' }}>{name}</a>
+                          ),
+                        },
+                        {
+                          title: t('体积'), dataIndex: 'size', width: 110,
+                          render: (size: number) => formatSize(size) || '—',
+                        },
+                        {
+                          title: 'SHA256', dataIndex: 'digest', width: 220,
+                          render: (digest: string | null) => digest ? (
+                            <Button
+                              type="text" size="small" icon={<CopyOutlined />}
+                              title={t('复制完整校验值')} aria-label={t('复制完整校验值')}
+                              onClick={() => copy(digest)} style={{ fontFamily: 'var(--mono)' }}
+                            >
+                              {digest.replace(/^sha256:/, '').slice(0, 12)}…
+                            </Button>
+                          ) : '—',
+                        },
+                      ]}
+                    />
+                  </>
+                ),
+              }))}
             />
           </section>
         ))}

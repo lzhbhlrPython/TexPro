@@ -42,6 +42,6 @@ TeXPro 用 Node worker 承载 rtex-ts，经受限 IPC 传递缓冲区和预览�
 
 TypeScript 改写高度参考 [Henry Yang 的 realtime-tex](https://github.com/HenryXiaoYang/realtime-tex)，Lua/TeX 支持文件原样保留；两者采用 MIT 并保留原作者声明。研究灵感来自 Clemens Lode 的 [TUG 2026 论文](https://www.tug.org/tug2026/preprints/lode-realtime.pdf)。这是独立适配，不是官方移植，不承诺完整 API 或性能等价；上游约 1 ms 不是 TeXPro 的测量结果。
 
-库 API、版本、坐标与许可见 [rtex-ts 嵌入指南](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.zh-CN.md)，宿主边界见 [TeXPro 嵌入说明](https://github.com/lzhbhlrPython/TexStudioPro/blob/codex/realtime-tex/docs/realtime-tex.md)。TeXPro 本轮原生验证在 macOS 进行；独立包跨平台 CI 不能代替 Windows、Linux 真实 TeX 安装包验收，MiKTeX 仍需核对。
+库 API、版本、坐标与许可见 [rtex-ts 嵌入指南](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.zh-CN.md)，宿主边界见 [TeXPro 嵌入说明](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/realtime-tex.md)。TeXPro 本轮原生验证在 macOS 进行；独立包跨平台 CI 不能代替 Windows、Linux 真实 TeX 安装包验收，MiKTeX 仍需核对。
 
 相关说明：[编译与诊断](/docs/compile)、[PDF 双向定位](/docs/synctex)、[版权与许可](/docs/copyright)。

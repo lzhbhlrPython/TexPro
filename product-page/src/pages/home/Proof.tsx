@@ -3,7 +3,7 @@ import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { SITE_LINKS } from '@/config/constants';
 import { CLAIMS } from '@/data/claims';
-import { DOC_METRIC } from '@/data/documentation';
+import { MCP_METRIC } from '@/data/site';
 import { useT } from '@/i18n';
 
 const REPO = SITE_LINKS.repo.replace(/\/$/, '');
@@ -29,10 +29,10 @@ const FIGURES = [
     href: SITE_LINKS.releases,
   },
   {
-    source: 'docs/',
-    figure: DOC_METRIC.value,
-    text: DOC_METRIC.description,
-    to: '/docs',
+    source: 'mcp/server.mjs',
+    figure: MCP_METRIC.value,
+    text: MCP_METRIC.description,
+    to: '/docs/mcp',
   },
 ];
 

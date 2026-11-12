@@ -13,7 +13,7 @@ Import, templates and assets solve three different problems: changing formats, s
 With a project open, `File → Import Markdown / Typst…` opens the import panel; you can also press `⌘K` and search for Import. The source sits on the left, and `Generated LaTeX` on the right updates as you type.
 
 - Choose Markdown, paste the draft into the left pane, or use Choose file to pick a `.md`, `.markdown`, `.mdown` or `.txt` file.
-- Fill in Title, Author, Date, Document class and File name. Date defaults to `\today`; leave it blank and the output gets an empty date.
+- Fill in Title, Author, Document class and File name. The panel has no separate date input.
 - **Insert body** drops only the body in at the caret; **Create .tex file** writes a complete document, preamble included, at the project root.
 
 The conversion rules are fixed, not heuristic guesses:

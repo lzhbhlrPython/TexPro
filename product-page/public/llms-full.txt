@@ -118,11 +118,11 @@ main.tex  →  latexmk（-synctex=1）  →  main.pdf
 
 ## 把 Markdown 翻成 LaTeX
 
-打开工程后，用 `文件 → 导入 Markdown / Typst…` 打开导入面板；也可以按 `⌘K` 搜 Import 进入。面板左侧是原文，右侧 `Generated LaTeX` 随输入实时更新。
+打开工程后，用 `文件 → 导入 Markdown / Typst…` 打开导入面板；也可以按 `⌘K` 搜 Import 进入。面板左侧是原文，右侧 `生成的 LaTeX` 随输入实时更新。
 
-- 选 Markdown，把稿子粘进左侧，或用 Choose file 选 `.md`、`.markdown`、`.mdown`、`.txt`。
-- 填 Title、Author、Date、Document class 与 File name。Date 默认 `\today`，留空则生成空日期。
-- 按 **Insert body** 只把正文插到当前光标处；按 **Create .tex file** 则在工程根生成完整文档，含导言区。
+- 选 Markdown，把稿子粘进左侧，或用选择文件选 `.md`、`.markdown`、`.mdown`、`.txt`。
+- 填写「标题」「作者」「文档类」与「文件名」。面板没有单独的日期输入项。
+- 按 **插入正文** 只把正文插到当前光标处；按 **创建 .tex 文件** 则在工程根生成完整文档，含导言区。
 
 转换规则是固定的，不是启发式猜测：
 
@@ -158,7 +158,7 @@ main.tex  →  latexmk（-synctex=1）  →  main.pdf
 \end{document}
 ```
 
-两种导言区都带 amsmath、amssymb、graphicx、geometry（2.5 cm 边距）、booktabs、xcolor 与 hyperref。没有 Title 时不写 `\maketitle`，日期留空时写成 `\date{}`。
+两种导言区都带 amsmath、amssymb、graphicx、geometry（2.5 cm 边距）、booktabs、xcolor 与 hyperref。没有标题时不写 `\maketitle`，日期留空时写成 `\date{}`。
 
 ## 从 Typst 导入
 
@@ -166,23 +166,23 @@ main.tex  →  latexmk（-synctex=1）  →  main.pdf
 
 ## 模板
 
-`文件 → Template Library…` 列出 11 个内置模板，分四类：
+`文件 → 模板库…` 列出 11 个内置模板，分四类：
 
 | 分类 | 模板 | 引擎 |
 | --- | --- | --- |
-| Basics | Article、Letter | pdflatex |
-| Academic | Report、中文 article（ctex）、双栏 article、Thesis | pdflatex 或 xelatex |
-| Teaching | Beamer slides、Problem set | pdflatex |
-| Languages | 日文 article | lualatex |
-| Languages | 阿拉伯文、俄文 article | xelatex |
+| 基础 | 文章、信件 | pdflatex |
+| 学术 | 报告、中文 article（ctex）、双栏 article、学位论文 | pdflatex 或 xelatex |
+| 教学 | Beamer 幻灯片、习题集 | pdflatex |
+| 多语种 | 日文 article | lualatex |
+| 多语种 | 阿拉伯文、俄文 article | xelatex |
 
 选模板后填工程名并选父目录，TeXPro 建 `<父目录>/<工程名>`。名字里的非法字符换成 `-`，重名自动加 `-2`、`-3`；模板里的 `{{title}}`、`{{author}}`、`{{projectName}}` 由表单替换，生成的 `main.tex` 以模板对应的引擎打开。
 
-`文件 → Template Workshop…` 从空白基础类（article、report、ctexart、beamer）拼页面、字体、结构与宏包，满意的版式可以保存成个人模板。选中模板后，预览区会用该模板的引擎编译一页，作为首页缩略图。个人模板存在应用数据目录的 JSON 里，单份内容上限 2,000,000 字符。
+`文件 → 模板工坊…` 从空白基础类（article、report、ctexart、beamer）拼页面、字体、结构与宏包，满意的版式可以保存成个人模板。选中模板后，预览区会用该模板的引擎编译一页，作为首页缩略图。个人模板存在应用数据目录的 JSON 里，单份内容上限 2,000,000 字符。
 
 ## 素材
 
-`Project → Asset Library` 扫描当前工程，深度 6 层、最多 500 个文件，按修改时间倒序。只认 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`、`.pdf`、`.eps`。
+`项目 → 素材库` 扫描当前工程，深度 6 层、最多 500 个文件，按修改时间倒序。只认 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`、`.pdf`、`.eps`。
 
 插入一张图：
 
@@ -198,9 +198,9 @@ main.tex  →  latexmk（-synctex=1）  →  main.pdf
 - 导入不复制图片：Markdown 里的相对路径原样写进 `\includegraphics`，图没跟着进工程就会缺图。
 - 远程图片（`http(s)://`）不会下载，改写成 `\href` 并在警告里点名。
 - 代码块里出现 `\end{verbatim}` 时，该块降级成 quote，避免环境提前结束。
-- 表格按最宽一行定列数，所有列都是左对齐；合并单元格与长表请改用 Table Studio 或手写。
+- 表格按最宽一行定列数，所有列都是左对齐；合并单元格与长表请改用 Table 工作室或手写。
 - 下拉里选 article 也可能得到 ctexart：只要正文含中文。
-- 没打开工程时不能 Create .tex file，但 Insert body 仍可用。
+- 没打开工程时不能创建 .tex 文件，但插入正文仍可用。
 - 警告面板最多显示 4 条，剩余条数只在计数里体现。
 
 ## 相关页面
@@ -222,7 +222,7 @@ TeXPro 不实现 TeX，它调用本机的 latexmk。一次编译真正做的事�
 
 - 保存：编译前把所有脏缓冲区写盘，并重读一次主文件，确保 latexmk 看到的是磁盘上的最新版本。
 - 定位：按 `.texpro/project.json` 的 `rootFile`，或工程内唯一的 `\documentclass` 文件，决定主文件。
-- 选引擎：读主文件里的魔法注释与宏包特征，再参考设置里的默认引擎。
+- 选引擎：读主文件里的魔法注释与宏包特征，再参考设置里的「默认引擎」。
 - 运行与解析：调 latexmk，读 `.log`，把错误、警告、排版溢出拆成诊断，最后确认 PDF 真的生成。
 
 ## 引擎怎么定
@@ -231,7 +231,7 @@ TeXPro 不实现 TeX，它调用本机的 latexmk。一次编译真正做的事�
 
 - 主文件里的魔法注释，如 `% !TeX program = xelatex`。
 - 文档特征：`ltjs`、`luatexja` 走 lualatex；`ctex`、`xeCJK`、`fontspec`、`polyglossia`、`\setCJKmainfont` 走 xelatex。
-- 设置里的 Default engine。
+- 设置里的「默认引擎」。
 - 兜底 pdflatex。
 
 | 引擎 | latexmk 参数 | 适用 |
@@ -244,7 +244,7 @@ TeXPro 不实现 TeX，它调用本机的 latexmk。一次编译真正做的事�
 
 ## 构建目录与产物
 
-默认构建目录是 `.texpro/build`，可以在 `Project → Project Structure…` 里改 `directories.build`，但必须留在工程内，否则报 "Build directory must stay inside the project"。PDF 与 log 都以主文件 basename 命名。
+默认构建目录是 `.texpro/build`，可以在 `项目 → 项目结构…` 里改 `directories.build`，但必须留在工程内，否则报 "Build directory must stay inside the project"。PDF 与 log 都以主文件 basename 命名。
 
 ```bash
 latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error \
@@ -257,13 +257,13 @@ latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error \
 
 | 策略 | 行为 |
 | --- | --- |
-| After idle（默认） | 停止输入 2.2 秒后编译，正在编译时不重入 |
-| Only when PDF is open | 只有 PDF 面板开着才自动编译 |
-| Manual only | 只认 `⌘↩` 与菜单里的 Compile |
+| 停止输入后自动编译（默认） | 停止输入 2.2 秒后编译，正在编译时不重入 |
+| 仅 PDF 打开时编译 | 只有 PDF 面板开着才自动编译 |
+| 仅手动编译 | 只认 `⌘↩` 与菜单里的编译 |
 
 自动保存是独立开关，关掉自动编译不影响保存。`⌘↩` 随时可以手动编译，代价是先保存全部改动。
 
-编译中按钮变成 Cancel，菜单里也有 Cancel Compile。取消先对整个进程组发 SIGTERM，2.5 秒后补 SIGKILL。单次编译默认超时 180 秒，超时报 "Compilation timed out after 180s"。
+编译中按钮变成取消，菜单里也有取消编译。取消先对整个进程组发 SIGTERM，2.5 秒后补 SIGKILL。单次编译默认超时 180 秒，超时报 "Compilation timed out after 180s"。
 
 ## 诊断怎么读
 
@@ -275,19 +275,19 @@ latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error \
 | Overfull / Underfull `\hbox` | 排版溢出，归为提示（info） |
 | `File 'x' not found` | 当作错误 |
 
-诊断上限 250 条，按行号排序。点一条跳到对应行，编辑器 gutter 同时标出；状态栏右侧的 `n problems` 是错误加警告的计数，点开是问题面板。
+诊断上限 250 条，按行号排序。点一条跳到对应行，编辑器 gutter 同时标出；状态栏右侧的 `{n} 个问题` 是错误加警告的计数，点开是问题面板。
 
-命令面板（`⌘K`）里的 Compile theater 把一次编译拆成 Engine and root file、LaTeX compilation、Diagnostics、PDF handoff 四段，附流式日志。需要看 latexmk 原始输出时用它，比状态栏耐心得多。
+命令面板（`⌘K`）里的编译剧场把一次编译拆成引擎与根文件、LaTeX 编译、诊断、PDF 交付四段，附流式日志。需要看 latexmk 原始输出时用它，比状态栏耐心得多。
 
 ## 工具链检查
 
-`Project → Project Doctor…` 检查 latexmk、pdflatex、xelatex、lualatex、biber、bibtex、synctex、kpsewhich、dvisvgm。硬性要求只有 latexmk 与 pdflatex；其余缺了只影响对应功能：xelatex 模板、biber 参考文献、SyncTeX 跳转、SVG 转换。
+`项目 → 项目医生…` 检查 latexmk、pdflatex、xelatex、lualatex、biber、bibtex、synctex、kpsewhich、dvisvgm。硬性要求只有 latexmk 与 pdflatex；其余缺了只影响对应功能：xelatex 模板、biber 参考文献、SyncTeX 跳转、SVG 转换。
 
 Doctor 还会列孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key 与重复 label，并可以清理构建目录。
 
 ## 常见坑
 
-- 找不到主文件：报 "No LaTeX root file found. Add a file containing \documentclass or a % !TeX root comment."。让工程里只有一个含 `\documentclass` 的 `.tex`，或在 Project Structure 里指定主文件。
+- 找不到主文件：报 "No LaTeX root file found. Add a file containing \documentclass or a % !TeX root comment."。让工程里只有一个含 `\documentclass` 的 `.tex`，或在项目结构里指定主文件。
 - 配了主文件但内容被改坏：不会自动回退，报 "Project main file configuration is invalid: ..."。修好文件或重新选主文件。
 - 多个候选：报 "Multiple main files found. Choose the project main file."，必须显式选一个。
 - exit 0 却没有 PDF：报 "latexmk finished but no PDF was produced."，通常是 `\end{document}` 之前就中断，或构建目录被外部清理。
@@ -349,7 +349,7 @@ TeXPro 用 Node worker 承载 rtex-ts，经受限 IPC 传递缓冲区和预览�
 
 TypeScript 改写高度参考 [Henry Yang 的 realtime-tex](https://github.com/HenryXiaoYang/realtime-tex)，Lua/TeX 支持文件原样保留；两者采用 MIT 并保留原作者声明。研究灵感来自 Clemens Lode 的 [TUG 2026 论文](https://www.tug.org/tug2026/preprints/lode-realtime.pdf)。这是独立适配，不是官方移植，不承诺完整 API 或性能等价；上游约 1 ms 不是 TeXPro 的测量结果。
 
-库 API、版本、坐标与许可见 [rtex-ts 嵌入指南](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.zh-CN.md)，宿主边界见 [TeXPro 嵌入说明](https://github.com/lzhbhlrPython/TexStudioPro/blob/codex/realtime-tex/docs/realtime-tex.md)。TeXPro 本轮原生验证在 macOS 进行；独立包跨平台 CI 不能代替 Windows、Linux 真实 TeX 安装包验收，MiKTeX 仍需核对。
+库 API、版本、坐标与许可见 [rtex-ts 嵌入指南](https://github.com/lzhbhlrPython/rtex-ts/blob/main/docs/embedding.zh-CN.md)，宿主边界见 [TeXPro 嵌入说明](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/realtime-tex.md)。TeXPro 本轮原生验证在 macOS 进行；独立包跨平台 CI 不能代替 Windows、Linux 真实 TeX 安装包验收，MiKTeX 仍需核对。
 
 相关说明：[编译与诊断](/docs/compile)、[PDF 双向定位](/docs/synctex)、[版权与许可](/docs/copyright)。
 
@@ -379,23 +379,23 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 ## 源码 → PDF
 
-- 光标停在某处、PDF 面板开着、设置里的 PDF follows cursor 保持默认开启：停顿 650 毫秒后自动定位。
-- 想立刻定位：`⇧⌘J`，或 `Build → Forward Search`。
-- PDF 没打开时，手动定位会把面板打开；还没有编译产物时提示 "Compile first to enable SyncTeX"。
-- 命中后 PDF 滚到对应位置，顶部横幅写 `Synced to page 3 · line 128`。
+- 光标停在某处、PDF 面板开着、设置里的 PDF 跟随光标保持默认开启：停顿 650 毫秒后自动定位。
+- 想立刻定位：`⇧⌘J`，或 `构建 → 正向搜索`。
+- PDF 没打开时，手动定位会把面板打开；还没有编译产物时提示 "先编译一次以启用 SyncTeX"。
+- 命中后 PDF 滚到对应位置，顶部横幅写 `已同步到第 3 页 · 第 128 行`。
 
 自动跟随只在「不编译中、有 PDF、有活动文件」时触发。两者都只在目标离开视口时才滚动，并把它停在视口约 40% 处；区别是手动定位用平滑滚动，自动跟随直接跳，避免边打字边看时画面持续滑动。
 
 ## PDF → 源码
 
-在 PDF 上按住 `⌘`（Windows / Linux 为 `Ctrl`）单击，编辑器跳到对应行。反向选区则是按住 `⌘` 拖一个矩形，或先点工具栏的 Select PDF region 进入框选模式。
+在 PDF 上按住 `⌘`（Windows / Linux 为 `Ctrl`）单击，编辑器跳到对应行。反向选区则是按住 `⌘` 拖一个矩形，或先点工具栏的框选 PDF 定位源码进入框选模式。
 
-- 底部提示：`Hold ⌘ / Ctrl and click or drag to locate source`。
-- 框选模式提示：`Drag to select a PDF region and locate its source. Esc cancels.`，`Esc` 退出。
+- 底部提示：`按住 ⌘ / Ctrl 点击或拖框定位源码`。
+- 框选模式提示：`拖框选择 PDF 区域并定位源码 · Esc 取消`，`Esc` 退出。
 - 区域最多取 7 个采样点并行反查。
 - 结果按文件分组，取覆盖行数最多的文件，把最小到最大行整段选中。
-- 几个点落在不同文件时提示 "Region crosses source files. Showing the largest matching range."。
-- 找不到时提示 "No source location at this point"。
+- 几个点落在不同文件时提示 "选区涉及多个源文件，已显示匹配最多的文件范围。"。
+- 找不到时提示 "这个位置没有对应的源码"。
 
 反向定位成功后会暂停自动正向跟随 1800 毫秒，否则同一动作会立刻被光标跟随覆盖回去。
 
@@ -405,18 +405,18 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 | --- | --- |
 | 上一页 / 下一页 | 翻页，标题旁显示当前页与总页数 |
 | 缩放 | 35% 到 180%，步进 10%，默认 90% |
-| Fit page width | 按面板宽度铺满一页 |
+| 适应页宽 | 按面板宽度铺满一页 |
 | 缩略图 | 侧栏页缩略图列表，点击翻到该页 |
 | 搜索 | 至少 2 字符，显示 n/m 命中，Enter 与 Shift-Enter 跳转 |
-| Select PDF region | 进入框选反查，Esc 退出 |
-| Compare with previous compile | 与上一份 PDF 叠影，透明度 15% 到 90% |
-| Two-page spread | 双页并排 |
-| Presentation mode | 面板全屏 |
-| Copy page text | 复制当前页文本 |
-| Open PDF in default viewer | 交给系统阅读器 |
-| Reveal PDF in Finder | 在文件管理器里定位产物 |
+| 框选 PDF 定位源码 | 进入框选反查，Esc 退出 |
+| 与上次编译对比 | 与上一份 PDF 叠影，透明度 15% 到 90% |
+| 双页视图 | 双页并排 |
+| 演示模式 | 面板全屏 |
+| 复制本页文本 | 复制当前页文本 |
+| 用默认阅读器打开 PDF | 交给系统阅读器 |
+| 在访达中显示 PDF | 在文件管理器里定位产物 |
 
-面板空态写 "No PDF yet"，按钮直接触发编译，并提示 `⌘↩ compile · ⌘-click PDF to jump back`。
+面板空态写 "还没有 PDF"，按钮直接触发编译，并提示 `⌘↩ 编译 · ⌘-点击 PDF 跳回源码`。
 
 ## 精度与边界
 
@@ -429,7 +429,7 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 ## 常见坑
 
 - 只在 PDF 面板打开时有意义；面板收起后自动跟随不会触发，但仍可以用 `⇧⌘J` 手动定位。
-- 编译进行中不跟随：正在编译时打字，等状态栏从 Typesetting 变回 PDF ready 再看。
+- 编译进行中不跟随：正在编译时打字，等状态栏从 Typesetting 变回 PDF 就绪再看。
 - 自动编译与光标跟随叠加时，刚保存就跳转可能对到上一版；停顿一拍再定位更稳。
 - 区域反查跨文件时只给一个文件的范围，不是多文件合并结果。
 - 双页与演示模式只改显示方式，不影响坐标换算。
@@ -439,7 +439,7 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 自动编译在停止输入 2.2 秒后触发，编译完成才更新 PDF 与映射。写长段时这会出现一个窗口：屏幕上的 PDF 仍是上一版，光标跟随也会对到旧位置。状态栏左边的 Typesetting 转圈是唯一可靠的信号，转完再读 PDF 就不会错位。
 
-如果只想安静写作，把编译策略切到 Manual only，或在设置里关掉 PDF follows cursor，用 `⇧⌘J` 按需定位。
+如果只想安静写作，把编译策略切到仅手动编译，或在设置里关掉 PDF 跟随光标，用 `⇧⌘J` 按需定位。
 
 ## 相关页面
 
@@ -458,11 +458,11 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 ## 可视模式
 
-默认开启，`⇧⌘M` 或 `View → Toggle Visual Mode` 切换。开启时编辑器把标题、公式、表格、图片、代码块与引用环境渲染成接近排版的组件，语法噪音被收起。
+默认开启，`⇧⌘M` 或 `视图 → 切换可视模式` 切换。开启时编辑器把标题、公式、表格、图片、代码块与引用环境渲染成接近排版的组件，语法噪音被收起。
 
 - 点击任何一个渲染结果，光标落到它对应的源码位置，该对象随即展开为源码，可以直接改。
 - 光标或选区进入的块会暂时退回源码；移开后重新渲染。
-- 导言区折叠成一张卡片，显示文档类、宏包数量与被隐藏的行数，点 Reveal 展开。
+- 导言区折叠成一张卡片，显示文档类、宏包数量与被隐藏的行数，点展开展开。
 - 链接在正文里以普通文字显示；按住 `⌘`（Windows / Linux 为 `Ctrl`）点击才在系统浏览器打开。
 
 可视层是语义组件，不是排版引擎：断行、浮动体位置、字体度量一律以 PDF 为准。要判断最终效果，看 PDF，不看编辑器。
@@ -471,9 +471,9 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 | 模式 | 行为 | 开关 |
 | --- | --- | --- |
-| Focus mode | 当前段落之外全部淡出；隐藏侧栏、PDF 与格式栏，正文单列，最大宽度取阅读宽度与 720 px 的较小值 | `⇧⌘F` |
-| Typewriter scrolling | 选区变化后把光标居中，视口随写随滚 | `⇧⌘T` |
-| Zero interface | 隐藏标题栏、侧栏、PDF、状态栏、问题面板与格式栏，正文最大 820 px，右上角留一个 Exit focus 按钮 | `⌘⇧0`，`Esc` 退出 |
+| 专注模式 | 当前段落之外全部淡出；隐藏侧栏、PDF 与格式栏，正文单列，最大宽度取阅读宽度与 720 px 的较小值 | `⇧⌘F` |
+| 打字机滚动 | 选区变化后把光标居中，视口随写随滚 | `⇧⌘T` |
+| 零界面模式 | 隐藏标题栏、侧栏、PDF、状态栏、问题面板与格式栏，正文最大 820 px，右上角留一个「退出专注」按钮 | `⌘⇧0`，`Esc` 退出 |
 
 专注模式按「连续非空行块」判断段落：段落之间空一行，才会被当成两段。打字机模式在选区变化 20 毫秒后把光标滚到视口中央，编辑器失去焦点时不动作。
 
@@ -483,11 +483,11 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 | 主题 | 观感 |
 | --- | --- |
-| Paper | 默认。暖白纸面、深色文字，工具栏收进右上「更多」 |
-| Night | 深色界面，夜间写作 |
-| Studio | 深色侧栏配浅色编辑区 |
+| 纸面 | 默认。暖白纸面、深色文字，工具栏收进右上「更多」 |
+| 夜间 | 深色界面，夜间写作 |
+| 工作室 | 深色侧栏配浅色编辑区 |
 
-`⇧⌘L` 只在 Paper 与 Night 之间切换：当前是 Studio 时按一次会回到 Paper。三套主题在命令面板里各有独立命令（Theme: Paper、Theme: Night、Theme: Studio），比循环切换更直接。
+`⇧⌘L` 只在纸面与夜间之间切换：当前是工作室时按一次会回到纸面。三套主题在命令面板里各有独立命令（主题：纸面、主题：夜间、主题：工作室），比循环切换更直接。
 
 主题只改界面 CSS 变量。它不影响源码、不影响 PDF、不影响导出；换主题不会让文档「重新排版」。
 
@@ -502,18 +502,18 @@ synctex edit -o 3:210:420:.texpro/build/main.pdf
 
 ## 输入辅助
 
-Markdown input shortcuts 只在你键入、且位于正文时生效；导言区、注释、数学、verbatim 与命令参数里保持原样。
+Markdown 输入快捷语法只在你键入、且位于正文时生效；导言区、注释、数学、verbatim 与命令参数里保持原样。
 
 - 行首 `# ` 到 `###### ` 换成 `\section` 到 `\subparagraph`。
 - 行首 `-`、`+`、`*` 换成 itemize 骨架，`1.` 换成 enumerate，`>` 换成 quote。
 - 行尾的 `**粗**`、`*斜*` 与反引号包住的代码换成 `\textbf`、`\emph`、`\texttt`。
 - 撤销会还原你打的原语法，而不是逐字撤销转换结果。
 
-Smart paste 在粘贴时判断来源：剪贴板里已经有 TeX 命令就原样贴；网页 HTML 转成粗体、斜体、等宽、链接与列表，遇到合并单元格则退回纯文本；列数一致的 TSV 转成 tabular；Markdown 转成标题、列表、引用、代码块与表格。`⌘⇧V` 始终按纯文本粘贴。
+智能粘贴在粘贴时判断来源：剪贴板里已经有 TeX 命令就原样贴；网页 HTML 转成粗体、斜体、等宽、链接与列表，遇到合并单元格则退回纯文本；列数一致的 TSV 转成 tabular；Markdown 转成标题、列表、引用、代码块与表格。`⌘⇧V` 始终按纯文本粘贴。
 
-拼写检查只检查拉丁字母单词，命令、数学、verbatim、URL 与邮箱先被掩掉；它不判断中文用词。`Show line numbers` 控制行号 gutter。
+拼写检查只检查拉丁字母单词，命令、数学、verbatim、URL 与邮箱先被掩掉；它不判断中文用词。`显示行号` 控制行号 gutter。
 
-状态栏中间给三样东西：Ln/Col、选中字符数、`n words`。词数先去掉注释、环境标记与命令，西文按空白切词，中文按字计数，所以中英混排的稿子会看到一个偏大的数字。
+状态栏中间给三样东西：Ln/Col、选中字符数、`{n} 词`。词数先去掉注释、环境标记与命令，西文按空白切词，中文按字计数，所以中英混排的稿子会看到一个偏大的数字。
 
 ## 界面语言与命令面板
 
@@ -526,7 +526,7 @@ Smart paste 在粘贴时判断来源：剪贴板里已经有 TeX 命令就原样
 - 打字机模式依赖编辑器焦点，点到侧栏时不会滚动。
 - 数学环境里打 `*` 不会被换成 emph，这是故意的；离开数学后才会转换。
 - 关闭可视模式后，「点击渲染对象回到源码」的行为也随之消失。
-- Studio 不是默认主题；新装或重置设置后是 Paper。
+- 工作室不是默认主题；新装或重置设置后是纸面。
 - 专注模式会收起 PDF 面板，边写边核对版式时先退出专注，再用 `⌘⌥P` 单独开 PDF。
 - 词数不是投稿口径：中文按字计数，导言区里的标题与作者也算进去，只能看趋势。
 
@@ -590,17 +590,17 @@ MCP 操作直接读写磁盘，无法读取编辑器里尚未保存的缓冲区�
 
 ## 打开与新建
 
-- `⌘O` 或 `文件 → Open Folder…` 选一个目录，它成为工程；欢迎页保留最近 8 个。
-- `文件 → Template Library…` 从模板起新工程：选父目录、填工程名，建 `<父目录>/<工程名>`。
+- `⌘O` 或 `文件 → 打开文件夹…` 选一个目录，它成为工程；欢迎页保留最近 8 个。
+- `文件 → 模板库…` 从模板起新工程：选父目录、填工程名，建 `<父目录>/<工程名>`。
 - 工程名里的反斜杠、斜杠、冒号、星号、问号、引号、尖括号与竖线会换成 `-`，长度截到 80 字符；同名目录已存在时自动加 `-2`、`-3`，不会覆盖。
 - 打开工程会解析目录树、主文件、素材、大纲与评论；不复制、不移动任何文件。
-- 欢迎页的 `Explore the demo project` 在应用数据目录生成一个示例工程，并尝试编译一次，适合先熟悉界面。
+- 欢迎页的 `体验示例工程` 在应用数据目录生成一个示例工程，并尝试编译一次，适合先熟悉界面。
 
 ## 主文件怎么定
 
 - 先看 `.texpro/project.json` 的 `rootFile`（相对工程根的路径）。有就校验：必须是工程内的 `.tex` 或 `.ltx`，且含未被注释的 `\documentclass`。
 - 没有配置时递归探测含 `\documentclass` 的文件，深度 5 层，跳过点开头目录与 `.git`、`node_modules`、`.texpro`、`build`、`out`、`dist` 等忽略目录。
-- 恰好一个 → 直接作为主文件；多个 → 报 "Multiple main files found. Choose the project main file."，需要你在 Project Structure 里选；没有 → 报 "No main file containing \documentclass found."。
+- 恰好一个 → 直接作为主文件；多个 → 报 "Multiple main files found. Choose the project main file."，需要你在项目结构里选；没有 → 报 "No main file containing \documentclass found."。
 - 配置指向的文件被改坏 → 报 "Project main file configuration is invalid: ..."，不会悄悄回退到自动探测。
 
 主文件决定编译入口与 PDF 名字，不决定编辑焦点：打开任意文件按 `⌘↩`，编译的仍是主文件。错误提示里提到 `% !TeX root` 注释，但主文件解析并不读它；这行注释只在重命名或移动时被一起改写。
@@ -637,7 +637,7 @@ MCP 操作直接读写磁盘，无法读取编辑器里尚未保存的缓冲区�
 
 ## 快照与版本
 
-工程不在 Git 仓库里时，`⌘S` 显式保存会给改动文件留一份内部快照；`Project → Version Review…` 可以手动创建快照、看行级 diff、恢复单个文件或删除快照。
+工程不在 Git 仓库里时，`⌘S` 显式保存会给改动文件留一份内部快照；`项目 → 版本审阅…` 可以手动创建快照、看行级 diff、恢复单个文件或删除快照。
 
 工程一旦位于 Git 仓库内，内部快照自动停写，面板会提示改用 Git。Git 面板显示分支、ahead / behind 与最近 8 条提交，commit 默认信息是 "Update from TeXPro"，pull 只做 `--ff-only`。
 
@@ -647,19 +647,19 @@ MCP 操作直接读写磁盘，无法读取编辑器里尚未保存的缓冲区�
 
 - 搜索：至少 2 字符，320 毫秒防抖，深度 5 层，单文件上限 2 MB，最多 120 条命中，可切大小写。
 - 大纲以活动文件为主：跨文件大纲不合并，长工程按 `\input` 结构拆开看更准。
-- Project Doctor 检查工具链、孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key、重复 label 与字体嵌入，并可清理构建目录。
+- 项目医生检查工具链、孤立 `.tex`、缺包、断链、缺图、未定义引用、缺 bib key、重复 label 与字体嵌入，并可清理构建目录。
 - 同一时间只有一个活动文档，没有完整的多标签编辑；编码按 UTF-8 处理。
 
 ## 评论
 
-`Project → Comments…` 的评论存在 `.texpro/comments.json`，锚定文件、行号与一段原文片段，不往 `.tex` 里插标记。打开工程时若行号已经漂移，会按片段重新定位；片段也被改掉时，评论留在列表里但不再锚定。
+`项目 → 评论…` 的评论存在 `.texpro/comments.json`，锚定文件、行号与一段原文片段，不往 `.tex` 里插标记。打开工程时若行号已经漂移，会按片段重新定位；片段也被改掉时，评论留在列表里但不再锚定。
 
 ## 常见坑
 
 - 工程根选错：选到父目录会扫进无关工程，选到子目录会找不到主文件；重开正确目录即可。
 - 在 Finder 里移动文件后不重开工程：树与引用都是旧的，用应用内移动才会改写引用。
 - 删除后想恢复却找不到：`.texpro/trash` 里按时间戳排序，名字前一段是 ISO 时间。
-- 用外部 Git 提交后再开 Version Review：内部快照已停写，看到的是旧快照。
+- 用外部 Git 提交后再开版本审阅：内部快照已停写，看到的是旧快照。
 - `.texpro` 被整体删掉：评论、回收站与快照一起消失，源码不受影响。
 - 备份 zip 不含默认构建目录与 `.texpro` 其余内容，恢复后首次编译会重建构建目录。
 
@@ -789,7 +789,7 @@ Markdown 结果会在顶部补一段 YAML front matter（`title`、`author`、`d
 - 面板会显示文件数、引擎与 zip 体积，但不会替你判断 arXiv 的大小与文件数配额
 - 主文件在子目录里时，包内保留同样的结构；提交时按实际路径填写，不要指望它被移到根目录
 - 未被引用的图片、旧稿、实验数据也会被一起打包；先清理工程，比事后删 zip 更省事
-- 打包完成后用「Reveal」或「打开 zip」检查一遍，再上传
+- 打包完成后用「展开」或「打开 zip」检查一遍，再上传
 
 > 实现说明：打包调用系统的 `/usr/bin/zip`，SVG 转 PNG 调用 `sips`。两者都是 macOS 自带的命令；在 Windows 上没有对应实现，这些按钮会报错。
 
@@ -810,7 +810,7 @@ LaTeX 不能直接读 SVG。插入 `.svg` 素材时，TeXPro 会先用 `sips` �
 
 # AI 助手（可选）
 
-> AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你按下 Run 时才会把上下文发出去，结果需要你确认才写入。
+> AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你点击「运行」时才会把上下文发出去，结果需要你确认才写入。
 
 ## 默认关闭
 
@@ -827,7 +827,7 @@ TeXPro 不附带模型，也不替你做任何自动补全式的改写。AI 是�
 
 ## 打开面板
 
-`项目 → AI 助手…`，或在命令面板里搜索 `AI assistant`。
+`项目 → AI 助手…`，或在命令面板里搜索 `AI 助手`。
 
 未配置时，面板不会显示任务，只显示一张设置卡片；所有按钮都不可用，也不会出现「试一下」的入口。
 
@@ -835,35 +835,35 @@ TeXPro 不附带模型，也不替你做任何自动补全式的改写。AI 是�
 
 | 任务 | 发送的上下文 | 产出 |
 | --- | --- | --- |
-| Explain compile error | 当前编译错误与诊断行 | 错误解释与最小修改建议 |
-| Rewrite clearly | 光标附近几行 | 更清楚的 LaTeX 段落 |
-| Translate to Chinese | 光标附近几行 | 保留命令与公式的中文译文 |
-| Translate to English | 光标附近几行 | 保留命令与公式的英文译文 |
-| LaTeX from description | 你输入的自然语言描述（默认填入光标附近几行，可替换） | 单个数学表达式，不带 `$` |
-| Agent actions | 当前选区（没有选区时用默认上下文） | 结构化编辑动作 |
+| 解释编译错误 | 当前编译错误与诊断行 | 错误解释与最小修改建议 |
+| 改写得更清晰 | 光标附近几行 | 更清楚的 LaTeX 段落 |
+| 翻译为中文 | 光标附近几行 | 保留命令与公式的中文译文 |
+| 翻译为英文 | 光标附近几行 | 保留命令与公式的英文译文 |
+| 根据描述生成 LaTeX | 你输入的自然语言描述（默认填入光标附近几行，可替换） | 单个数学表达式，不带 `$` |
+| 智能体操作 | 当前选区（没有选区时用默认上下文） | 结构化编辑动作 |
 
-每个任务都带有固定的系统提示：翻译与改写会要求保留全部命令、引用、标签与公式；`Agent actions` 要求只返回 JSON，不返回解释性文字。
+每个任务都带有固定的系统提示：翻译与改写会要求保留全部命令、引用、标签与公式；`智能体操作` 要求只返回 JSON，不返回解释性文字。
 
 ## 上下文可以改
 
-面板里的「Context」是普通文本框，发送前可以增删。默认内容按任务决定：
+面板里的「上下文」是普通文本框，发送前可以增删。默认内容按任务决定：
 
 - 解释错误：取当前编译结果里的错误行
-- Agent actions：取当前选区
+- 智能体操作：取当前选区
 - 其它任务：取光标所在行前后约五行
 
-文本框为空时，仍然会发出一个「No context provided.」的占位内容，而不是悄悄取消请求。
+文本框为空时，仍然会发出一个「没有提供上下文。」的占位内容，而不是悄悄取消请求。
 
 > 只有这个文本框里的文字会离开本机。工程目录、其它文件、PDF 都不会被自动打包上传。
 
 ## 运行与采纳
 
-按 Run 后，请求以流式返回，结果逐步出现；Stop 会中断当前请求。
+点击「运行」后，请求以流式返回，结果逐步出现；「停止」会中断当前请求。
 
-- 普通任务：结果出现在下方文本框，点「Insert result」才会插入到光标处，插入后面板关闭
-- Agent actions：结果被解析成若干张动作卡片，每张写明动作类型与理由，点「Apply action」才执行，执行过会标记为 Applied
+- 普通任务：结果出现在下方文本框，点「插入结果」才会插入到光标处，插入后面板关闭
+- 智能体操作：结果被解析成若干张动作卡片，每张写明动作类型与理由，点「应用操作」才执行，执行过会标记为「已应用」
 
-Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-document`。模型返回的内容不是合法 JSON、或没有可执行动作时，面板会报错，不会偷偷改文件。
+智能体操作只认三种动作：`insert`、`replace-selection`、`replace-document`。模型返回的内容不是合法 JSON、或没有可执行动作时，面板会报错，不会偷偷改文件。
 
 > 没有「接受全部」，也没有自动应用。批量修改请逐条看。
 
@@ -873,7 +873,7 @@ Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-doc
 - 鉴权：`Authorization: Bearer <apiKey>`
 - 参数：`temperature: 0.2`、`stream: true`，消息只有一条 system 与一条 user
 - 失败时会显示状态码与响应片段，例如 `AI request failed (401)`
-- 不保留对话历史：每次 Run 都是独立的一轮，只带当前任务的系统提示与上下文
+- 不保留对话历史：每次运行都是独立的一轮，只带当前任务的系统提示与上下文
 
 因此，任何兼容该协议的服务都能用：自建网关、代理、本地推理服务，只要它能流式返回 `choices[0].delta.content`。
 
@@ -885,7 +885,7 @@ Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-doc
 - 模型可能生成无法编译的 LaTeX，也可能改错命令；先编译，再接受
 - 需要工程级的读写、编译与检索时，用 MCP，而不是把整个工程贴进对话框
 
-> 换服务或换模型不需要重启：保存设置后，下一次 Run 就使用新配置。
+> 换服务或换模型不需要重启：保存设置后，下一次运行就使用新配置。
 
 ## 出问题时
 
@@ -895,7 +895,7 @@ Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-doc
 | `AI request failed (401)` | 密钥是否正确、是否过期 |
 | `AI request failed (404)` | 服务地址是否多写或漏写了 `/v1` |
 | `AI returned an empty stream` | 服务是否支持流式；换成支持流式的代理再试 |
-| Agent actions 报「没有有效动作」 | 模型是否按 JSON 返回；换一个指令遵循更强的模型 |
+| 智能体操作报「没有有效动作」 | 模型是否按 JSON 返回；换一个指令遵循更强的模型 |
 
 ---
 
@@ -927,7 +927,7 @@ Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-doc
 | 快捷键 | 动作 |
 | --- | --- |
 | ⌘↩ | 编译工程 |
-| ⇧⌘J | Forward Search：从源码跳到 PDF 对应位置 |
+| ⇧⌘J | 正向搜索：从源码跳到 PDF 对应位置 |
 | ⌘-click | 在 PDF 文本层上按住 ⌘ 单击，反查源码行 |
 | ⌥⌘P | 收起 / 展开 PDF 预览 |
 | ⌘F | 在当前文件内查找 |
@@ -936,7 +936,7 @@ Agent actions 只认三种动作：`insert`、`replace-selection`、`replace-doc
 
 取消编译没有默认快捷键，只能在 `构建 → 取消编译` 里点。它终止的是整个编译进程组，不只是 latexmk 本身。
 
-> 反向定位不要求先按 Forward Search：在 PDF 上直接 ⌘ 单击就是一次反查。
+> 反向定位不要求先按正向搜索：在 PDF 上直接 ⌘ 单击就是一次反查。
 
 ## 界面与视图
 
@@ -1366,6 +1366,8 @@ LuaLaTeX 中文还依赖 `texlive-lang-japanese` 中的 LuaTeX-ja；共享任务
 
 ## 版本号
 
+GitHub 按标签查询草稿时可能返回 404；发布器改用认证可见的分页列表定位准确标签，再检查已上传资产。不要因为这个 404 重复创建版本或改写标签。已有草稿只在资产完整时公开，同一次运行可以安全重试。
+
 `release-version.cjs` 计算三段正式版本并同步根 package 与 lock，SDK／qwertysay 的版本独立。之后 Nightly 自动读取新基础版本，生成 `v{基础版本}-YYYYMMDD-Nightly`；包内无 v，日期只计算一次传给平台。同日 Nightly 更新当天标签与资产，不同日期保留独立记录。
 
 ```bash
@@ -1433,6 +1435,8 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 ## macOS universal ASAR
 
 当前两架构共用相同 JavaScript ASAR，`build.mac.mergeASARs: false` 避免上游合并工具将大量外部 Node 文件展开成超长 glob。仍发布 universal DMG／ZIP，两个架构与最终包都保留 ASAR／外部 MCP 校验；本机实际目录打包和 lipo 检查确认包含 x86_64／arm64。若未来引入架构专属模块，需重新验证归档布局，不能跳过校验。
+
+官网正式版本按中版本系列分组，例如「V0.1 / Tajpilo」；小版本独立折叠，默认展开最新版本。说明复用 Markdown 渲染，支持标题、列表、代码、引用、表格与链接，不执行原始 HTML。
 
 ---
 
@@ -1791,7 +1795,7 @@ TeXPro 主要面向三类人：
 | --- | --- | --- |
 | 编辑纸面 | 主题变量 `--paper` | 纸张色而非纯白，减少屏幕反光 |
 | 正文颜色 | `#2b2926` | 比纯黑柔和，长文阅读不刺眼 |
-| 强调色 | 暖陶土色（Studio `#d97757`，Paper `#b4532a`） | 只标记焦点、选中与当前状态 |
+| 强调色 | 暖陶土色（工作室 `#d97757`，纸面 `#b4532a`） | 只标记焦点、选中与当前状态 |
 | 正文宽度 | `760 px` | 单栏，控制行长 |
 | 正文字号 | `18 px` | 屏幕阅读的舒适区 |
 | 圆角 | `10 px` | 柔和但不过度，不卡通化 |
@@ -1800,7 +1804,7 @@ TeXPro 主要面向三类人：
 
 - 图标统一用 Lucide 的线性图标，保持同一笔画粗细；功能入口不靠彩色表情符号区分。
 - 动效只用于面板进出与状态转换，并遵循系统的「减少动态效果」设置；没有装饰性动画。
-- 主题提供 Studio、Night 与 Paper 三套。切换主题改变颜色与明暗，不改变版式、字号层级与强调色的含义。
+- 主题提供工作室、夜间与纸面三套。切换主题改变颜色与明暗，不改变版式、字号层级与强调色的含义。
 
 ## 交互思路
 
@@ -2129,7 +2133,7 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 
 如果你认为仓库中的代码、文档、截图或演示素材侵犯了你的权利，请在 GitHub Issues 中提出：
 
-- 仓库地址：`https://github.com/lzhbhlrPython/TexStudioPro`
+- 仓库地址：`https://github.com/lzhbhlrPython/TexPro`
 - 说明涉及的文件、页面或版本
 - 提供权利证明或原始出处链接
 - 说明你希望的处置方式：署名、替换或移除

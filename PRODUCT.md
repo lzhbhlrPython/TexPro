@@ -88,7 +88,7 @@ Explicitly undecided or constrained facts:
 - Demo project: `demo/main.tex`, `demo/references.bib`, `demo/assets/curve.png`.
 - Rendered evidence: `docs/screenshots/` and `artifacts/` smoke captures.
 - Automated evidence: `scripts/test-compile.mjs` (19 checks), `scripts/test-import.mjs` (12 checks), `scripts/test-mcp.mjs`, `tests/reliability.test.cjs`, native-input Electron UI regressions, and the Electron smoke flow.
-- Public repository: `https://github.com/lzhbhlrPython/TexStudioPro`.
+- Public repository: `https://github.com/lzhbhlrPython/TexPro`.
 
 There are no confirmed customer testimonials, case studies, commercial benchmarks, or production deployment claims. Future work must not invent them.
 

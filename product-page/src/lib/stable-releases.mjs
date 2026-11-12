@@ -10,6 +10,27 @@ export function parseStableRelease(item) {
     assets: (Array.isArray(item.assets) ? item.assets : []).filter(a => a && typeof a.name === 'string' && https(a.browser_download_url) && a.size > 0 && (!a.state || a.state === 'uploaded')).map(a => ({ name: a.name, size: a.size, url: a.browser_download_url, digest: typeof a.digest === 'string' ? a.digest : null })),
   };
 }
+export function groupStableReleases(releases, series = {}) {
+  const compare = (a, b) => {
+    const left = a.split('.').map(BigInt), right = b.split('.').map(BigInt);
+    for (let i = 0; i < left.length; i++) if (left[i] !== right[i]) return left[i] > right[i] ? -1 : 1;
+    return 0;
+  };
+  const groups = new Map();
+  for (const release of releases) {
+    const match = /^v(\d+)\.(\d+)\.(\d+)$/.exec(release.tag);
+    if (!match) continue;
+    const key = `${match[1]}.${match[2]}`;
+    if (!groups.has(key)) {
+      const codename = typeof series[key]?.codename === 'string' ? series[key].codename : '';
+      groups.set(key, { key, title: `V${key}${codename ? ` / ${codename}` : ''}`, releases: [] });
+    }
+    groups.get(key).releases.push(release);
+  }
+  return [...groups.values()].sort((a, b) => compare(a.key, b.key)).map(group => ({
+    ...group, releases: group.releases.sort((a, b) => compare(a.tag.slice(1), b.tag.slice(1))),
+  }));
+}
 export async function fetchStableReleases(repo, { fetcher = fetch, token } = {}) {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) throw Error('Invalid release repository');
   const found = new Map(), headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'texpro-stable-releases' };

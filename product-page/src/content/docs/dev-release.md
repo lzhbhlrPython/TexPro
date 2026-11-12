@@ -76,6 +76,8 @@ LuaLaTeX 中文还依赖 `texlive-lang-japanese` 中的 LuaTeX-ja；共享任务
 
 ## 版本号
 
+GitHub 按标签查询草稿时可能返回 404；发布器改用认证可见的分页列表定位准确标签，再检查已上传资产。不要因为这个 404 重复创建版本或改写标签。已有草稿只在资产完整时公开，同一次运行可以安全重试。
+
 `release-version.cjs` 计算三段正式版本并同步根 package 与 lock，SDK／qwertysay 的版本独立。之后 Nightly 自动读取新基础版本，生成 `v{基础版本}-YYYYMMDD-Nightly`；包内无 v，日期只计算一次传给平台。同日 Nightly 更新当天标签与资产，不同日期保留独立记录。
 
 ```bash
@@ -143,3 +145,5 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 ## macOS universal ASAR
 
 当前两架构共用相同 JavaScript ASAR，`build.mac.mergeASARs: false` 避免上游合并工具将大量外部 Node 文件展开成超长 glob。仍发布 universal DMG／ZIP，两个架构与最终包都保留 ASAR／外部 MCP 校验；本机实际目录打包和 lipo 检查确认包含 x86_64／arm64。若未来引入架构专属模块，需重新验证归档布局，不能跳过校验。
+
+官网正式版本按中版本系列分组，例如「V0.1 / Tajpilo」；小版本独立折叠，默认展开最新版本。说明复用 Markdown 渲染，支持标题、列表、代码、引用、表格与链接，不执行原始 HTML。

@@ -56,7 +56,7 @@ export const BLOG_POSTS: BlogPost[] = Object.entries(rawFiles)
       summary: data.summary ?? '',
       tags: (data.tags ?? '')
         .split(/[,，]/)
-        .map((tag) => tag.trim())
+        .map((tag) => tag.replace(/[\[\]`]/g, '').trim().replace(/^["']|["']$/g, ''))
         .filter(Boolean),
       version: data.version ?? '',
       author: data.author ?? 'AI 协作者',

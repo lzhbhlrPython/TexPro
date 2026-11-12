@@ -51,7 +51,7 @@ The local extension lifecycle and service organization draw conceptual inspirati
 
 ## PostCSS and postcss-value-parser
 
-Theme styles are parsed using [PostCSS](https://github.com/postcss/postcss), MIT, Copyright (c) 2013 Andrey Sitnik, and [postcss-value-parser](https://github.com/TrySound/postcss-value-parser), MIT, Copyright (c) Bogdan Chadkin. The complete notices supplied in each distributed dependency are retained. Parsing and resource restrictions do not constitute a CSS or Node security sandbox.
+Theme styles are parsed using [PostCSS](https://github.com/postcss/postcss), MIT, Copyright (c) 2013 Andrey Sitnik, and [postcss-value-parser](https://github.com/postcss/postcss-value-parser), MIT, Copyright (c) Bogdan Chadkin. The complete notices supplied in each distributed dependency are retained. Parsing and resource restrictions do not constitute a CSS or Node security sandbox.
 
 ## Extension authoring toolchains
 

@@ -18,6 +18,8 @@ Nightly 每日上海时间 21:23 检查相对上一次成功公开、含资产�
 
 ## 官网联动
 
+GitHub 的按标签查询接口可能对草稿返回 404，即使认证身份已经上传资产。发布器在此情况下分页查询认证可见的 Release 列表，并按准确标签定位草稿；上传后同样使用该查询检查资产。不能把草稿的 404 当作上传失败或重复创建新版本。首发曾在此处中止；核对版本提交、双语说明、八个资产及摘要后通过 Release ID 公开，再重跑同一次 Actions 完成官网刷新，保留原有标签与构建产物。
+
 公开成功后显式 workflow_dispatch Product page，并传入准确 release_tag；Nightly 兼容 nightly_tag。普通 GITHUB_TOKEN 产生的 release 事件不作为隐式触发保证。正式版刷新要求列表存在准确版本及资产，失败不部署旧列表。官网 `/releases` 只列真实公开正式版，`/changelog` 展示当前构建。详见[部署说明](product-page-deployment.md)。
 
 ## 验证

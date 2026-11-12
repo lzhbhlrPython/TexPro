@@ -21,6 +21,6 @@ version: 0.1.0
 
 ## 从兼容修复到细致排版
 
-[保留中文类设置](https://github.com/lzhbhlrPython/TexStudioPro/commit/70fbe2f)与[可移植字体默认值](https://github.com/lzhbhlrPython/TexStudioPro/commit/57393f2)建立了基础。本轮进一步提供按需应用的中文正文配置，并区分屏幕阅读与正式 PDF：编辑器改善中文段落观感，TeX 负责最终标点、断行与分页。
+[保留中文类设置](https://github.com/lzhbhlrPython/TexPro/commit/70fbe2f)与[可移植字体默认值](https://github.com/lzhbhlrPython/TexPro/commit/57393f2)建立了基础。本轮进一步提供按需应用的中文正文配置，并区分屏幕阅读与正式 PDF：编辑器改善中文段落观感，TeX 负责最终标点、断行与分页。
 
 通用配置不替代学校或期刊模板。判断中文排版是否正确，需要实际编译并检查 PDF，尤其要覆盖 XeLaTeX 与 LuaLaTeX，而不是只看网页预览。

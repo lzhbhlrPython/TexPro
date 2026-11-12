@@ -76,6 +76,8 @@ Only after tests and all platform packages pass does the workflow verify main st
 
 ## Version numbers
 
+GitHub may return 404 when a draft is queried by tag. The publisher falls back to the authenticated, paginated release list to find the exact tag and verify uploaded assets. Do not create another version or rewrite a tag because of this response. A draft becomes public only after its assets are complete, and the same workflow run can be retried safely.
+
 `release-version.cjs` computes stable versions and synchronizes the root package and lockfile. SDK/qwertysay versions stay independent. Subsequent Nightlies automatically use the new base as `v{base}-YYYYMMDD-Nightly`; installed package versions omit v. The Shanghai date is calculated once for every platform. Same-day Nightlies replace that day's tag/assets; different dates retain separate records.
 
 ```bash
@@ -143,3 +145,5 @@ Pages also builds for product-page changes; PRs validate, while main deploys. A 
 ## macOS universal ASAR
 
 Both architectures currently share identical JavaScript ASAR contents. `build.mac.mergeASARs: false` avoids an upstream merge step expanding external Node files into an oversized glob. Universal DMG/ZIP delivery remains, with ASAR and external MCP checks on each architecture and the final bundle. Actual local directory packaging and lipo checks confirm x86_64/arm64. Revalidate the archive layout if architecture-specific modules are introduced; never bypass verification.
+
+The website groups stable releases by major.minor series, such as “V0.1 / Tajpilo”. Each patch release folds independently; only the latest opens by default. Notes reuse the existing Markdown renderer for headings, lists, code, quotes, tables and links; raw HTML is not executed.

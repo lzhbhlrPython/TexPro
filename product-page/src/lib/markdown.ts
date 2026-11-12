@@ -6,6 +6,7 @@
 
 export type DocBlock =
   | { kind: 'p'; text: string }
+  | { kind: 'h2'; text: string }
   | { kind: 'h3'; text: string }
   | { kind: 'h4'; text: string }
   | { kind: 'ul'; items: string[] }
@@ -79,6 +80,12 @@ export function parseMarkdown(body: string): DocBlock[] {
     if (trimmed.startsWith('### ')) {
       flushParagraph();
       blocks.push({ kind: 'h4', text: trimmed.slice(4).trim() });
+      continue;
+    }
+
+    if (trimmed.startsWith('# ')) {
+      flushParagraph();
+      blocks.push({ kind: 'h2', text: trimmed.slice(2).trim() });
       continue;
     }
 

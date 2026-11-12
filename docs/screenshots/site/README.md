@@ -25,3 +25,14 @@
 | qwertysay-en-dark-390.png | 5a20a07eacf2f49f4d145bb3b6d9b522b1090e1e918232e13dc479aabf3067f1 |
 | extension-skill-zh-light-1440.png | 50a9ddd41d662ade285400eb2cff88557b84a17740db172fa53d4eb59b26e9a7 |
 | extension-skill-en-dark-390.png | e1b222c797bf043d87a16887230fce6ac0dbbaf444787d446a333e1da71f5f79 |
+
+2026-11-12：首次正式版本公开后，以真实 GitHub v0.1.0 数据捕获系列分组／Markdown／小版本折叠页面、首页 MCP 指标和已清理标签的博客；中文浅色 1440×1000、英文深色 390×1000，实际生产构建。另验证八种中英／明暗／宽窄组合、键盘折叠、八个下载链接与无横向溢出。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| releases-v010-en-dark-390.png | 90f2a5f4b12ad890b01944fd652faa4863a8a3d7627e5a9e2d0bca320bd4dac5 |
+| releases-v010-zh-light-1440.png | bcdfd1dd088449777bcf94f4d27b51df0cf2792565502a0f9ffac16670fa3f76 |
+| home-mcp-en-dark-390.png | 3207a9b7ada6080d0cce382f3d047386cc20cab146132e37099ee30dc4b34b8d |
+| home-mcp-zh-light-1440.png | 9708c1f73459286edc205a982324f7868ca10646d582bec19c4ec9e996cd0da3 |
+| blog-tags-en-dark-390.png | 1dffdb4d23604edf41261fd6416c9314c633e46f934e8af27da924f83b9dd759 |
+| blog-tags-zh-light-1440.png | a2a74a997f036942fc35b10879c1aabee9a6d59d3b7d264e7ed9f99607ac0cb9 |

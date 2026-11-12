@@ -50,3 +50,5 @@ Pages 构建调用 `product-page/scripts/fetch-release.mjs`，将准确标签传
 Nightly 每日于 Asia/Shanghai 21:23（UTC 13:23，cron `23 13 * * *`）检查相对上次成功 Nightly 是否有新提交；支持手动触发。Actions 定时任务可能因排队延后，配置时间不是构建完成或安装包上线时间。
 
 `/releases` 展示正式版本，排除草稿和预发布；构建时 Vite 自动调用 `fetch-stable-releases.mjs` 分页读取真实 GitHub Release，写入版本列表快照。正式版标签刷新要求列表包含本次准确版本及资产，失败即停止构建。普通构建可保留带明确提示的旧快照，第一次获取失败不能声称暂无正式版。列表、说明与下载来自同一记录，说明按纯文本呈现，不执行 HTML。
+
+正式版本列表按 major.minor 分组，系列代号共用根 release-series.json，未配置代号不继承上一系列。小版本独立折叠，默认仅展开最新版本；说明使用现有安全 Markdown 子集（标题、列表、代码、引用、表格、链接），不执行 HTML。

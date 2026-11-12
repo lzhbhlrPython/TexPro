@@ -1,5 +1,62 @@
 {
-  "releases": [],
-  "syncedAt": "2026-11-12T11:43:58.816Z",
+  "releases": [
+    {
+      "tag": "v0.1.0",
+      "publishedAt": "2026-11-12T14:44:10Z",
+      "notes": "# TeXPro v0.1.0 · Tajpilo\n\n2026-11-12 · 首次正式发布 / First stable release\n\n## 中文\n\nTeXPro 首次正式发布。**0.1.x** 系列代号 **Tajpilo**，世界语“打字机”。普通 `.tex` 仍是文档原件。\n\n- 连续写作：正文、公式、简单表格、插图、TikZ 与乐谱预览；Markdown 输入快捷语法、占位符及源码修订备忘。\n- 工程与排版：多文件工程、主文件解析、素材、文献与引用；本地 latexmk、多引擎编译、诊断、PDF 和 SyncTeX 双向定位。\n- 无感实时预览：内置 rtex-ts，在支持的 LuaLaTeX 工程中融入既有 PDF 区域；正式 PDF 操作按需准备本地排版。\n- 按需工具：复杂绘图、手写和模板任务使用共享工作台；历史、Git、备份、局域网协作、AI 和 Node stdio MCP 均按需使用。\n- 本地扩展：自行分发 `.tpp` 插件和 `.tpt` 主题，无公开市场。支持只改强调色的最简主题；独立 SDK、qwertysay 引导式配置和开发 Skill 分别提供开发契约、工具与 AI 工作流说明。\n\n安装包：macOS universal DMG／ZIP（Apple Silicon / Intel）、Windows x64 安装版／便携版／ZIP、Linux x64 AppImage／deb／rpm。资产及 SHA256 以本 Release 为准。\n\n需要本机 TeX Live／MacTeX、latexmk 及所选引擎；实时预览需 LuaLaTeX。安装包未签名、未公证，首次打开可能需要系统放行。复杂 TeX 保留源码入口，实时预览不替代最终 PDF。Node 插件拥有用户文件、网络与进程权限；主题可能隐藏或伪装控件。只启用可信来源，原生菜单和 `--safe-mode` 提供恢复入口。\n\n发布闸门包含完整回归零跳过／TODO、类型检查、构建及三平台打包与真实 ASAR 核验。CI 打包不等于所有系统完成安装运行验收。应用采用 MIT；rtex-ts 等依赖的归属和许可见 THIRD_PARTY_NOTICES.md。\n\n## English\n\nThe first stable TeXPro release. **Tajpilo**, Esperanto for “typewriter”, names the **0.1.x** series. Ordinary `.tex` remains the document of record.\n\n- Continuous writing with inline formulas, simple tables, figures, TikZ and music previews; Markdown input shortcuts, placeholders and source-based revision memos.\n- Multi-file projects, explicit root resolution, assets and references; local latexmk, multiple engines, diagnostics, PDF and two-way SyncTeX navigation.\n- Integrated rtex-ts preview for supported LuaLaTeX projects, using the existing PDF area. Formal PDF operations prepare local typesetting when needed.\n- Shared workspaces for complex drawing, handwriting and templates; optional history, Git, backup, LAN collaboration, AI and Node stdio MCP.\n- Locally distributed `.tpp` plugins and `.tpt` themes, including accent-only themes; no public marketplace. Separate SDK, guided qwertysay and development Skill guides cover contracts, tools and AI workflows.\n\nDownloads: macOS universal DMG/ZIP, Windows x64 installer/portable/ZIP, Linux x64 AppImage/deb/rpm. Assets and SHA256 digests belong to this Release.\n\nInstall TeX Live or MacTeX, latexmk and your chosen engine locally; real-time preview needs LuaLaTeX. Installers are unsigned and not notarized, so the OS may require manual approval. Complex TeX retains source access; previews do not replace the final PDF. Node plugins have user file, network and process permissions; themes can hide or imitate controls. Enable trusted sources only. Native menus and `--safe-mode` provide recovery.\n\nPublishing requires a complete regression baseline with zero skipped tests/TODOs, type checks, builds, three-platform packaging and actual ASAR verification. CI packaging is not installation/runtime acceptance on every OS. TeXPro uses MIT; attribution and dependency licenses, including rtex-ts, are in THIRD_PARTY_NOTICES.md.\n",
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/tag/v0.1.0",
+      "assets": [
+        {
+          "name": "TeXPro-0.1.0-linux-amd64.deb",
+          "size": 120245740,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-amd64.deb",
+          "digest": "sha256:e54e0b5e983d9ff03d73f8fc67fceb3def26763e8ebbc007470deb42fed1d771"
+        },
+        {
+          "name": "TeXPro-0.1.0-linux-x86_64.AppImage",
+          "size": 154245001,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-x86_64.AppImage",
+          "digest": "sha256:897fa6dcdc599b80ce96de08edff63fd67134bafd5c6218974e472142e5c595b"
+        },
+        {
+          "name": "TeXPro-0.1.0-linux-x86_64.rpm",
+          "size": 101206190,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-x86_64.rpm",
+          "digest": "sha256:05924962e10e8736645ead57374458d532bdfdff9b61216f39c1e594d070ed59"
+        },
+        {
+          "name": "TeXPro-0.1.0-mac-universal.dmg",
+          "size": 257797437,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-mac-universal.dmg",
+          "digest": "sha256:d16c434df876f28e6cf34884578cb4de4f8e256a8ebbfcc05924e335ae4e6aab"
+        },
+        {
+          "name": "TeXPro-0.1.0-mac-universal.zip",
+          "size": 257177023,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-mac-universal.zip",
+          "digest": "sha256:f28a938e0221c6aa819c667edc2e31bb69ba2ed0e3c199070c0b1e459d6319a3"
+        },
+        {
+          "name": "TeXPro-0.1.0-win-x64.zip",
+          "size": 180218577,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-win-x64.zip",
+          "digest": "sha256:93140c5e9a08384a569b339bb5f3b8180436ed1defe3f38c5d26987e4e148435"
+        },
+        {
+          "name": "TeXPro-0.1.0-windows-x64-portable.exe",
+          "size": 131809182,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-windows-x64-portable.exe",
+          "digest": "sha256:b2439fa95c473c2cce2124ccf216741ecd85587b3e24decbc7f1fac8af65028d"
+        },
+        {
+          "name": "TeXPro-0.1.0-windows-x64-setup.exe",
+          "size": 132033180,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-windows-x64-setup.exe",
+          "digest": "sha256:b7735e3812a1f985f2341311ce20648402bb445eb00041346bdc864a6d339be1"
+        }
+      ]
+    }
+  ],
+  "syncedAt": "2026-11-12T15:42:20.369Z",
   "source": "github"
 }

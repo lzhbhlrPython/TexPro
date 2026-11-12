@@ -15,7 +15,7 @@ version: 0.1.0
 
 ## 选择 TeX 链路
 
-实现优先沿用 TeX 制谱，不把 LilyPond 作为必须安装的新程序。乐谱数据、源块识别、预览和 LaTeX 导出接入已有工程工具链，相关模块见[行内乐谱提交](https://github.com/lzhbhlrPython/TexStudioPro/commit/234c5cc)。
+实现优先沿用 TeX 制谱，不把 LilyPond 作为必须安装的新程序。乐谱数据、源块识别、预览和 LaTeX 导出接入已有工程工具链，相关模块见[行内乐谱提交](https://github.com/lzhbhlrPython/TexPro/commit/234c5cc)。
 
 这个选择降低了外部依赖，也约束了能力边界。可用的记谱语法、复杂制谱效果和编译支持仍取决于本地 TeX 宏包及当前实现；不能据此声称已经替代专业桌面打谱软件。总谱、分谱和歌词需要按实际源与编译结果核对。
 

@@ -36,7 +36,7 @@ For source maintenance, run npm ci at the repository root, then node packages/qw
 
 Generated projects pin compiler versions. PureScript's Spago requires Node ≥22.5; the current SCSS/Sass compiler requires Node ≥20.19. ClojureScript needs Java 21+; Scala.js needs Java and sbt. GopherJS needs matching Go 1.21.x; explicitly run `go mod tidy` first. Install Thematic CSS with `cargo install tcss-cli --version 1.0.0 --locked`; this is not Textual CSS and does not depend on the unavailable npm `tcss-js`. CSS-in-JS uses vanilla-extract and esbuild to extract static CSS; themes do not inject runtime JavaScript.
 
-On Windows, set `TEXPRO_SBT_LAUNCHER` to sbt-launch.jar and put Java on PATH for Scala.js. Older Go tools on recent macOS may require external linking and local ad hoc signing. See the [toolchain and cross-platform reference](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md). Local validation is not native acceptance on all three platforms.
+On Windows, set `TEXPRO_SBT_LAUNCHER` to sbt-launch.jar and put Java on PATH for Scala.js. Older Go tools on recent macOS may require external linking and local ad hoc signing. See the [toolchain and cross-platform reference](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md). Local validation is not native acceptance on all three platforms.
 
 ## Build and package boundaries
 
@@ -53,7 +53,7 @@ const { defineTextTransform } = require('@gardenialiu/texpro-extension-sdk');
 module.exports = defineTextTransform(text => text.toUpperCase());
 ```
 
-This is author source that requires bundling the SDK, not a self-contained runtime entry. `defineJsonExtension({ actions, start })` provides a string-message transport for asynchronous languages: init, invoke, result, cancel, event, service, service-result and dispose. Elm uses Platform.worker ports. Controlled storage/project services, four concurrent invocations, 4 MiB messages and cancellation cleanup are supported. See the [protocol and limits](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md).
+This is author source that requires bundling the SDK, not a self-contained runtime entry. `defineJsonExtension({ actions, start })` provides a string-message transport for asynchronous languages: init, invoke, result, cancel, event, service, service-result and dispose. Elm uses Platform.worker ports. Controlled storage/project services, four concurrent invocations, 4 MiB messages and cancellation cleanup are supported. See the [protocol and limits](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md).
 
 ## Trust, licenses and MCP
 
@@ -63,4 +63,4 @@ The generated MIT LICENSE belongs to the author. SDK/qwertysay MIT does not repl
 
 External MCP adds read-only `texpro_extension_capabilities` and `texpro_inspect_extension` for format information and built packages inside the project. Neither builds, installs, enables nor invokes plugins. Manifest `mcp` actions still do not register automatically with external stdio clients. Packages remain manually distributed, without a public marketplace or updater.
 
-Verify real compilation, archives, host invocation, stale requests, disable, undo, IME, themes and recovery as applicable. CLI checks do not replace native interaction acceptance. See the [authoring reference](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md) and the repository development Skill.
+Verify real compilation, archives, host invocation, stale requests, disable, undo, IME, themes and recovery as applicable. CLI checks do not replace native interaction acceptance. See the [authoring reference](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md) and the repository development Skill.

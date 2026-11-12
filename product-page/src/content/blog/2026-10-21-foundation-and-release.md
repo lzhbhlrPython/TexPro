@@ -23,4 +23,4 @@ macOS 通用架构打包暴露了原生 canvas 依赖的问题。修复从发布
 
 ## 证据与边界
 
-相关实现见[最初工作台](https://github.com/lzhbhlrPython/TexStudioPro/commit/d4ef147)、[研究工作流与打包](https://github.com/lzhbhlrPython/TexStudioPro/commit/84fc73c)、[协作与 MCP](https://github.com/lzhbhlrPython/TexStudioPro/commit/5d26648)、[通用架构构建修复](https://github.com/lzhbhlrPython/TexStudioPro/commit/ca8ef9a)。这些提交说明能力如何进入代码；各平台安装包是否成功，仍应以对应 Actions 运行与实际安装验证为准。
+相关实现见[最初工作台](https://github.com/lzhbhlrPython/TexPro/commit/d4ef147)、[研究工作流与打包](https://github.com/lzhbhlrPython/TexPro/commit/84fc73c)、[协作与 MCP](https://github.com/lzhbhlrPython/TexPro/commit/5d26648)、[通用架构构建修复](https://github.com/lzhbhlrPython/TexPro/commit/ca8ef9a)。这些提交说明能力如何进入代码；各平台安装包是否成功，仍应以对应 Actions 运行与实际安装验证为准。

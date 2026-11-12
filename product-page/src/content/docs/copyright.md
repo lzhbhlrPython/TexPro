@@ -201,7 +201,7 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 
 如果你认为仓库中的代码、文档、截图或演示素材侵犯了你的权利，请在 GitHub Issues 中提出：
 
-- 仓库地址：`https://github.com/lzhbhlrPython/TexStudioPro`
+- 仓库地址：`https://github.com/lzhbhlrPython/TexPro`
 - 说明涉及的文件、页面或版本
 - 提供权利证明或原始出处链接
 - 说明你希望的处置方式：署名、替换或移除

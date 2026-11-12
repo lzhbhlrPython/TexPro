@@ -36,7 +36,7 @@ npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
 
 各编译器与版本由生成工程声明。PureScript 的 Spago 需要 Node ≥22.5；SCSS／Sass 的当前编译器需要 Node ≥20.19。ClojureScript 需要 Java 21+，Scala.js 需要 Java 与 sbt；GopherJS 需要匹配的 Go 1.21.x，构建前明确执行 `go mod tidy`。TCSS 通过 `cargo install tcss-cli --version 1.0.0 --locked` 安装官方编译器；不是 Textual CSS，不引用 npm 上不可获取的 `tcss-js`。CSS-in-JS 通过 vanilla-extract + esbuild 提取静态 CSS，不在主题运行时注入 JavaScript。
 
-Windows 的 Scala.js 构建可将 `TEXPRO_SBT_LAUNCHER` 设为 sbt-launch.jar 的路径，并将 Java 加入 PATH。较新 macOS 上的旧 Go 链接器可能需要外部链接和本机 ad hoc 签名；详见[完整工具链、版权与跨平台说明](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md)。本机验证不等于三平台原生验收。
+Windows 的 Scala.js 构建可将 `TEXPRO_SBT_LAUNCHER` 设为 sbt-launch.jar 的路径，并将 Java 加入 PATH。较新 macOS 上的旧 Go 链接器可能需要外部链接和本机 ad hoc 签名；详见[完整工具链、版权与跨平台说明](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md)。本机验证不等于三平台原生验收。
 
 ## 构建与打包边界
 
@@ -53,7 +53,7 @@ const { defineTextTransform } = require('@gardenialiu/texpro-extension-sdk');
 module.exports = defineTextTransform(text => text.toUpperCase());
 ```
 
-这是需要构建器打包 SDK 的作者源码，不是自包含的分发入口。`defineJsonExtension({ actions, start })` 为异步语言提供字符串消息桥接：init、invoke、result、cancel、event、service、service-result、dispose。Elm 模板使用 Platform.worker ports。支持受控的存储与工程读取服务、四个并行调用、4 MiB 消息上限和取消清理。完整协议与限制见[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md)。
+这是需要构建器打包 SDK 的作者源码，不是自包含的分发入口。`defineJsonExtension({ actions, start })` 为异步语言提供字符串消息桥接：init、invoke、result、cancel、event、service、service-result、dispose。Elm 模板使用 Platform.worker ports。支持受控的存储与工程读取服务、四个并行调用、4 MiB 消息上限和取消清理。完整协议与限制见[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md)。
 
 ## 信任、版权与 MCP
 
@@ -63,4 +63,4 @@ module.exports = defineTextTransform(text => text.toUpperCase());
 
 外部 MCP 新增只读的 `texpro_extension_capabilities` 与 `texpro_inspect_extension`，查询格式或检查工程内已构建包，不构建、不安装、不启用、不执行插件。清单中的 `mcp` 动作仍不自动对外注册。包依然自行分发，没有公开市场或自动更新。
 
-实际验收包含编译、归档、宿主调用、过期请求、停用、撤销、IME、三主题及恢复等适用路径；CLI 校验不代替原生交互验收。参阅[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md)与仓库开发 Skill。
+实际验收包含编译、归档、宿主调用、过期请求、停用、撤销、IME、三主题及恢复等适用路径；CLI 校验不代替原生交互验收。参阅[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md)与仓库开发 Skill。

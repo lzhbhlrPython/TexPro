@@ -10,11 +10,11 @@ summary: 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程
 
 ## 把 Markdown 翻成 LaTeX
 
-打开工程后，用 `文件 → 导入 Markdown / Typst…` 打开导入面板；也可以按 `⌘K` 搜 Import 进入。面板左侧是原文，右侧 `Generated LaTeX` 随输入实时更新。
+打开工程后，用 `文件 → 导入 Markdown / Typst…` 打开导入面板；也可以按 `⌘K` 搜 Import 进入。面板左侧是原文，右侧 `生成的 LaTeX` 随输入实时更新。
 
-- 选 Markdown，把稿子粘进左侧，或用 Choose file 选 `.md`、`.markdown`、`.mdown`、`.txt`。
-- 填 Title、Author、Date、Document class 与 File name。Date 默认 `\today`，留空则生成空日期。
-- 按 **Insert body** 只把正文插到当前光标处；按 **Create .tex file** 则在工程根生成完整文档，含导言区。
+- 选 Markdown，把稿子粘进左侧，或用选择文件选 `.md`、`.markdown`、`.mdown`、`.txt`。
+- 填写「标题」「作者」「文档类」与「文件名」。面板没有单独的日期输入项。
+- 按 **插入正文** 只把正文插到当前光标处；按 **创建 .tex 文件** 则在工程根生成完整文档，含导言区。
 
 转换规则是固定的，不是启发式猜测：
 
@@ -50,7 +50,7 @@ summary: 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程
 \end{document}
 ```
 
-两种导言区都带 amsmath、amssymb、graphicx、geometry（2.5 cm 边距）、booktabs、xcolor 与 hyperref。没有 Title 时不写 `\maketitle`，日期留空时写成 `\date{}`。
+两种导言区都带 amsmath、amssymb、graphicx、geometry（2.5 cm 边距）、booktabs、xcolor 与 hyperref。没有标题时不写 `\maketitle`，日期留空时写成 `\date{}`。
 
 ## 从 Typst 导入
 
@@ -58,23 +58,23 @@ summary: 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程
 
 ## 模板
 
-`文件 → Template Library…` 列出 11 个内置模板，分四类：
+`文件 → 模板库…` 列出 11 个内置模板，分四类：
 
 | 分类 | 模板 | 引擎 |
 | --- | --- | --- |
-| Basics | Article、Letter | pdflatex |
-| Academic | Report、中文 article（ctex）、双栏 article、Thesis | pdflatex 或 xelatex |
-| Teaching | Beamer slides、Problem set | pdflatex |
-| Languages | 日文 article | lualatex |
-| Languages | 阿拉伯文、俄文 article | xelatex |
+| 基础 | 文章、信件 | pdflatex |
+| 学术 | 报告、中文 article（ctex）、双栏 article、学位论文 | pdflatex 或 xelatex |
+| 教学 | Beamer 幻灯片、习题集 | pdflatex |
+| 多语种 | 日文 article | lualatex |
+| 多语种 | 阿拉伯文、俄文 article | xelatex |
 
 选模板后填工程名并选父目录，TeXPro 建 `<父目录>/<工程名>`。名字里的非法字符换成 `-`，重名自动加 `-2`、`-3`；模板里的 `{{title}}`、`{{author}}`、`{{projectName}}` 由表单替换，生成的 `main.tex` 以模板对应的引擎打开。
 
-`文件 → Template Workshop…` 从空白基础类（article、report、ctexart、beamer）拼页面、字体、结构与宏包，满意的版式可以保存成个人模板。选中模板后，预览区会用该模板的引擎编译一页，作为首页缩略图。个人模板存在应用数据目录的 JSON 里，单份内容上限 2,000,000 字符。
+`文件 → 模板工坊…` 从空白基础类（article、report、ctexart、beamer）拼页面、字体、结构与宏包，满意的版式可以保存成个人模板。选中模板后，预览区会用该模板的引擎编译一页，作为首页缩略图。个人模板存在应用数据目录的 JSON 里，单份内容上限 2,000,000 字符。
 
 ## 素材
 
-`Project → Asset Library` 扫描当前工程，深度 6 层、最多 500 个文件，按修改时间倒序。只认 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`、`.pdf`、`.eps`。
+`项目 → 素材库` 扫描当前工程，深度 6 层、最多 500 个文件，按修改时间倒序。只认 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`、`.pdf`、`.eps`。
 
 插入一张图：
 
@@ -90,9 +90,9 @@ summary: 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程
 - 导入不复制图片：Markdown 里的相对路径原样写进 `\includegraphics`，图没跟着进工程就会缺图。
 - 远程图片（`http(s)://`）不会下载，改写成 `\href` 并在警告里点名。
 - 代码块里出现 `\end{verbatim}` 时，该块降级成 quote，避免环境提前结束。
-- 表格按最宽一行定列数，所有列都是左对齐；合并单元格与长表请改用 Table Studio 或手写。
+- 表格按最宽一行定列数，所有列都是左对齐；合并单元格与长表请改用 Table 工作室或手写。
 - 下拉里选 article 也可能得到 ctexart：只要正文含中文。
-- 没打开工程时不能 Create .tex file，但 Insert body 仍可用。
+- 没打开工程时不能创建 .tex 文件，但插入正文仍可用。
 - 警告面板最多显示 4 条，剩余条数只在计数里体现。
 
 ## 相关页面

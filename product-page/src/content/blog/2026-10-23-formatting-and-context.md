@@ -23,4 +23,4 @@ version: 0.1.0
 
 命令面板中中文标题夹着英文说明、主题名称与语言入口混排，同样会让操作显得不完整。文案、快捷键和状态提示需要跟随界面语言，而技术标识符保留原样。
 
-主要记录在[写作流程提交](https://github.com/lzhbhlrPython/TexStudioPro/commit/ec5911e)，行内图形清晰度与表格焦点另见[渲染修复](https://github.com/lzhbhlrPython/TexStudioPro/commit/7626664)。当前代码也包含视口稳定处理，但整段高度变化、异步图形和输入法仍需要真实界面回归，不能只凭纯函数测试判断。
+主要记录在[写作流程提交](https://github.com/lzhbhlrPython/TexPro/commit/ec5911e)，行内图形清晰度与表格焦点另见[渲染修复](https://github.com/lzhbhlrPython/TexPro/commit/7626664)。当前代码也包含视口稳定处理，但整段高度变化、异步图形和输入法仍需要真实界面回归，不能只凭纯函数测试判断。

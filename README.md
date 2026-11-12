@@ -4,7 +4,7 @@
 
 ![TeXPro 写作界面](docs/screenshots/workbench.png)
 
-[产品文档](https://lzhbhlrpython.github.io/TexStudioPro/docs) · [下载与发布](https://github.com/lzhbhlrPython/TexStudioPro/releases) · [工程文档](docs/README.md) · [协作规则](AGENTS.md)
+[产品文档](https://texpro.pyliubaolin.top/docs) · [下载与发布](https://github.com/lzhbhlrPython/TexPro/releases) · [工程文档](docs/README.md) · [协作规则](AGENTS.md)
 
 ## 写作与工程
 
@@ -42,7 +42,7 @@ npm start
 
 打开工程后，`.texpro/project.json.rootFile` 优先；未配置时只接受唯一未注释的 `\documentclass` 候选。多个候选需要选择，配置失效明确报错，当前标签页不会静默改变主文件。编译前保存相关脏缓冲区。
 
-更多操作见官网的[工程与文件](https://lzhbhlrpython.github.io/TexStudioPro/docs/project)、[编译](https://lzhbhlrpython.github.io/TexStudioPro/docs/compile)和[写作辅助](https://lzhbhlrpython.github.io/TexStudioPro/docs/writing-aids)。
+更多操作见官网的[工程与文件](https://texpro.pyliubaolin.top/docs/project)、[编译](https://texpro.pyliubaolin.top/docs/compile)和[写作辅助](https://texpro.pyliubaolin.top/docs/writing-aids)。
 
 ## 开发文档
 

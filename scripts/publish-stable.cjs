@@ -45,6 +45,14 @@ function releasePresentation(root, version) {
   const notesFile = path.join('docs', 'releases', `v${version}.md`);
   return { title: `v${version}${codename ? ` · ${codename}` : ''}`, notes: fs.existsSync(path.join(root, notesFile)) ? ['--notes-file', notesFile] : ['--generate-notes'] };
 }
+function findRelease(gh, repo, tag) {
+  try { return JSON.parse(gh('api', `repos/${repo}/releases/tags/${tag}`)); }
+  catch (error) { if (!/HTTP 404/.test(String(error.stderr))) throw error; }
+  // GitHub's tag endpoint can hide drafts even from their publisher. The
+  // authenticated release list includes them; do not recreate an existing one.
+  const pages = JSON.parse(gh('api', '--paginate', '--slurp', `repos/${repo}/releases?per_page=100`));
+  return pages.flat().find(release => release.tag_name === tag);
+}
 function publish(root, env = process.env, runGh) {
   const { RELEASE_VERSION: version, RELEASE_SOURCE: sourceSha, GITHUB_RUN_ID: runId, GITHUB_REPOSITORY: repo } = env;
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo || '')) throw Error('Invalid release repository');
@@ -52,17 +60,14 @@ function publish(root, env = process.env, runGh) {
   const presentation = releasePresentation(root, version);
   commitVersion(root, { version, sourceSha, runId, initial: env.RELEASE_INITIAL === 'true' });
   const tag = `v${version}`, gh = runGh || ((...args) => execFileSync('gh', args, { cwd: root, encoding: 'utf8', env }).trim());
-  const endpoint = `repos/${repo}/releases/tags/${tag}`;
-  let existing;
-  try { existing = JSON.parse(gh('api', endpoint)); }
-  catch (error) { if (!/HTTP 404/.test(String(error.stderr))) throw error; }
+  const existing = findRelease(gh, repo, tag);
   if (!existing || existing.draft) {
     if (!existing) gh('release', 'create', tag, '--repo', repo, '--verify-tag', '--draft', ...presentation.notes, '--title', presentation.title);
     const assets = fs.readdirSync(path.join(root, 'release')).filter(name => /\.(dmg|zip|exe|AppImage|deb|rpm)$/.test(name));
     if (!assets.some(n => n.endsWith('.dmg')) || !assets.some(n => n.endsWith('.exe')) || !assets.some(n => n.endsWith('.deb')) || !assets.some(n => n.endsWith('.rpm')) || !assets.some(n => n.endsWith('.AppImage'))) throw Error('Three-platform assets incomplete');
     gh('release', 'upload', tag, '--repo', repo, '--clobber', ...assets.map(name => path.join('release', name)));
-    const uploaded = JSON.parse(gh('api', endpoint));
-    if (!assets.every(name => uploaded.assets.some(a => a.name === name && a.state === 'uploaded' && a.size > 0))) throw Error('Uploaded assets incomplete; keeping release draft');
+    const uploaded = findRelease(gh, repo, tag);
+    if (!uploaded || !assets.every(name => uploaded.assets.some(a => a.name === name && a.state === 'uploaded' && a.size > 0))) throw Error('Uploaded assets incomplete; keeping release draft');
     gh('release', 'edit', tag, '--repo', repo, '--draft=false', '--prerelease=false', '--latest');
   } else if (existing.prerelease || !existing.published_at) throw Error('Existing release is not a published stable version');
   // Also repeat dispatch on retry: a Pages failure does not require a new version.

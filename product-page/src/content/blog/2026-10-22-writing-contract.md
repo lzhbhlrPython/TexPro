@@ -11,7 +11,7 @@ version: 0.1.0
 
 把工作室按钮移到正文旁边还不够。辅助操作打开时要记住它对应的文件、源范围和选择；返回时要确认正文没有被别的操作改变。否则看似方便的可视化编辑，可能把内容插到旧位置。
 
-这一阶段先建立源范围与写作目标，再让乐谱、表格和图形辅助共用这些边界。[源范围提交](https://github.com/lzhbhlrPython/TexStudioPro/commit/c7385d6)和[连续写作整合](https://github.com/lzhbhlrPython/TexStudioPro/commit/e7365fa)是这条路径的主要记录。
+这一阶段先建立源范围与写作目标，再让乐谱、表格和图形辅助共用这些边界。[源范围提交](https://github.com/lzhbhlrPython/TexPro/commit/c7385d6)和[连续写作整合](https://github.com/lzhbhlrPython/TexPro/commit/e7365fa)是这条路径的主要记录。
 
 ## 表格也要能接着写
 
@@ -23,4 +23,4 @@ version: 0.1.0
 
 素材文件与素材库删除开始联动，避免一边消失另一边残留。文件树补上了直接创建文件的入口，不必先离开写作流程寻找别的创建方式。导航后也会发布最终光标位置，供状态和后续操作使用。
 
-对应记录见[素材删除联动](https://github.com/lzhbhlrPython/TexStudioPro/commit/b5ba545)、[文件树新建](https://github.com/lzhbhlrPython/TexStudioPro/commit/feaef40)与[光标发布修复](https://github.com/lzhbhlrPython/TexStudioPro/commit/58f3479)。这些细节共同决定“接着写”是否可靠。
+对应记录见[素材删除联动](https://github.com/lzhbhlrPython/TexPro/commit/b5ba545)、[文件树新建](https://github.com/lzhbhlrPython/TexPro/commit/feaef40)与[光标发布修复](https://github.com/lzhbhlrPython/TexPro/commit/58f3479)。这些细节共同决定“接着写”是否可靠。

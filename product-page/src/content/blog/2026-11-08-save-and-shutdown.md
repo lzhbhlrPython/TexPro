@@ -21,6 +21,6 @@ UI 测试只在同一 PID 已记录成功退出、且未发生测试超时的情
 
 ## 校验不能省略限制
 
-这轮同时检查作者导言区保留、字体报告的未知状态，以及 PDF.js 按需加载。相关实现见[保存与工程文件操作](https://github.com/lzhbhlrPython/TexStudioPro/commit/6d2e3e0)和[退出收尾](https://github.com/lzhbhlrPython/TexStudioPro/commit/d4b3065)。
+这轮同时检查作者导言区保留、字体报告的未知状态，以及 PDF.js 按需加载。相关实现见[保存与工程文件操作](https://github.com/lzhbhlrPython/TexPro/commit/6d2e3e0)和[退出收尾](https://github.com/lzhbhlrPython/TexPro/commit/d4b3065)。
 
 当时定向验证了窗口关闭与应用退出。完整长流程曾在重开阶段超时，因此不能把它写成全流程全部通过；纯函数、原生关闭和长流程各自能证明的范围，需要分别保留。

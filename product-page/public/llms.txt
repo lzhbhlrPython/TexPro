@@ -22,7 +22,7 @@
 - [工程与文件](https://lzhbhlrpython.github.io/TexStudioPro/docs/project): 一个工程就是磁盘上的一个目录。主文件、子文件、图片、参考文献与 .texpro 元数据都在里面，TeXPro 不建数据库，只读写这些文件。
 - [CTeX 中文写作排版](https://lzhbhlrpython.github.io/TexStudioPro/docs/ctex-typography): 中文纸面阅读与正式 PDF 分别处理，保留作者字体、文档类和工程主文件。
 - [导出与 arXiv](https://lzhbhlrpython.github.io/TexStudioPro/docs/export): PDF 来自编译；导出文档把当前文件转成 Markdown / Typst / HTML；arXiv 包收集源码与素材，生成可上传的 zip。
-- [AI 助手（可选）](https://lzhbhlrpython.github.io/TexStudioPro/docs/ai): AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你按下 Run 时才会把上下文发出去，结果需要你确认才写入。
+- [AI 助手（可选）](https://lzhbhlrpython.github.io/TexStudioPro/docs/ai): AI 默认关闭；填好兼容 OpenAI 的地址与密钥后，只有你点击「运行」时才会把上下文发出去，结果需要你确认才写入。
 - [快捷键](https://lzhbhlrpython.github.io/TexStudioPro/docs/shortcuts): 菜单与编辑器里真实绑定的快捷键。macOS 用 ⌘，Windows / Linux 把 ⌘ 换成 Ctrl、⌥ 换成 Alt。
 - [开发环境](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-setup): 从安装依赖到启动应用与官网；按修改范围选择检查，不混用包管理器。
 - [常见问题](https://lzhbhlrpython.github.io/TexStudioPro/docs/faq): 装不上、编不过、找不到字体、担心上传——把第一次使用时最容易卡住的十来件事集中回答一遍。
