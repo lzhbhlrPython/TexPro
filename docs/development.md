@@ -19,7 +19,7 @@ git log -5 --oneline
 
 CI 使用 Node.js 22；根目录使用 npm 和 `package-lock.json`。本机 TeX 编译需要 TeX Live／MacTeX 中的 `latexmk`、所选引擎及 `synctex`。编辑器与文档站构建不等于 TeX 编译验证。
 
-共享发布测试任务显式安装 `latexmk`、pdfLaTeX／XeLaTeX／LuaLaTeX 与 CTeX/Fandol（Ubuntu 的 texlive-xetex、texlive-luatex、texlive-lang-chinese、texlive-latex-extra），然后执行完整基线。GitHub 的标准 Node runner 不保证提供 TeX；缺少引擎必须补齐环境，不能跳过真实编译用例。
+共享发布测试任务显式安装 `latexmk`、pdfLaTeX／XeLaTeX／LuaLaTeX 与 CTeX/Fandol（Ubuntu 的 texlive-xetex、texlive-luatex、texlive-lang-chinese、texlive-lang-japanese、texlive-latex-extra），然后执行完整基线。GitHub 的标准 Node runner 不保证提供 TeX；缺少引擎必须补齐环境，不能跳过真实编译用例。
 
 ```sh
 npm ci
@@ -83,3 +83,5 @@ pnpm dev
 多语言作者工具另有 `npm run test:extensions:authoring -- --tools /absolute/compiler-prefix`，可在末尾指定单项如 `plugin-elm` 或 `theme-tcss`。默认运行九种插件语言与七种主题样式，缺失编译器直接失败，无跳过分支。`compiler-prefix/node_modules` 需安装脚手架模板声明的 Node 编译器依赖；Java、sbt、匹配版本的 Go／GopherJS 和 tcss 在 PATH 中准备。矩阵明确为临时 Go 工程执行 `go mod tidy`，不会安装全局工具。失败保留临时工程路径，成功清理。
 
 测试使用公开 SDK 文件、实际编译器、`.tpp`／`.tpt` 归档和隔离宿主，补充完整零跳过回归。不要把仅生成模板、直接执行手写 JS 或缺少工具的失败写成语言支持已验收。工具链版本、源码与安装后缀、JSON 桥接、版权和本机平台边界见[多语言构建](extension-authoring.md)。独立源码检查不等于 npm 发布或应用打包。
+
+CTeX 的 LuaLaTeX 中文路径依赖 `luatexja.sty`，Ubuntu 将它放在 texlive-lang-japanese，安装中文语言包并不能替代它。CI 用 kpsewhich 预检 CTeX、LuaTeX-ja 与 Fandol，再执行完整基线。

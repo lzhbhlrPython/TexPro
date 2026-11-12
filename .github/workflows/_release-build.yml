@@ -26,7 +26,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            latexmk texlive-xetex texlive-luatex texlive-lang-chinese texlive-latex-extra
+            latexmk texlive-xetex texlive-luatex texlive-lang-chinese texlive-lang-japanese texlive-latex-extra
+          kpsewhich ctexart.cls
+          kpsewhich luatexja.sty
+          kpsewhich FandolSong-Regular.otf
       - run: npm ci
       - name: Stamp tested version
         env:

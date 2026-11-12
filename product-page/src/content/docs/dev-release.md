@@ -62,6 +62,8 @@ Nightly 与正式版共用 `_release-build.yml`：固定源码 SHA 和版本，�
 
 共享 Ubuntu 测试任务先安装 latexmk、pdfLaTeX／XeLaTeX／LuaLaTeX 和 CTeX/Fandol，真实编译用例才具备运行条件；缺少引擎时应失败，不能跳过。
 
+LuaLaTeX 中文还依赖 `texlive-lang-japanese` 中的 LuaTeX-ja；共享任务显式安装并用 kpsewhich 预检 CTeX、LuaTeX-ja 与 Fandol，不依赖推荐包。
+
 ## 手动发布正式版本
 
 在 Actions 选择 **Release major**、**Release minor** 或 **Release patch**，选择 main 并运行。它们分别产生 X+1.0.0、X.Y+1.0、X.Y.Z+1，复用 `_release-stable.yml`，不会直接发布 npm SDK。

@@ -62,6 +62,8 @@ Nightly and stable releases share `_release-build.yml`: pin the source SHA and v
 
 The shared Ubuntu test job first installs latexmk, pdfLaTeX/XeLaTeX/LuaLaTeX and CTeX/Fandol for actual compilation. Missing engines must fail the baseline rather than skip its compile tests.
 
+Chinese LuaLaTeX also needs LuaTeX-ja from `texlive-lang-japanese`. The shared job installs it explicitly and preflights CTeX, LuaTeX-ja and Fandol with kpsewhich instead of relying on recommended packages.
+
 ## Publish a stable version manually
 
 In Actions choose **Release major**, **Release minor** or **Release patch**, select main and run. They produce X+1.0.0, X.Y+1.0 or X.Y.Z+1 through `_release-stable.yml`. They do not publish the npm SDK.
