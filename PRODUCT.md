@@ -55,7 +55,7 @@ Confirmed capabilities include:
 - MCP server (tools/resources/prompts) and stdio MCP client with persisted server configs, plugin presets, and elicitation forms.
 - Configurable TeXstudio `.cwl` completions (including auto-discovered TeXstudio packs), project macros, document-class/package manager, and build actions with `{rootFile}`, `{rootName}`, `{projectRoot}`, and `txs:///` resolution.
 - Git-first versioning: when a project has a Git repository, internal snapshot creation is suspended.
-- Compile Theater, MCP Crew, Writing Room presence, Plugin Market, Paper as API, Referee Mode, and Zero-interface mode are first-class workflows.
+- Compile Theater, MCP Crew, Writing Room presence, local extension packages, Paper as API, Referee Mode, and Zero-interface mode are first-class workflows. Extensions are distributed as packages, without a public marketplace. npm/Yarn environments manage versions and lockfiles; the desktop reviews each installation, update or removal and keeps new packages disabled.
 
 Interaction complexity follows the task rather than the number of features. Choose the lowest level that fully serves it: L0 internal enhancement, L1 in-place interaction, L2 on-demand tool, or L3 independent workspace. Complex independent workflows may justify a dedicated page or large canvas when existing spaces cannot reasonably hold them; reuse navigation, focus, visual language, state and undo. Ordinary writing stays quiet and tools restore its context. Necessary errors remain visible. State this decision before implementation; see AGENTS.md for page criteria.
 
@@ -77,7 +77,7 @@ Explicitly undecided or constrained facts:
 ## Brand Commitments
 
 - Product name: **TeXPro**.
-- Voice: direct, technical, calm, and precise; bilingual Chinese/English UI.
+- Voice: direct, technical, calm, and precise. English is the built-in recovery language; Simplified Chinese is preinstalled as a declarative language plugin, with other languages supplied by independent packages. Functional plugins own their i18n resources and use the current invocation language.
 - Visual identity commitment: Typora-like paper feel, quiet chrome, and a single-column writing surface; DESIGN.md captures the existing visual language using the Google Labs DESIGN.md format; Material Design informs semantic roles and accessibility, while native platform conventions govern window behavior; Lucide SVG icons.
 - The app icon is part of the identity and must remain consistent across Dock, window, bundle, favicon, and in-app logo.
 - No Liquid Glass revival without a new explicit decision.
