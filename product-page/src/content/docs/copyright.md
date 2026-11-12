@@ -215,3 +215,7 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 插件生命周期与服务组织参考 Koishi 的设计思路，使用 TeXPro 自有 API 与包格式，未包含 Koishi 运行时、控制台源码或市场，不兼容其插件。新增宿主、SDK、示例和开发 Skill 为 MIT。PostCSS 8.5.32（Andrey Sitnik）和 postcss-value-parser 4.2.0（Bogdan Chadkin）用于解析主题样式，保留各自 MIT 声明。插件作者及其资源、字体、第三方依赖保留各自许可，TeXPro 的 MIT 不改变它们的权利。详见根 THIRD_PARTY_NOTICES.md。
 
 独立开发包 `@gardenialiu/texpro-extension-sdk` 与 `@gardenialiu/qwertysay` 由 Baolin Liu（gardenialiu）以 MIT 维护；各自包含 LICENSE。脚手架生成包的作者与许可证由开发者声明，不能将 SDK 作者冒认为插件作者。
+
+## 编译后插件的第三方版权
+
+未发布的多语言 SDK／脚手架仍以 Baolin Liu（gardenialiu）的 MIT 自有代码为主；作者工程的 LICENSE 不覆盖编译后嵌入的标准库。Elm、Scala／Scala.js、Go／GopherJS、ClojureScript／Closure、PureScript 等代码保留各自许可与通知。构建器附带已知运行时通知并收集包许可证，作者新增依赖和资源仍需审核并补充 THIRD_PARTY_NOTICES.md。Koishi 仅是组织设计灵感，未复制运行时或市场。见[扩展开发](/docs/extension-development)。

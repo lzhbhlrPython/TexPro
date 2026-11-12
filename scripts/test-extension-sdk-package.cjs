@@ -18,7 +18,9 @@ try {
     const directory = path.join(root, type + language), output = path.join(root, type + language + '.' + suffix);
     run([cli, 'init', directory, '--id', `test.${type}${language}`, '--author', 'Baolin Liu', '--type', type, '--language', language]);
     assert.equal(fs.existsSync(path.join(directory, 'node_modules')), false, 'CLI must not auto-install');
-    if (type === 'plugin' && language === 'ts') run([path.join(root, 'node_modules/typescript/bin/tsc'), '-p', path.join(directory, 'tsconfig.json')]);
+    if (require(path.join(root, 'node_modules/@gardenialiu/qwertysay/package.json')).version.startsWith('0.1.')) {
+      if (type === 'plugin' && language === 'ts') run([path.join(root, 'node_modules/typescript/bin/tsc'), '-p', path.join(directory, 'tsconfig.json')]);
+    } else run([cli, 'build', directory]);
     run([cli, 'check', directory]); run([cli, 'pack', directory, output]); run([cli, 'check', output]);
     assert.ok(fs.statSync(output).size > 100);
     assert.throws(() => run([cli, 'pack', directory, output]), 'Must not overwrite');

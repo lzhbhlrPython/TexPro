@@ -41,6 +41,13 @@ function verifyArchive(archive) {
 }
 
 function verifyExternalResources(root) {
+  for (const name of ['authoring', 'inspect', 'schema', 'packages', 'archive', 'theme']) {
+    const file = `packages/extension-sdk/lib/${name}.cjs`;
+    if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing external MCP extension dependency: ${file}`);
+  }
+  for (const name of ['postcss', 'postcss-value-parser', 'nanoid', 'picocolors', 'source-map-js']) {
+    if (!fs.existsSync(path.join(root, 'node_modules', name, 'package.json'))) throw new Error(`Release is missing external MCP extension dependency: ${name}`);
+  }
   for (const file of ['mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)]) {
     if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing external MCP dependency: ${file}`);
   }

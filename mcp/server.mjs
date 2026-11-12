@@ -15,6 +15,8 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const tex = require('../electron/services/tex.cjs');
 const writingAids = require('../electron/services/writing-aids.cjs');
+const { authoringCapabilities } = require('../packages/extension-sdk/lib/authoring.cjs');
+const { inspectPackage } = require('../packages/extension-sdk/lib/inspect.cjs');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const IGNORED = new Set(['.git', '.texpro', 'node_modules', 'dist', 'build', 'out', '.DS_Store']);
@@ -101,6 +103,10 @@ const tool = (name, description, properties = {}, required = [], annotations = {
 });
 
 const TOOLS = [
+  tool('texpro_extension_capabilities', 'Describe plugin languages, theme styles, build prerequisites, package suffixes and current MCP limits. Does not load plugins or run compilers.', {}, [], { readOnlyHint: true }),
+  tool('texpro_inspect_extension', 'Validate a built extension directory or .tpp/.tpt package inside the open project. Returns manifest, digest, size and risks; never imports code, runs builds, installs or enables packages.', {
+    path: { type: 'string', description: 'Project-relative path to a built package directory or .tpp/.tpt file.' },
+  }, ['path'], { readOnlyHint: true }),
   tool('texpro_open_project', 'Open a TeX project directory and return its root file and file tree.', {
     root: { type: 'string', description: 'Absolute path to a project directory.' },
   }, ['root'], { readOnlyHint: true }),
@@ -166,6 +172,7 @@ const TOOLS = [
 let activeCompile = null;
 
 async function callTool(name, args = {}) {
+  if (name === 'texpro_extension_capabilities') return { content: [{ type: 'text', text: JSON.stringify(authoringCapabilities(), null, 2) }] };
   if (name === 'texpro_open_project') {
     const opened = setProject(args.root);
     return { content: [{ type: 'text', text: JSON.stringify({ root: opened.root, name: opened.name, rootFile: opened.rootFile, rootCandidates: opened.rootCandidates, rootSource: opened.rootSource, rootError: opened.rootError, tree: opened.tree }, null, 2) }] };
@@ -174,6 +181,13 @@ async function callTool(name, args = {}) {
 
   setProject(projectState.root);
   switch (name) {
+    case 'texpro_inspect_extension': {
+      if (typeof args.path !== 'string' || !args.path || args.path.length > 4096 || path.isAbsolute(args.path)) throw new Error('Choose a project-relative built package path');
+      const target = inside(args.path), realRoot = fs.realpathSync(projectState.root), real = fs.realpathSync(target);
+      const relative = path.relative(realRoot, real);
+      if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) throw new Error('Extension path escapes the project');
+      return { content: [{ type: 'text', text: JSON.stringify(inspectPackage(target), null, 2) }] };
+    }
     case 'texpro_project_info':
       return { content: [{ type: 'text', text: JSON.stringify({ root: projectState.root, name: path.basename(projectState.root), rootFile: projectState.rootFile, rootCandidates: projectState.rootCandidates, rootSource: projectState.rootSource, rootError: projectState.rootError, buildDir: configBuildDir() }, null, 2) }] };
     case 'texpro_list_files': {

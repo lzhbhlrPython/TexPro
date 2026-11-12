@@ -73,3 +73,52 @@ Reloading a development directory installs a disabled snapshot for review and re
 L3 workspaces share host navigation and focus recovery. macOS navigation reserves space for native window controls; Windows/Linux retain their native titlebar layout. Contributions should not cover host navigation.
 
 Packages use `.tpp` for plugins and `.tpt` for themes (both are ZIP containers). A `.tpt` contains only theme configuration, CSS and assets, with no executable entry, actions or other plugin contributions. Renaming a code package to `.tpt` is rejected; file suffixes are not a safety certification.
+
+## Language and theme compilation (unreleased source)
+
+The current source version is `0.2.0-dev.0`. Published npm `0.1.0` retains the original TS/JS/CSS scaffolds and does not provide these new features. Publication, deployment and publication authentication are paused. Use the local CLI and install both matching local package paths from one checkout.
+
+```sh
+node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+```
+
+In the generated project, install the matching development packages; do not request an unpublished version from npm:
+
+```sh
+npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+npm run build
+npm run check:extension
+npm run pack:extension
+```
+
+| Plugin language | Option | Source suffix |
+| --- | --- | --- |
+| TypeScript / JavaScript | `--language ts` / `js` | `.cts` / `.cjs` |
+| CoffeeScript / PureScript | `--language coffee` / `purs` | `.coffee` / `.purs` |
+| ReScript / ClojureScript | `--language rescript` / `cljs` | `.res` / `.cljs` |
+| Elm / Scala.js / GopherJS | `--language elm` / `scala` / `go` | `.elm` / `.scala` / `.go` |
+
+| Theme style | Option | Source suffix |
+| --- | --- | --- |
+| CSS / SCSS / Sass | `--type theme --style css` / `scss` / `sass` | `.css` / `.scss` / `.sass` |
+| Less / Stylus | `--style less` / `stylus` | `.less` / `.styl` |
+| Static CSS-in-JS | `--style css-in-js` | `.css.ts` |
+| Thematic CSS | `--style tcss` | `.tcss` |
+
+Source suffixes, runtime files and installable artifacts are distinct. Plugins compile and bundle to a self-contained `.cjs` entry and distribute as `.tpp`. Themes compile to static `.css` and distribute as `.tpt`. Do not import `.purs`, `.elm`, `.scss`, `.tcss` or `.zip` directly. Load `dist/package` in Extensions for development; checking/packing from the source root detects stale builds. Existing self-contained directories remain compatible.
+
+`init`, `check` and `pack` do not install, access the network or execute author code. Explicit `build` runs trusted compilers/project configuration and toolchains may download dependencies. Staging contains only the manifest, author LICENSE, entry or CSS, assets and notices. Sources, build scripts, node_modules and CSS-in-JS evaluation scripts never enter a theme artifact. Failed rebuilds invalidate old output; unrelated output files are not overwritten.
+
+PureScript's Spago requires Node ≥22.5; the current Sass compiler needs Node ≥20.19. ClojureScript requires Java 21+; Scala.js needs Java/sbt. GopherJS needs matching Go 1.21.x and an explicit `go mod tidy`. On Windows, `TEXPRO_SBT_LAUNCHER` can point to sbt-launch.jar. Older Go tools on recent macOS may need external linking and local ad hoc signing. One local machine does not establish native acceptance on all platforms.
+
+TCSS means [Thematic CSS](https://github.com/tosiiko/TCSS), not Textual CSS. Install `cargo install tcss-cli --version 1.0.0 --locked` and put `tcss` on PATH. The scaffold does not use the unavailable npm `tcss-js`. CSS-in-JS uses vanilla-extract and esbuild to extract static CSS at build time. All output still passes the same style/resource validation; themes can still hide controls or impersonate UI.
+
+## JSON bridge, licenses and MCP
+
+`defineTextTransform` is a starter for compiled string transforms; `defineJsonExtension` provides the complete language transport. Elm uses DOM-free Platform.worker ports for JSON invocation, result, cancellation, events, configuration, services and disposal. UTF-16 offsets remain intact, and host edit proposals, identity and expiry checks still apply. The bridge allows four concurrent invocations, 4 MiB messages and a 9.5-second timeout; each invocation allows sixteen in-flight service calls and sixty-four total service requests. Late results are discarded after cancellation; already-started host operations are not automatically undone.
+
+Original SDK/qwertysay code is MIT; generated LICENSE files belong to extension authors. Embedded Elm, Scala/Scala.js, Go/GopherJS, ClojureScript/Closure and PureScript runtimes retain their own licenses. The builder collects known notices; authors must review added dependencies/assets. Do not describe every generated artifact as MIT-only. Build tools and Node plugins have user permissions; process isolation is not a security sandbox. Build, install and enable trusted sources only.
+
+External MCP adds read-only `texpro_extension_capabilities` for formats/toolchains/suffixes/limits and `texpro_inspect_extension` for manifests, digests, sizes and risks of built packages inside the project. Neither builds, executes, installs nor enables plugins. Experimental manifest `mcp` actions still do not register automatically. Future controlled invocation needs explicit enabling, tool allowlists, stable schemas and cancellation/expiry contracts; automatic execution is not part of this change.
+
+See repository `docs/extension-authoring.md` for the full protocol and test entry points. Real compiler/archive tests supplement the complete zero-skip baseline, without replacing IME, undo, recovery or cross-platform native acceptance. This work adds no desktop page or mode.

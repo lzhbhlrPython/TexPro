@@ -20,6 +20,19 @@
       <category>验证]</category>
     </item>
     <item>
+      <title>多语言插件与静态主题：把作者工具和宿主运行时分开</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</guid>
+      <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
+      <description>扩展 SDK 与 qwertysay 的源码开发版加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程，新能力尚未发布。</description>
+      <category>[扩展</category>
+      <category>SDK</category>
+      <category>qwertysay</category>
+      <category>主题</category>
+      <category>MCP</category>
+      <category>测试]</category>
+    </item>
+    <item>
       <title>未保存的这一句，也可以先排出来</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex</guid>

@@ -39,3 +39,7 @@ API 1 提供命令、检查、转换、补全、文本悬浮信息、预览、�
 `src/app/commands/` 提供菜单与命令面板共用目录；`src/app/writingPort.ts` 隔离源码修改；`src/app/extensions/` 处理贡献、过期检查与提供器；`src/app/themes/` 管理基础模式、包 token 和 CSS 的应用及撤销。`WorkspaceFrame` 复用专业画布的导航和焦点恢复；`src/app/inspection.ts` 共用工程检查。渲染层没有 Node 或任意 IPC 入口。
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
+
+## 多语言开发与静态主题构建（未发布）
+
+源码开发版本的 qwertysay 支持多种编译到 JavaScript 的语言和静态 CSS 编译工具，详见[作者指南](extension-authoring.md)。TeXPro 用户仍安装 `.tpp` 插件或 `.tpt` 主题，不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 等作者源码。`.tpt` 中没有样式生成器 JavaScript；这不消除 CSS 隐藏控件或伪装界面的风险。npm `0.1.0` 不包含本轮构建扩展，发布工作暂停。

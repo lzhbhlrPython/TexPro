@@ -1,6 +1,6 @@
 {
   "name": "@gardenialiu/texpro-extension-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.0",
   "description": "TeXPro API 1 TypeScript contracts, authoring helpers and shared .tpp/.tpt validation core",
   "license": "MIT",
   "types": "index.d.ts",
@@ -12,7 +12,8 @@
     "LICENSE",
     "README.md",
     "README.zh-CN.md",
-    "package-tools.cjs"
+    "package-tools.cjs",
+    "package-tools.d.ts"
   ],
   "author": {
     "name": "Baolin Liu",
@@ -56,6 +57,9 @@
       "types": "./index.d.ts",
       "default": "./index.cjs"
     },
-    "./package-tools": "./package-tools.cjs"
+    "./package-tools": {
+      "types": "./package-tools.d.ts",
+      "default": "./package-tools.cjs"
+    }
   }
 }

@@ -56,3 +56,23 @@ export interface ExtensionContext {
 export interface Extension { activate(context: ExtensionContext): void | (() => void | Promise<void>) | Promise<void | (() => void | Promise<void>)> }
 export declare const API_VERSION: 1;
 export declare function defineExtension(activate: Extension['activate']): Extension;
+
+/** JSON bridge v1; string messages retain UTF-16 source offsets. Not a sandbox. */
+export interface JsonTransport { send(message: string): void; dispose?(): void | Promise<void> }
+export type BridgeHostMessage =
+  | { type: 'init'; apiVersion: 1; config: ExtensionContext['config'] }
+  | { type: 'invoke'; id: number; action: string; context: ExtensionSnapshot; input: Record<string, unknown> }
+  | { type: 'cancel'; id: number }
+  | { type: 'event'; event: 'projectChanged' | 'buildFinished'; payload: unknown }
+  | { type: 'service-result'; id: number; callId: string; result?: unknown; error?: string }
+  | { type: 'dispose' };
+export type BridgePluginMessage =
+  | { type: 'result'; id: number; result?: ExtensionResult; error?: string }
+  | { type: 'service'; id: number; callId: string; name: 'storage.get' | 'storage.set' | 'project.readFile' | 'project.symbols'; args?: unknown }
+  | { type: 'log'; message: string };
+export declare function defineJsonExtension(options: {
+  actions: string[];
+  start(receive: (message: string) => void): JsonTransport | Promise<JsonTransport>;
+}): Extension;
+/** Starter adapter for a compiled language's text transform; use the JSON bridge for full messages/services. */
+export declare function defineTextTransform(transform: (text: string) => string | Promise<string>, action?: string): Extension;

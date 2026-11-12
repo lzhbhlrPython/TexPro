@@ -1,70 +1,71 @@
 # @gardenialiu/qwertysay
 
-qwertysay, an independent offline CLI for scaffolding, checking and packaging local extensions. Published by **Baolin Liu (`gardenialiu`)**, under MIT. Requires Node.js 20+; no Electron or TeX installation is needed for these tools.
+Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. This checkout is **`0.2.0-dev.0`, unreleased**. The verified npm `0.1.0` release retains the original TS/JS/CSS scaffolds and does not include the new build features below. Publication, deployment and publication authentication are paused.
 
 [简体中文](README.zh-CN.md)
 
-## Start a plugin
+## Use the source checkout
+
+Run `npm ci` in TeXPro, then use the local CLI:
 
 ```sh
-npx --package @gardenialiu/qwertysay qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
-cd my-plugin
-npm install
+node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+```
+
+In the generated directory, install both matching local packages together so npm does not request an unpublished development version:
+
+```sh
+npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
 npm run build
 npm run check:extension
 npm run pack:extension
 ```
 
-The default TypeScript scaffold compiles `src/index.cts` to `dist/index.cjs`. Use `--language js` for JavaScript with type annotations and no build step. Output: `../gardenialiu.example.tpp`. Install through TeXPro Extensions, review and enable. Dependencies are installed explicitly by the developer; the CLI never installs, requests network access or executes extension code. `npx` may download the SDK from npm.
+The default is `--type plugin --language ts`. For a theme, use e.g. `--type theme --style tcss`. Load **`dist/package`** for development, inspect, install disabled, then explicitly enable. Distribute plugins as `.tpp` and themes as `.tpt`. Source and runtime entry suffixes are different from installable package suffixes. Both artifacts are restricted ZIP containers; `.zip` is not an installable suffix.
 
-## Start a theme
+## Languages and styles
 
-```sh
-npx --package @gardenialiu/qwertysay qwertysay init my-theme --id gardenialiu.paper --author "Baolin Liu" --type theme
-cd my-theme
-npm install
-npm run check:extension
-npm run pack:extension
+| Plugin language | `--language` | Author source |
+| --- | --- | --- |
+| TypeScript / JavaScript | `ts` / `js` | `.cts` / `.cjs` |
+| CoffeeScript / PureScript | `coffee` / `purs` | `.coffee` / `.purs` |
+| ReScript / ClojureScript | `rescript` / `cljs` | `.res` / `.cljs` |
+| Elm / Scala.js / GopherJS | `elm` / `scala` / `go` | `.elm` / `.scala` / `.go` |
+
+| Theme style | `--style` | Author source |
+| --- | --- | --- |
+| CSS / SCSS / Sass | `css` / `scss` / `sass` | `.css` / `.scss` / `.sass` |
+| Less / Stylus | `less` / `stylus` | `.less` / `.styl` |
+| Static CSS-in-JS | `css-in-js` | `.css.ts` |
+| Thematic CSS | `tcss` | `.tcss` |
+
+Generated projects pin compiler versions. PureScript's Spago requires Node ≥22.5; the current SCSS/Sass compiler requires Node ≥20.19. ClojureScript needs Java 21+; Scala.js needs Java and sbt. GopherJS needs matching Go 1.21.x; explicitly run `go mod tidy` first. Install Thematic CSS with `cargo install tcss-cli --version 1.0.0 --locked`; this is not Textual CSS and does not depend on the unavailable npm `tcss-js`. CSS-in-JS uses vanilla-extract and esbuild to extract static CSS; themes do not inject runtime JavaScript.
+
+On Windows, set `TEXPRO_SBT_LAUNCHER` to sbt-launch.jar and put Java on PATH for Scala.js. Older Go tools on recent macOS may require external linking and local ad hoc signing. See the [toolchain and cross-platform reference](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md). Local validation is not native acceptance on all three platforms.
+
+## Build and package boundaries
+
+`init` never installs dependencies. `check` and `pack` never build, access the network or execute package entries. **Explicit `build` runs trusted developer tools and project configuration; toolchains may download dependencies.** New JS and CSS projects also build. Output is an isolated `dist/package` containing the manifest, LICENSE, entry or static CSS, assets and notices. Author sources, build scripts and node_modules do not enter the artifact.
+
+Checking or packing a source directory verifies its source fingerprint; changed sources require a rebuild, and a failed rebuild invalidates old output. Passing the built directory checks that snapshot without comparing sources. Existing self-contained directories without build configuration remain compatible. Output must be outside the supplied source directory and must not exist. The 16 MiB / 300-file limits, portable paths, symlink/native binary rejection and theme validation still apply. `.tpt` rejects JavaScript/HTML and executable contributions; renaming code cannot bypass validation.
+
+## SDK and JSON bridge
+
+`index.d.ts` defines API 1 `ExtensionContext`, `InvocationContext` and `ExtensionResult`. The typed public `package-tools` export shares validation and read-only inspection. Source offsets use UTF-16. Edits are proposals: the host checks identity, expiry and capabilities, then applies explicitly accepted edits in one undoable transaction. Disk services do not see unsaved buffers.
+
+```js
+const { defineTextTransform } = require('@gardenialiu/texpro-extension-sdk');
+module.exports = defineTextTransform(text => text.toUpperCase());
 ```
 
-Output: `../gardenialiu.paper.tpt`. Themes contain configuration, optional CSS and local assets, with no executable entry, actions or other plugin contributions. Plugins use `.tpp`; both are ZIP containers. Renaming code to `.tpt` is rejected. Suffixes do not certify safety. Packages are shared manually; there is no public plugin marketplace or automatic updater.
+This is author source that requires bundling the SDK, not a self-contained runtime entry. `defineJsonExtension({ actions, start })` provides a string-message transport for asynchronous languages: init, invoke, result, cancel, event, service, service-result and dispose. Elm uses Platform.worker ports. Controlled storage/project services, four concurrent invocations, 4 MiB messages and cancellation cleanup are supported. See the [protocol and limits](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md).
 
-## CLI
+## Trust, licenses and MCP
 
-```sh
-qwertysay init <directory> [--id author.name] [--author "Your name"] [--type plugin|theme] [--language ts|js]
-qwertysay check <directory|file.tpp|file.tpt>
-qwertysay pack <directory> <new-output.tpp|new-output.tpt>
-```
+**Build tools run with developer permissions. Node plugins have the current user's file, network and process permissions; process isolation is not an OS sandbox. Themes can hide controls, impersonate trusted UI or harm accessibility. Enable only trusted authors.** Validation, digests and suffixes do not certify safety. Recover using native **View → Reset Appearance and Disable Extensions** or `--safe-mode`, restoring the built-in paper and disabling all extensions.
 
-Scaffolding requires a new or empty directory. Build TypeScript before checking or packing. Output must be outside the source directory and must not exist. Checks share TeXPro's manifest, API, portable-path, archive, integrity, size and theme validation core; they do not execute handlers or prove correctness. Normal non-hidden files are packaged; dotfiles and `node_modules` are omitted. Keep secrets out of the source tree.
+The generated MIT LICENSE belongs to the author. SDK/qwertysay MIT does not replace licenses of embedded third-party runtimes. The builder collects identifiable dependency licenses and bundled runtime notices; authors must review added dependencies and supplement `THIRD_PARTY_NOTICES.md`. Koishi inspired lifecycle/service organization; its runtime, console source and plugin format are not copied.
 
-Entries must be self-contained `.cjs` or `.mjs`; bundle runtime dependencies yourself and retain their licenses. The host never installs dependencies or runs install scripts. Archives are limited to 16 MiB compressed/expanded and 300 files; symlinks, traversal, corrupt data and native binaries are rejected.
+External MCP adds read-only `texpro_extension_capabilities` and `texpro_inspect_extension` for format information and built packages inside the project. Neither builds, installs, enables nor invokes plugins. Manifest `mcp` actions still do not register automatically with external stdio clients. Packages remain manually distributed, without a public marketplace or updater.
 
-## SDK
-
-```ts
-import type { Extension } from '@gardenialiu/texpro-extension-sdk';
-export const activate: Extension['activate'] = ctx => {
-  ctx.handle('uppercase', context => {
-    const { from, to } = context.selection;
-    return { edits: [{ from, to, insert: context.source.slice(from, to).toUpperCase() }] };
-  });
-};
-```
-
-Declare actions and capabilities in `texpro.extension.json`. `defineExtension(activate)` optionally wraps the function as an extension object. Type-only imports require no SDK runtime. Contracts are in the SDK’s `index.d.ts`: UTF-16 edit proposals, diagnostics, completion, hover, text previews, import/export, bibliography, assets, build requests, configuration, saved project reads and storage. Use `onDispose` for cleanup. TeXPro checks identity/expiry and applies accepted edits in one undoable transaction. Advanced providers and UI contributions remain experimental; arbitrary React/HTML and editor internals are not exposed.
-
-## Trust and verification
-
-**Code plugins retain the current user's Node file, network and process permissions. Capability declarations and process isolation are not an OS sandbox. Themes can conceal controls, impersonate trusted UI or harm accessibility. Enable only trusted authors.** CSS restrictions and SHA-256 integrity checks do not authenticate authors.
-
-Recover using native **View → Reset Appearance and Disable Extensions** or `--safe-mode`: all extensions are disabled before code loads and the built-in paper theme is restored. Review packages individually before enabling them again.
-
-Install actual artifacts in a temporary TeXPro profile. Test lifecycle, configuration, stale requests, project changes, IME, undo, both languages, three base themes and recovery. CLI checks do not replace native or packaged-app acceptance.
-
-## Source and licenses
-
-[Source](https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/packages/qwertysay), [authoring contracts](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-development.md), [examples](https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/examples/extensions), [developer Skill](https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/skills/texpro-extension-development).
-
-Koishi inspired the disposable lifecycle and service organization. This is original TeXPro code, not a compatible Koishi runtime; no Koishi source or console is included. This package is MIT (LICENSE). PostCSS and postcss-value-parser retain their own MIT licenses in their npm distributions. Third-party extensions and assets require their own attribution.
+Verify real compilation, archives, host invocation, stale requests, disable, undo, IME, themes and recovery as applicable. CLI checks do not replace native interaction acceptance. See the [authoring reference](https://github.com/lzhbhlrPython/TexPro/blob/codex/realtime-tex/docs/extension-authoring.md) and the repository development Skill.

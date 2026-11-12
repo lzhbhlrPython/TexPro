@@ -51,3 +51,7 @@ Nightly 根据上海当天 first-parent 提交的实际文件差异判断是否�
 ## 插件包与主题
 
 API 1 使用本地 ZIP／目录快照、禁用安装、显式启用、版本回退与受信任 Node 子进程。SDK 不传输内部 UI 对象；正文回写校验工程、文件、文档身份和包摘要，通过单次事务保留撤销。主题预览与应用共用主题提供器，清理所有包 token／CSS／字体。代码与主题都需要来源信任，进程与 CSS 作用域不是安全沙箱。原生视图重置与 `--safe-mode` 可停用所有包。详细路径、大小、能力和实验性接入边界见 [插件与主题开发](extension-development.md)。
+
+## 扩展构建与 JSON 桥接
+
+API 1 运行时继续只接收自包含 `.cjs`／`.mjs` 插件与静态主题。未发布的 SDK JSON bridge v1 通过字符串消息关联调用、取消、服务和生命周期；qwertysay 把作者源码编译后校验并暂存到 `dist/package`。安装包后缀仍为 `.tpp`／`.tpt`，不能与 `.tcss` 等开发后缀混用。MCP 的格式查询与包检查复用 SDK 纯 Node 核心，不构建或执行插件；所需核心及 PostCSS 依赖须同时位于 ASAR 外。详细协议与开发工具前提见[扩展构建](extension-authoring.md)。

@@ -73,3 +73,52 @@ node scripts/pack-extension.cjs examples/extensions/quiet-paper /tmp/quiet-paper
 L3 工作台复用系统标题栏与焦点恢复。macOS 顶部避让原生窗口按钮，Windows／Linux 保持各自标题栏布局；插件内容不应覆盖宿主导航。
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
+
+## 多语言与主题编译（源码开发版，未发布）
+
+当前源码为 `0.2.0-dev.0`。已发布的 npm `0.1.0` 仍只提供原有 TS／JS／CSS 脚手架，不能用其命令请求下述新能力。本轮暂停发布、部署与发布认证。新能力从同一仓库检出使用本地 CLI，安装 SDK 与 qwertysay 的两个本地路径后构建。
+
+```sh
+node packages/qwertysay/bin/qwertysay.cjs init /absolute/my-plugin --id author.example --language coffee
+```
+
+进入新工程，安装同一检出的开发包，不能从 npm 请求尚未发布的开发版本：
+
+```sh
+npm install --save-dev /absolute/TeXPro/packages/extension-sdk /absolute/TeXPro/packages/qwertysay
+npm run build
+npm run check:extension
+npm run pack:extension
+```
+
+| 插件语言 | 参数 | 源码后缀 |
+| --- | --- | --- |
+| TypeScript / JavaScript | `--language ts` / `js` | `.cts` / `.cjs` |
+| CoffeeScript / PureScript | `--language coffee` / `purs` | `.coffee` / `.purs` |
+| ReScript / ClojureScript | `--language rescript` / `cljs` | `.res` / `.cljs` |
+| Elm / Scala.js / GopherJS | `--language elm` / `scala` / `go` | `.elm` / `.scala` / `.go` |
+
+| 主题样式 | 参数 | 源码后缀 |
+| --- | --- | --- |
+| CSS / SCSS / Sass | `--type theme --style css` / `scss` / `sass` | `.css` / `.scss` / `.sass` |
+| Less / Stylus | `--style less` / `stylus` | `.less` / `.styl` |
+| CSS-in-JS 静态提取 | `--style css-in-js` | `.css.ts` |
+| Thematic CSS | `--style tcss` | `.tcss` |
+
+源码后缀、运行产物和安装包是不同层次：插件编译并打包为自包含 `.cjs` 入口，再分发 `.tpp`；主题编译为静态 `.css`，再分发 `.tpt`。不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 或 `.zip`。开发时在扩展管理中加载 `dist/package`；源码根目录的 `check`／`pack` 会检查构建是否过期。旧版自包含目录仍可直接打包。
+
+`init`、`check`、`pack` 不安装依赖、不联网、不执行作者代码。明确执行 `build` 才运行编译器与可信工程配置，工具链可能下载依赖。分发目录只保留清单、作者 LICENSE、入口或 CSS、assets 和版权通知；源码、构建脚本、node_modules、CSS-in-JS 求值脚本都不进入主题包。构建失败使旧输出失效，输出拒绝覆盖无归属的文件。
+
+PureScript 的 Spago 需要 Node ≥22.5；当前 Sass 编译器需要 Node ≥20.19。ClojureScript 需要 Java 21+，Scala.js 需要 Java 与 sbt，GopherJS 需要匹配的 Go 1.21.x 并先执行 `go mod tidy`。Windows 上可设置 `TEXPRO_SBT_LAUNCHER` 为 sbt-launch.jar 的路径；较新 macOS 的旧 Go 工具可能需要外部链接和本机签名，不能把一台机器的通过当成三平台原生验收。
+
+TCSS 是 [Thematic CSS](https://github.com/tosiiko/TCSS)，不是 Textual CSS。先执行 `cargo install tcss-cli --version 1.0.0 --locked` 并使 `tcss` 可用；脚手架不引用 npm 上不可获取的 `tcss-js`。CSS-in-JS 使用 vanilla-extract + esbuild，在构建时提取静态 CSS。所有最终 CSS 仍遵守同一资源和样式校验；主题仍可能隐藏控件或伪装界面。
+
+## JSON 桥接、版权与 MCP
+
+`defineTextTransform` 为编译后的字符串变换提供起点；完整语言适配使用 `defineJsonExtension`。Elm 模板采用无 DOM 的 Platform.worker ports，通过 JSON 传递调用、结果、取消、事件、配置、服务与销毁。偏移保留 UTF-16，宿主仍检查修改提案、文档身份和过期。桥接最多四个并行调用、单消息 4 MiB、9.5 秒超时；每调用最多十六个在途服务和六十四次服务请求。取消后丢弃旧结果；已交给宿主执行的操作不代表可被撤回。
+
+SDK／qwertysay 自有代码为 MIT，生成工程的 LICENSE 属于作者。编译嵌入的 Elm、Scala／Scala.js、Go／GopherJS、ClojureScript／Closure、PureScript 等运行时保留各自协议。构建器收集已知许可证和通知；新增依赖与资源仍由作者核对，不能把所有产物称为仅 MIT。构建工具和 Node 插件拥有用户权限，进程隔离不是安全沙箱；仅构建、安装和启用可信来源。
+
+外部 MCP 新增只读 `texpro_extension_capabilities`（格式、工具链、后缀与边界）和 `texpro_inspect_extension`（当前工程内已构建包的清单、摘要、大小与风险）。两者都不构建、不执行、不安装、不启用插件。清单中的实验性 `mcp` 动作仍不会自动对外注册。后续受控调用需要明确启用、工具白名单、稳定 schema 与取消／过期契约，本轮未开放自动执行。
+
+完整构建、协议和测试入口见仓库 `docs/extension-authoring.md`。语言编译与归档测试补充完整零跳过基线，不代替 IME、撤销、恢复和跨平台原生验收；本轮没有新增桌面页面或模式。

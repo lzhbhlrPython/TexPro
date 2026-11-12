@@ -37,3 +37,7 @@ Executable plugins can read files, use networks, start processes and reach crede
 If a theme breaks the UI, use the native **View → Reset Appearance and Disable Extensions** command. Alternatively launch with `--safe-mode` to disable every extension before executing plugin code and restore paper. macOS: `open -a TeXPro --args --safe-mode`; Windows: `TeXPro.exe --safe-mode`; Linux: add the flag to the executable or AppImage. Disabled state persists; review and enable packages individually afterward.
 
 Packages use `.tpp` for plugins and `.tpt` for themes (both are ZIP containers). A `.tpt` contains only theme configuration, CSS and assets, with no executable entry, actions or other plugin contributions. Renaming a code package to `.tpt` is rejected; file suffixes are not a safety certification.
+
+## Theme source and installable artifacts
+
+Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Thematic CSS (`.tcss`). These new compiler features are unreleased source; see [extension development](/docs/extension-development). Every theme artifact is a `.tpt` containing static CSS and assets; plugins use `.tpp`. Source suffixes and `.zip` are not installable suffixes. A theme can conceal controls or impersonate UI without JavaScript; trust remains necessary.

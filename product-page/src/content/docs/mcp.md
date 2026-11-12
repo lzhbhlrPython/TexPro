@@ -172,3 +172,9 @@ node mcp/server.mjs --project /path/to/paper
 server 与客户端按 MCP 协议版本协商；客户端过旧时会握手失败，表现为「工具列表为空」或连接立即断开。升级客户端通常就能解决。
 
 `texpro_*` 工具的参数名是稳定接口，改参数名等于破坏兼容；新增工具或新增可选参数则是安全的。
+
+## 扩展开发的只读检查（未发布源码）
+
+`texpro_extension_capabilities` 查询支持的插件语言、主题样式、工具链与 `.tpp`／`.tpt` 分发后缀，不需要打开工程。`texpro_inspect_extension` 接受当前工程内已构建目录或安装包，例如 `{"path":"extensions/example/dist/package"}`；返回清单、摘要、大小与风险提示，拒绝越界和符号链接逃逸。它不会构建、导入入口、安装、信任、启用或执行插件。
+
+实验性 `mcp` 插件动作仍不自动成为外部工具。后续受控调用可继续深化，但需要明确启用和工具白名单。外部服务只看磁盘，不能读取未保存缓冲区。当前新增作者能力未发布，npm `0.1.0` 与本轮源码应区分；见[扩展开发](/docs/extension-development)。

@@ -1,6 +1,6 @@
 {
   "name": "@gardenialiu/qwertysay",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.0",
   "description": "qwertysay: offline scaffolding, checking and packaging for TeXPro plugins and themes",
   "license": "MIT",
   "files": [
@@ -8,7 +8,8 @@
     "lib/",
     "LICENSE",
     "README.md",
-    "README.zh-CN.md"
+    "README.zh-CN.md",
+    "notices/"
   ],
   "author": {
     "name": "Baolin Liu",
@@ -38,7 +39,8 @@
     "scaffold"
   ],
   "dependencies": {
-    "@gardenialiu/texpro-extension-sdk": "0.1.0"
+    "@gardenialiu/texpro-extension-sdk": "0.2.0-dev.0",
+    "esbuild": "0.28.2"
   },
   "scripts": {
     "test": "node --test test/*.test.cjs"

@@ -75,3 +75,9 @@ pnpm dev
 交付注明修改目标、变更文件、为什么这样处理、验证命令及结果、未覆盖的平台或风险、当前分支与提交状态。长久约束写入相应规范；临时计划和 superpowers 记录留在忽略目录。提交、推送、合并与发布是四种不同状态，按已有授权执行。
 
 完整基线要求 pdfLaTeX、XeLaTeX 和 LuaLaTeX 可用；缺少引擎直接失败，不以诊断后继续代替验收。中文编译使用隔离的临时字体缓存，LuaLaTeX 冷数据库初始化允许最多 180 秒；其他编译仍有 45 秒上限。这是测试环境准备边界，不是写作渲染性能指标。
+
+## 扩展作者编译矩阵
+
+未发布的多语言作者工具另有 `npm run test:extensions:authoring -- --tools /absolute/compiler-prefix`，可在末尾指定单项如 `plugin-elm` 或 `theme-tcss`。默认运行九种插件语言与七种主题样式，缺失编译器直接失败，无跳过分支。`compiler-prefix/node_modules` 需安装脚手架模板声明的 Node 编译器依赖；Java、sbt、匹配版本的 Go／GopherJS 和 tcss 在 PATH 中准备。矩阵明确为临时 Go 工程执行 `go mod tidy`，不会安装全局工具。失败保留临时工程路径，成功清理。
+
+测试使用公开 SDK 文件、实际编译器、`.tpp`／`.tpt` 归档和隔离宿主，补充完整零跳过回归。不要把仅生成模板、直接执行手写 JS 或缺少工具的失败写成语言支持已验收。工具链版本、源码与安装后缀、JSON 桥接、版权和本机平台边界见[多语言构建](extension-authoring.md)。独立源码检查不等于 npm 发布或应用打包；当前发布工作暂停。

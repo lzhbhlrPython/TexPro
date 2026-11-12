@@ -38,7 +38,7 @@ export const SECTION_LINKS: SectionLink[] = [
 ];
 
 export const HERO_METRICS = [
-  { value: '119', label: '条回归用例', source: 'tests' },
+  { value: '126', label: '条回归用例', source: 'tests' },
   { value: '106', label: '个 IPC 通道', source: 'ipc' },
   { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
   { value: '27 × 2', label: '篇文档，中英各一版', source: 'docs' },

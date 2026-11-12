@@ -8,6 +8,7 @@ function crc32(bytes) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 function unpack(bytes) {
+  if (!Buffer.isBuffer(bytes) && bytes instanceof Uint8Array) bytes = Buffer.from(bytes);
   if (!Buffer.isBuffer(bytes) || bytes.length > LIMIT || bytes.length < 22) throw new Error('Invalid extension archive size');
   // Deliberately small ZIP subset: UTF-8, regular files, stored/deflate, no ZIP64 or encryption.
   let end = bytes.length - 22;

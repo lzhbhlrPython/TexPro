@@ -11,7 +11,11 @@ npm run check:extension
 npm run pack:extension
 ```
 
-默认 TypeScript；`--language js` 无需构建，`--type theme` 生成主题包。CLI 不自动安装、联网或执行代码；`npx` 可能下载 SDK。输出位于源码目录外，拒绝覆盖。校验与宿主共用同一核心，不代替实际交互验收。发布维护需先 `npm pack`，再从临时目录通过 `npm run test:extensions:sdk:package -- /absolute/sdk.tgz /absolute/qwertysay.tgz` 验证真正 tarball 的独立安装、TS 构建和归档；注册表发布后使用准确版本重复验证。
+以上 `0.1.0` 示例默认 TypeScript；`--language js` 无需构建，`--type theme` 生成主题包。CLI 不自动安装、联网或执行代码；`npx` 可能下载 SDK。输出位于源码目录外，拒绝覆盖。校验与宿主共用同一核心，不代替实际交互验收。发布维护需先 `npm pack`，再从临时目录通过 `npm run test:extensions:sdk:package -- /absolute/sdk.tgz /absolute/qwertysay.tgz` 验证真正 tarball 的独立安装、TS 构建和归档；注册表发布后使用准确版本重复验证。
+
+## 源码中的新构建能力（未发布）
+
+当前源码 `0.2.0-dev.0` 增加 CoffeeScript、PureScript、ReScript、ClojureScript、Elm、Scala.js、GopherJS，以及 SCSS／Sass／Less／Stylus／CSS-in-JS／Thematic CSS。新脚手架统一显式构建到 `dist/package`，插件 `.tpp`、主题 `.tpt`，开发源码后缀与运行入口后缀分别说明。上述 `npx ...@0.1.0` 示例只代表已发布旧版。新版本暂不发布，使用本地源码步骤、编译器前提、JSON 桥接与版权见[多语言构建指南](extension-authoring.md)。
 
 ## npm 发行版
 
@@ -48,7 +52,7 @@ npm run test:extensions:sdk:package -- @gardenialiu/texpro-extension-sdk@0.1.0 @
 }
 ```
 
-同目录包含 LICENSE。可执行入口仅支持自包含 `.cjs` / `.mjs`；TypeScript 需要作者预先编译。宿主不安装依赖，不执行安装脚本。包 id、API 版本、路径、大小和主题 token 均会校验；目录模式同样不接受符号链接。可使用 `defineExtension` 辅助函数，也可直接导出 `activate(ctx)`，无需运行时引用 SDK。
+同目录包含 LICENSE。可执行入口仅支持自包含 `.cjs` / `.mjs`；所有非 JavaScript 语言需要作者预先编译；新脚手架连同 JS 也显式构建并打包依赖。宿主不安装依赖，不执行安装脚本。包 id、API 版本、路径、大小和主题 token 均会校验；目录模式同样不接受符号链接。可使用 `defineExtension` 辅助函数，也可直接导出 `activate(ctx)`，无需运行时引用 SDK。
 
 ## 写作处理器
 
@@ -77,7 +81,7 @@ exports.activate = ctx => {
 | 导出、文献、素材 | 工具中提供输入，返回文本或下载结果；暂不支持二进制素材输出 |
 | 编译请求 | 接受后进入既有保存全部缓冲区及真实主文件编译流程 |
 | 模板 | 扩展详情中明确创建新工程 |
-| MCP 数据 | 实验性工具调用，不自动向外部 stdio MCP 注册 |
+| MCP 数据 | 实验性插件动作不自动向外部 stdio 注册；外部 MCP 另提供只读格式查询与包检查 |
 | 工程服务 | 受控读取已保存文本、读取磁盘符号索引 |
 | 配置与存储 | 类型校验配置；每插件 1 MiB 本地 JSON 存储；不用于凭据 |
 
