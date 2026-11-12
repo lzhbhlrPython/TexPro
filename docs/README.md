@@ -29,6 +29,7 @@
 | 外部 AI 读写工程 | [MCP 接口](../mcp/README.md) |
 | 已知交互边界 | [交互审计及后续状态](interaction-audit.md) |
 | 官网结构、内容和构建 | [产品页维护说明](../product-page/README.md) |
+| 官网其他语种与第三方 AI 交接 | [官网翻译交接指引](website-translation.md) |
 
 ## 文档的职责
 
