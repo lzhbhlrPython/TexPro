@@ -94,6 +94,8 @@ pnpm dev
 
 通过「扩展」安装手工分发的插件／主题包，无公开市场。命令、补全、检查、转换、导入导出和工具使用 API 1；代码插件是受信任 Node 代码，主题可改变布局和字体，两者均有安全风险。原生视图菜单提供重置和停用，`--safe-mode` 可在加载插件前恢复。SDK、引导工具、开发 Skill 分别见[SDK](docs/extension-development.md)、[qwertysay](docs/qwertysay.md)、[Skill](docs/extension-skill.md)；示例与能力边界见 [扩展架构](docs/extensions.md) 和 [开发指南](docs/extension-development.md)。复杂绘图、手写和模板任务使用共享工作空间；编译详情回到问题面板，论文 API 为独立按需集成。
 
-插件开发工具：独立 npm 包 [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk)（0.2.0）提供 API 1 类型、JSON 桥接与校验核心；[@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay)（0.3.0）提供中英引导、多语言脚手架、显式构建、校验与打包 CLI（两包均为 MIT，Baolin Liu / gardenialiu）。见[开发指南](docs/extension-development.md)与[双语包说明](packages/extension-sdk/README.md)。
+插件开发工具：独立 npm 包 [@texpro/extension-sdk](https://www.npmjs.com/package/@texpro/extension-sdk)（0.3.0）提供 API 1 类型、JSON 桥接与校验核心；[@texpro/qwertysay](https://www.npmjs.com/package/@texpro/qwertysay)（0.4.0）提供中英引导、多语言脚手架、显式构建、校验与打包 CLI（两包均为 MIT，Baolin Liu / gardenialiu）。见[开发指南](docs/extension-development.md)与[双语包说明](packages/extension-sdk/README.md)。
 
 正式版通过 Actions 的 Release major／minor／patch 三个手动入口递增，全部测试和三平台打包成功后才同步根版本文件并发布；详见[发布指南](docs/release.md)及官网[正式版本列表](https://texpro.pyliubaolin.top/releases)。
+
+语言插件与包管理：[语言包](docs/language-packs.md)、[npm／Yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。

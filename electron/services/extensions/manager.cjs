@@ -4,6 +4,7 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { readPackage, atomicJson } = require('./packages.cjs');
 const { validateManifest, validateConfig } = require('./schema.cjs');
+const { localeContributions } = require('../../../packages/extension-sdk/lib/locales.cjs');
 const { ExtensionProcess } = require('./process.cjs');
 function inside(root, file) { return file === root || file.startsWith(root + path.sep); }
 class ExtensionManager {
@@ -11,13 +12,21 @@ class ExtensionManager {
     this.directory = directory; this.workers = new Map(); this.errors = new Map(); this.options = options; this.projectEpoch = 0;
     this.stateFile = path.join(directory, 'installed.json'); this.records = {};
     try { this.records = JSON.parse(fs.readFileSync(this.stateFile, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') this.errors.set('host', 'Extension installation state could not be read'); }
+    // Preinstalled data is versioned with the app, while enable/disable remains user-owned.
+    this.builtins = new Map();
+    for (const source of options.builtinSources || []) {
+      let info; try { info = readPackage(source); } catch (error) { this.errors.set('host', error.message); continue; }
+      this.builtins.set(info.manifest.id, { ...info, source });
+      if (!this.records[info.manifest.id]) this.records[info.manifest.id] = { builtin: true, enabled: true, digest: info.digest };
+    }
     for (const [id, record] of Object.entries(this.records)) {
+      if (record?.builtin && this.builtins.has(id)) { record.digest = this.builtins.get(id).digest; continue; }
       if (!record || !/^[0-9a-f-]{36}$/.test(record.folder || '') || !/^[a-z][a-z0-9.-]+$/.test(id)) { delete this.records[id]; continue; }
       try { const manifest = this.manifest(id); if (manifest.id !== id) throw new Error('Extension identity mismatch'); }
       catch (error) { this.errors.set(id, error.message); record.enabled = false; }
     }
   }
-  folder(id) { const record = this.records[id]; if (!record) throw new Error('Extension is not installed'); return path.join(this.directory, record.folder); }
+  folder(id) { if (this.records[id]?.builtin && this.builtins.has(id)) return this.builtins.get(id).source; const record = this.records[id]; if (!record) throw new Error('Extension is not installed'); return path.join(this.directory, record.folder); }
   manifest(id) { return validateManifest(JSON.parse(fs.readFileSync(path.join(this.folder(id), 'texpro.extension.json'), 'utf8'))); }
   save() { atomicJson(this.stateFile, this.records); }
   async start() {
@@ -29,21 +38,29 @@ class ExtensionManager {
   }
   list() {
     return Object.entries(this.records).map(([id, record]) => {
-      try { const manifest = this.manifest(id); return { manifest, themeStyles: require('./theme.cjs').themeStyles(manifest, readPackage(this.folder(id)).files), enabled: record.enabled && (!manifest.entry || this.workers.has(id)), digest: record.digest, config: record.config || {}, development: Boolean(record.source), canRollback: Boolean(record.previous), error: this.errors.get(id) || null }; }
+      try { const manifest = this.manifest(id); return { manifest, builtin: Boolean(record.builtin), origin: record.origin, locales: record.enabled ? localeContributions(manifest, readPackage(this.folder(id)).files) : [], themeStyles: require('./theme.cjs').themeStyles(manifest, readPackage(this.folder(id)).files), enabled: record.enabled && (!manifest.entry || this.workers.has(id)), digest: record.digest, config: record.config || {}, development: Boolean(record.source), canRollback: Boolean(record.previous), error: this.errors.get(id) || null }; }
       catch (error) { return { manifest: { id, name: id, version: 'unknown', capabilities: [], contributes: {} }, enabled: false, error: error.message }; }
     });
   }
+  languages() {
+    const found = new Map();
+    for (const item of this.list()) if (item.enabled && !item.error) for (const locale of item.locales || []) {
+      if (!found.has(locale.id)) found.set(locale.id, { ...locale, extensionId: item.manifest.id });
+    }
+    return [...found.values()];
+  }
   inspect(source) { const { manifest, digest, development } = readPackage(source); return { manifest, digest, development }; }
-  async install(source, expectedDigest) {
+  async install(source, expectedDigest, origin) {
     const { files, manifest, digest, development } = readPackage(source);
     if (digest !== expectedDigest) throw new Error('Extension package changed; inspect it again');
+    if (this.builtins.has(manifest.id) && (!manifest.contributes.locales.length || manifest.contributes.locales.some(locale => !this.builtins.get(manifest.id).manifest.contributes.locales.some(value => value.id === locale.id)))) throw new Error('Preinstalled identity is reserved for its declarative language');
     const folder = randomUUID(), destination = path.join(this.directory, folder);
     try {
       fs.mkdirSync(destination, { recursive: true });
       for (const [name, data] of files) { const file = path.join(destination, name); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, data, { flag: 'wx' }); }
       // Updating never silently grants a changed executable new access. Enable after review.
       const previous = this.records[manifest.id];
-      this.records[manifest.id] = { folder, digest, enabled: false, config: validateConfig(manifest, previous?.config || {}), ...(development ? { source: fs.realpathSync(source) } : {}), ...(previous ? { previous } : {}) };
+      this.records[manifest.id] = { folder, digest, enabled: false, ...(origin ? { origin } : {}), config: validateConfig(manifest, previous?.config || {}), ...(development ? { source: fs.realpathSync(source) } : {}), ...(previous ? { previous } : {}) };
       try { this.save(); } catch (error) { if (previous) this.records[manifest.id] = previous; else delete this.records[manifest.id]; throw error; }
       this.workers.get(manifest.id)?.stop(); this.workers.delete(manifest.id); this.errors.delete(manifest.id);
       // Retain the previous package for explicit rollback until the next successful enable.
@@ -52,6 +69,8 @@ class ExtensionManager {
   }
   async activate(id) {
     const manifest = this.manifest(id), record = this.records[id];
+    readPackage(this.folder(id));
+    for (const locale of manifest.contributes.locales) for (const [otherId, other] of Object.entries(this.records)) if (otherId !== id && other.enabled && this.manifest(otherId).contributes.locales.some(value => value.id === locale.id)) throw new Error('Language already provided by another enabled package: ' + locale.id);
     if (!manifest.entry) return;
     const worker = new ExtensionProcess(this.folder(id), manifest, validateConfig(manifest, record.config || {}), (name, args, context) => this.service(id, manifest, name, args, context), message => {
       this.errors.set(id, message); this.workers.delete(id); record.enabled = false;
@@ -90,7 +109,8 @@ class ExtensionManager {
     return this.install(source, preview.digest);
   }
   async remove(id) {
-    this.manifest(id); const record = this.records[id]; delete this.records[id];
+    this.manifest(id); if (this.records[id]?.builtin) throw new Error('Preinstalled packages can be disabled, not removed'); const record = this.records[id]; delete this.records[id];
+    if (this.builtins.has(id)) this.records[id] = { builtin: true, enabled: false, digest: this.builtins.get(id).digest };
     try { this.save(); } catch (error) { this.records[id] = record; throw error; }
     this.workers.get(id)?.stop(); this.workers.delete(id); this.errors.delete(id);
     // Only remove validated UUID directories owned by this manager. Keep plugin data for reinstallation.
@@ -102,7 +122,7 @@ class ExtensionManager {
     if (!this.records[id].enabled || !action || !this.workers.has(id)) throw new Error('Extension action is unavailable');
     if (!context || typeof context.source !== 'string' || context.source.length > 2 * 1024 * 1024 || !context.selection || !Number.isInteger(context.selection.from) || !Number.isInteger(context.selection.to) || context.selection.from < 0 || context.selection.to < context.selection.from || context.selection.to > context.source.length) throw new Error('Invalid extension document snapshot');
     if (Buffer.byteLength(JSON.stringify(input ?? {})) > 1024 * 1024) throw new Error('Extension input too large');
-    const snapshot = { invocation: randomUUID(), projectEpoch: this.projectEpoch, language: context.language === 'zh' ? 'zh' : 'en', selection: context.selection, project: context.project, file: context.file, source: context.source };
+    const snapshot = { invocation: randomUUID(), projectEpoch: this.projectEpoch, language: typeof context.language === 'string' ? context.language.slice(0, 64) : 'en', selection: context.selection, project: context.project, file: context.file, source: context.source };
     if (!manifest.capabilities.includes('document.read')) { snapshot.source = ''; snapshot.selection = { from: 0, to: 0 }; snapshot.file = undefined; }
     if (!manifest.capabilities.includes('project.read')) snapshot.project = undefined;
     const result = await this.workers.get(id).invoke(actionId, snapshot, input);

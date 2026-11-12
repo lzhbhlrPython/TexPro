@@ -7,6 +7,21 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments",
+      "title": "让语言成为插件，让 npm／Yarn 管理扩展版本",
+      "summary": "简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。",
+      "content_text": "简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。",
+      "date_published": "2026-11-12T16:00:00.000Z",
+      "tags": [
+        "[插件",
+        "i18n",
+        "SDK",
+        "qwertysay",
+        "发布]"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule",
       "title": "Nightly 的成功基线与正式版发布入口",

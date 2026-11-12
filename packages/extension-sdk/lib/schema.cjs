@@ -10,7 +10,7 @@ const ID = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
 const LOCAL_ID = /^[a-z][a-z0-9-]{0,63}$/;
 function assert(ok, message) { if (!ok) throw new Error(message); }
 function text(value, limit = 200) { return typeof value === 'string' && value.length > 0 && value.length <= limit; }
-function label(value) { return text(value) || value && typeof value === 'object' && text(value.en) && text(value.zh); }
+function label(value) { return text(value) || value && typeof value === 'object' && !Array.isArray(value) && text(value.en) && Object.values(value).every(item => text(item)); }
 function relative(file) {
   assert(text(file, 240) && !/[\\:<>"|?*\x00-\x1f]/.test(file) && !file.startsWith('/') && !file.split('/').some(p => !p || p === '.' || p === '..' || /[. ]$/.test(p) || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(p)), 'Invalid package path');
   return file;
@@ -37,10 +37,18 @@ function validateManifest(input) {
   if (m.entry) { relative(m.entry); assert(/\.(?:cjs|mjs)$/.test(m.entry), 'Executable entry must be .cjs or .mjs'); }
   assert(!m.scripts && !m.dependencies, 'Packages must be self contained; install scripts and dependency installation are unsupported');
   const c = m.contributes ||= {};
-  for (const kind of ['actions', 'themes', 'completions', 'snippets', 'templates', 'panels', 'settings']) {
+  for (const kind of ['actions', 'themes', 'completions', 'snippets', 'templates', 'panels', 'settings', 'locales']) {
     if (c[kind] === undefined) c[kind] = [];
     assert(Array.isArray(c[kind]) && c[kind].length <= 200, `Invalid contribution list: ${kind}`);
   }
+  const localeIds = new Set();
+  for (const locale of c.locales) {
+    const id = require('./locales.cjs').localeId(locale?.id);
+    assert(!localeIds.has(id) && text(locale.title, 100), 'Invalid or duplicate language');
+    relative(locale.messages); assert(/\.json$/.test(locale.messages), 'Language messages must be JSON');
+    locale.id = id; localeIds.add(id);
+  }
+  if (c.locales.length) assert(!m.entry && !m.capabilities.length && Object.entries(c).every(([key, value]) => key === 'locales' || !value.length), 'Language packs must contain only declarative languages, without code or capabilities');
   const ids = new Set();
   for (const action of c.actions) {
     assert(action && LOCAL_ID.test(action.id) && !ids.has(action.id) && PROVIDERS.includes(action.kind) && label(action.title), 'Invalid or duplicate action');

@@ -1,4 +1,4 @@
-import { formatShortcut } from '../i18n';
+import { availableLanguages, formatShortcut } from '../i18n';
 import { BarChart3, LayoutTemplate, PenTool, X } from 'lucide-react';
 import type { Settings, ThemeName } from '../types';
 import { useI18n } from '../i18n';
@@ -28,7 +28,9 @@ export function SettingsPanel({
   onOpenChart,
   onOpenTikz,
 }: Props) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const languages = availableLanguages();
+  const target = languages.find(item => item.id !== language);
   if (!open) return null;
 
   const Toggle = ({
@@ -77,7 +79,7 @@ export function SettingsPanel({
             <div className="settings-section-title">{t('Language')}</div>
             <div className="select-row">
               <span>{t('Interface language')}</span>
-              <button className="secondary-btn" data-testid="language-switch" onClick={() => onChange({ language: settings.language === 'zh' ? 'en' : 'zh' })}>{settings.language === 'zh' ? 'English' : '简体中文'}</button>
+              {languages.length <= 2 ? <button className="secondary-btn" data-testid="language-switch" disabled={!target} onClick={() => target && onChange({ language: target.id })}>{target?.title || 'English'}</button> : <select aria-label={t('Interface language')} value={language} onChange={event => onChange({ language: event.target.value })}>{languages.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select>}
             </div>
           </div>
 

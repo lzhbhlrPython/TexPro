@@ -188,6 +188,13 @@ export default function App() {
   const [crewOpen, setCrewOpen] = useState(false);
   const [paperOpen, setPaperOpen] = useState(false);
   const [pluginOpen, setPluginOpen] = useState(false);
+  useEffect(() => {
+    const open = () => { setPluginOpen(true); };
+    const unsubscribe = window.texpro.onExtensionPackage(open);
+    void Promise.all([window.texpro.extensionsPending(), window.texpro.extensionsSyncPending()]).then(values => { if (values.some(Boolean)) open(); }).catch(() => {});
+    return unsubscribe;
+  }, []);
+
   const [actions, setActions] = useState<ProjectAction[]>(defaultActions);
   const [customCompletions, setCustomCompletions] = useState<CwlCompletion[]>([]);
   const [tikzSource, setTikzSource] = useState<string | null>(null);
@@ -290,9 +297,12 @@ export default function App() {
 
   useEffect(() => {
     setLanguage(settings.language);
-    void window.texpro.setMenuLanguage(settings.language).catch(() => undefined);
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...settings, aiApiKey: '' }));
   }, [settings]);
+
+  useEffect(() => {
+    void window.texpro.setMenuLanguage(language).catch(() => undefined);
+  }, [language]);
 
   useEffect(() => {
     if (!settings.spellcheck) {
@@ -2053,7 +2063,7 @@ export default function App() {
   useEffect(() => { applyCustomCompletions([...customCompletions, ...extensions.completions, ...extensionRunner.completions]); }, [customCompletions, JSON.stringify(extensions.completions), extensionRunner.completions]);
   useEffect(() => { void window.texpro.extensionsEvent('projectChanged', project ? { root: project.root, rootFile: project.rootFile } : null).catch(() => {}); }, [project?.root, project?.rootFile]);
   useEffect(() => { if (compileResult) void window.texpro.extensionsEvent('buildFinished', { ok: compileResult.ok, engine: compileResult.engine }).catch(() => {}); }, [compileResult]);
-  const commandHandlers: Record<string, () => void> = {
+  const commandHandlers: Record<string, (id?: string) => void> = {
     "placeholder": () => void insertPlaceholder(),
     "placeholders": () => { setSidebarOpen(true); setSidebarTab('placeholders'); },
     "ctex-typography": () => void applyChineseTypography(),
@@ -2133,6 +2143,7 @@ export default function App() {
     "theme-studio": () => updateSettings({ theme: 'studio' }),
     "theme-night": () => updateSettings({ theme: 'night' }),
     "theme-paper": () => updateSettings({ theme: 'paper' }),
+    "language-select": (id?: string) => { if (id) updateSettings({ language: id }); },
     "language-zh": () => updateSettings({ language: 'zh' }),
     "language-en": () => updateSettings({ language: 'en' }),
     "reveal-pdf": revealPdf,

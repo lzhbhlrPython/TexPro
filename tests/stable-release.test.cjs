@@ -70,6 +70,8 @@ test('stable rejects an advanced main and leaves published version unchanged', t
 test('stable keeps uploads draft on failure and retries publication and Pages without incrementing again', t => {
   const {work,sourceSha}=fixture(t), env={RELEASE_VERSION:'1.2.4',RELEASE_SOURCE:sourceSha,GITHUB_RUN_ID:'123',GITHUB_REPOSITORY:'owner/repo'};
   fs.mkdirSync(path.join(work,'release')); const names=['app.dmg','app.exe','app.deb','app.rpm','app.AppImage']; names.forEach(n=>fs.writeFileSync(path.join(work,'release',n),'asset'));
+  fs.cpSync(path.join(__dirname, '../skills'), path.join(work, 'skills'), { recursive: true });
+  const skill = require('../scripts/package-extension-skill.cjs').packageSkill(work, '1.2.4'); names.push(path.basename(skill.file));
   let release=null, failUpload=true, incompleteUpload=false, dispatches=0, draftLookups=0;
   const gh=(...args)=>{
     if(args[0]==='api') {

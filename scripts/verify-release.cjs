@@ -3,12 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function verifyContents(read, files) {
-  for (const name of ['theme', 'schema', 'archive', 'packages', 'manager', 'process', 'worker', 'ipc']) {
+  for (const name of ['theme', 'schema', 'archive', 'packages', 'manager', 'process', 'worker', 'ipc', 'environment', 'launch']) {
     const file = `electron/services/extensions/${name}.cjs`;
     if (!files.has(file)) throw new Error(`Release is missing ${file}`);
   }
-  for (const name of ['schema', 'archive', 'packages', 'theme']) if (!files.has(`packages/extension-sdk/lib/${name}.cjs`)) throw new Error('Release is missing shared extension SDK core: ' + name);
-  const required = ['package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
+  for (const name of ['schema', 'archive', 'packages', 'theme', 'locales']) if (!files.has(`packages/extension-sdk/lib/${name}.cjs`)) throw new Error('Release is missing shared extension SDK core: ' + name);
+  const required = ['packages/extension-sdk/lib/locale-source.json', 'packages/extension-translate-zh-cn/language/texpro.extension.json', 'packages/extension-translate-zh-cn/language/locales/zh.json', 'packages/extension-translate-zh-cn/language/LICENSE', 'package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
   for (const file of required) if (!files.has(file)) throw new Error(`Release is missing ${file}. Run npm run build before packaging.`);
   const html = read('dist/index.html').toString();
   const assets = [...html.matchAll(/(?:src|href)=["'](?:\.\/)?(assets\/[^"']+)["']/g)].map((match) => `dist/${match[1]}`);
@@ -29,7 +29,7 @@ function verifyDirectory(root) {
       if (entry.isDirectory()) walk(relative); else files.add(relative);
     }
   };
-  for (const name of ['dist', 'electron', 'mcp', 'packages/extension-sdk']) if (fs.existsSync(path.join(root, name))) walk(name);
+  for (const name of ['dist', 'electron', 'mcp', 'packages/extension-sdk', 'packages/extension-translate-zh-cn/language']) if (fs.existsSync(path.join(root, name))) walk(name);
   for (const file of ['package.json', 'THIRD_PARTY_NOTICES.md']) if (fs.existsSync(path.join(root, file))) files.add(file);
   return verifyContents((file) => fs.readFileSync(path.join(root, file)), files);
 }
@@ -41,7 +41,8 @@ function verifyArchive(archive) {
 }
 
 function verifyExternalResources(root) {
-  for (const name of ['authoring', 'inspect', 'schema', 'packages', 'archive', 'theme']) {
+  if (!fs.existsSync(path.join(root, 'packages/extension-sdk/lib/locale-source.json'))) throw new Error('Release is missing external MCP language source catalog');
+  for (const name of ['authoring', 'inspect', 'schema', 'packages', 'archive', 'theme', 'locales']) {
     const file = `packages/extension-sdk/lib/${name}.cjs`;
     if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing external MCP extension dependency: ${file}`);
   }

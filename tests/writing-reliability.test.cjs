@@ -14,9 +14,9 @@ const modules = new Map();
 function load(file) {
   file = path.resolve(file);
   if (modules.has(file)) return modules.get(file);
-  const context = { exports: {}, require: name => name.endsWith('.mjs') ? require(path.resolve(path.dirname(file), name)) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
+  const context = { exports: {}, require: name => name.endsWith('.json') ? require(path.resolve(path.dirname(file), name)) : name.endsWith('.mjs') ? require(path.resolve(path.dirname(file), name)) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
   modules.set(file, context.exports);
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, context);
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, context);
   return context.exports;
 }
 const temp = t => { const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-reliability-')); t.after(() => fs.rmSync(root, { recursive: true, force: true })); return root; };
@@ -117,9 +117,9 @@ test('preview reuses decorations for prose cursor motion and rebuilds when enter
     if (name === './tableWidget') return { WritingTableWidget: class extends WidgetType {} };
     if (name === '../i18n') return { t: value => value, getLanguage: () => 'en' };
     if (name === '../lib/texPdfArtwork') return { rasterizeTexPdf: () => {} };
-    return name.endsWith('.mjs') ? require(path.resolve(__dirname, '../src/editor', name)) : name.startsWith('.') ? load(path.join(__dirname, '../src/editor', name + '.ts')) : require(name);
+    return name.endsWith('.json') ? require(path.resolve(path.dirname(file), name)) : name.endsWith('.mjs') ? require(path.resolve(__dirname, '../src/editor', name)) : name.startsWith('.') ? load(path.join(__dirname, '../src/editor', name + '.ts')) : require(name);
   } };
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/editor/visual.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, context);
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/editor/visual.ts'), 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, context);
   const writing = load(path.join(__dirname, '../src/editor/writing.ts'));
   let builds = 0;
   let state = EditorState.create({ doc: 'Prose $x$ continues.', extensions: [writing.writingComposition, context.exports.visualLatex({ get: () => { builds++; return { filePath: '/p/main.tex', projectRoot: '/p', collapsePreamble: false }; } })] });

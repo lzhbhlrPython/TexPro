@@ -33,6 +33,8 @@ function inspectFiles(files) {
   const manifest = validateManifest(JSON.parse(files.get('texpro.extension.json').toString('utf8')));
   if (manifest.entry && !files.has(manifest.entry)) throw new Error('Missing extension entry');
   require('./theme.cjs').themeStyles(manifest, files);
+  require('./locales.cjs').localeContributions(manifest, files);
+  if (manifest.contributes.locales.length && [...files.keys()].some(name => /\.(?:[cm]?js|html?|css|node)$/i.test(name))) throw new Error('Language packs cannot include executable or style files');
   const hash = createHash('sha256');
   for (const [name, data] of [...files].sort(([a], [b]) => a.localeCompare(b))) { hash.update(name); hash.update('\0'); hash.update(data); }
   return { manifest, digest: hash.digest('hex') };

@@ -40,4 +40,8 @@ Packages use `.tpp` for plugins and `.tpt` for themes (both are ZIP containers).
 
 ## Theme source and installable artifacts
 
-Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Thematic CSS (`.tcss`). Choose the authoring style in guided qwertysay 0.3.0; see [qwertysay](/docs/qwertysay). Every theme artifact is a `.tpt` containing static CSS and assets; plugins use `.tpp`. Source suffixes and `.zip` are not installable suffixes. A theme can conceal controls or impersonate UI without JavaScript; trust remains necessary.
+Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Thematic CSS (`.tcss`). Choose the authoring style in guided qwertysay 0.4.1; see [qwertysay](/docs/qwertysay). Every theme artifact is a `.tpt` containing static CSS and assets; plugins use `.tpp`. Source suffixes and `.zip` are not installable suffixes. A theme can conceal controls or impersonate UI without JavaScript; trust remains necessary.
+
+## Language packs and package-manager environments
+
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.

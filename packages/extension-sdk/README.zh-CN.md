@@ -1,6 +1,6 @@
-# @gardenialiu/texpro-extension-sdk
+# @texpro/extension-sdk
 
-作者 **Baolin Liu（gardenialiu）**，自有代码 MIT。当前 **0.2.0 / API 1**，Node.js 20+，不依赖 Electron、React 或 TeX。
+作者 **Baolin Liu（gardenialiu）**，自有代码 MIT。当前 **0.3.0 / API 1**，Node.js 20+，不依赖 Electron、React 或 TeX。
 
 [English](README.md)
 
@@ -9,13 +9,13 @@
 SDK 提供 API 1 TypeScript 类型、defineExtension、defineTextTransform、defineJsonExtension 和公共 package-tools 校验／归档／只读检查核心。它不安装插件、不调用编译器、不运行宿主，也不提供权限沙箱。
 
 ```sh
-npm install --save-dev @gardenialiu/texpro-extension-sdk@0.2.0
+npm install --save-dev @texpro/extension-sdk@0.3.0
 ```
 
 ## 文档分工
 
 - [插件 SDK](https://texpro.pyliubaolin.top/docs/extension-development)：完整清单、处理器、能力、服务、生命周期、JSON 桥接及验收。
-- [qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)：独立 0.3.0 引导工具；创建、语言／样式选择、构建、校验和打包不需要记参数。
+- [qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)：独立 0.4.1 引导工具；创建、语言／样式选择、构建、校验和打包不需要记参数。
 - [开发 Skill](https://texpro.pyliubaolin.top/docs/extension-skill)：AI 技能安装、调用、开发约束和交接。
 
 ## 运行入口
@@ -47,3 +47,20 @@ exports.activate = ctx => {
 MIT 只覆盖 SDK 自有代码，不替代编译语言运行时、字体或其他依赖许可。构建器收集可识别通知，作者仍需审查新增依赖及 THIRD_PARTY_NOTICES.md。Koishi 启发了生命周期／服务组织，没有复制其运行时、控制台或插件格式。
 
 维护改动运行包测试和完整零跳过基线，验证实际 npm tarball 的独立安装、编译、归档与拒绝路径。发布和原生运行验收分别报告，不能用源码软链接或本地 PASS 冒充。
+
+## Language packs and npm/Yarn / 语言包与包管理
+
+SDK 0.3.0 / API 1 and qwertysay 0.4.1 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
+
+- [Language packs / 语言包](https://texpro.pyliubaolin.top/docs/language-packs): declarative .tpp, placeholder checks, missing-key fallback and preinstalled @texpro/extension-translate-zh-cn. / 声明式语言插件、变量校验、英文回退及预装简中。
+- [npm/Yarn management / 包管理](https://texpro.pyliubaolin.top/docs/extension-package-management): one lockfile, node_modules, texpro.package wrappers, reviewed synchronization and removal with plugin data retained. / 单锁文件、分发包、逐项审核与卸载保留数据。
+
+Language packs never contain code or styles, but translations may impersonate instructions. npm/Yarn changes dependencies; sync asks the host to install/update/remove its snapshots. It never auto-enables extensions. / 语言包没有代码或样式，文案仍可能误导用户。包管理器修改依赖，宿主另行审核同步，不自动启用。
+
+## 功能插件自己的 i18n
+
+每个功能插件自行维护 i18n 库和翻译资源；宿主语言包只翻译 TeXPro，不翻译插件业务文案。清单名称、操作标题等使用带 en 回退的 Localized 对象。运行消息、诊断和预览根据每次调用的 `context.language` 选择插件词典；JSON 桥接读取 invoke.context.language。依次匹配完整语言、基础语言和插件自己的英文，并对单条缺译回退英文，不在 activate 时固定语言。
+
+例如作者维护独立 `i18n/messages.json`（en、fr 等词典），处理器用 `messages[context.language] || messages[context.language.split('-')[0]] || messages.en` 选择，再用 `table[key] || messages.en[key]` 回退。插件键与占位符由作者维护，不合并到宿主 locale-source.json；`contributes.locales` 专用于宿主的纯数据语言包，不能和功能入口混用。
+
+可以用 npm／Yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。

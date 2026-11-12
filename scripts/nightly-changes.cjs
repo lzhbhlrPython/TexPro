@@ -23,7 +23,7 @@ async function publishedNightly(repo, { fetcher = fetch, token = process.env.GH_
     // GitHub's list order is not publication order when an older draft is published later.
     for (const item of releases) {
       const published = Date.parse(item.published_at);
-      if (!item.draft && Number.isFinite(published) && NIGHTLY_TAG.test(item.tag_name) && item.assets?.some(asset => asset.state === 'uploaded' && asset.size > 0) && (!latest || published > latest.published)) latest = { tag: item.tag_name, published };
+      if (!item.draft && Number.isFinite(published) && NIGHTLY_TAG.test(item.tag_name) && item.assets?.some(asset => asset.state === 'uploaded' && asset.size > 0 && /\.(?:dmg|zip|exe|AppImage|deb|rpm)$/.test(asset.name || '')) && (!latest || published > latest.published)) latest = { tag: item.tag_name, published };
     }
     if (releases.length < 100) return latest?.tag ?? null;
   }

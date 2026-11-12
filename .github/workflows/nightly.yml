@@ -90,6 +90,7 @@ jobs:
             - Windows: NSIS installer, portable EXE, ZIP
             - Ubuntu: deb, AppImage
             - CentOS/RHEL: rpm
+            - Extension development Skill: versioned .skill ZIP archive
 
             These builds are unsigned and intended for testing.
           files: release/**/*

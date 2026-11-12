@@ -11,12 +11,12 @@ function install(args, cwd) { return run([npm, 'install', '--ignore-scripts', '-
 try {
   fs.writeFileSync(path.join(root, 'package.json'), '{"private":true}');
   install([spec, ...(scaffoldSpec ? [scaffoldSpec] : []), 'typescript@5.9.3']);
-  const sdk = path.join(root, 'node_modules/@gardenialiu/texpro-extension-sdk'), cli = path.join(root, 'node_modules/@gardenialiu/qwertysay/bin/qwertysay.cjs');
+  const sdk = path.join(root, 'node_modules/@texpro/extension-sdk'), cli = path.join(root, 'node_modules/@texpro/qwertysay/bin/qwertysay.cjs');
   assert.equal(fs.lstatSync(sdk).isSymbolicLink(), false, 'Must install actual distribution, not a source symlink');
   assert.equal(require(path.join(sdk, 'index.cjs')).API_VERSION, 1);
-  const cliVersion = require(path.join(root, 'node_modules/@gardenialiu/qwertysay/package.json')).version;
+  const cliVersion = require(path.join(root, 'node_modules/@texpro/qwertysay/package.json')).version;
   if (Number(cliVersion.split('.')[0]) > 0 || Number(cliVersion.split('.')[1]) >= 3) {
-    const cliRoot = path.join(root, 'node_modules/@gardenialiu/qwertysay');
+    const cliRoot = path.join(root, 'node_modules/@texpro/qwertysay');
     run(['-e', `
       const assert = require('node:assert/strict'), fs = require('node:fs');
       const { planInteractive } = require(${JSON.stringify(path.join(cliRoot, 'lib/wizard.cjs'))});
@@ -37,7 +37,7 @@ try {
     const directory = path.join(root, type + language), output = path.join(root, type + language + '.' + suffix);
     run([cli, 'init', directory, '--id', `test.${type}${language}`, '--author', 'Baolin Liu', '--type', type, '--language', language]);
     assert.equal(fs.existsSync(path.join(directory, 'node_modules')), false, 'CLI must not auto-install');
-    if (require(path.join(root, 'node_modules/@gardenialiu/qwertysay/package.json')).version.startsWith('0.1.')) {
+    if (require(path.join(root, 'node_modules/@texpro/qwertysay/package.json')).version.startsWith('0.1.')) {
       if (type === 'plugin' && language === 'ts') run([path.join(root, 'node_modules/typescript/bin/tsc'), '-p', path.join(directory, 'tsconfig.json')]);
     } else run([cli, 'build', directory]);
     run([cli, 'check', directory]); run([cli, 'pack', directory, output]); run([cli, 'check', output]);

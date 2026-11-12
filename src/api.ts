@@ -16,8 +16,14 @@ import type {
 export interface TexProApi {
   safeMode: boolean;
   platform: string;
+  languagePacks: () => Promise<import('../packages/extension-sdk').LanguagePack[]>;
+  extensionsSyncPending: () => Promise<{ root: string; changes: Array<{ kind: 'install' | 'remove'; id: string; manifest: PackageManifest; origin: { name: string; version: string } }> } | null>;
+  extensionsSyncApply: (id: string) => Promise<boolean>;
+  extensionsSyncDismiss: () => Promise<boolean>;
+  extensionsPending: () => Promise<{ token: string; manifest: import('../packages/extension-sdk').PackageManifest; digest: string } | null>;
+  onExtensionPackage: (callback: () => void) => () => void;
   extensionsList: () => Promise<InstalledExtension[]>;
-  extensionsChoose: (development: boolean) => Promise<{ token: string; manifest: PackageManifest; digest: string; development: boolean } | null>;
+  extensionsChoose: (development: boolean) => Promise<{ token: string; manifest: import('../packages/extension-sdk').PackageManifest; digest: string; development: boolean } | null>;
   extensionsInstall: (token: string) => Promise<InstalledExtension[]>;
   extensionsEnable: (id: string, enabled: boolean, trusted?: boolean) => Promise<InstalledExtension[]>;
   extensionsConfigure: (id: string, config: Record<string, unknown>) => Promise<InstalledExtension[]>;

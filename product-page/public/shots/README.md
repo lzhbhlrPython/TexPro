@@ -11,3 +11,5 @@
 | theme-night.jpg | artifacts/flow-preview-night.png | f88eaee90629ae6e63f47f4a7527b97598cc5221b013ac60d5c3c83456386b94 |
 
 hero.jpg, table.jpg, focus.jpg and typewriter.jpg are retained earlier application captures; this update does not claim to recapture them.
+
+2026-11-13：`extensions.jpg` 更新为包含预装简体中文语言插件的真实扩展面板，由本轮完整 `test:extensions:ui` 临时工程捕获。仅 JPEG 转换和最大 1600px 等比缩放。原始 `artifacts/flow-extensions-zh.png` SHA-256：`5215577a8fa1242e002202540585bac8257b5e004e7b6d8128dae6c02bdffbed`。语言切换与同步安装／卸载的原始截图副本见 `docs/screenshots/language-preferences.png`、`language-preinstalled.png`、`extensions-sync-install.png` 与 `extensions-sync-remove.png`；它们没有更改日常作者工程。

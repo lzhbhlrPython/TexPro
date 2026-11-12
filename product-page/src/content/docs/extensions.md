@@ -34,10 +34,14 @@ summary: 安装、信任、配置和手动更新 TeXPro 扩展，保留本地优
 
 代码插件可能以你的用户权限读取文件、访问网络、启动进程或接触用户可访问的凭据。能力清单与独立进程不构成恶意代码沙箱。主题无需代码也可能遮挡按钮、伪装界面或损害可读性。只启用可信作者和已检查的包；SHA-256 不是作者签名。
 
-界面被主题破坏时，使用系统原生「视图 → 重置外观并停用扩展」。也可加 `--safe-mode` 启动，在执行插件前停用所有扩展并恢复纸面。macOS：`open -a TeXPro --args --safe-mode`；Windows：`TeXPro.exe --safe-mode`；Linux：可执行文件或 AppImage 加同一参数。停用会保存，之后逐项重新检查并启用。
+界面被主题破坏时，使用系统原生「视图 → Reset Appearance and Disable Extensions」。也可加 `--safe-mode` 启动，在执行插件前停用所有扩展并恢复纸面。macOS：`open -a TeXPro --args --safe-mode`；Windows：`TeXPro.exe --safe-mode`；Linux：可执行文件或 AppImage 加同一参数。停用会保存，之后逐项重新检查并启用。
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
 
 ## 主题开发源码与安装包
 
-开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。使用 qwertysay 0.3.0 引导选择开发方式，操作见[qwertysay](/docs/qwertysay)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。
+开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。使用 qwertysay 0.4.1 引导选择开发方式，操作见[qwertysay](/docs/qwertysay)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。

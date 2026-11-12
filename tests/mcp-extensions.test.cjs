@@ -35,7 +35,14 @@ test('real MCP stdio exposes read-only authoring and inspects packages without r
   for (const name of ['texpro_extension_capabilities', 'texpro_inspect_extension']) assert.equal(tools.find(tool => tool.name === name).annotations.readOnlyHint, true);
   const capabilities = parse(await call('texpro_extension_capabilities'));
   assert.equal(capabilities.languages.elm.source, '.elm'); assert.equal(capabilities.styles.tcss.name, 'Thematic CSS'); assert.equal(capabilities.mcp.invokesPlugins, false);
+  assert.equal(capabilities.locales.code, false); assert.equal(capabilities.locales.preinstalled, '@texpro/extension-translate-zh-cn'); assert.equal(capabilities.distribution.reviewRequired, true);
   await call('texpro_open_project', { root });
+  const language = { ...manifest, entry: undefined, contributes: { locales: [{ id: 'fr', title: 'Français', messages: 'fr.json' }] } };
+  const languageFiles = new Map([['texpro.extension.json', JSON.stringify(language)], ['LICENSE', 'MIT'], ['fr.json', '{"Save":"Enregistrer"}']]);
+  fs.writeFileSync(path.join(root, 'language.tpp'), pack(languageFiles));
+  assert.equal(parse(await call('texpro_inspect_extension', { path: 'language.tpp' })).executable, false);
+  languageFiles.set('fr.json', '{"Hello {name}":"Bonjour {wrong}"}'); fs.writeFileSync(path.join(root, 'bad-language.tpp'), pack(languageFiles));
+  assert.equal((await call('texpro_inspect_extension', { path: 'bad-language.tpp' })).isError, true);
   const report = parse(await call('texpro_inspect_extension', { path: 'inspect.tpp' }));
   assert.equal(report.manifest.id, manifest.id); assert.equal(report.executable, true); assert.equal(report.fileCount, 3);
   assert.equal(fs.existsSync(sentinel), false);

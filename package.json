@@ -35,6 +35,7 @@
     "test:extensions": "node --test tests/extensions.test.cjs tests/extension-renderer.test.cjs",
     "extension:pack": "node scripts/pack-extension.cjs",
     "test:extensions:sdk:package": "node scripts/test-extension-sdk-package.cjs",
+    "test:extensions:package-managers": "node scripts/test-extension-package-managers.cjs",
     "test:extensions:authoring": "node scripts/test-extension-authoring.cjs"
   },
   "dependencies": {
@@ -64,8 +65,8 @@
   },
   "devDependencies": {
     "@electron/asar": "3.4.1",
-    "@gardenialiu/qwertysay": "file:packages/qwertysay",
-    "@gardenialiu/texpro-extension-sdk": "file:packages/extension-sdk",
+    "@texpro/qwertysay": "file:packages/qwertysay",
+    "@texpro/extension-sdk": "file:packages/extension-sdk",
     "@types/katex": "^0.16.7",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
@@ -101,7 +102,8 @@
       "THIRD_PARTY_NOTICES.md",
       "packages/extension-sdk/lib/**",
       "packages/extension-sdk/LICENSE",
-      "packages/extension-sdk/package.json"
+      "packages/extension-sdk/package.json",
+      "packages/extension-translate-zh-cn/language/**"
     ],
     "mac": {
       "category": "public.app-category.productivity",
@@ -173,6 +175,18 @@
       "artifactName": "${productName}-${version}-windows-${arch}-portable.${ext}"
     },
     "beforePack": "scripts/before-pack.cjs",
-    "afterPack": "scripts/after-pack.cjs"
+    "afterPack": "scripts/after-pack.cjs",
+    "fileAssociations": [
+      {
+        "ext": "tpp",
+        "name": "TeXPro plugin package",
+        "role": "Viewer"
+      },
+      {
+        "ext": "tpt",
+        "name": "TeXPro theme package",
+        "role": "Viewer"
+      }
+    ]
   }
 }

@@ -9,6 +9,8 @@ export declare const languages: Readonly<Record<'ts' | 'js' | 'coffee' | 'purs' 
 export declare const styles: Readonly<Record<'css' | 'scss' | 'sass' | 'less' | 'stylus' | 'css-in-js' | 'tcss', AuthoringFormat>>;
 export declare function authoringCapabilities(): {
   apiVersion: 1; bridgeVersion: 1; languages: typeof languages; styles: typeof styles;
+  locales: { contribution: string; format: string; code: false; fallback: 'en'; preinstalled: string };
+  distribution: { registry: string; field: string; reviewRequired: true; executesInstallScripts: false };
   artifacts: { plugin: '.tpp'; theme: '.tpt' }; runtime: { plugin: string; theme: string }; security: string[];
   mcp: { inspectOnly: true; executesCompilers: false; invokesPlugins: false; readsUnsavedBuffers: false };
 };
@@ -29,3 +31,9 @@ export declare const LIMIT: number;
 export declare function compileTheme(theme: ThemeContribution, files: Map<string, Uint8Array>): string;
 export declare function themeStyles(manifest: PackageManifest, files: Map<string, Uint8Array>): Record<string, string>;
 export declare function atomicJson(file: string, value: unknown): void;
+
+export declare const sourceMessages: Readonly<Record<string, string>>;
+export declare function localeId(id: string): string;
+export declare function validateMessages(value: unknown, source?: Record<string, string>): Record<string, string>;
+export declare function localeContributions(manifest: PackageManifest, files: Map<string, Uint8Array>): import('./index').LanguagePack[];
+export declare function messageCoverage(messages: Record<string, string>): { total: number; translated: number; missing: string[]; unknown: string[] };

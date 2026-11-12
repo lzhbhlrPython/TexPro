@@ -11,6 +11,12 @@ function subscribe(channel, callback) {
 contextBridge.exposeInMainWorld('texpro', {
   platform: process.platform,
   safeMode: process.argv.includes('--texpro-safe-mode'),
+  extensionsSyncPending: () => ipcRenderer.invoke('extensions:sync-pending'),
+  extensionsSyncApply: id => ipcRenderer.invoke('extensions:sync-apply', id),
+  extensionsSyncDismiss: () => ipcRenderer.invoke('extensions:sync-dismiss'),
+  extensionsPending: () => ipcRenderer.invoke('extensions:pending'),
+  onExtensionPackage: callback => subscribe('extensions:package', callback),
+  languagePacks: () => ipcRenderer.invoke('extensions:languages'),
   extensionsList: () => ipcRenderer.invoke('extensions:list'),
   extensionsChoose: (development) => ipcRenderer.invoke('extensions:choose', development),
   extensionsInstall: (token) => ipcRenderer.invoke('extensions:install', token),

@@ -35,7 +35,7 @@ export function loadSettings(): Settings {
     delete stored.aiApiKey;
     delete stored.realtimePreview; // Retired experimental UI preference.
     if (stored.theme === 'glass') stored.theme = 'paper';
-    return { ...defaultSettings, ...stored, ...(window.texpro?.safeMode ? { theme: 'paper', themePackage: undefined } : {}), aiApiKey: '' };
+    return { ...defaultSettings, language: getLanguage(), ...stored, ...(window.texpro?.safeMode ? { theme: 'paper', themePackage: undefined } : {}), aiApiKey: '' };
   } catch {
     return { ...defaultSettings, aiApiKey: '' };
   }

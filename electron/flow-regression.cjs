@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { clipboard, ClipboardItem } = require('electron');
 
-module.exports = function installFlowRegression(window, { app, ipcMain }) {
+module.exports = function installFlowRegression(window, { app, ipcMain, extensionManager }) {
   const pause = (ms = 100) => new Promise(resolve => setTimeout(resolve, ms));
   const js = source => window.webContents.executeJavaScript(source);
   const wait = async source => {
@@ -29,7 +29,8 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
       const language = id.slice(-2); if (await js('document.documentElement.lang') === (language === 'zh' ? 'zh-CN' : 'en')) return;
       id = 'language';
     }
-    await click(el('[data-testid="more-menu"]')); await click(el(`[data-action="${id}"]`));
+    if (!await js('!!document.querySelector(".more-menu")')) await click(el('[data-testid="more-menu"]'));
+    await click(el(`[data-action="${id}"]`));
   };
   const save = async () => { await key('s', ['meta']); await pause(180); };
   const shot = async name => {
@@ -51,6 +52,7 @@ module.exports = function installFlowRegression(window, { app, ipcMain }) {
     await click(el('.welcome-project-row')); await wait(`!!document.querySelector('.cm-content')`);
     await js(`window.__flowErrors=[];addEventListener('error',e=>__flowErrors.push(e.message));addEventListener('unhandledrejection',e=>__flowErrors.push(String(e.reason)));true`);
     if (process.env.TEXPRO_EXTENSION_REGRESSION === '1') {
+      await require('./language-regression.cjs')({ window, key, wait, click, open, shot, js, main, extensionManager });
       await require('./extensions-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main }); app.quit(); return;
     }
     if (process.env.TEXPRO_REALTIME_REGRESSION === '1') {

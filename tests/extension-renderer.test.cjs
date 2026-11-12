@@ -4,14 +4,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 const Module = require('node:module');
 const ts = require('typescript');
+const loaded = new Map();
 function load(file) {
   const filename = path.resolve(__dirname, '..', file), mod = new Module(filename, module); mod.paths = module.paths;
+  if (loaded.has(filename)) return loaded.get(filename);
+  loaded.set(filename, mod.exports);
   const originalRequire = Module.createRequire(filename);
   mod.require = specifier => {
     const target = path.resolve(path.dirname(filename), specifier + '.ts');
     return specifier.startsWith('.') && fs.existsSync(target) ? load(target) : originalRequire(specifier);
   };
-  mod._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
+  mod._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
   return mod.exports;
 }
 const { validateResult, applyThemeTokens, extensionThemes } = load('src/app/extensions/contracts.ts');
@@ -35,12 +38,16 @@ test('one command registry rejects conflicting IDs across built-in and external 
   assert.equal(commandRegistry([action], [{ id: 'author.plugin/action', run() {} }]).length, 2);
   assert.throws(() => commandRegistry([action], [action]), /duplicate/);
   const { builtinCommands } = load('src/app/commands/builtins.ts');
+  const i18n = load('src/i18n.ts');
+  global.document = { documentElement: {} };
+  i18n.updateLanguagePacks([{ id: 'zh', title: '简体中文', messages: {} }]);
   for (const [language, label, target] of [['zh','English','language-en'],['en','简体中文','language-zh']]) {
-    let invoked=''; const handlers = new Proxy({}, { get: (_object, id) => () => { invoked=id; } });
+    i18n.setLanguage(language); let invoked=''; const handlers = new Proxy({}, { get: (_object, id) => value => { invoked = id === 'language-select' ? 'language-' + value : id; } });
     const commands = builtinCommands(handlers, {language}, null, value=>value, false, false);
     const choices = commands.filter(command => command.id.startsWith('language'));
     assert.equal(choices.length,1); assert.equal(choices[0].label,label); choices[0].run(); assert.equal(invoked,target);
   }
+  delete global.document;
 });
 
 const { applyExternalEdits } = load('src/editor/externalEdits.ts');

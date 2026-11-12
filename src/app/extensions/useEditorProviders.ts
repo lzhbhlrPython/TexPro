@@ -5,7 +5,7 @@ import type { WritingEditorPort } from '../writingPort';
 import type { Project } from '../../types';
 import { registerEditorProviders } from '../../editor/extensionProviders';
 import { validateResult } from './contracts';
-export function useEditorProviders(items: InstalledExtension[], current: () => { editor: WritingEditorPort | null; project: Project | null; generation: number }, language: 'en' | 'zh') {
+export function useEditorProviders(items: InstalledExtension[], current: () => { editor: WritingEditorPort | null; project: Project | null; generation: number }, language: string) {
   const latest = useRef({ items, current, language }); latest.current = { items, current, language };
   useEffect(() => {
     async function query(kind: 'completion' | 'hover', source: string, position: number) {

@@ -60,6 +60,7 @@ function fixture(root) {
     'dist/assets/index-a.js': '', 'dist/assets/index-a.css': '', 'dist/assets/pdf.worker-a.mjs': '',
   })) { fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true }); fs.writeFileSync(path.join(root, name), content); }
   fs.cpSync(path.join(__dirname, '../electron/services/extensions'), path.join(root, 'electron/services/extensions'), { recursive: true });
+  fs.cpSync(path.join(__dirname, '../packages/extension-translate-zh-cn/language'), path.join(root, 'packages/extension-translate-zh-cn/language'), { recursive: true });
   fs.cpSync(path.join(__dirname, '../packages/extension-sdk/lib'), path.join(root, 'packages/extension-sdk/lib'), { recursive: true });
   for (const name of ['postcss', 'postcss-value-parser', 'nanoid', 'picocolors', 'source-map-js']) {
     const destination = path.join(root, 'node_modules', name); fs.mkdirSync(destination, { recursive: true });
@@ -83,6 +84,13 @@ test('release preflight rejects missing JS, CSS and PDF workers', (t) => {
     const root = temp(t, 'texpro-release-assets-'); fixture(root);
     fs.unlinkSync(path.join(root, 'dist/assets', file));
     assert.throws(() => verifyDirectory(root), /missing/i);
+  }
+});
+test('release preflight requires package-manager and startup sync modules', t => {
+  for (const name of ['environment', 'launch']) {
+    const root = temp(t, 'texpro-release-sync-'); fixture(root);
+    fs.unlinkSync(path.join(root, 'electron/services/extensions', name + '.cjs'));
+    assert.throws(() => verifyDirectory(root), new RegExp(name + '\\.cjs'));
   }
 });
 

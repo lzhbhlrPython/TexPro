@@ -52,12 +52,12 @@ test('nightly includes merged commits regardless of date and rejects unrelated b
 });
 
 test('nightly baseline selects a published Nightly, skips drafts/stable/empty releases and paginates', async () => {
-  const release = { tag_name: 'v0.1.0-20261020-Nightly', published_at: '2026-10-20', assets: [{ state: 'uploaded', size: 100 }] };
+  const release = { tag_name: 'v0.1.0-20261020-Nightly', published_at: '2026-10-20', assets: [{ name: 'TeXPro.AppImage', state: 'uploaded', size: 100 }] };
   const calls = [];
   const first = Array.from({ length: 100 }, () => ({ ...release, tag_name: 'v0.1.0' }));
   const result = await publishedNightly('owner/repo', { token: 'fixture', fetcher: async (url, options) => {
     calls.push(url); assert.equal(options.headers.Authorization, 'Bearer fixture');
-    return { ok: true, json: async () => calls.length === 1 ? first : [{ ...release, draft: true }, { ...release, assets: [] }, release] };
+    return { ok: true, json: async () => calls.length === 1 ? first : [{ ...release, draft: true }, { ...release, assets: [] }, { ...release, tag_name: 'v0.1.0-20261021-Nightly', assets: [{ name: 'development.skill', state: 'uploaded', size: 50 }] }, release] };
   } });
   assert.equal(result, release.tag_name); assert.equal(calls.length, 2); assert.match(calls[1], /page=2$/);
   const republished = { ...release, tag_name: 'v0.1.0-20261019-Nightly', published_at: '2026-10-25' };

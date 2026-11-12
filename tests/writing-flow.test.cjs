@@ -134,9 +134,7 @@ test('Windows writing positions stay within the project and reject corrupt persi
   assert.equal(resumePosition('/project', '/project/a.tex', 'A'), null);
 });
 test('all literal interface translations and command-palette details have Chinese entries', () => {
-  const source = ts.createSourceFile('i18n.ts', fs.readFileSync(path.join(__dirname,'../src/i18n.ts'),'utf8'),99,true);
-  const keys = new Set();
-  const visitDictionary = node => { if(ts.isVariableDeclaration(node)&&node.name.getText(source)==='zh'&&ts.isObjectLiteralExpression(node.initializer))for(const p of node.initializer.properties)if(p.name)keys.add(p.name.text); ts.forEachChild(node,visitDictionary); }; visitDictionary(source);
+  const keys = new Set(Object.keys(require('../packages/extension-translate-zh-cn/language/locales/zh.json')));
   const missing=[];
   const visitFile = file => { const ast=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),99,true); const walk=node=>{
     if(ts.isCallExpression(node)&&['t','tr'].includes(node.expression.getText(ast))&&node.arguments[0]&&ts.isStringLiteralLike(node.arguments[0])&&!keys.has(node.arguments[0].text))missing.push(`${file}: ${node.arguments[0].text}`);

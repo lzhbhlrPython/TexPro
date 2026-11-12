@@ -1,6 +1,6 @@
 # Compiler and bridge work
 
-Use this reference for SDK 0.2.0 / API 1 and qwertysay 0.3.0. Read docs/extension-authoring.md and the SDK public declarations for exact versions and protocol. Packaging/compilation tests do not imply a release; verify registry and deployment outcomes separately.
+Use this reference for SDK 0.3.0 / API 1 and qwertysay 0.4.0. Read docs/extension-authoring.md and the SDK public declarations for exact versions and protocol. Packaging/compilation tests do not imply a release; verify registry and deployment outcomes separately.
 
 Authors use the bilingual qwertysay guide without arguments. Unattended scripts may use local qwertysay init with --language ts/js/coffee/purs/rescript/cljs/elm/scala/go or --type theme --style css/scss/sass/less/stylus/css-in-js/tcss. Install matching local SDK and CLI paths in one explicit npm install command. The generated README lists prerequisites: Java 21+ for modern ClojureScript, Java/sbt for Scala.js, matched Go/GopherJS and official tcss-cli for Thematic CSS. TCSS is not Textual CSS. Never silently replace a missing compiler with a hand-written output file.
 

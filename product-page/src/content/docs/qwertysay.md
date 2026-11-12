@@ -8,21 +8,21 @@ summary: 直接启动后选择创建、构建、校验或打包；语言与样�
 
 ## 启动引导，不必记参数
 
-`@gardenialiu/qwertysay` **0.3.0** 是独立 Node 工具，作者 Baolin Liu（gardenialiu），MIT。它不依赖 Electron 或 TeX；基础要求 Node.js 20+，具体编译器可能要求更高版本。SDK 保持 0.2.0 / API 1，见[SDK 指南](/docs/extension-development)。AI 协作另见[开发 Skill](/docs/extension-skill)。
+`@texpro/qwertysay` **0.4.1** 是独立 Node 工具，作者 Baolin Liu（gardenialiu），MIT。它不依赖 Electron 或 TeX；基础要求 Node.js 20+，具体编译器可能要求更高版本。SDK 保持 0.3.0 / API 1，见[SDK 指南](/docs/extension-development)。AI 协作另见[开发 Skill](/docs/extension-skill)。
 
 在普通交互终端执行一次：
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
+npx --package @texpro/qwertysay@0.4.1 qwertysay
 ```
 
 也可以全局安装后直接运行 `qwertysay`。npx／npm 可能下载工具，但 qwertysay 创建、校验和打包不会替你安装依赖。Windows PowerShell、macOS 和 Linux 终端使用相同的数字选择与回车，不依赖 shell 特有语法、彩色控制或外部菜单程序。
 
-先选简体中文或 English，再选「创建插件或主题」「构建可信源码」「校验目录或安装包」「打包分发」。每项操作显示路径和配置预览，只有明确输入 y／yes／是才开始；直接回车取消。Ctrl+C 或输入结束取消尚未开始的操作。非交互管道不会等待问题，明确失败并提示自动化入口。
+先选简体中文或 English，再选「创建插件或主题」「构建可信源码」「校验目录或安装包」「打包分发」。同一菜单也提供从 npm 获取扩展、创建 npm 分发包、创建 npm／Yarn 扩展管理环境和同步依赖。每项操作显示路径和配置预览，只有明确输入 y／yes／是才开始；直接回车取消。Ctrl+C 或输入结束取消尚未开始的操作。非交互管道不会等待问题，明确失败并提示自动化入口。
 
 ## 创建插件
 
-引导依次询问：扩展类型、新建目录、包标识、作者、开发语言。默认 TypeScript，包标识示例 `author.example`。作者写入生成的 MIT LICENSE；请改成真实署名，并核对第三方归属。
+引导依次询问：扩展类型、新建目录、包标识、作者、开发语言、包管理器（npm／Yarn）。默认 TypeScript，包标识示例 `author.example`。作者写入生成的 MIT LICENSE；请改成真实署名，并核对第三方归属。
 
 新目录必须不存在或为空，已有文件与符号链接目录会拒绝；ID、颜色和选择错误可重新填写。最终预览确认前不创建目录。确认只生成源码，不执行 npm install，也不启动编译器或扩展。
 
@@ -38,7 +38,7 @@ npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
 | Scala.js | `.scala` | Java、sbt、Scala.js |
 | GopherJS | `.go` | GopherJS 1.21、匹配的 Go 1.21.x |
 
-生成的 package.json 固定所需工具版本。先进入生成目录明确执行 `npm install`，按 README 准备非 npm 工具，再重新运行 qwertysay，选择「构建可信源码」并填写该目录。构建后在 TeXPro 扩展管理中加载 `dist/package`，不是源码根目录。
+生成的 package.json 固定所需工具版本。先进入生成目录，按所选包管理器明确执行 `npm install` 或 `yarn install`，只保留对应锁文件；Yarn 使用 node_modules。按生成的 README 准备非 npm 工具，再重新运行 qwertysay，选择「构建可信源码」并填写该目录。构建后在 TeXPro 扩展管理中加载 `dist/package`，不是源码根目录。语言包没有构建步骤，见[语言包教程](/docs/language-packs)。
 
 ## 创建主题：简单配色或高级样式
 
@@ -87,3 +87,9 @@ qwertysay pack ./my-plugin ./author.example.tpp
 ```
 
 构建工具与 Node 插件拥有用户权限；主题也可能伪装界面。校验与后缀不是安全证书。只运行可信源码并审查许可证，安装实际包后验证启停、撤销、IME、过期结果、主题和安全恢复。没有公开插件市场或自动发布作者插件的功能。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+功能插件生成后，在作者工程维护独立 i18n 库与资源；使用每次调用的 context.language 选择插件自身词典，并将依赖和资源一起构建到 .tpp。不要把功能插件误建为宿主语言包。清单多语种展示与运行消息是两条独立路径，详细示例见 SDK 指南。

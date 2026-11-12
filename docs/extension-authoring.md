@@ -2,14 +2,14 @@
 
 作者优先通过[qwertysay 引导](qwertysay.md)选择语言、类型与操作；下面的精确配置和参数用于维护及自动化。
 
-本文对应 SDK `0.2.0` / API 1 和 qwertysay `0.3.0`，API 版本仍为 1。`0.1.0` 只提供原有 TS／JS／CSS 脚手架。本轮工作不新增桌面页面：语言与样式在开发时编译，安装仍使用既有扩展管理。
+本文对应 SDK `0.3.0` / API 1 和 qwertysay `0.4.1`，API 版本仍为 1。`0.1.0` 只提供原有 TS／JS／CSS 脚手架。本轮工作不新增桌面页面：语言与样式在开发时编译，安装仍使用既有扩展管理。
 
 ## 使用 npm 工具
 
 使用固定版本的 CLI 创建工程：
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
+npx --package @texpro/qwertysay@0.4.1 qwertysay
 ```
 
 进入生成目录，安装模板声明的依赖后构建：

@@ -1,3 +1,4 @@
+import { availableLanguages, getLanguage } from '../../i18n';
 import { BarChart3, BookMarked, Bold, Bot, FolderTree, BookOpen, Columns3, CircuitBoard, Clapperboard, CloudUpload, Code2, Command, Download, Eye, EyeOff, FileText, FileImage, FileInput, FlaskConical, Gavel, GitBranch, FolderOpen, Focus, History, Image, Italic, LayoutTemplate, List, Link2, MessageSquare, Moon, Music2, Network, Paintbrush, Package, PanelLeft, Plug, Stethoscope, PanelRight, PenTool, Play, Save, Search, Settings2, ShoppingBag, Sigma, Sparkles, Sun, Table2, Terminal, Users, Type } from 'lucide-react';
 import type { Settings, Project } from '../../types';
 import type { AppCommand } from './types';
@@ -5,7 +6,7 @@ import { writingSnippets } from '../../lib/writingSnippets';
 import { t as translate } from '../../i18n';
 
 /** One command catalog for menus, search and extension contributions. */
-export function builtinCommands(handlers: Record<string, () => void>, settings: Settings, project: Project | null, t: typeof translate, sidebarOpen: boolean, pdfOpen: boolean): AppCommand[] {
+export function builtinCommands(handlers: Record<string, (id?: string) => void>, settings: Settings, project: Project | null, t: typeof translate, sidebarOpen: boolean, pdfOpen: boolean): AppCommand[] {
   return [
     { id: 'placeholder', label: 'Insert placeholder', shortcut: '⌘⇧H', group: 'Insert', icon: FileText, run: handlers["placeholder"] },
     { id: 'placeholders', label: 'Placeholders', group: 'Tools', icon: List, run: handlers["placeholders"] },
@@ -79,7 +80,7 @@ export function builtinCommands(handlers: Record<string, () => void>, settings: 
     { id: 'theme-studio', label: t('Theme: Studio'), group: 'Appearance', icon: Sun, run: handlers["theme-studio"] },
     { id: 'theme-night', label: t('Theme: Night'), group: 'Appearance', icon: Moon, run: handlers["theme-night"] },
     { id: 'theme-paper', label: t('Theme: Paper'), group: 'Appearance', icon: BookOpen, run: handlers["theme-paper"] },
-    { id: 'language', label: settings.language === 'zh' ? 'English' : '简体中文', detail: settings.language === 'zh' ? 'Switch the interface to English' : 'Switch the interface to Chinese', keywords: 'Chinese English 中文 英语 语言 language', group: 'Appearance', icon: Command, run: handlers[settings.language === 'zh' ? 'language-en' : 'language-zh'] },
+    ...availableLanguages().filter(item => item.id !== getLanguage()).map(item => ({ id: availableLanguages().length <= 2 ? 'language' : 'language-' + item.id, label: item.title, keywords: 'language 语言', group: 'Appearance', icon: Command, run: () => handlers['language-select'](item.id) })),
     { id: 'reveal-pdf', label: t('Reveal PDF in Finder'), group: 'Build', icon: FolderOpen, run: handlers["reveal-pdf"] },
     { id: 'open-pdf', label: t('Open PDF in default viewer'), group: 'Build', icon: Command, run: handlers["open-pdf"] },
     ...writingSnippets.map(item => ({ id: item.id, label: item.label, group: 'Insert', icon: item.id === 'circuit' ? CircuitBoard : item.id === 'logic' ? GitBranch : item.id === 'structure' || item.id === 'skeletal' ? FlaskConical : PenTool, run: handlers[item.id] }))
