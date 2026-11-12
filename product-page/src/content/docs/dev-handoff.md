@@ -40,3 +40,7 @@ git log -5 --oneline
 ## 按任务分支与及时提交
 
 同一任务的补充、验证和文档维护复用当前任务分支，不按消息、会话或提交次数新建分支；独立任务再分支。通过相应检查后及时提交，有已配置且授权的远端则及时推送任务分支。用户要求仅本地或暂不推送时遵从，合并 main 与发版仍需对应授权；远端失败要说明，不声称已同步。
+
+## 扩展与主题交接
+
+先读仓库 docs/extensions.md、docs/extension-development.md 和 packages/extension-sdk/index.d.ts。命令目录、写作端口、提供器、主题应用与工作空间已分别抽离。新增适配先补真实服务和编辑事务测试，完整基线零跳过，再跑原生与包内验证。themes/ 与 extensions/ 有独立职责；CSS、字体与资源需检查清理和外观恢复。高级提供器、DOM 选择器及面板贡献为实验性，无公开市场或自动 stdio MCP 注册。SDK 与 qwertysay 是独立 npm 开发包；源码分别在 packages/extension-sdk 与 packages/qwertysay，调用公开 package-tools 核心，不复制校验器。发布版本和状态以注册表及开发指南为据。

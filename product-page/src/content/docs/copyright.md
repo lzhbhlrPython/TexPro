@@ -75,7 +75,7 @@ TeXPro 站在大量开源项目上。下表列出主要依赖及其真实许可�
 
 | 组件 | 版本 | 许可证 | 用途 |
 | --- | --- | --- | --- |
-| rtex-ts / realtime-tex Lua/TeX | 0.1.0 / 0.0.7 | MIT | 实时段落排版与上下文捕获 |
+| rtex-ts / realtime-tex Lua/TeX | 0.1.11 / 0.0.7 | MIT | 实时段落排版与上下文捕获 |
 | fontkit | 2.0.4 | MIT | TeX 字形轮廓 |
 | Electron | 44.x | MIT | 桌面运行时与原生菜单 |
 | React / React DOM | 19.x | MIT | 渲染层界面 |
@@ -209,3 +209,9 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 维护者会核对后处理。涉及商标误用、冒充官方构建的情况也可以用同一渠道反馈。请勿在公开 Issue 中粘贴 API 密钥、未公开的稿件或他人的个人信息。
 
 > 本页会随依赖与许可变化更新；已发布版本仍以其随附的 `LICENSE` 为准。本页不构成法律意见。
+
+## 插件、主题与灵感
+
+插件生命周期与服务组织参考 Koishi 的设计思路，使用 TeXPro 自有 API 与包格式，未包含 Koishi 运行时、控制台源码或市场，不兼容其插件。新增宿主、SDK、示例和开发 Skill 为 MIT。PostCSS 8.5.32（Andrey Sitnik）和 postcss-value-parser 4.2.0（Bogdan Chadkin）用于解析主题样式，保留各自 MIT 声明。插件作者及其资源、字体、第三方依赖保留各自许可，TeXPro 的 MIT 不改变它们的权利。详见根 THIRD_PARTY_NOTICES.md。
+
+独立开发包 `@gardenialiu/texpro-extension-sdk` 与 `@gardenialiu/qwertysay` 由 Baolin Liu（gardenialiu）以 MIT 维护；各自包含 LICENSE。脚手架生成包的作者与许可证由开发者声明，不能将 SDK 作者冒认为插件作者。

@@ -123,8 +123,8 @@ export function SiteHeader() {
             onClick={toggleTheme}
             aria-label={t(mode === 'dark' ? '切换到日间模式' : '切换到夜间模式')}
           />
-          <Button type="text" className="locale-switch" onClick={toggle} aria-label={t('切换语言')}>
-            {locale === 'zh' ? 'EN' : '中文'}
+          <Button type="text" className="locale-switch" onClick={toggle} aria-label={locale === 'zh' ? 'Switch to English' : '切换为简体中文'}>
+            {locale === 'zh' ? 'English' : '简体中文'}
           </Button>
           <Button
             type="text"

@@ -1527,6 +1527,10 @@ git log -5 --oneline
 
 同一任务的补充、验证和文档维护复用当前任务分支，不按消息、会话或提交次数新建分支；独立任务再分支。通过相应检查后及时提交，有已配置且授权的远端则及时推送任务分支。用户要求仅本地或暂不推送时遵从，合并 main 与发版仍需对应授权；远端失败要说明，不声称已同步。
 
+## 扩展与主题交接
+
+先读仓库 docs/extensions.md、docs/extension-development.md 和 packages/extension-sdk/index.d.ts。命令目录、写作端口、提供器、主题应用与工作空间已分别抽离。新增适配先补真实服务和编辑事务测试，完整基线零跳过，再跑原生与包内验证。themes/ 与 extensions/ 有独立职责；CSS、字体与资源需检查清理和外观恢复。高级提供器、DOM 选择器及面板贡献为实验性，无公开市场或自动 stdio MCP 注册。SDK 与 qwertysay 是独立 npm 开发包；源码分别在 packages/extension-sdk 与 packages/qwertysay，调用公开 package-tools 核心，不复制校验器。发布版本和状态以注册表及开发指南为据。
+
 ---
 
 # MCP：把工程交给 AI
@@ -1982,7 +1986,7 @@ TeXPro 站在大量开源项目上。下表列出主要依赖及其真实许可�
 
 | 组件 | 版本 | 许可证 | 用途 |
 | --- | --- | --- | --- |
-| rtex-ts / realtime-tex Lua/TeX | 0.1.0 / 0.0.7 | MIT | 实时段落排版与上下文捕获 |
+| rtex-ts / realtime-tex Lua/TeX | 0.1.11 / 0.0.7 | MIT | 实时段落排版与上下文捕获 |
 | fontkit | 2.0.4 | MIT | TeX 字形轮廓 |
 | Electron | 44.x | MIT | 桌面运行时与原生菜单 |
 | React / React DOM | 19.x | MIT | 渲染层界面 |
@@ -2116,5 +2120,142 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 维护者会核对后处理。涉及商标误用、冒充官方构建的情况也可以用同一渠道反馈。请勿在公开 Issue 中粘贴 API 密钥、未公开的稿件或他人的个人信息。
 
 > 本页会随依赖与许可变化更新；已发布版本仍以其随附的 `LICENSE` 为准。本页不构成法律意见。
+
+## 插件、主题与灵感
+
+插件生命周期与服务组织参考 Koishi 的设计思路，使用 TeXPro 自有 API 与包格式，未包含 Koishi 运行时、控制台源码或市场，不兼容其插件。新增宿主、SDK、示例和开发 Skill 为 MIT。PostCSS 8.5.32（Andrey Sitnik）和 postcss-value-parser 4.2.0（Bogdan Chadkin）用于解析主题样式，保留各自 MIT 声明。插件作者及其资源、字体、第三方依赖保留各自许可，TeXPro 的 MIT 不改变它们的权利。详见根 THIRD_PARTY_NOTICES.md。
+
+独立开发包 `@gardenialiu/texpro-extension-sdk` 与 `@gardenialiu/qwertysay` 由 Baolin Liu（gardenialiu）以 MIT 维护；各自包含 LICENSE。脚手架生成包的作者与许可证由开发者声明，不能将 SDK 作者冒认为插件作者。
+
+---
+
+# 本地插件包
+
+> 安装、信任、配置和手动更新 TeXPro 扩展，保留本地优先的写作流程。
+
+## 安装与启用
+
+从命令面板打开「扩展」，选择「安装插件包…」，加载作者提供的 `.tpp` 插件包或 `.tpt` 主题包。检查名称、作者、版本、许可证、能力和摘要，再选择「安装并保持停用」。包需要 API 1 清单和 LICENSE。
+
+数据包可提供补全、片段、模板和主题。代码包需要勾选信任声明后启用；它们是以当前用户权限运行的 Node 扩展，独立进程用于故障隔离，不是安全沙箱。仅启用你信任的代码。没有公开市场，不会自动下载或更新插件。
+
+## 使用能力
+
+启用的命令进入既有命令面板与工具菜单，静态和动态补全进入正文编辑器。检查器可将结果放入问题面板；转换工具展示修改提案，接受后一次应用，也可一次撤销。文档、工程或扩展状态改变后，不接受过期结果。
+
+插件可以提供按需工具和独立工作台、项目模板、纯文本预览、导入工程提案、导出和文献／素材文本结果。高级提供器仍为实验性；MCP 数据提供器不会自动开放给外部 MCP 客户端。能力接入范围见[插件开发](/docs/extension-development)。
+
+## 更新与恢复
+
+重新安装同一 id 的包完成手动更新。更新后保持停用，重新检查再启用；需要时选择「恢复上一版本」。卸载保留插件本地存储，原始分发文件和作者文档不受影响。
+
+启用失败、进程崩溃和超时会显示错误并停用代码扩展；禁用后不再贡献命令、补全、诊断或主题。重新启用可以重试。若包不兼容 API、内容改变或归档损坏，安装会拒绝。
+
+## 开发模式与主题
+
+「加载开发目录…」安装目录的已校验快照。修改后选择「从目录重新加载」，再检查并启用；不会直接热执行尚未检查的目录修改。宿主不运行安装脚本，不安装 npm 依赖，不加载原生二进制。
+
+主题包的预览、取消、应用与内置主题恢复见[主题包](/docs/themes)。扩展面板、修改提案和专业画布预览来自真实应用；它们的实现和验证说明见开发文档与博客。
+
+## 安全与独立恢复
+
+代码插件可能以你的用户权限读取文件、访问网络、启动进程或接触用户可访问的凭据。能力清单与独立进程不构成恶意代码沙箱。主题无需代码也可能遮挡按钮、伪装界面或损害可读性。只启用可信作者和已检查的包；SHA-256 不是作者签名。
+
+界面被主题破坏时，使用系统原生「视图 → 重置外观并停用扩展」。也可加 `--safe-mode` 启动，在执行插件前停用所有扩展并恢复纸面。macOS：`open -a TeXPro --args --safe-mode`；Windows：`TeXPro.exe --safe-mode`；Linux：可执行文件或 AppImage 加同一参数。停用会保存，之后逐项重新检查并启用。
+
+分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
+
+---
+
+# 主题包
+
+> 预览和应用本地主题包，保留三种基础模式及正式 PDF 的原始颜色。
+
+## 安装与应用
+
+主题包通过[扩展](/docs/extensions)安装和启用，不需要执行 JavaScript；带 CSS 的包需确认样式风险后才能启用。选择主题的「预览」暂时查看效果；关闭扩展面板取消预览，恢复此前已应用主题。「应用主题」保存选择，重新启动后恢复。
+
+主题继承 paper、studio 或 night 基础模式。studio 仍为暗工具栏与亮纸面，不会被当成全暗模式。选择内置主题或执行日夜切换会清除包主题选择。停用、卸载或主题不可用时，界面清除包 token 并回退基础模式。
+
+## 作用范围
+
+主题可以调整工具界面、正文纸面、语法、选区、诊断和焦点等语义色，也可以指定界面／正文／等宽字体、字号、正文宽度、圆角和间距。未提供的颜色继承基础模式。正式 PDF、作者字体及图稿指定颜色保持独立；屏幕配色不会写进文档。
+
+主题可以提供包内 CSS，调整布局、排版和交互状态，并引用随包分发的图片与字体。不会安装系统字体，也不加载远程资源或执行 JavaScript。CSS 通过解析器校验并作用于活动主题；减少动态效果偏好下停用包动画和过渡。颜色为六／八位十六进制，字体为普通字体族列表。字号允许 12–36px、正文宽度 400–1600px、圆角 0–24px，间距单位 2–12px 供主题样式使用。包字号和宽度优先于写作设置；切回内置主题后恢复用户设置。
+
+CSS 清单项为 `stylesheet`，需声明 `theme.styles`。普通规则位于主题作用域内，可用 `:scope` 指向根，支持 media、supports、container、layer、font-face、keyframes。`url` 仅允许相对 CSS 的包内 PNG/JPEG/WebP/GIF、WOFF/WOFF2/TTF/OTF。禁止 @import、远程／data URL、CSS 转义、越界和其他资源加载函数。CSS 源上限 128 KiB、单资源 1 MiB、展开资源每主题 2 MiB、包内生成样式合计 4 MiB；具体契约与示例见开发文档。选择器不是跨版本稳定 API，应用升级后需重新验证。
+
+## 安全与恢复
+
+主题样式有很大自由度，也可能隐藏操作、遮挡内容、伪装可信提示或破坏可访问性。字体与图片也应来自可信来源。校验、作用域和“没有 JavaScript”均不等于安全认证；启用前查看作者、许可证和包内容。代码插件还具有本机文件、网络和进程能力。
+
+界面不可用时，从系统原生「视图」菜单选择「重置外观并停用扩展」，或使用 `--safe-mode` 启动。安全模式在执行插件前停用全部扩展，并恢复内置纸面；恢复后逐项检查再启用。跨平台启动命令见[本地插件包](/docs/extensions)。
+
+## 开发主题
+
+仓库的 `examples/extensions/quiet-paper` 是无代码示例，SDK 与 Skill 入口见[插件开发](/docs/extension-development)。请逐项检查正文、菜单、选区、语法、诊断、焦点和窄窗口，并提供准确的真实截图。
+
+---
+
+# 插件 SDK 与开发 Skill
+
+> 使用 API 1 开发和分发本地插件包、工具和主题，理解契约、测试与当前边界。
+
+## 开发入口
+
+独立 npm 包 `@gardenialiu/texpro-extension-sdk` 提供 API 1 类型与共用核心，`@gardenialiu/qwertysay`（命令 `qwertysay`）提供脚手架、离线校验与打包，作者为 Baolin Liu（gardenialiu），MIT。无需 Electron／TeX；要求 Node.js 20+。源码位于仓库 `packages/extension-sdk/`，类型在 `index.d.ts`。`examples/extensions/writing-kit` 展示处理器与服务，`quiet-paper` 展示无代码资源。配套 `skills/texpro-extension-development/` 可整体安装到你的 AI 工具技能目录；应用不会自动安装全局 Skill。
+
+机制借鉴 Koishi 的生命周期与服务组织思路，使用 TeXPro 自有实现与协议，不复用其运行时、控制台源码或市场服务，也不兼容 Koishi 插件格式。TeXPro 新增代码及示例为 MIT；第三方内容保留各自许可。
+
+```sh
+npx --package @gardenialiu/qwertysay qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
+cd my-plugin
+npm install
+npm run build
+npm run check:extension
+npm run pack:extension
+```
+
+默认生成 TypeScript；`--language js` 无需构建，`--type theme` 生成主题。输出到源码目录外，拒绝覆盖。CLI 不自动安装依赖、联网或执行扩展代码；`npx` 可能下载 SDK。也可使用 `qwertysay check` 校验目录／归档，或 `qwertysay pack` 打包。
+
+## 包格式与处理器
+
+包根包含 `texpro.extension.json` 与 LICENSE，清单声明 namespaced id、作者、版本、许可证、`apiVersion: 1`、能力和贡献项。自包含入口为 `.cjs` 或 `.mjs`；TypeScript 需先编译。没有安装脚本、运行时依赖安装或原生二进制加载。ZIP 最大 16 MiB、300 文件，拒绝越界、符号链接、重复路径和损坏内容。
+
+```js
+exports.activate = ctx => {
+  ctx.handle('rewrite', context => {
+    const { from, to } = context.selection;
+    return { edits: [{ from, to, insert: context.source.slice(from, to).toUpperCase() }] };
+  });
+};
+```
+
+动作须在清单声明；偏移使用 UTF-16。用户接受提案后，宿主校验工程代数、文件、文档身份和包状态，经编辑器事务修改，保留撤销与输入法。处理器可以返回诊断、补全、纯文本、导出文件、工程创建提案或编译请求；编译仍使用原有保存与主文件流程。
+
+## 能力与生命周期
+
+可声明读取文档、提出正文修改、读取工程、请求构建、本地存储、网络和自定义主题样式。调用快照包含获准的未保存内容；`project.readFile` 与符号服务读取磁盘。存储每插件最多 1 MiB，配置不是密钥存储。
+
+使用 `ctx.handle`、`ctx.on`、`ctx.onDispose` 和返回的清理函数。加载上限 5 秒，调用上限 10 秒；失败、崩溃和超时使扩展停用。关闭或换工程后不接受旧结果。代码插件仍具有当前用户的 Node 权限，可能读取文件、联网或启动进程，SDK 声明不是安全沙箱。主题样式也可能隐藏控件或伪装界面；仅启用可信来源。
+
+静态资源、生命周期和基础结果为 API 1 稳定边界；高级提供器及界面贡献为实验性。动态补全和悬浮信息有编辑器适配；检查器接入问题面板；其余提供器在显式工具中调用。MCP 数据不会自动注册到外部 stdio MCP。主题支持语义色、字体、尺寸与受控包内 CSS／资源，具体契约见[主题包](/docs/themes)；内容预览为纯文本。首期不开放任意 React/HTML、二进制素材结果或自定义 TeX 引擎进程。
+
+## 验证与分发
+
+```sh
+npm run test:extensions
+npm run typecheck
+npm run test:extensions:ui
+node scripts/pack-extension.cjs examples/extensions/quiet-paper /tmp/quiet-paper.tpt
+```
+
+输出文件须不存在。在临时用户目录实际安装打包结果，验证启停、配置、错误、过期结果、IME、撤销、主题和卸载。修改宿主需重跑完整回归基线：零失败、零跳过、零 TODO。不能用定向补跑代替整套通过。
+
+开发目录修改后重新加载会安装停用快照，需要重新检查和启用。包通过文件自行分发；手动更新可恢复上一版本，卸载保留插件数据。交接包含源码、包、许可证、API 版本、测试命令、实际证据和限制。完整宿主边界见仓库 `docs/extensions.md`、`docs/extension-development.md` 与[接手指南](/docs/dev-handoff)。
+
+L3 工作台复用系统标题栏与焦点恢复。macOS 顶部避让原生窗口按钮，Windows／Linux 保持各自标题栏布局；插件内容不应覆盖宿主导航。
+
+分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
 
 ---

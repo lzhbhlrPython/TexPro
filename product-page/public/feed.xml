@@ -5,8 +5,20 @@
     <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
     <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 10 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 11 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>本地插件、自由主题，以及有职责的工作台</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces</guid>
+      <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
+      <description>用共享命令、写作端口和专业工作台开放 API 1，本地分发插件与主题，同时把信任和恢复说清楚。</description>
+      <category>[扩展</category>
+      <category>主题</category>
+      <category>架构</category>
+      <category>连续写作</category>
+      <category>验证]</category>
+    </item>
     <item>
       <title>未保存的这一句，也可以先排出来</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/realtime-tex</link>

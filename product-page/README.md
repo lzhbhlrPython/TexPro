@@ -70,3 +70,5 @@ vite.config.ts 的 contentFiles 插件在 buildStart 执行 gen-feed.mjs 与 gen
 Pages 自动来源仅产品页路径变化与成功 Nightly 的准确 tag 刷新；PR 仅构建，main 才部署，保留手动入口。详见 [部署文档](../docs/product-page-deployment.md)。
 
 内容交付核对中英 slug、站内链接、front matter、实际命令、生成产物、版式检查、类型与构建。壳层变更另验窄屏、主题、键盘、reduced motion 和子路径。dist、缓存、本地环境及私人记录沿用 .gitignore，不进入提交。
+
+2026-11-12：按本地扩展／工作台改造授权更新实际预览图、扩展展示、统计和单一目标语言切换；保持现有区块、Ant Design 与纸面视觉。图像来源和原始摘要见 `public/shots/README.md`。当前统计由完整基线、preload 和双语同 slug 文档核对；SDK 与 qwertysay 的发布入口同步到开发文档。

@@ -42,7 +42,7 @@ export function Hero() {
           </h1>
 
           <p className="hero-lede">
-            {t('TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，而文件始终留在你自己的磁盘上。')}
+            {t('TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，工程默认保存在本机，联网能力由你选择。')}
           </p>
 
           <Space size={12} wrap className="hero-actions">

@@ -79,7 +79,7 @@ export function Themes() {
             alt={current.label}
             caption={current.desc}
             width={1600}
-            height={1152}
+            height={1003}
           />
         </div>
 
@@ -88,7 +88,7 @@ export function Themes() {
             <li className="mode-item" key={mode.title}>
               <img
                 className="mode-thumb"
-                src={mode.src}
+                src={`${import.meta.env.BASE_URL}${mode.src.replace(/^\//, '')}`}
                 alt={mode.title}
                 loading="lazy"
                 style={{ borderColor: token.colorBorderSecondary }}
@@ -114,7 +114,7 @@ export function Themes() {
             rightLabel="Night"
             alt="同一份文档的两种主题"
             width={1600}
-            height={1152}
+            height={1003}
           />
         </figure>
       </div>

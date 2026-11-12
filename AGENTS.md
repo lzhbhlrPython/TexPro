@@ -90,6 +90,7 @@ TeXPro 以连续写作为核心，但不追求绝对的零界面。复杂功能�
 | `electron/services/` | 文件、主文件解析、编译、SyncTeX、历史、Git、协作及本地服务 |
 | `electron/services/writing-aids-core.mjs` | 渲染层、原生服务和 MCP 共用的纯写作源码操作；无 Node／DOM 依赖 |
 | `mcp/server.mjs` | 可由普通 Node 独立启动的 stdio MCP 服务 |
+| `packages/extension-sdk/`、`packages/qwertysay/` | 独立 npm SDK 与 qwertysay 脚手架；通过公开 package-tools 共用校验核心，不依赖 Electron／React；双语说明、实际 tarball 验收与发布状态同轮核对 |
 | `product-page/` | 独立的静态产品站、文档和博客；不参与 Electron 打包 |
 | `docs/` | 仓库架构、工程约定、维护及验证说明 |
 | `tests/`、`scripts/`、`.github/workflows/` | 回归、资源核验、构建与发布 |

@@ -64,10 +64,10 @@ export function CompareSlider({
           updateFromClientX(event.clientX);
         }}
       >
-        <img className="compare-img" src={leftSrc} alt={`${alt} · ${leftLabel}`} width={width} height={height} />
+        <img className="compare-img" src={leftSrc.startsWith('/') && !leftSrc.startsWith('//') ? `${import.meta.env.BASE_URL}${leftSrc.slice(1)}` : leftSrc} alt={`${alt} · ${leftLabel}`} width={width} height={height} />
         <img
           className="compare-img compare-img-top"
-          src={rightSrc}
+          src={rightSrc.startsWith('/') && !rightSrc.startsWith('//') ? `${import.meta.env.BASE_URL}${rightSrc.slice(1)}` : rightSrc}
           alt={`${alt} · ${rightLabel}`}
           width={width}
           height={height}

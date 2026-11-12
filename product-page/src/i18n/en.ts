@@ -3,6 +3,19 @@
  * 这样组件里只需要 t('中文')，缺条目时自动回落成中文，不会白屏。
  */
 export const EN: Record<string, string> = {
+"正文原位预览，复杂绘图进入工作台": "Inline previews, a workspace for complex diagrams",
+"乐谱、曲线和图示仍在正文中预览。需要多区域操作时，电路、逻辑门和结构式使用完整画布，完成后返回此前的写作位置。": "Music, plots and diagrams still preview in the document. Circuits, logic and chemical structures use a full canvas when multiple regions are needed, then return you to writing.",
+"电路工作台：元件栏、完整画布、检查器与实际 TeX 预览": "Circuit workspace: components, full canvas, inspector and actual TeX preview",
+"独立绘图任务使用共享工作台，返回正文继续写作": "Dedicated drawing tasks share a workspace and return to writing",
+"扩展": "Extensions",
+"按需扩展，保留自己的写作方式": "Extend on demand, keep your writing flow",
+"从可信作者安装本地插件包和主题包。命令、补全、检查和工具接入既有流程；主题可定制字体、布局和样式，启用前明确查看能力与风险。": "Install local extensions and themes from trusted authors. Commands, completions, checkers and tools join existing workflows. Themes customize fonts, layout and styles; review capabilities and risks before enabling.",
+"自行分发和手动更新，无公开市场": "Manual distribution and updates, with no public market",
+"修改提案经确认后应用，保留撤销": "Accept proposed edits with undo preserved",
+"原生菜单重置与安全模式恢复": "Native reset command and safe-mode recovery",
+"本地扩展管理：已安装包、能力、配置与代码及主题风险提示": "Local extension manager: installed packages, capabilities, configuration and code/theme risks",
+"真实应用中的本地插件与主题管理；仅启用可信来源": "Local packages and themes in the real application; enable only trusted sources",
+"以下均为真实应用截图，展示正文编辑、专业画布与本地扩展。": "Real application screenshots showing writing, professional canvases and local extensions.",
   // 导航与外框
   博客: 'Blog',
   文档: 'Docs',
@@ -24,8 +37,8 @@ export const EN: Record<string, string> = {
   免登录: 'No sign-in',
   让: 'Make',
   像纸面一样好写: 'as natural as paper.',
-  'TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，而文件始终留在你自己的磁盘上。':
-    'TeXPro puts visual editing, paper-like typesetting and a real LaTeX project in one window: formulas, tables, TikZ and scores render in place, PDF and source jump both ways, and your files never leave your disk.',
+  'TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，工程默认保存在本机，联网能力由你选择。':
+    'TeXPro puts visual editing, paper-like typesetting and a real LaTeX project in one window: formulas, tables, TikZ and scores render in place, PDF and source jump both ways, and projects stay local by default, with optional network features.',
   '看看能做什么': 'See what it does',
   'TeXPro 主界面：左侧项目树与主文件，中间可视编辑器，右侧 PDF 预览':
     'TeXPro main window: project tree on the left, visual editor in the middle, PDF preview on the right',
@@ -156,7 +169,7 @@ export const EN: Record<string, string> = {
   'MusiXTeX、pgfplots、TikZ 都有可视化面板': 'Visual panels for MusiXTeX, pgfplots and TikZ',
   '写作模式（聚焦 / 打字机 / 纸面主题）': 'Writing modes (focus / typewriter / paper themes)',
   '长文写作时只留下当前段落': 'Only the current paragraph stays lit',
-  '完全离线，文件不离开本机': 'Fully offline, files stay local',
+  '本地优先，联网能力按需启用': 'Local first, optional network features',
   '不建账号、不上传、不收集使用数据': 'No account, no upload, no usage data',
 
   // 数据流向
@@ -356,23 +369,23 @@ export const EN: Record<string, string> = {
   '可以核对的部分': 'The parts you can verify',
   '下面几行来自当前仓库与最近一次夜间构建，不是估算。':
     'The lines below come from the repository and the latest nightly build. Nothing here is estimated.',
-  '100 个用例、16 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    '100 tests across 16 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
-  '96 个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
-    '96 IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
+  '119 个用例、19 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    '119 tests across 19 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '106 个 IPC 通道，preload 与主进程对应，按能力校验路径、参数和状态。':
+    '106 IPC channels: preload matches the main process, with capability-specific path, argument and state validation.',
   '每次夜间构建产出 8 个安装包，三个平台来自同一份 main。':
     'Every nightly build produces 8 installers; all three platforms come from the same main branch.',
-  '24 篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。':
-    '24 documents, each in Chinese and English; when a translation is missing it falls back to Chinese with a note at the top.',
+  '27 篇文档，每篇都有中文与英文两版；缺译文时回落中文并在页头注明。':
+    '27 documents, each in Chinese and English; when a translation is missing it falls back to Chinese with a note at the top.',
   'RSS 订阅': 'RSS feed',
   '可核对：': 'Verifiable: ',
-  '100 条回归用例': '100 regression tests',
-  '96 个 IPC 通道': '96 IPC channels',
+  '119 条回归用例': '119 regression tests',
+  '106 个 IPC 通道': '106 IPC channels',
   '每次夜构 8 个安装包': '8 installers per nightly',
-  '24 篇文档，中英各一版': '24 documents in Chinese and English',
+  '27 篇文档，中英各一版': '27 documents in Chinese and English',
   '拖动分割线，对比 Studio 与 Night': 'Drag the divider to compare Studio and Night',
-  '条回归用例，16 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    'regression tests across 16 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '条回归用例，19 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    'regression tests across 19 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
   '个 IPC 通道，preload 与主进程逐条对应，读写都先过工程根目录白名单。':
     'IPC channels: preload mirrors the main process one for one, and every read or write passes the project-root allowlist first.',
   '个安装包 / 次夜构，三个平台来自同一份 main。':
@@ -416,9 +429,9 @@ export const EN: Record<string, string> = {
   '项目是什么': 'What the project is',
   'TeXPro 是一个本地优先的 LaTeX 桌面工作台：可视编辑、纸面排版与工程化编译放在同一个窗口。它不是 Markdown 编辑器，也不是在线协作平台；源码 .tex 是文档原件，排版以本机 TeX 生成的 PDF 为准。': 'TeXPro is a local-first LaTeX desktop workbench: visual editing, paper-like typesetting and project-aware compilation in one window. It is not a Markdown editor or an online collaboration platform; the .tex source is the document of record and the PDF produced by the local TeX toolchain is the output.',
   '可以引用的事实': 'Facts you can cite',
-  '主进程与 preload 使用 96 个 IPC 通道，其中 91 个请求、5 类事件。': 'The main process and preload use 96 IPC channels: 91 requests and 5 event types.',
-  'tests/ 下有 16 个测试文件、100 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 16 files and 100 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
-  '文档 24 篇，中文与英文各一版；博客只写简体中文。': '24 documentation pages, one Chinese and one English version each; the blog is written in Simplified Chinese only.',
+  '主进程与 preload 使用 106 个 IPC 通道，其中 100 个请求、6 类事件。': 'The main process and preload use 106 IPC channels: 100 requests and 6 event types.',
+  'tests/ 下有 19 个测试文件、119 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 19 files and 119 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
+  '文档 27 篇，中文与英文各一版；博客只写简体中文。': '27 documentation pages, one Chinese and one English version each; the blog is written in Simplified Chinese only.',
   '当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。': 'The current nightly configuration produces 8 distribution packages: 2 for macOS, 3 for Windows and 3 for Linux.',
   '机器可读入口': 'Machine-readable entry points',
   'llms.txt：站点结构与文档、博客的纯文本索引': 'llms.txt: plain-text index of the site, docs and blog',
@@ -467,12 +480,12 @@ export const EN: Record<string, string> = {
   '占位符': 'Placeholder',
   '参考文献': 'References',
   '正文里的每个上标、每个数字都在这张表里：左边是出处，右边是那句结论，编号与正文一一对应。': 'Every superscript and every number on this page appears in this table: source on the left, the claim on the right, numbered to match the text.',
-  '条回归用例': 'regression tests across 16 files',
+  '条回归用例': 'regression tests across 19 files',
   '个 IPC 通道': 'IPC channels, one-to-one with the preload bridge',
   '个安装包 / 次夜构': 'installers per nightly build, three platforms',
   '篇文档，中英各一版': 'docs, Chinese and English editions',
   '正文里的每个上标都能在这里找到出处：左边是文件，右边是那句结论，编号与正文一一对应。': 'Every superscript on this page points back here: the file on the left, the claim on the right, numbered to match the text.',
-  '个 IPC 通道（91 个请求、5 类事件）。': 'IPC channels (91 requests and 5 event types).',
+  '个 IPC 通道（100 个请求、6 类事件）。': 'IPC channels (100 requests and 6 event types).',
   '个安装包 / 次夜构，三平台同一份 main。': 'installers per nightly build, all three platforms from the same main branch.',
   '篇文档，中英各一版；缺译文时回落中文并在页头注明。': 'documents, Chinese and English editions; missing translations fall back to Chinese with a note.',
   '检测到的平台': 'Detected platform',

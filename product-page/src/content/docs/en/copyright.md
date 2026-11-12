@@ -75,7 +75,7 @@ TeXPro stands on a large number of open-source projects. The table below lists t
 
 | Component | Version | License | Purpose |
 | --- | --- | --- | --- |
-| rtex-ts / realtime-tex Lua/TeX | 0.1.0 / 0.0.7 | MIT | Incremental paragraph typesetting and context capture |
+| rtex-ts / realtime-tex Lua/TeX | 0.1.11 / 0.0.7 | MIT | Incremental paragraph typesetting and context capture |
 | fontkit | 2.0.4 | MIT | TeX glyph outlines |
 | Electron | 44.x | MIT | Desktop runtime and native menus |
 | React / React DOM | 19.x | MIT | Rendering-layer interface |
@@ -209,3 +209,9 @@ If you believe that code, documentation, screenshots, or demo assets in the repo
 Maintainers will verify and respond. Trademark misuse or impersonation of official builds can also be reported through the same channel. Do not paste API keys, unpublished manuscripts, or other people's personal information in public Issues.
 
 > This page is updated as dependencies and licenses change; released versions remain governed by the `LICENSE` shipped with them. This page does not constitute legal advice.
+
+## Extensions, themes and inspiration
+
+Extension lifecycle and service organization take conceptual inspiration from Koishi. TeXPro uses its own API and package format, includes no Koishi runtime, console source or market, and is not compatible with Koishi plugins. New host, SDK, examples and development Skill are MIT. PostCSS 8.5.32 (Andrey Sitnik) and postcss-value-parser 4.2.0 (Bogdan Chadkin) parse theme styles and retain their MIT notices. Plugin authors, assets, fonts and third-party dependencies retain their own licenses; TeXPro MIT does not change their rights. See root THIRD_PARTY_NOTICES.md.
+
+The independent `@gardenialiu/texpro-extension-sdk` and `@gardenialiu/qwertysay` packages are maintained by Baolin Liu (gardenialiu), under MIT, each with LICENSE. Scaffolded extensions declare their own authors and licenses; the SDK author is not automatically the extension author.

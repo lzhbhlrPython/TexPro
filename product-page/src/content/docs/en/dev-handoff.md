@@ -40,3 +40,7 @@ Update public documents for lasting rules. Keep private chat, credentials, super
 ## Task branches and timely Git updates
 
 Reuse the current task branch for follow-ups, checks and documentation. A message, session or commit does not require a new branch. Create a branch for a separate task. Commit coherent, verified changes promptly and push the task branch when its remote is configured and authorized. Respect explicit local-only or no-push requests. Merging main and publishing releases still require the corresponding authorization. Report remote failures without claiming synchronization.
+
+## Extension and theme handoff
+
+Read repository docs/extensions.md, docs/extension-development.md and packages/extension-sdk/index.d.ts first. Command catalog, writing port, providers, theme application and workspaces have separate modules. Add real service and editor transaction coverage before adapter changes, then run the complete zero-skip baseline, native journeys and packaged checks. Themes and extension discovery have separate ownership; check CSS/font/asset cleanup and independent recovery. Advanced providers, DOM selectors and panels remain experimental. There is no public market or automatic external stdio MCP registration. The SDK and qwertysay are independent npm developer packages in packages/extension-sdk and packages/qwertysay. Consume the public package-tools core without copying validators; verify exact publication state against npm and the authoring guide.
