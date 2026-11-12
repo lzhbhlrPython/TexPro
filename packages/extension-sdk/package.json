@@ -1,6 +1,6 @@
 {
-  "name": "@gardenialiu/texpro-extension-sdk",
-  "version": "0.2.0",
+  "name": "@texpro/extension-sdk",
+  "version": "0.3.0",
   "description": "TeXPro API 1 TypeScript contracts, authoring helpers and shared .tpp/.tpt validation core",
   "license": "MIT",
   "types": "index.d.ts",
@@ -24,7 +24,7 @@
     "url": "git+https://github.com/lzhbhlrPython/TexPro.git",
     "directory": "packages/extension-sdk"
   },
-  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/packages/extension-sdk",
+  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/main/packages/extension-sdk",
   "bugs": {
     "url": "https://github.com/lzhbhlrPython/TexPro/issues"
   },

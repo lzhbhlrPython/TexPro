@@ -1,5 +1,5 @@
 export type ThemeName = 'studio' | 'night' | 'paper';
-export type Language = 'zh' | 'en';
+export type Language = string;
 export type Engine = 'pdflatex' | 'xelatex' | 'lualatex';
 
 export interface FileNode {

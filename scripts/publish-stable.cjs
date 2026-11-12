@@ -63,8 +63,11 @@ function publish(root, env = process.env, runGh) {
   const existing = findRelease(gh, repo, tag);
   if (!existing || existing.draft) {
     if (!existing) gh('release', 'create', tag, '--repo', repo, '--verify-tag', '--draft', ...presentation.notes, '--title', presentation.title);
-    const assets = fs.readdirSync(path.join(root, 'release')).filter(name => /\.(dmg|zip|exe|AppImage|deb|rpm)$/.test(name));
+    const assets = fs.readdirSync(path.join(root, 'release')).filter(name => /\.(dmg|zip|exe|AppImage|deb|rpm|skill)$/.test(name));
     if (!assets.some(n => n.endsWith('.dmg')) || !assets.some(n => n.endsWith('.exe')) || !assets.some(n => n.endsWith('.deb')) || !assets.some(n => n.endsWith('.rpm')) || !assets.some(n => n.endsWith('.AppImage'))) throw Error('Three-platform assets incomplete');
+    const skill = `texpro-extension-development-v${version}.skill`;
+    if (!assets.includes(skill)) throw Error('Extension development Skill asset missing');
+    require('./package-extension-skill.cjs').verifySkillArchive(root, path.join(root, 'release', skill));
     gh('release', 'upload', tag, '--repo', repo, '--clobber', ...assets.map(name => path.join('release', name)));
     const uploaded = findRelease(gh, repo, tag);
     if (!uploaded || !assets.every(name => uploaded.assets.some(a => a.name === name && a.state === 'uploaded' && a.size > 0))) throw Error('Uploaded assets incomplete; keeping release draft');

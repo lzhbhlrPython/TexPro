@@ -9,12 +9,12 @@ const { spawnSync } = require('node:child_process');
 const { planInteractive, createPrompter, WizardCancelled } = require('../lib/wizard.cjs');
 const { scaffold, scaffoldTokenTheme } = require('../lib/scaffold.cjs');
 const { main } = require('../bin/qwertysay.cjs');
-const { readPackage } = require('@gardenialiu/texpro-extension-sdk/package-tools');
+const { readPackage } = require('@texpro/extension-sdk/package-tools');
 function fixture(t) { const root=fs.mkdtempSync(path.join(os.tmpdir(),'qwertysay-wizard-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return root; }
 async function plan(answers, command) { const output=[];let index=0;const result=await planInteractive({command,ask:async()=>{if(index>=answers.length)throw new WizardCancelled();return answers[index++];},write:value=>output.push(value)});return {result,output}; }
 test('guided plugin creation offers every language and produces a real CoffeeScript scaffold',async t=>{
   const root=fixture(t),directory=path.join(root,'plugin with spaces');
-  const {result,output}=await plan(['en','init','plugin',directory,'wizard.coffee','Writer','coffee','yes']);
+  const {result,output}=await plan(['en','init','plugin',directory,'wizard.coffee','Writer','coffee','npm','yes']);
   assert.ok(output.join('\n').includes('GopherJS'));assert.ok(output.join('\n').includes('Scala.js'));
   scaffold(result.directory,result.options);
   assert.equal(JSON.parse(fs.readFileSync(path.join(directory,'qwertysay.build.json'))).language,'coffee');
@@ -32,7 +32,7 @@ test('guided accent-only theme needs exactly a manifest and license and packs th
 });
 test('guided CSS theme builds and checks without automatic dependency installation',async t=>{
   const root=fixture(t),directory=path.join(root,'css');
-  const {result}=await plan(['en','theme',directory,'wizard.css','Writer','css','y'],'init');
+  const {result}=await plan(['en','theme',directory,'wizard.css','Writer','css','npm','y'],'init');
   scaffold(result.directory,result.options);
   assert.equal(fs.existsSync(path.join(directory,'dist/package')),false);
   const {result:buildPlan,output}=await plan(['en',directory,'yes'],'build');
@@ -50,7 +50,7 @@ test('guided pack keeps data-only completion plugins as tpp without an executabl
 });
 test('cancel, EOF and noninteractive startup do not create files or hang',async t=>{
   const root=fixture(t),directory=path.join(root,'cancelled');
-  const {result}=await plan(['en','init','plugin',directory,'wizard.cancel','Writer','ts','']);
+  const {result}=await plan(['en','init','plugin',directory,'wizard.cancel','Writer','ts','npm','']);
   assert.equal(result,null);assert.equal(fs.existsSync(directory),false);
   await assert.rejects(plan(['en','init']),WizardCancelled);assert.deepEqual(fs.readdirSync(root),[]);
   const child=spawnSync(process.execPath,[path.join(__dirname,'../bin/qwertysay.cjs')],{encoding:'utf8',timeout:3000,input:''});

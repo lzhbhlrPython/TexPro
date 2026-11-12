@@ -66,7 +66,7 @@ IME 组合期间不得替换正在输入的投影或抢焦点；补全确认与�
 
 ## 7. 文案与 i18n
 
-桌面可见字符串走 src/i18n.ts，官网走 product-page/src/i18n/。同轮补齐中英文，保持菜单、命令面板、提示和帮助名称一致；LaTeX、PDF、MCP 等技术标识保留。
+桌面可见字符串通过 src/i18n.ts 使用英文源目录和独立语言包；英文源为 packages/extension-sdk/lib/locale-source.json，预装简中为 packages/extension-translate-zh-cn/language/locales/zh.json。官网走 product-page/src/i18n/。主体开发侧同轮补齐中英文及简体中文博客，其他官网语种按翻译指引交由第三方 AI；保持菜单、命令面板、提示和帮助名称一致。功能插件使用自己的 i18n 与每次调用的语言，不依赖宿主私有词典。LaTeX、PDF、MCP 等技术标识保留。
 
 错误说明发生什么、影响哪里和下一步。不给普通用户展示 runId、IPC 或内部缓存配置，除非进入明确的诊断视图。官网文档同时维护英文同 slug，博客保持简体中文并说明语言。
 

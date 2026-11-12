@@ -1,5 +1,5 @@
 'use strict';
-const SDK = '@gardenialiu/texpro-extension-sdk';
+const SDK = '@texpro/extension-sdk';
 const binding = module => `const { defineTextTransform } = require('${SDK}');\nmodule.exports = defineTextTransform(require('${module}').transform);\n`;
 const templates = {
   ts: { dependencies: { typescript: '5.9.3' }, files: {

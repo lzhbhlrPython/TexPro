@@ -1,0 +1,21 @@
+{
+  "id": "texpro.language-zh-cn",
+  "name": {
+    "en": "Simplified Chinese",
+    "zh": "简体中文"
+  },
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "author": "Baolin Liu",
+  "license": "MIT",
+  "capabilities": [],
+  "contributes": {
+    "locales": [
+      {
+        "id": "zh",
+        "title": "简体中文",
+        "messages": "locales/zh.json"
+      }
+    ]
+  }
+}

@@ -25,7 +25,7 @@ summary: 安装并调用仓库开发 Skill，组织输入、能力与 L0–L3 �
 ```text
 使用 $texpro-extension-development。
 在我指定的新目录创建一个 API 1 插件，只将选区转换为大写。
-使用 SDK 0.2.0 和 qwertysay 的引导式配置，不要求我记参数。
+使用 SDK 0.3.0 和 qwertysay 的引导式配置，不要求我记参数。
 声明 document.read/document.write，保留 UTF-16、提案确认与单次撤销。
 交付源码、MIT LICENSE、.tpp、SHA256、实际测试证据和已知限制。
 不要发布 npm，也不要在我的日常工程或用户目录启用插件。
@@ -72,3 +72,11 @@ Node 插件与构建工具具有用户权限；进程隔离不是沙箱。主题
 外部 MCP 的格式查询和包检查是只读，不执行编译、安装或启用。Skill 不把清单 mcp 动作变成外部工具，也不自行扩大权限。推送、npm 发布与远程分发需依据用户的实际授权。
 
 宿主和工具改变时同轮修订 Skill、参考资料、SDK、qwertysay 及官网中英文指南。协作交接保留契约、包版本、许可证、真实证据和剩余问题；私人计划、聊天、凭据和临时配置不进入 Git 或发行包。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+## 下载发行 Skill
+
+后续正式版与 Nightly 附带 `texpro-extension-development-v{应用版本}.skill`，这是包含完整技能目录与引用资源的 ZIP。核对实际 Release、来源与摘要，再用 AI 工具的导入功能；工具只接受 ZIP 时可重命名本地副本后解压。它不是 TeXPro 的 `.tpp` 桌面插件。旧发行版没有这个资产时，使用完整源码目录。

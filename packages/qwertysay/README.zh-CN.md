@@ -1,6 +1,6 @@
-# @gardenialiu/qwertysay
+# @texpro/qwertysay
 
-作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.3.0`** 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
+作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.4.1`** 加入语言包、npm／Yarn 作者环境及经过审核的包管理同步。旧作用域的 `0.3.0` 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
 
 [English](README.md)
 
@@ -9,7 +9,7 @@
 0.3.0 起，直接启动即可按步骤选择创建、构建、校验或打包，无需记住参数：
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
+npx --package @texpro/qwertysay@0.4.1 qwertysay
 ```
 
 选择简体中文／English、操作、插件／主题、目录、包标识、作者和开发语言／样式。输入路径及配置预览后确认，默认回车取消，Ctrl+C／EOF 取消尚未开始的操作。主题的第一项是“仅修改主题色”：选择基础模式与强调色，只生成 manifest 和 LICENSE，无需 CSS、脚本或构建。
@@ -49,7 +49,7 @@ Windows 的 Scala.js 构建可将 `TEXPRO_SBT_LAUNCHER` 设为 sbt-launch.jar �
 API 1 的 `ExtensionContext`、`InvocationContext`、`ExtensionResult` 位于 `index.d.ts`，共用校验与只读检查从 `package-tools` 导出，并提供对应类型。源码偏移是 UTF-16，修改是提案，由宿主检查身份、过期与能力后明确应用，保留单次撤销。磁盘服务看不到未保存的缓冲区。
 
 ```js
-const { defineTextTransform } = require('@gardenialiu/texpro-extension-sdk');
+const { defineTextTransform } = require('@texpro/extension-sdk');
 module.exports = defineTextTransform(text => text.toUpperCase());
 ```
 
@@ -64,3 +64,14 @@ module.exports = defineTextTransform(text => text.toUpperCase());
 外部 MCP 新增只读的 `texpro_extension_capabilities` 与 `texpro_inspect_extension`，查询格式或检查工程内已构建包，不构建、不安装、不启用、不执行插件。清单中的 `mcp` 动作仍不自动对外注册。包依然自行分发，没有公开市场或自动更新。
 
 实际验收包含编译、归档、宿主调用、过期请求、停用、撤销、IME、三主题及恢复等适用路径；CLI 校验不代替原生交互验收。参阅[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md)与仓库开发 Skill。
+
+## Language packs and npm/Yarn / 语言包与包管理
+
+SDK 0.3.0 / API 1 and qwertysay 0.4.1 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
+
+- [Language packs / 语言包](https://texpro.pyliubaolin.top/docs/language-packs): declarative .tpp, placeholder checks, missing-key fallback and preinstalled @texpro/extension-translate-zh-cn. / 声明式语言插件、变量校验、英文回退及预装简中。
+- [npm/Yarn management / 包管理](https://texpro.pyliubaolin.top/docs/extension-package-management): one lockfile, node_modules, texpro.package wrappers, reviewed synchronization and removal with plugin data retained. / 单锁文件、分发包、逐项审核与卸载保留数据。
+
+Language packs never contain code or styles, but translations may impersonate instructions. npm/Yarn changes dependencies; sync asks the host to install/update/remove its snapshots. It never auto-enables extensions. / 语言包没有代码或样式，文案仍可能误导用户。包管理器修改依赖，宿主另行审核同步，不自动启用。
+
+功能插件生成后，在作者工程维护独立 i18n 库与资源；使用每次调用的 context.language 选择插件自身词典，并将依赖和资源一起构建到 .tpp。不要把功能插件误建为宿主语言包。清单多语种展示与运行消息是两条独立路径，详细示例见 SDK 指南。

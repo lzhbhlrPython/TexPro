@@ -34,3 +34,7 @@
 @media (max-width: 720px) { .extensions-body { grid-template-columns: 170px minmax(0, 1fr); } .extension-details, .extension-tool-body { padding: 16px; } .extension-install, .extension-footer { padding: 10px 12px; } }
 @media (max-width: 520px) { .extensions-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } .extensions-list { max-height: 130px; border-right: 0; border-bottom: 1px solid var(--border); } }
 .extension-safety { margin: 0; padding: 10px 20px; color: var(--text-muted); background: var(--warning-soft); border-block: 1px solid var(--border); font-size: 11px; line-height: 1.6; flex-shrink: 0; }
+
+.extension-sync { padding: 12px 20px; border-bottom: 1px solid var(--border); max-height: 35vh; overflow: auto; }
+.extension-sync h3 { margin: 0 0 8px; font-size: 14px; }
+.extension-sync .schematic-hint { overflow-wrap: anywhere; }

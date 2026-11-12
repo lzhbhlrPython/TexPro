@@ -85,3 +85,5 @@ pnpm dev
 测试使用公开 SDK 文件、实际编译器、`.tpp`／`.tpt` 归档和隔离宿主，补充完整零跳过回归。不要把仅生成模板、直接执行手写 JS 或缺少工具的失败写成语言支持已验收。工具链版本、源码与安装后缀、JSON 桥接、版权和本机平台边界见[多语言构建](extension-authoring.md)。独立源码检查不等于 npm 发布或应用打包。
 
 CTeX 的 LuaLaTeX 中文路径依赖 `luatexja.sty`，Ubuntu 将它放在 texlive-lang-japanese，安装中文语言包并不能替代它。CI 用 kpsewhich 预检 CTeX、LuaTeX-ja 与 Fandol，再执行完整基线。
+
+扩展包管理器的真实验收入口为 `npm run test:extensions:package-managers -- /absolute/sdk.tgz /absolute/qwertysay.tgz /absolute/chinese.tgz`，也可传已发布的精确 npm 版本。该流程在临时目录通过实际 npm 与 Yarn 安装独立作者工具、语言包与最简主题，验证生命周期脚本禁用、导入保持停用、卸载审核和数据保留；需要网络及已安装的 Yarn。它补充完整基线，不代替桌面原生测试或三平台打包。

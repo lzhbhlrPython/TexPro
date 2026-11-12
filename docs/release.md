@@ -31,3 +31,9 @@ GitHub 的按标签查询接口可能对草稿返回 404，即使认证身份已
 LuaLaTeX 中文还需要 texlive-lang-japanese 提供的 LuaTeX-ja；CI 显式安装并预检该宏包及 Fandol，不依赖推荐包被隐式安装。
 
 macOS 保留 universal DMG／ZIP，`build.mac.mergeASARs: false` 避开上游工具将大量外部 Node 文件展开为超长 glob 的限制。当前两架构的 JavaScript ASAR 内容相同，不生成架构分派入口；两个架构及最终 universal 包均需通过原有 ASAR／外部 MCP 校验。若未来引入架构专属内容，必须重新验证此布局，不能跳过包内校验。本机实际 universal 目录打包、lipo 双架构检查和包外 Node MCP 启动用于验证此路径。
+
+## 开发 Skill 发行资产
+
+正式版和 Nightly 的 `_release-build.yml` 在完整测试、类型与构建通过后，用 `scripts/package-extension-skill.cjs` 打包整个 `skills/texpro-extension-development/`。资产为 `texpro-extension-development-v{应用版本}.skill`，内容是 ZIP 内的顶层 `texpro-extension-development/`、SKILL.md、agents 和所有引用资源；与该次构建的受测源码逐文件一致。脚本拒绝缺失引用、符号链接、私有／生成文件及重复覆盖，并输出 SHA-256。
+
+归档作为独立构建产物，与三平台安装包一起下载并上传 Release。正式发布器要求该资产并再次校验源码内容，成功上传后才公开草稿；失败保持既有重试身份，不另起版本。Nightly 也通过共用构建获得同版本 Skill。Skill 的文件名使用应用版本；npm SDK／CLI／语言包版本各自独立，不随应用递增。旧公开版本不补造历史构建或覆盖安装包。

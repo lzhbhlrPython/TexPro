@@ -5,8 +5,20 @@
     <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
     <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 11 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 12 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>让语言成为插件，让 npm／Yarn 管理扩展版本</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments</guid>
+      <pubDate>Thu, 12 Nov 2026 16:00:00 GMT</pubDate>
+      <description>简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。</description>
+      <category>[插件</category>
+      <category>i18n</category>
+      <category>SDK</category>
+      <category>qwertysay</category>
+      <category>发布]</category>
+    </item>
     <item>
       <title>Nightly 的成功基线与正式版发布入口</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule</link>

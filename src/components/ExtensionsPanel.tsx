@@ -21,6 +21,7 @@ export function ExtensionsPanel(props: Props) {
   const ref = useRef<HTMLElement>(null); useDialogFocus(props.open, ref, props.onClose);
   const [selected, setSelected] = useState('');
   const [preview, setPreview] = useState<{ token: string; manifest: PackageManifest; digest: string } | null>(null);
+  const [sync, setSync] = useState<Awaited<ReturnType<typeof window.texpro.extensionsSyncPending>>>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [trusted, setTrusted] = useState(false);
   const [config, setConfig] = useState<Record<string, string | number | boolean>>({});
   const item = props.items.find(item => item.manifest.id === selected);
@@ -28,10 +29,18 @@ export function ExtensionsPanel(props: Props) {
   useEffect(() => { if (!props.open) { props.onPreviewTheme(undefined); setPreview(null); } }, [props.open]);
   async function perform(task: () => Promise<unknown>) {
     setBusy(true); setError('');
-    try { await task(); await props.onRefresh(); } catch (error) { setError(String(error)); }
+    try { await task(); await props.onRefresh(); setSync(await window.texpro.extensionsSyncPending()); } catch (error) { setError(String(error)); }
     finally { setBusy(false); }
   }
   async function choose(development: boolean) { await perform(async () => { const next = await window.texpro.extensionsChoose(development); if (next) { setPreview(next); setSelected(''); } }); }
+  useEffect(() => {
+    if (!props.open) return;
+    let alive = true;
+    const update = () => { void window.texpro.extensionsPending().then(value => { if (alive && value) { setPreview(value); setSelected(''); } }).catch(error => { if (alive) setError(String(error)); }); };
+    const updateAll = () => { update(); void window.texpro.extensionsSyncPending().then(value => { if (alive) setSync(value); }).catch(error => { if (alive) setError(String(error)); }); };
+    updateAll(); const unsubscribe = window.texpro.onExtensionPackage(updateAll);
+    return () => { alive = false; unsubscribe(); };
+  }, [props.open]);
   if (!props.open) return null;
   const manifest = preview?.manifest || item?.manifest;
   return <div className="modal-scrim" onMouseDown={props.onClose}>
@@ -40,11 +49,18 @@ export function ExtensionsPanel(props: Props) {
       <div className="extension-install"><button className="secondary-btn" disabled={busy} onClick={() => void choose(false)}><Package size={14} />{t('Install package…')}</button><button className="secondary-btn" disabled={busy} onClick={() => void choose(true)}><FolderOpen size={14} />{t('Load development directory…')}</button><button className="icon-btn" disabled={busy} onClick={() => void perform(props.onRefresh)} aria-label={t('Refresh')}><RefreshCw size={14} /></button></div>
       <p className="extension-safety">{t('Only enable packages from authors you trust. Code can access your files, network and processes; themes can hide controls or imitate trusted UI.')}{' '}{t('Recovery: use the native View menu to reset appearance and disable extensions, or start TeXPro with --safe-mode.')}</p>
       {(error || props.hostError) && <p role="alert" className="extension-error">{error || props.hostError}</p>}
+      {sync && <section className="extension-sync" aria-label={t('Review package manager changes')}>
+        <h3>{t('Review package manager changes')}</h3><p className="schematic-hint">{sync.root}</p>
+        <p>{t('Changes are reviewed one at a time. New packages stay disabled. Uninstall keeps plugin data.')}</p>
+        {!sync.changes.length && <p role="status">{t('Extension environment is up to date.')}</p>}
+        {sync.changes.map(change => <div className="extension-contribution" key={change.id}><div><strong>{localize(change.manifest.name, language)}</strong><small>{change.origin.name} · {change.manifest.version}</small><small>{change.manifest.capabilities.map(value => t(capabilityTitle(value))).join(' · ') || t('Data only; no executable capabilities.')}</small>{change.kind === 'install' && change.manifest.entry && <small>{t('Executable extensions run trusted Node code with your user permissions. A separate process is not a security sandbox.')}</small>}</div><button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsSyncApply(change.id))}>{t(change.kind === 'remove' ? 'Uninstall' : 'Install disabled')}</button></div>)}
+        <button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsSyncDismiss())}>{t('Close review')}</button>
+      </section>}
       <div className="extensions-body"><nav className="extensions-list" aria-label={t('Installed extensions')}>
         {!props.items.length && <p className="schematic-hint">{t('Install a package shared by its author, or load a development directory.')}</p>}
         {props.items.map(value => <button key={value.manifest.id} className={selected === value.manifest.id && !preview ? 'active' : ''} onClick={() => { setSelected(value.manifest.id); setPreview(null); props.onPreviewTheme(undefined); }}><strong>{localize(value.manifest.name, language)}</strong><small>{value.manifest.version} · {t(value.enabled ? 'Enabled' : 'Disabled')}</small>{value.error && <small className="error-text">{t('Extension needs attention')}</small>}</button>)}
       </nav><main className="extension-details">
-        {manifest ? <><h3>{localize(manifest.name, language)}</h3><p>{localize(manifest.description, language)}</p><p className="schematic-hint">{manifest.author} · {manifest.version} · {manifest.license}</p>
+        {manifest ? <><h3>{localize(manifest.name, language)}</h3><p>{localize(manifest.description, language)}</p>{Boolean(manifest.contributes.locales?.length) && <p className="schematic-hint">{t('Language packs change interface wording and may imitate trusted instructions. Review the author; English remains available for recovery.')}</p>}<p className="schematic-hint">{manifest.author} · {manifest.version} · {manifest.license}{item?.builtin ? ` · ${t('Preinstalled')}` : ''}</p>
           <p className="extension-id">{manifest.id}</p>
           <h4>{t('Requested capabilities')}</h4><p>{manifest.capabilities.length ? manifest.capabilities.map(value => t(capabilityTitle(value))).join(' · ') : t('Data only; no executable capabilities.')}</p>
           {manifest.entry && <p className="extension-trust-note">{t('Executable extensions run trusted Node code with your user permissions. A separate process is not a security sandbox.')}</p>}
@@ -55,7 +71,7 @@ export function ExtensionsPanel(props: Props) {
             <div className="extension-buttons"><button className="primary-btn" disabled={busy || (!item.enabled && Boolean(manifest.entry || manifest.capabilities.includes('theme.styles')) && !trusted)} onClick={() => void perform(() => window.texpro.extensionsEnable(manifest.id, !item.enabled, trusted))}>{t(item.enabled ? 'Disable' : 'Enable')}</button>
               {item.development && <button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsReload(manifest.id))}>{t('Reload from directory')}</button>}
               {item.canRollback && <button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsRollback(manifest.id))}>{t('Restore previous package')}</button>}
-              <button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsRemove(manifest.id))}>{t('Uninstall')}</button></div>
+              <button className="secondary-btn" disabled={busy || item?.builtin} onClick={() => void perform(() => window.texpro.extensionsRemove(manifest.id))}>{t('Uninstall')}</button></div>
             {(manifest.contributes.settings || []).map(setting => <label className="extension-setting" key={setting.key}><span>{localize(setting.title, language)}</span>{setting.type === 'boolean' ? <input type="checkbox" checked={Boolean(config[setting.key] ?? setting.default)} onChange={event => setConfig({ ...config, [setting.key]: event.target.checked })} /> : <input type={setting.type === 'number' ? 'number' : 'text'} value={String(config[setting.key] ?? setting.default)} onChange={event => setConfig({ ...config, [setting.key]: setting.type === 'number' ? event.target.valueAsNumber : event.target.value })} />}</label>)}
             {Boolean(manifest.contributes.settings?.length) && <button className="secondary-btn" disabled={busy} onClick={() => void perform(() => window.texpro.extensionsConfigure(manifest.id, config))}>{t('Save configuration')}</button>}
             {item.enabled && <>

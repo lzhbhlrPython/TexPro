@@ -8,10 +8,10 @@ summary: SDK 安装、清单、处理器、服务、生命周期、JSON 桥接�
 
 ## 先选对入口
 
-这篇说明 `@gardenialiu/texpro-extension-sdk` **0.2.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
+这篇说明 `@texpro/extension-sdk` **0.3.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
 
 ```sh
-npm install --save-dev @gardenialiu/texpro-extension-sdk@0.2.0
+npm install --save-dev @texpro/extension-sdk@0.3.0
 ```
 
 SDK 安装不等于向 TeXPro 安装插件。宿主只加载完成的自包含入口和包资源，不在作者机器以外安装 npm 依赖，也不编译源码。SDK 辅助函数若被运行时使用，必须随作者代码打包；直接导出 `activate(ctx)` 则不要求运行时引用 SDK。
@@ -86,8 +86,20 @@ exports.activate = ctx => {
 
 公开 `package-tools` 导出校验、归档和只读检查；宿主、MCP 与 CLI 共用此核心。归档上限 16 MiB／300 文件，拒绝路径越界、符号链接、重复路径和原生二进制。检查成功与摘要一致只证明格式和内容身份，不是安全认证。
 
-**代码插件以当前用户的 Node 权限运行，可能读取文件、联网和启动进程；进程隔离不是安全沙箱。主题也可能隐藏控件、伪装提示或破坏可访问性。** 只启用可信来源；原生「视图 → 重置外观并停用扩展」和 `--safe-mode` 提供恢复。主题规则见[主题包](/docs/themes)。
+**代码插件以当前用户的 Node 权限运行，可能读取文件、联网和启动进程；进程隔离不是安全沙箱。主题也可能隐藏控件、伪装提示或破坏可访问性。** 只启用可信来源；原生「视图 → Reset Appearance and Disable Extensions」和 `--safe-mode` 提供恢复。主题规则见[主题包](/docs/themes)。
 
 在临时用户目录安装实际 `.tpp`／`.tpt`，验证停用、启用、重载、配置、错误、过期请求、IME、撤销、主题和恢复。修改宿主时运行完整回归：零失败、零跳过、零 TODO。打包结果保留作者 LICENSE 与第三方通知；SDK 的 MIT 不覆盖被打包的语言运行时或其他依赖。
 
 交接提供源码、API 和包版本、能力、安装包、摘要、测试证据及限制。高级提供器和界面贡献仍为实验性；清单中的 `mcp` 动作不自动注册为外部 MCP。外部 `texpro_extension_capabilities` 与 `texpro_inspect_extension` 只读，不构建、执行、安装或启用插件。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+## 功能插件自己的 i18n
+
+每个功能插件自行维护 i18n 库和翻译资源；宿主语言包只翻译 TeXPro，不翻译插件业务文案。清单名称、操作标题等使用带 en 回退的 Localized 对象。运行消息、诊断和预览根据每次调用的 `context.language` 选择插件词典；JSON 桥接读取 invoke.context.language。依次匹配完整语言、基础语言和插件自己的英文，并对单条缺译回退英文，不在 activate 时固定语言。
+
+例如作者维护独立 `i18n/messages.json`（en、fr 等词典），处理器用 `messages[context.language] || messages[context.language.split('-')[0]] || messages.en` 选择，再用 `table[key] || messages.en[key]` 回退。插件键与占位符由作者维护，不合并到宿主 locale-source.json；`contributes.locales` 专用于宿主的纯数据语言包，不能和功能入口混用。
+
+可以用 npm／Yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。

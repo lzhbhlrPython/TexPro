@@ -27,7 +27,7 @@ function run(file, params, cwd) {
       try {
         scaffold(directory, { id: 'matrix.' + item.name.replaceAll('-', ''), ...item });
         const modules = path.join(directory, 'node_modules'); fs.mkdirSync(modules);
-        const sdk = path.join(modules, '@gardenialiu/texpro-extension-sdk'); fs.mkdirSync(sdk, { recursive: true });
+        const sdk = path.join(modules, '@texpro/extension-sdk'); fs.mkdirSync(sdk, { recursive: true });
         for (const name of ['index.cjs', 'index.d.ts', 'package-tools.cjs', 'package-tools.d.ts', 'package.json', 'LICENSE', 'lib']) fs.cpSync(path.join(__dirname, '../packages/extension-sdk', name), path.join(sdk, name), { recursive: true });
         for (const name of fs.readdirSync(path.join(tools, 'node_modules'))) {
           if (name === '@gardenialiu') continue;

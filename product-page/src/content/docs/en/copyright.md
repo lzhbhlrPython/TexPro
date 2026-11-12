@@ -214,7 +214,7 @@ Maintainers will verify and respond. Trademark misuse or impersonation of offici
 
 Extension lifecycle and service organization take conceptual inspiration from Koishi. TeXPro uses its own API and package format, includes no Koishi runtime, console source or market, and is not compatible with Koishi plugins. New host, SDK, examples and development Skill are MIT. PostCSS 8.5.32 (Andrey Sitnik) and postcss-value-parser 4.2.0 (Bogdan Chadkin) parse theme styles and retain their MIT notices. Plugin authors, assets, fonts and third-party dependencies retain their own licenses; TeXPro MIT does not change their rights. See root THIRD_PARTY_NOTICES.md.
 
-The independent `@gardenialiu/texpro-extension-sdk` and `@gardenialiu/qwertysay` packages are maintained by Baolin Liu (gardenialiu), under MIT, each with LICENSE. Scaffolded extensions declare their own authors and licenses; the SDK author is not automatically the extension author.
+The independent `@texpro/extension-sdk` and `@texpro/qwertysay` packages are maintained by Baolin Liu (gardenialiu), under MIT, each with LICENSE. Scaffolded extensions declare their own authors and licenses; the SDK author is not automatically the extension author.
 
 ## Third-party licenses in compiled plugins
 

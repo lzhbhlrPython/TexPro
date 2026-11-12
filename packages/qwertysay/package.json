@@ -1,6 +1,6 @@
 {
-  "name": "@gardenialiu/qwertysay",
-  "version": "0.3.0",
+  "name": "@texpro/qwertysay",
+  "version": "0.4.1",
   "description": "qwertysay: offline scaffolding, checking and packaging for TeXPro plugins and themes",
   "license": "MIT",
   "files": [
@@ -20,7 +20,7 @@
     "url": "git+https://github.com/lzhbhlrPython/TexPro.git",
     "directory": "packages/qwertysay"
   },
-  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/codex/realtime-tex/packages/qwertysay",
+  "homepage": "https://github.com/lzhbhlrPython/TexPro/tree/main/packages/qwertysay",
   "bugs": {
     "url": "https://github.com/lzhbhlrPython/TexPro/issues"
   },
@@ -39,7 +39,7 @@
     "scaffold"
   ],
   "dependencies": {
-    "@gardenialiu/texpro-extension-sdk": "0.2.0",
+    "@texpro/extension-sdk": "0.3.0",
     "esbuild": "0.28.2"
   },
   "scripts": {

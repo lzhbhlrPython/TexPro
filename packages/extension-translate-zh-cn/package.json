@@ -1,0 +1,12 @@
+{
+  "name": "@texpro/extension-translate-zh-cn",
+  "version": "1.0.0",
+  "description": "Preinstalled Simplified Chinese language pack for TeXPro",
+  "license": "MIT",
+  "author": "Baolin Liu (gardenialiu)",
+  "files": ["dist/*.tpp", "LICENSE", "README.md", "README.zh-CN.md"],
+  "texpro": { "package": "dist/texpro.language-zh-cn.tpp" },
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/lzhbhlrPython/TexPro.git", "directory": "packages/extension-translate-zh-cn" },
+  "scripts": { "build": "node build.cjs" }
+}

@@ -7,7 +7,7 @@ import { localize, validateResult } from './contracts';
 
 interface Environment { editor: WritingEditorPort | null; project: Project | null; generation: number }
 export function useExtensionRunner(options: {
-  items: InstalledExtension[]; language: 'zh' | 'en'; source: string; file: string | null;
+  items: InstalledExtension[]; language: string; source: string; file: string | null;
   current: () => Environment; compile: () => Promise<unknown>;
   create: (result: NonNullable<ExtensionResult['project']>) => Promise<void>;
 }) {

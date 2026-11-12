@@ -38,6 +38,15 @@ jobs:
       - run: npm run test:regression
       - run: npm run typecheck
       - run: npm run build
+      - name: Package and verify extension development Skill
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: node scripts/package-extension-skill.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-extension-skill
+          path: release/*.skill
+          if-no-files-found: error
   package:
     needs: test
     strategy:

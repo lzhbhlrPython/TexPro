@@ -89,3 +89,7 @@ The manifest's `mcp` action remains an experimental in-app provider, not automat
 SDK/CLI `0.2.0` provides this authoring expansion; `0.1.0` contains the original scaffolds. See [the authoring contract](../docs/extension-authoring.md). Normal Node execution outside ASAR also requires the shared SDK validation modules and the complete PostCSS dependency closure; unpack patterns and dependency checks are maintained alongside these imports.
 
 Test the real inspection protocol and non-execution/path boundaries with `node --test tests/mcp-extensions.test.cjs`. This supplements `npm run test:mcp`; neither test publishes or deploys anything.
+
+### Language packs and npm distribution
+
+Extension capabilities now describe `contributes.locales`, data-only JSON messages, English fallback, the preinstalled `@texpro/extension-translate-zh-cn` package, and the `texpro.package` npm wrapper field. Package inspection uses the same SDK validation as the host, including language placeholders and package suffix rules. These tools remain read-only: they never download registry packages, run npm/Yarn, compile, sync, install, uninstall, enable or execute extensions. A language contribution is not an MCP tool. See the [language guide](../docs/language-packs.md) and [package-management contract](../docs/extension-package-management.md).

@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { readPackage } = require('@gardenialiu/texpro-extension-sdk/package-tools');
+const { readPackage } = require('@texpro/extension-sdk/package-tools');
 const cli = path.resolve(__dirname, '../bin/qwertysay.cjs');
 function fixture(t) { const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-sdk-')); t.after(() => fs.rmSync(root, { recursive: true, force: true })); return root; }
 function run(...args) { const result = spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8', timeout: 10000 }); if (result.error) throw result.error; return result; }
@@ -16,7 +16,7 @@ test('standalone CLI creates, validates and packages JS plugins and CSS themes w
     assert.equal(run('init', directory, '--id', `test.${type}`, '--type', type, '--language', 'js', '--author', 'Baolin Liu').status, 0);
     assert.equal(fs.existsSync(path.join(directory, 'node_modules')), false);
     assert.equal(run('check', directory).status, 1, 'Checking cannot implicitly build author code');
-    if (type === 'plugin') fs.cpSync(path.join(__dirname, '../../extension-sdk'), path.join(directory, 'node_modules/@gardenialiu/texpro-extension-sdk'), { recursive: true, filter: source => !source.split(path.sep).includes('node_modules') });
+    if (type === 'plugin') fs.cpSync(path.join(__dirname, '../../extension-sdk'), path.join(directory, 'node_modules/@texpro/extension-sdk'), { recursive: true, filter: source => !source.split(path.sep).includes('node_modules') });
     assert.equal(run('build', directory).status, 0);
     assert.equal(run('check', directory).status, 0);
     assert.equal(run('pack', directory, file).status, 0);
@@ -29,10 +29,10 @@ test('standalone CLI creates, validates and packages JS plugins and CSS themes w
 test('TypeScript scaffold compiles against the public SDK and includes its actual executable', t => {
   const root = fixture(t), directory = path.join(root, 'typed');
   assert.equal(run('init', directory, '--id', 'test.typed').status, 0);
-  const installed = path.join(directory, 'node_modules/@gardenialiu/texpro-extension-sdk'); fs.mkdirSync(installed, { recursive: true });
+  const installed = path.join(directory, 'node_modules/@texpro/extension-sdk'); fs.mkdirSync(installed, { recursive: true });
   fs.cpSync(path.join(__dirname, '../../extension-sdk'), installed, { recursive: true, filter: source => !source.split(path.sep).includes('node_modules') });
   fs.symlinkSync(path.dirname(require.resolve('typescript/package.json')), path.join(directory, 'node_modules/typescript'), process.platform === 'win32' ? 'junction' : 'dir');
-  fs.writeFileSync(path.join(directory, 'src/contracts.cts'), "import { authoringCapabilities, inspectPackage } from '@gardenialiu/texpro-extension-sdk/package-tools';\nimport type { BridgeHostMessage } from '@gardenialiu/texpro-extension-sdk';\nconst suffix: '.tpt' = authoringCapabilities().artifacts.theme;\nconst inspect: typeof inspectPackage = inspectPackage;\nconst message: BridgeHostMessage = { type: 'cancel', id: 1 };\nvoid [suffix, inspect, message];\n");
+  fs.writeFileSync(path.join(directory, 'src/contracts.cts'), "import { authoringCapabilities, inspectPackage } from '@texpro/extension-sdk/package-tools';\nimport type { BridgeHostMessage } from '@texpro/extension-sdk';\nconst suffix: '.tpt' = authoringCapabilities().artifacts.theme;\nconst inspect: typeof inspectPackage = inspectPackage;\nconst message: BridgeHostMessage = { type: 'cancel', id: 1 };\nvoid [suffix, inspect, message];\n");
   const result = run('build', directory);
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.ok(fs.existsSync(path.join(directory, 'dist/package/index.cjs')));

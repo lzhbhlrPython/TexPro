@@ -8,10 +8,10 @@ summary: Install the SDK and understand manifests, handlers, services, lifecycle
 
 ## Choose the right guide
 
-This guide covers **@gardenialiu/texpro-extension-sdk 0.2.0 / API 1**, by Baolin Liu (gardenialiu), with MIT original code. It provides public types, helpers, a JSON bridge and shared validation without Electron, React or TeX. Use [guided qwertysay](/docs/qwertysay) to create projects and choose toolchains; use the [development Skill](/docs/extension-skill) for AI-assisted work.
+This guide covers **@texpro/extension-sdk 0.3.0 / API 1**, by Baolin Liu (gardenialiu), with MIT original code. It provides public types, helpers, a JSON bridge and shared validation without Electron, React or TeX. Use [guided qwertysay](/docs/qwertysay) to create projects and choose toolchains; use the [development Skill](/docs/extension-skill) for AI-assisted work.
 
 ```sh
-npm install --save-dev @gardenialiu/texpro-extension-sdk@0.2.0
+npm install --save-dev @texpro/extension-sdk@0.3.0
 ```
 
 Installing the SDK does not install a plugin into TeXPro. The host consumes finished, self-contained entries and resources; it does not install npm dependencies or compile author sources. Bundle runtime SDK helpers into the entry. A direct `activate(ctx)` export needs no runtime SDK import.
@@ -91,3 +91,15 @@ The public `package-tools` export shares validation, archives and read-only insp
 Install the actual artifact in a temporary profile; verify enable, disable, reload, configuration, errors, stale results, IME, undo, themes and recovery. Host changes require the full regression baseline with zero failures, skips and TODOs. Preserve the author's LICENSE and third-party notices; SDK MIT does not replace bundled runtime licenses.
 
 Handoff includes source, API/package versions, capabilities, artifact, digest, test evidence and limits. Advanced providers and UI contributions remain experimental. Manifest `mcp` actions do not automatically register externally. `texpro_extension_capabilities` and `texpro_inspect_extension` are read-only and never build, execute, install or enable plugins.
+
+## Language packs and package-manager environments
+
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+
+## Independent i18n for functional plugins
+
+Each functional plugin owns its i18n library and translation resources. Host language packs translate TeXPro, not plugin business messages. Manifest labels use Localized objects with an en fallback. Runtime messages, diagnostics and previews select the plugin catalog from each invocation's `context.language`; JSON bridges receive invoke.context.language. Match exact locale, base language and the plugin's English catalog, then fall back per missing message. Do not cache the language during activate.
+
+For an independent `i18n/messages.json` with en and fr catalogs, select `messages[context.language] || messages[context.language.split('-')[0]] || messages.en`, then use `table[key] || messages.en[key]` for missing messages. Keep plugin-owned keys and placeholders out of the host catalog. `contributes.locales` is reserved for declarative host translations and cannot be mixed with functional entries.
+
+Use npm/Yarn to install your chosen language's i18n library. Bundle its runtime and include every referenced JSON/resource in the final self-contained `.tpp`; do not depend on host node_modules, private dictionaries or runtime downloads. Test target locales, regional and missing-message fallback, and language changes between two invocations in the same plugin process. Treat translations as text, never executable code or HTML.

@@ -29,6 +29,7 @@
 | 外部 AI 读写工程 | [MCP 接口](../mcp/README.md) |
 | 已知交互边界 | [交互审计及后续状态](interaction-audit.md) |
 | 官网结构、内容和构建 | [产品页维护说明](../product-page/README.md) |
+| 官网其他语种与第三方 AI 交接 | [官网翻译交接指引](website-translation.md) |
 
 ## 文档的职责
 
@@ -36,6 +37,9 @@
 
 源码与配置是实现现状的证据。设计要求不代表旧界面已经全部符合，历史测试结果不代表当前验证通过。发现不一致时同时修正文档并记录实际限制，不通过删掉风险说明来制造一致。
 
-多语言扩展与主题编译、源码／运行产物／安装包后缀、JSON 桥接和工具链限制见[多语言构建指南](extension-authoring.md)。使用 SDK `0.2.0` 与 qwertysay `0.3.0`。
+多语言扩展与主题编译、源码／运行产物／安装包后缀、JSON 桥接和工具链限制见[多语言构建指南](extension-authoring.md)。使用 SDK `0.3.0` 与 qwertysay `0.4.1`。
 
 - [应用版本与发布](release.md)：Nightly 成功基线、三段正式版本、失败重试与官网刷新。
+
+- [声明式语言包](language-packs.md)：预装简中、翻译源与英文恢复。
+- [npm／Yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。

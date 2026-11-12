@@ -7,7 +7,7 @@
 - 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。
 - 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。
 - 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。
-- 中文文档 29 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
+- 中文文档 31 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
 - 许可：MIT。
 
 ## 文档
@@ -41,9 +41,12 @@
 - [插件 SDK：API 1 开发](https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-development): SDK 安装、清单、处理器、服务、生命周期、JSON 桥接、权限和分发验收。
 - [qwertysay：引导式插件与主题开发](https://lzhbhlrpython.github.io/TexStudioPro/docs/qwertysay): 直接启动后选择创建、构建、校验或打包；语言与样式工具链、最简主题、取消和错误恢复。
 - [开发 Skill：让 AI 协助扩展开发](https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-skill): 安装并调用仓库开发 Skill，组织输入、能力与 L0–L3 决策、测试证据及安全交接。
+- [语言包：安装、翻译与恢复](https://lzhbhlrpython.github.io/TexStudioPro/docs/language-packs): 使用预装简体中文包，创建声明式语言插件，并验证缺译回退、占位符与安全恢复。
+- [用 npm／Yarn 管理扩展](https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-package-management): 用专用依赖环境安装、更新和移除扩展，再交给 TeXPro 审核同步，保留版本锁定与启用边界。
 
 ## 博客
 
+- [让语言成为插件，让 npm／Yarn 管理扩展版本](https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments): 简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。
 - [Nightly 的成功基线与正式版发布入口](https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule): 每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。
 - [本地插件、自由主题，以及有职责的工作台](https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces): 用共享命令、写作端口和专业工作台开放 API 1，本地分发插件与主题，同时把信任和恢复说清楚。
 - [首次正式发布：TeXPro v0.1.0 · Tajpilo](https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo): 以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。

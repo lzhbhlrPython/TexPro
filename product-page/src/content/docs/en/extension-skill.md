@@ -25,7 +25,7 @@ Provide the goal, source location, package type, API, capabilities, target syste
 ```text
 Use $texpro-extension-development.
 Create an API 1 selection-uppercase plugin in my specified new directory.
-Use SDK 0.2.0 and guided qwertysay; do not require me to memorize flags.
+Use SDK 0.3.0 and guided qwertysay; do not require me to memorize flags.
 Declare document.read/document.write and preserve UTF-16, accepted proposals and one-step undo.
 Deliver source, MIT LICENSE, .tpp, SHA256, actual evidence and known limits.
 Do not publish npm or enable it in my everyday profile or project.
@@ -72,3 +72,11 @@ Node plugins and build tools have user privileges; process isolation is not an O
 External MCP format queries and package inspection are read-only and never compile/install/enable. The Skill does not turn manifest mcp actions into external tools or expand permissions. Push, npm publication and remote distribution follow actual user authorization.
 
 When host/tool contracts change, update the Skill, references, SDK, qwertysay and bilingual guides together. Handoff includes contracts, versions, licenses, real evidence and unresolved work. Private plans, chats, credentials and temporary profiles stay out of Git and artifacts.
+
+## Language packs and package-manager environments
+
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+
+## Download the release Skill
+
+Future stable and Nightly releases attach `texpro-extension-development-v{application-version}.skill`, a ZIP containing the complete skill directory and references. Verify the actual Release and digest, then use your AI tool’s import mechanism. If it only accepts ZIP, rename a local copy before extracting. This is an AI Skill, not a `.tpp` desktop plugin. Older releases without the asset can use the complete source directory.

@@ -10,6 +10,7 @@ const mcpClient = require('./services/mcp-client.cjs');
 const paperApi = require('./services/paper-api.cjs');
 const { RealtimeHost } = require('./services/realtime-tex.cjs');
 const { registerExtensionIpc } = require('./services/extensions/ipc.cjs');
+const { syncPath } = require('./services/extensions/launch.cjs');
 let extensionManager = null;
 let realtimeHost = null;
 let realtimeOwner = null;
@@ -36,6 +37,28 @@ let mainWindow = null;
 let demoSource = path.join(__dirname, '..', 'demo');
 const appIconPath = path.join(__dirname, '..', 'build', 'icon.png');
 let menuActionHandlerReady = false;
+let pendingExtensionFile = null;
+let pendingSyncFile = null;
+function queueSyncFile(file) {
+  if (!path.isAbsolute(file)) return;
+  if (!extensionManager || !mainWindow) { pendingSyncFile = file; return; }
+  try { extensionManager.queueSync(file); mainWindow.show(); mainWindow.focus(); }
+  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('Could not review extension sync'), detail: error.message }); }
+}
+function queueExtensionFile(file) {
+  if (typeof file !== 'string' || !path.isAbsolute(file) || !/\.(?:tpp|tpt)$/i.test(file)) return;
+  if (!extensionManager || !mainWindow) { pendingExtensionFile = file; return; }
+  try { extensionManager.queuePackage(file); mainWindow.show(); mainWindow.focus(); }
+  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('Could not inspect extension package'), detail: String(error.message) }); }
+}
+app.on('open-file', (event, file) => { if (/\.(?:tpp|tpt)$/i.test(file)) { event.preventDefault(); queueExtensionFile(file); } });
+if (!isSmoke && !app.requestSingleInstanceLock()) app.quit();
+app.on('second-instance', (_event, argv) => {
+  for (const file of argv) queueExtensionFile(file);
+  const sync = syncPath(argv); if (sync) queueSyncFile(sync);
+  if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.focus(); }
+});
+
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -73,44 +96,20 @@ function sendMenu(action) {
 }
 
 let menuLanguage = 'en';
-const zhMenu = {
-  'Reset Appearance and Disable Extensions': '重置外观并停用扩展',
-  'Close Project': '关闭工程', File: '文件', Edit: '编辑', Insert: '插入', Project: '项目', Build: '构建', Navigate: '导航', View: '视图',
-  'Open Folder…': '打开文件夹…', Save: '保存',
-  'Import Markdown / Typst…': '导入 Markdown / Typst…', 'Export Document…': '导出文档…',
-  'Create arXiv Package…': '创建 arXiv 包…', 'Project Backup…': '项目备份…',
-  'Template Library…': '模板库…', 'Template Workshop…': '模板工坊…',
-  'Insert Music': '插入乐谱', 'Formula Editor…': '公式编辑器…', 'Display Equation': '独立公式', Table: '表格',
-  'Visual Table Editor…': '可视化表格…', Figure: '图片', 'Code Block': '代码块',
-  Circuit: '电路', 'Logic Gates': '逻辑门', 'Chemical Structure': '化学结构式', 'Skeletal Formula': '键线式',
-  'TikZ Diagram': 'TikZ 图示', Chart: '图表', 'Visual Assistance': '可视化辅助',
-  'Chart Studio…': '图表工作室…', 'Circuit Studio…': '电路工作室…',
-  'Logic Studio…': '逻辑门工作室…', 'Structure Studio…': '结构式工作室…',
-  'Ink Studio…': '手绘工作室…', 'TikZ Studio…': 'TikZ 工作室…', 'Page Layout…': '页面布局…',
-  'Packages & Document Class…': '宏包与文档类…', 'Commands & Completions…': '命令与补全…',
-  'Project Structure…': '项目结构…', 'Asset Library': '素材库', 'Bibliography…': '参考文献…',
-  'Citation & Label Graph…': '引用与标签图…', 'Font Coverage…': '字体覆盖…',
-  'Project Doctor…': '项目医生…', 'Version Review…': '版本审阅…',
-  'LAN Collaboration…': '局域网协作…', 'Version Control…': '版本控制…',
-  'Convert SVG Assets…': '转换 SVG 素材…', 'Comments…': '评论…', 'AI Assistant…': 'AI 助手…',
-  'MCP Server…': 'MCP 服务器…', Compile: '编译', 'Cancel Compile': '取消编译',
-  'Forward Search': '正向搜索', 'Command Palette…': '命令面板…', 'Toggle PDF Preview': '切换 PDF 预览',
-  'Toggle Sidebar': '切换侧栏', 'Toggle Visual Mode': '切换可视模式',
-  'Toggle Focus Mode': '切换专注模式', 'Typewriter Mode': '打字机模式',
-  'Toggle Day / Night': '切换日间 / 夜间', 'Build Details…': '构建详情…',
-  'MCP Crew…': 'MCP 剧组…', 'Paper API…': '论文 API…', 'Extensions…': '扩展…',
-};
+let nativeMessages = {};
+function nativeText(key) { return key === 'Reset Appearance and Disable Extensions' ? key : nativeMessages[key] || key; }
 
 function localizeMenu(items) {
   return items.map((item) => {
     const next = { ...item };
-    if (menuLanguage === 'zh' && next.label && zhMenu[next.label]) next.label = zhMenu[next.label];
+    if (next.label) next.label = nativeText(next.label);
     if (next.submenu) next.submenu = localizeMenu(next.submenu);
     return next;
   });
 }
 
 function buildMenu() {
+  nativeMessages = extensionManager?.languages().find(locale => locale.id === menuLanguage)?.messages || {};
   const isMac = process.platform === 'darwin';
   const tool = (label, id, accelerator) => ({
     label,
@@ -364,12 +363,11 @@ function createWindow() {
     confirmFailure: async () => {
       const wasQuitting = quitting;
       quitting = false;
-      const zh = menuLanguage === 'zh';
       const result = await dialog.showMessageBox(guardedWindow, {
         type: 'warning',
-        message: zh ? '尚未确认所有内容已保存' : 'Your changes could not be confirmed as saved',
-        detail: zh ? '文档会保持打开。请检查保存错误，或重试保存后退出。' : 'Your document will stay open. Check the save error, or retry saving before closing.',
-        buttons: zh ? ['继续写作', '重试保存并关闭'] : ['Keep writing', 'Retry saving and close'],
+        message: nativeText('Your changes could not be confirmed as saved'),
+        detail: nativeText('Your document will stay open. Check the save error, or retry saving before closing.'),
+        buttons: ['Keep writing', 'Retry saving and close'].map(nativeText),
         defaultId: 0, cancelId: 0,
       });
       if (result.response === 1) quitting = wasQuitting;
@@ -390,7 +388,7 @@ function createWindow() {
   });
 
   if (isSmoke) {
-    if (process.env.TEXPRO_FLOW_REGRESSION === '1') require('./flow-regression.cjs')(mainWindow, { app, ipcMain });
+    if (process.env.TEXPRO_FLOW_REGRESSION === '1') require('./flow-regression.cjs')(mainWindow, { app, ipcMain, extensionManager });
     else if (process.env.TEXPRO_CONTINUITY_REGRESSION === '1') require('./continuity-regression.cjs')(mainWindow, { app, ipcMain });
     else if (process.env.TEXPRO_ASSETS_REGRESSION === '1') require('./assets-regression.cjs')(mainWindow, { app, ipcMain });
     else if (process.env.TEXPRO_WRITING_REGRESSION === '1') require('./writing-regression.cjs')(mainWindow, { app, ipcMain });
@@ -401,7 +399,7 @@ function createWindow() {
 }
 
 function registerIpc() {
-  extensionManager = registerExtensionIpc({ app, ipcMain, dialog, getWindow: () => mainWindow, safeMode,
+  extensionManager = registerExtensionIpc({ app, ipcMain, dialog, getWindow: () => mainWindow, safeMode, onChanged: () => { if (!extensionManager?.languages().some(locale => locale.id === menuLanguage)) menuLanguage = 'en'; buildMenu(); },
     assertRoot: root => { if (!isAllowed(root)) throw new Error('Project access is not authorized'); }, symbols: root => tex.collectProjectSymbols(root) });
   const realtimeOperation = task => {
     const result = realtimeSerial.then(task);
@@ -682,7 +680,7 @@ function registerIpc() {
 
   ipcMain.handle('tex:check-assets', async (_event, packages, classes) => tex.checkTexAssets(packages || [], classes || []));
   ipcMain.handle('menu:set-language', async (_event, language) => {
-    menuLanguage = language === 'zh' ? 'zh' : 'en';
+    menuLanguage = extensionManager.languages().some(locale => locale.id === language) ? language : 'en';
     buildMenu();
     return { ok: true, language: menuLanguage };
   });
@@ -948,6 +946,10 @@ app.whenReady().then(() => {
   menuActionHandlerReady = true;
   installElicitationBridge();
   createWindow();
+  for (const file of process.argv) queueExtensionFile(file);
+  const sync = syncPath(process.argv); if (sync) queueSyncFile(sync);
+  if (pendingSyncFile) { queueSyncFile(pendingSyncFile); pendingSyncFile = null; }
+  if (pendingExtensionFile) { queueExtensionFile(pendingExtensionFile); pendingExtensionFile = null; }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

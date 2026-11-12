@@ -2146,7 +2146,7 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 
 插件生命周期与服务组织参考 Koishi 的设计思路，使用 TeXPro 自有 API 与包格式，未包含 Koishi 运行时、控制台源码或市场，不兼容其插件。新增宿主、SDK、示例和开发 Skill 为 MIT。PostCSS 8.5.32（Andrey Sitnik）和 postcss-value-parser 4.2.0（Bogdan Chadkin）用于解析主题样式，保留各自 MIT 声明。插件作者及其资源、字体、第三方依赖保留各自许可，TeXPro 的 MIT 不改变它们的权利。详见根 THIRD_PARTY_NOTICES.md。
 
-独立开发包 `@gardenialiu/texpro-extension-sdk` 与 `@gardenialiu/qwertysay` 由 Baolin Liu（gardenialiu）以 MIT 维护；各自包含 LICENSE。脚手架生成包的作者与许可证由开发者声明，不能将 SDK 作者冒认为插件作者。
+独立开发包 `@texpro/extension-sdk` 与 `@texpro/qwertysay` 由 Baolin Liu（gardenialiu）以 MIT 维护；各自包含 LICENSE。脚手架生成包的作者与许可证由开发者声明，不能将 SDK 作者冒认为插件作者。
 
 ## 编译后插件的第三方版权
 
@@ -2186,13 +2186,17 @@ AI 的 API 密钥由主进程用系统钥匙串（Electron `safeStorage`）加�
 
 代码插件可能以你的用户权限读取文件、访问网络、启动进程或接触用户可访问的凭据。能力清单与独立进程不构成恶意代码沙箱。主题无需代码也可能遮挡按钮、伪装界面或损害可读性。只启用可信作者和已检查的包；SHA-256 不是作者签名。
 
-界面被主题破坏时，使用系统原生「视图 → 重置外观并停用扩展」。也可加 `--safe-mode` 启动，在执行插件前停用所有扩展并恢复纸面。macOS：`open -a TeXPro --args --safe-mode`；Windows：`TeXPro.exe --safe-mode`；Linux：可执行文件或 AppImage 加同一参数。停用会保存，之后逐项重新检查并启用。
+界面被主题破坏时，使用系统原生「视图 → Reset Appearance and Disable Extensions」。也可加 `--safe-mode` 启动，在执行插件前停用所有扩展并恢复纸面。macOS：`open -a TeXPro --args --safe-mode`；Windows：`TeXPro.exe --safe-mode`；Linux：可执行文件或 AppImage 加同一参数。停用会保存，之后逐项重新检查并启用。
 
 分发扩展名为 `.tpp`（插件）与 `.tpt`（主题），底层均为 ZIP 归档。`.tpt` 只接受主题配置、CSS 与资源，不接受可执行入口、动作或其他插件贡献；将代码包改名为 `.tpt` 会拒绝，扩展名不代表安全认证。
 
 ## 主题开发源码与安装包
 
-开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。使用 qwertysay 0.3.0 引导选择开发方式，操作见[qwertysay](/docs/qwertysay)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。
+开发源码可以是 CSS、SCSS、Sass、Less、Stylus、构建时 CSS-in-JS 或 Thematic CSS（`.tcss`）。使用 qwertysay 0.4.1 引导选择开发方式，操作见[qwertysay](/docs/qwertysay)。所有主题最终是静态 CSS 与资源的 `.tpt`；插件是 `.tpp`，不能把源码后缀或 `.zip` 当作安装后缀。主题没有 JavaScript 也可能隐藏控件或伪装界面，仍需确认可信来源。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
 
 ---
 
@@ -2256,10 +2260,10 @@ CSS 清单项为 `stylesheet`，需声明 `theme.styles`。普通规则位于主
 
 ## 先选对入口
 
-这篇说明 `@gardenialiu/texpro-extension-sdk` **0.2.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
+这篇说明 `@texpro/extension-sdk` **0.3.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
 
 ```sh
-npm install --save-dev @gardenialiu/texpro-extension-sdk@0.2.0
+npm install --save-dev @texpro/extension-sdk@0.3.0
 ```
 
 SDK 安装不等于向 TeXPro 安装插件。宿主只加载完成的自包含入口和包资源，不在作者机器以外安装 npm 依赖，也不编译源码。SDK 辅助函数若被运行时使用，必须随作者代码打包；直接导出 `activate(ctx)` 则不要求运行时引用 SDK。
@@ -2334,11 +2338,23 @@ exports.activate = ctx => {
 
 公开 `package-tools` 导出校验、归档和只读检查；宿主、MCP 与 CLI 共用此核心。归档上限 16 MiB／300 文件，拒绝路径越界、符号链接、重复路径和原生二进制。检查成功与摘要一致只证明格式和内容身份，不是安全认证。
 
-**代码插件以当前用户的 Node 权限运行，可能读取文件、联网和启动进程；进程隔离不是安全沙箱。主题也可能隐藏控件、伪装提示或破坏可访问性。** 只启用可信来源；原生「视图 → 重置外观并停用扩展」和 `--safe-mode` 提供恢复。主题规则见[主题包](/docs/themes)。
+**代码插件以当前用户的 Node 权限运行，可能读取文件、联网和启动进程；进程隔离不是安全沙箱。主题也可能隐藏控件、伪装提示或破坏可访问性。** 只启用可信来源；原生「视图 → Reset Appearance and Disable Extensions」和 `--safe-mode` 提供恢复。主题规则见[主题包](/docs/themes)。
 
 在临时用户目录安装实际 `.tpp`／`.tpt`，验证停用、启用、重载、配置、错误、过期请求、IME、撤销、主题和恢复。修改宿主时运行完整回归：零失败、零跳过、零 TODO。打包结果保留作者 LICENSE 与第三方通知；SDK 的 MIT 不覆盖被打包的语言运行时或其他依赖。
 
 交接提供源码、API 和包版本、能力、安装包、摘要、测试证据及限制。高级提供器和界面贡献仍为实验性；清单中的 `mcp` 动作不自动注册为外部 MCP。外部 `texpro_extension_capabilities` 与 `texpro_inspect_extension` 只读，不构建、执行、安装或启用插件。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+## 功能插件自己的 i18n
+
+每个功能插件自行维护 i18n 库和翻译资源；宿主语言包只翻译 TeXPro，不翻译插件业务文案。清单名称、操作标题等使用带 en 回退的 Localized 对象。运行消息、诊断和预览根据每次调用的 `context.language` 选择插件词典；JSON 桥接读取 invoke.context.language。依次匹配完整语言、基础语言和插件自己的英文，并对单条缺译回退英文，不在 activate 时固定语言。
+
+例如作者维护独立 `i18n/messages.json`（en、fr 等词典），处理器用 `messages[context.language] || messages[context.language.split('-')[0]] || messages.en` 选择，再用 `table[key] || messages.en[key]` 回退。插件键与占位符由作者维护，不合并到宿主 locale-source.json；`contributes.locales` 专用于宿主的纯数据语言包，不能和功能入口混用。
+
+可以用 npm／Yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。
 
 ---
 
@@ -2348,21 +2364,21 @@ exports.activate = ctx => {
 
 ## 启动引导，不必记参数
 
-`@gardenialiu/qwertysay` **0.3.0** 是独立 Node 工具，作者 Baolin Liu（gardenialiu），MIT。它不依赖 Electron 或 TeX；基础要求 Node.js 20+，具体编译器可能要求更高版本。SDK 保持 0.2.0 / API 1，见[SDK 指南](/docs/extension-development)。AI 协作另见[开发 Skill](/docs/extension-skill)。
+`@texpro/qwertysay` **0.4.1** 是独立 Node 工具，作者 Baolin Liu（gardenialiu），MIT。它不依赖 Electron 或 TeX；基础要求 Node.js 20+，具体编译器可能要求更高版本。SDK 保持 0.3.0 / API 1，见[SDK 指南](/docs/extension-development)。AI 协作另见[开发 Skill](/docs/extension-skill)。
 
 在普通交互终端执行一次：
 
 ```sh
-npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
+npx --package @texpro/qwertysay@0.4.1 qwertysay
 ```
 
 也可以全局安装后直接运行 `qwertysay`。npx／npm 可能下载工具，但 qwertysay 创建、校验和打包不会替你安装依赖。Windows PowerShell、macOS 和 Linux 终端使用相同的数字选择与回车，不依赖 shell 特有语法、彩色控制或外部菜单程序。
 
-先选简体中文或 English，再选「创建插件或主题」「构建可信源码」「校验目录或安装包」「打包分发」。每项操作显示路径和配置预览，只有明确输入 y／yes／是才开始；直接回车取消。Ctrl+C 或输入结束取消尚未开始的操作。非交互管道不会等待问题，明确失败并提示自动化入口。
+先选简体中文或 English，再选「创建插件或主题」「构建可信源码」「校验目录或安装包」「打包分发」。同一菜单也提供从 npm 获取扩展、创建 npm 分发包、创建 npm／Yarn 扩展管理环境和同步依赖。每项操作显示路径和配置预览，只有明确输入 y／yes／是才开始；直接回车取消。Ctrl+C 或输入结束取消尚未开始的操作。非交互管道不会等待问题，明确失败并提示自动化入口。
 
 ## 创建插件
 
-引导依次询问：扩展类型、新建目录、包标识、作者、开发语言。默认 TypeScript，包标识示例 `author.example`。作者写入生成的 MIT LICENSE；请改成真实署名，并核对第三方归属。
+引导依次询问：扩展类型、新建目录、包标识、作者、开发语言、包管理器（npm／Yarn）。默认 TypeScript，包标识示例 `author.example`。作者写入生成的 MIT LICENSE；请改成真实署名，并核对第三方归属。
 
 新目录必须不存在或为空，已有文件与符号链接目录会拒绝；ID、颜色和选择错误可重新填写。最终预览确认前不创建目录。确认只生成源码，不执行 npm install，也不启动编译器或扩展。
 
@@ -2378,7 +2394,7 @@ npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
 | Scala.js | `.scala` | Java、sbt、Scala.js |
 | GopherJS | `.go` | GopherJS 1.21、匹配的 Go 1.21.x |
 
-生成的 package.json 固定所需工具版本。先进入生成目录明确执行 `npm install`，按 README 准备非 npm 工具，再重新运行 qwertysay，选择「构建可信源码」并填写该目录。构建后在 TeXPro 扩展管理中加载 `dist/package`，不是源码根目录。
+生成的 package.json 固定所需工具版本。先进入生成目录，按所选包管理器明确执行 `npm install` 或 `yarn install`，只保留对应锁文件；Yarn 使用 node_modules。按生成的 README 准备非 npm 工具，再重新运行 qwertysay，选择「构建可信源码」并填写该目录。构建后在 TeXPro 扩展管理中加载 `dist/package`，不是源码根目录。语言包没有构建步骤，见[语言包教程](/docs/language-packs)。
 
 ## 创建主题：简单配色或高级样式
 
@@ -2428,6 +2444,12 @@ qwertysay pack ./my-plugin ./author.example.tpp
 
 构建工具与 Node 插件拥有用户权限；主题也可能伪装界面。校验与后缀不是安全证书。只运行可信源码并审查许可证，安装实际包后验证启停、撤销、IME、过期结果、主题和安全恢复。没有公开插件市场或自动发布作者插件的功能。
 
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+功能插件生成后，在作者工程维护独立 i18n 库与资源；使用每次调用的 context.language 选择插件自身词典，并将依赖和资源一起构建到 .tpp。不要把功能插件误建为宿主语言包。清单多语种展示与运行消息是两条独立路径，详细示例见 SDK 指南。
+
 ---
 
 # 开发 Skill：让 AI 协助扩展开发
@@ -2453,7 +2475,7 @@ qwertysay pack ./my-plugin ./author.example.tpp
 ```text
 使用 $texpro-extension-development。
 在我指定的新目录创建一个 API 1 插件，只将选区转换为大写。
-使用 SDK 0.2.0 和 qwertysay 的引导式配置，不要求我记参数。
+使用 SDK 0.3.0 和 qwertysay 的引导式配置，不要求我记参数。
 声明 document.read/document.write，保留 UTF-16、提案确认与单次撤销。
 交付源码、MIT LICENSE、.tpp、SHA256、实际测试证据和已知限制。
 不要发布 npm，也不要在我的日常工程或用户目录启用插件。
@@ -2500,5 +2522,141 @@ Node 插件与构建工具具有用户权限；进程隔离不是沙箱。主题
 外部 MCP 的格式查询和包检查是只读，不执行编译、安装或启用。Skill 不把清单 mcp 动作变成外部工具，也不自行扩大权限。推送、npm 发布与远程分发需依据用户的实际授权。
 
 宿主和工具改变时同轮修订 Skill、参考资料、SDK、qwertysay 及官网中英文指南。协作交接保留契约、包版本、许可证、真实证据和剩余问题；私人计划、聊天、凭据和临时配置不进入 Git 或发行包。
+
+## 语言插件与包管理环境
+
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+## 下载发行 Skill
+
+后续正式版与 Nightly 附带 `texpro-extension-development-v{应用版本}.skill`，这是包含完整技能目录与引用资源的 ZIP。核对实际 Release、来源与摘要，再用 AI 工具的导入功能；工具只接受 ZIP 时可重命名本地副本后解压。它不是 TeXPro 的 `.tpp` 桌面插件。旧发行版没有这个资产时，使用完整源码目录。
+
+---
+
+# 语言包：安装、翻译与恢复
+
+> 使用预装简体中文包，创建声明式语言插件，并验证缺译回退、占位符与安全恢复。
+
+> 需要包含语言插件与包管理同步能力的桌面构建；此前公开的 v0.1.0 安装包不包含本次能力。
+
+## 语言从哪里来
+
+TeXPro 内置英文作为恢复语言，简体中文通过预装的声明式 `.tpp` 插件提供，并独立分发为 `@texpro/extension-translate-zh-cn`。预装与 npm 归档来自同一翻译源，不会自动联网下载语言。官网的文档语言独立于桌面语言插件。
+
+安装作者提供的 `.tpp`：打开「扩展」，选择「安装插件包…」，核对包名、作者与文案风险后点「安装并保持停用」，再点「启用」。在「偏好设置」的「界面语言」中选择语言自称。两种语言时只显示切换到另一语言的单个按钮；有更多语言时才显示语言选择。
+
+预装简体中文可以停用；停用、坏包或卸载当前语言时回退英文。预装资源不能直接卸载；安装的中文更新可以卸载，随后恢复停用的预装副本。缺译条目逐项回退英文，不把整页空白当作正常结果。
+
+## 创建语言包
+
+需要 Node.js 20+。启动 [qwertysay](/docs/qwertysay) 的中英引导，选择「创建插件或主题」后选「语言包（仅数据）」，填写目录、包标识、作者、BCP 47 语言标识（例如 fr）、语言自称（例如 Français）和 npm／Yarn。没有编译器或构建步骤。
+
+```sh
+npx --package @texpro/qwertysay@0.4.1 qwertysay
+```
+
+工程中的 `reference/en.json` 是英文参考，编辑 `locales/fr.json`：
+
+```json
+{
+  "Save": "Enregistrer",
+  "Hello {name}": "Bonjour {name}"
+}
+```
+
+键须与 `reference/en.json` 一致，其中保留部分历史中文键；翻译对应的英文显示文本作为目标语言值，不翻译键。保留所有 `{name}`、`{count}` 等占位符，不更改变量名。通过引导选择「校验目录或安装包」会报告缺译和未知键；未知键可用于版本兼容，缺译回退英文。参考快照对应所用 SDK 版本，宿主新增文案后要升级并核对源目录。
+
+语言声明：
+
+```json
+{
+  "locales": [
+    { "id": "fr", "title": "Français", "messages": "locales/fr.json" }
+  ]
+}
+```
+
+这段位于清单的 `contributes`。清单还需要合法插件 ID、版本、API 1、作者、许可证及空 capabilities；生成模板已经包含它们。包必须附 LICENSE，不能添加入口、权限、脚本、样式或其他贡献。英文恢复语言不能被覆盖。简中标识沿用 zh 以兼容既有偏好。
+
+完成后选择「打包分发」生成 `.tpp`，在临时 TeXPro 用户目录测试启停、缺译、变量、菜单和恢复。npm 分发与安装／卸载联动见[包管理器管理扩展](/docs/extension-package-management)；API 见[插件 SDK](/docs/extension-development)。
+
+## 风险与恢复
+
+语言包只提供字符串，不执行代码或 HTML，但仍可能把按钮翻译成误导性指令。确认作者与内容，不能把数据包或校验通过当作安全保证。主题也可能隐藏控件，Node 插件可能访问用户文件、网络和进程。
+
+恢复时使用原生「视图」菜单中的 `Reset Appearance and Disable Extensions`；这个命令刻意固定为英文，以免被语言插件替换。找不到菜单时，以 `--safe-mode` 启动，回到英文并停用扩展。在英文界面中，「偏好设置」「界面语言」「扩展」分别显示 Preferences、Interface language、Extensions。
+
+---
+
+# 用 npm／Yarn 管理扩展
+
+> 用专用依赖环境安装、更新和移除扩展，再交给 TeXPro 审核同步，保留版本锁定与启用边界。
+
+> 需要包含语言插件与包管理同步能力的桌面构建；此前公开的 v0.1.0 安装包不包含本次能力。
+
+## 包管理器和应用各管什么
+
+npm／Yarn 管理扩展分发包的依赖、版本和锁文件；TeXPro 保留自己的受检副本、信任、启停和数据。包管理器安装成功不代表应用已经启用，卸载依赖后也要同步才能移除宿主副本。没有后台监听或自动更新。
+
+需要 Node.js 20+、已安装的 npm 或 Yarn，以及支持语言包和同步审核的新版 TeXPro。v0.1.0 安装包早于这项能力；使用包含此更新的后续构建，不把新版 CLI 当作旧桌面的补丁。先阅读[扩展安全说明](/docs/extensions)与[语言包教程](/docs/language-packs)。
+
+## 创建专用环境
+
+```sh
+npx --package @texpro/qwertysay@0.4.1 qwertysay
+```
+
+引导中选择「创建 npm／Yarn 扩展管理环境」，填写新目录并选择包管理器。它只创建配置，不联网或自动安装。进入这个目录后再明确执行安装。环境与 TeX 工程、TeXPro 源码和插件作者工程分开，一个环境只保留一种锁文件。
+
+npm 示例，官方简中包已经随应用预装，同摘要时不会重复安装：
+
+```sh
+npm install --ignore-scripts
+npm install --ignore-scripts @texpro/extension-translate-zh-cn@1.0.0
+npm run sync:extensions
+```
+
+Yarn Classic 示例：
+
+```sh
+yarn install --ignore-scripts
+yarn add --ignore-scripts @texpro/extension-translate-zh-cn@1.0.0
+yarn run sync:extensions
+```
+
+现代 Yarn 使用生成的 `.yarnrc.yml`：`nodeLinker: node-modules`、`enableScripts: false`。直接 `yarn install`、`yarn add 包名`，不要传 Classic 专用的 `--ignore-scripts`。暂不支持 PnP。SDK／CLI 属于 devDependencies，dependencies 只放带有 `texpro.package` 的扩展分发包。
+
+提交 package.json 与对应锁文件；npm 用 npm ci 复现，Yarn 使用对应版本的冻结锁安装。不要同时产生 package-lock.json 与 yarn.lock。
+
+## 审核、更新与卸载
+
+同步后 TeXPro 的「扩展」中出现「审核包管理器变更」，逐项显示包名、版本和能力。点「安装并保持停用」后再决定是否启用；可执行插件和自定义样式继续要求信任确认。
+
+更新依赖后再次运行同步。npm 使用 npm update，现代 Yarn 使用 yarn up，Classic 使用 yarn upgrade。插件摘要变化会产生更新审核，更新后不会沿用旧代码的启用状态。版本锁定与插件许可证由作者和使用者核对。
+
+卸载示例：
+
+```sh
+npm uninstall --ignore-scripts @texpro/extension-translate-zh-cn
+npm run sync:extensions
+```
+
+Yarn Classic 使用 `yarn remove --ignore-scripts 包名`，现代 Yarn 使用 `yarn remove 包名`，之后均运行 `yarn run sync:extensions`。应用逐项提示「卸载」，仅处理同一环境管理的记录，默认保留插件数据。不会删除手动安装的扩展或其他环境的扩展；若只用了原始预装简中而没有安装更新，移除 npm 依赖不会删除预装资源。
+
+安装的简中更新被卸载后恢复停用的预装副本，可在「扩展」重新启用。要把手动安装改为环境管理，先在应用卸载原副本再同步；数据仍保留。
+
+## 分发与单独下载
+
+作者完成 `.tpp`／`.tpt` 后，用 qwertysay「创建 npm 分发包」生成新目录，package.json 的 `texpro.package` 指向唯一安装包。然后由作者自行核对 LICENSE 并发布；脚手架不会自动发布。
+
+不需要管理环境时，可选择「从 npm 获取扩展并交给 TeXPro 审核」。它只下载公开 npm 元数据与归档，校验 SHA-512、包身份和实际安装包，不安装 npm 依赖或执行脚本。也可只保存文件，稍后在「扩展」选择「安装插件包…」。插件和语言包是 `.tpp`，主题是 `.tpt`。
+
+## 失败、恢复与风险
+
+缺失依赖、混用锁文件、损坏归档或陈旧审核计划会明确失败。先修复环境、重新安装依赖并同步；不要用删除 node_modules 模拟卸载全部。部分项已确认成功时保留结果，失败项重新审核，不宣称整批原子事务。
+
+自动启动失败时把 `TEXPRO_APP_PATH` 设置为 TeXPro 可执行文件路径，或按 CLI 输出用 `--extension-sync` 打开本地计划。Windows／Linux 桌面关联取决于实际安装位置；路径含空格需要正确引用。安装器／便携版本分别验证，源码测试不能代表所有平台都已原生验收。
+
+专用环境禁用生命周期脚本；如果手动绕过配置，npm／Yarn 仍可能执行安装代码。Node 插件启用后有用户文件、网络和进程权限，主题和语言包都可能伪装可信界面。摘要校验不是安全认证。恢复使用原生固定英文命令 `Reset Appearance and Disable Extensions` 或 `--safe-mode`。
 
 ---

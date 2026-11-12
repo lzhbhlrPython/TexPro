@@ -4,14 +4,15 @@ const path = require('node:path');
 const { createHash, randomUUID } = require('node:crypto');
 const { createRequire } = require('node:module');
 const { execFileSync } = require('node:child_process');
-const { readPackage, validateManifest, validatePackageType, relative, directoryFiles, languages, styles } = require('@gardenialiu/texpro-extension-sdk/package-tools');
+const { readPackage, validateManifest, validatePackageType, relative, directoryFiles, languages, styles } = require('@texpro/extension-sdk/package-tools');
 const { templates: styleTemplates } = require('./templates/styles.cjs');
-const SDK = '@gardenialiu/texpro-extension-sdk';
+const SDK = '@texpro/extension-sdk';
 const SKIP = new Set(['node_modules', 'dist', 'output', 'target', 'elm-stuff', 'lib']);
 
 function rootDirectory(directory) {
   const root = path.resolve(directory);
   if (fs.lstatSync(root).isSymbolicLink() || !fs.statSync(root).isDirectory()) throw new Error('Choose a regular source directory');
+  if (fs.existsSync(path.join(root, 'package-lock.json')) && fs.existsSync(path.join(root, 'yarn.lock'))) throw new Error('Use only one package manager lockfile');
   return fs.realpathSync(root);
 }
 function config(root) {

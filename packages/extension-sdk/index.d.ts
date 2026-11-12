@@ -1,5 +1,5 @@
 /** API 1. Executable packages are trusted Node extensions; the SDK is not a security sandbox. */
-export type Localized = string | { en: string; zh: string };
+export type Localized = string | { en: string; [language: string]: string };
 export type Capability = 'document.read' | 'document.write' | 'project.read' | 'build.request' | 'storage' | 'network' | 'theme.styles';
 export type ActionKind = 'command' | 'diagnostic' | 'transform' | 'completion' | 'hover' | 'preview' | 'import' | 'export' | 'bibliography' | 'asset' | 'mcp';
 export interface ExtensionAction { id: string; title: Localized; kind: ActionKind; level?: 'L1' | 'L2' | 'L3'; description?: Localized }
@@ -8,17 +8,19 @@ export interface CompletionContribution { label: string; template: string; detai
 export interface TemplateContribution { id: string; title: Localized; source: string; engine: 'pdflatex' | 'xelatex' | 'lualatex' }
 export interface SettingContribution { key: string; title: Localized; type: 'string' | 'boolean' | 'number'; default: string | boolean | number }
 export interface PanelContribution { id: string; title: Localized; level: 'L2' | 'L3'; actions: string[] }
+export interface LocaleContribution { id: string; title: string; messages: string }
+export interface LanguagePack { id: string; title: string; messages: Record<string, string> }
 export interface PackageManifest {
   id: string; name: Localized; version: string; apiVersion: 1; author: string; license: string;
   description?: Localized; entry?: string; capabilities: Capability[];
   contributes: {
-    actions?: ExtensionAction[]; themes?: ThemeContribution[]; completions?: CompletionContribution[];
+    locales?: LocaleContribution[]; actions?: ExtensionAction[]; themes?: ThemeContribution[]; completions?: CompletionContribution[];
     snippets?: CompletionContribution[]; templates?: TemplateContribution[]; panels?: PanelContribution[]; settings?: SettingContribution[];
   };
 }
-export interface InstalledExtension { manifest: PackageManifest; enabled: boolean; digest: string; config: Record<string, string | boolean | number>; development: boolean; canRollback: boolean; error: string | null; themeStyles?: Record<string, string> }
+export interface InstalledExtension { manifest: PackageManifest; enabled: boolean; digest: string; config: Record<string, string | boolean | number>; development: boolean; canRollback: boolean; error: string | null; origin?: { environment: string; root: string; name: string; version: string; lockDigest: string }; builtin?: boolean; locales?: LanguagePack[]; themeStyles?: Record<string, string> }
 export interface ExtensionSnapshot {
-  language: 'en' | 'zh'; source: string; file?: string; selection: { from: number; to: number };
+  language: string; source: string; file?: string; selection: { from: number; to: number };
   project?: { root: string; name: string; rootFile?: string | null };
 }
 export interface ExtensionDiagnostic { from: number; to: number; severity: 'error' | 'warning' | 'info'; message: string }
