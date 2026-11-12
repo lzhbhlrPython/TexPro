@@ -1,6 +1,11 @@
 name: Release patch
 on:
   workflow_dispatch:
+    inputs:
+      initial_release:
+        description: Publish current base as the first stable release (no increment)
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: write
@@ -12,5 +17,5 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/_release-stable.yml
     with:
-      bump: patch
+      bump: ${{ inputs.initial_release && 'initial' || 'patch' }}
     secrets: inherit

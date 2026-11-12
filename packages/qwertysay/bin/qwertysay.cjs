@@ -4,13 +4,25 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { readPackage, validatePackageType } = require('@gardenialiu/texpro-extension-sdk/package-tools');
 const { pack } = require('@gardenialiu/texpro-extension-sdk/package-tools');
-const { scaffold } = require('../lib/scaffold.cjs');
+const { scaffold, scaffoldTokenTheme } = require('../lib/scaffold.cjs');
 const { build, artifactDirectory } = require('../lib/build.cjs');
 const { languages, styles } = require('@gardenialiu/texpro-extension-sdk/package-tools');
 async function main(args) {
   const [command, ...rest] = args;
   if (command === '--version') return console.log(require('../package.json').version);
-  if (!command || ['--help', '-h', 'help'].includes(command)) return console.log(`qwertysay init <directory> [--id author.name] [--author "Your name"] [--type plugin|theme] [--language ${Object.keys(languages).join('|')}] [--style ${Object.keys(styles).join('|')}]\nqwertysay build <source-directory>\nqwertysay check <source-or-built-directory|file.tpp|file.tpt>\nqwertysay pack <source-or-built-directory> <new-output.tpp|new-output.tpt>\nInit/check/pack never install, build, execute author code or access the network. Explicit build executes trusted compiler/project code; toolchains may download dependencies.`);
+  if (['--help', '-h', 'help'].includes(command)) return console.log(`qwertysay — guided setup / 引导式配置 (run without arguments in a terminal)\nSelect language, create/build/check/pack, package type and toolchain; review before execution.\nAutomation compatibility:\nqwertysay init <directory> [--id author.name] [--author "Your name"] [--type plugin|theme] [--language ${Object.keys(languages).join('|')}] [--style ${Object.keys(styles).join('|')}]\nqwertysay build <source-directory>\nqwertysay check <source-or-built-directory|file.tpp|file.tpt>\nqwertysay pack <source-or-built-directory> <new-output.tpp|new-output.tpt>\nInit/check/pack never install, build, execute author code or access the network. Explicit build executes trusted compiler/project code; toolchains may download dependencies.`);
+  if (!command || command === 'wizard' || (['init', 'build', 'check', 'pack'].includes(command) && !rest.length)) {
+    if (!process.stdin.isTTY) throw new Error('Guided setup requires a terminal / 引导式配置需要交互终端。For automation, use explicit commands; see qwertysay --help.');
+    const { createPrompter, planInteractive } = require('../lib/wizard.cjs');
+    const prompt = createPrompter(process.stdin, process.stdout);
+    let plan;
+    try { plan = await planInteractive({ ask: prompt.ask, command: command === 'wizard' ? undefined : command }); }
+    finally { prompt.close(); }
+    if (!plan) return console.log('Cancelled / 已取消；未开始所选操作。');
+    if (plan.command !== 'init') return main(plan.args);
+    const result = plan.tokensOnly ? scaffoldTokenTheme(plan.directory, plan.options) : scaffold(plan.directory, plan.options);
+    return console.log(`Created ${result.manifest.id} in ${result.destination}. ${plan.tokensOnly ? 'No build required / 无需构建；run qwertysay to check or pack .tpt.' : 'Install dependencies explicitly, then run qwertysay to build/check/pack. / 请先明确安装依赖，再进入引导构建、校验、打包。'}`);
+  }
   if (command === 'init') {
     if (!rest[0] || rest[0].startsWith('--')) throw new Error('Choose a destination directory');
     const options = {};
@@ -32,4 +44,5 @@ async function main(args) {
   }
   console.log(`${manifest.id}@${manifest.version}: valid API ${manifest.apiVersion}, SHA-256 ${digest}`);
 }
-main(process.argv.slice(2)).catch(error => { console.error(error.message); process.exitCode = 1; });
+module.exports = { main };
+if (require.main === module) main(process.argv.slice(2)).catch(error => { console.error(error.message); process.exitCode = error.exitCode || 1; });

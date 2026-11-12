@@ -177,4 +177,4 @@ server 与客户端按 MCP 协议版本协商；客户端过旧时会握手失�
 
 `texpro_extension_capabilities` 查询支持的插件语言、主题样式、工具链与 `.tpp`／`.tpt` 分发后缀，不需要打开工程。`texpro_inspect_extension` 接受当前工程内已构建目录或安装包，例如 `{"path":"extensions/example/dist/package"}`；返回清单、摘要、大小与风险提示，拒绝越界和符号链接逃逸。它不会构建、导入入口、安装、信任、启用或执行插件。
 
-实验性 `mcp` 插件动作仍不自动成为外部工具。后续受控调用可继续深化，但需要明确启用和工具白名单。外部服务只看磁盘，不能读取未保存缓冲区。作者构建能力使用 SDK／qwertysay `0.2.0`，与原有 `0.1.0` 区分；见[扩展开发](/docs/extension-development)。
+实验性 `mcp` 插件动作仍不自动成为外部工具。后续受控调用可继续深化，但需要明确启用和工具白名单。外部服务只看磁盘，不能读取未保存缓冲区。作者构建能力使用 SDK `0.2.0` 与 qwertysay `0.3.0`，与原有 `0.1.0` 区分；见[SDK](/docs/extension-development)与[qwertysay](/docs/qwertysay)。

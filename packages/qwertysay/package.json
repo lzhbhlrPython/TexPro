@@ -1,6 +1,6 @@
 {
   "name": "@gardenialiu/qwertysay",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "qwertysay: offline scaffolding, checking and packaging for TeXPro plugins and themes",
   "license": "MIT",
   "files": [

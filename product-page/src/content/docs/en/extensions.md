@@ -40,4 +40,4 @@ Packages use `.tpp` for plugins and `.tpt` for themes (both are ZIP containers).
 
 ## Theme source and installable artifacts
 
-Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Thematic CSS (`.tcss`). Compile with qwertysay 0.2.0; see [extension development](/docs/extension-development). Every theme artifact is a `.tpt` containing static CSS and assets; plugins use `.tpp`. Source suffixes and `.zip` are not installable suffixes. A theme can conceal controls or impersonate UI without JavaScript; trust remains necessary.
+Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Thematic CSS (`.tcss`). Choose the authoring style in guided qwertysay 0.3.0; see [qwertysay](/docs/qwertysay). Every theme artifact is a `.tpt` containing static CSS and assets; plugins use `.tpp`. Source suffixes and `.zip` are not installable suffixes. A theme can conceal controls or impersonate UI without JavaScript; trust remains necessary.

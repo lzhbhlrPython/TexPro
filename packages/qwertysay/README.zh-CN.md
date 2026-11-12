@@ -1,41 +1,33 @@
 # @gardenialiu/qwertysay
 
-作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.2.0`** 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
+作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.3.0`** 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
 
 [English](README.md)
 
-## 创建扩展
+## 引导式使用
 
-使用固定版本的 qwertysay：
-
-```sh
-npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
-```
-
-进入生成目录，安装依赖并明确执行构建：
+0.3.0 起，直接启动即可按步骤选择创建、构建、校验或打包，无需记住参数：
 
 ```sh
-cd my-plugin
-npm install
-npm run build
-npm run check:extension
-npm run pack:extension
+npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
 ```
 
-维护源码时，在 TeXPro 中执行 `npm ci`，使用本地 CLI，并在生成工程中同时安装同一检出的 SDK 与脚手架路径。
+选择简体中文／English、操作、插件／主题、目录、包标识、作者和开发语言／样式。输入路径及配置预览后确认，默认回车取消，Ctrl+C／EOF 取消尚未开始的操作。主题的第一项是“仅修改主题色”：选择基础模式与强调色，只生成 manifest 和 LICENSE，无需 CSS、脚本或构建。
 
-默认 `--type plugin --language ts`。主题示例：`--type theme --style tcss`。开发时加载 **`dist/package`**，检查、安装停用快照并明确启用。插件分发为 `.tpp`，主题分发为 `.tpt`；源码后缀和运行入口后缀不等于安装包后缀，两种安装包内部均为受限 ZIP，不能直接使用 `.zip` 安装。
+创建不会安装依赖；需明确执行 npm install。普通源码再进入引导选择构建，开发时加载 dist/package；最简 token 主题直接校验／打包。打包默认选择目录外的新 .tpp／.tpt，拒绝覆盖。构建执行可信工具和工程配置并可能联网，校验／打包不执行代码。非交互启动明确失败而不等待输入，旧 init/build/check/pack 完整参数保留给 CI；--help 查看兼容用法。
+
+源码维护：根目录 npm ci 后运行 node packages/qwertysay/bin/qwertysay.cjs；生成项目需要同时安装匹配的本地 SDK 和 CLI 路径。详细指南：[qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)、[SDK](https://texpro.pyliubaolin.top/docs/extension-development)、[开发 Skill](https://texpro.pyliubaolin.top/docs/extension-skill)。
 
 ## 语言与样式
 
-| 插件语言 | `--language` | 开发源码 |
+| 插件语言 | 引导选项 | 开发源码 |
 | --- | --- | --- |
 | TypeScript / JavaScript | `ts` / `js` | `.cts` / `.cjs` |
 | CoffeeScript / PureScript | `coffee` / `purs` | `.coffee` / `.purs` |
 | ReScript / ClojureScript | `rescript` / `cljs` | `.res` / `.cljs` |
 | Elm / Scala.js / GopherJS | `elm` / `scala` / `go` | `.elm` / `.scala` / `.go` |
 
-| 主题样式 | `--style` | 开发源码 |
+| 主题样式 | 引导选项 | 开发源码 |
 | --- | --- | --- |
 | CSS / SCSS / Sass | `css` / `scss` / `sass` | `.css` / `.scss` / `.sass` |
 | Less / Stylus | `less` / `stylus` | `.less` / `.styl` |

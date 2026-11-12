@@ -102,6 +102,8 @@ The process boundary is explicit: the rendering layer is responsible only for ed
 
 ## Versions and Release Cadence
 
+**v0.1.0 · Tajpilo** (2026-11-12) is the first stable release. **Tajpilo**, Esperanto for “typewriter”, names the **0.1.x** series. See the [stable release list](/releases) for installers, notes and verification limits.
+
 Download versions come from actual GitHub Releases and the website version pages; the root package files manage the application base version. The application uses nightly builds: GitHub Actions checks every day at `13:23 UTC` (21:23 Asia/Shanghai) whether `main` has new commits since the last successfully published Nightly; if so, it runs regression tests, type checks, and the build, and publishes the installers with a dated `v{baseVersion}-YYYYMMDD-Nightly` prerelease tag.
 
 | Platform | Artifacts |

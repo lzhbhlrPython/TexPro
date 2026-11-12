@@ -30,6 +30,17 @@
       <category>验证]</category>
     </item>
     <item>
+      <title>首次正式发布：TeXPro v0.1.0 · Tajpilo</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo</guid>
+      <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
+      <description>以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。</description>
+      <category>[发布</category>
+      <category>连续写作</category>
+      <category>扩展</category>
+      <category>工程]</category>
+    </item>
+    <item>
       <title>多语言插件与静态主题：把作者工具和宿主运行时分开</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</guid>

@@ -1,41 +1,33 @@
 # @gardenialiu/qwertysay
 
-Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. Version **`0.2.0`** adds multilingual plugin builds, static theme compilation and the API 1 JSON bridge. Version `0.1.0` contains the original TS/JS/CSS scaffolds.
+Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. Version **`0.3.0`** adds bilingual guided workflows and minimal accent themes; `0.2.0` adds multilingual plugin builds, static theme compilation and the API 1 JSON bridge. Version `0.1.0` contains the original TS/JS/CSS scaffolds.
 
 [简体中文](README.zh-CN.md)
 
-## Create an extension
+## Guided usage
 
-Use the pinned qwertysay release:
-
-```sh
-npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id author.example --language coffee
-```
-
-In the generated directory, install dependencies and build explicitly:
+Since 0.3.0, start without arguments and choose create, build, check or pack step by step:
 
 ```sh
-cd my-plugin
-npm install
-npm run build
-npm run check:extension
-npm run pack:extension
+npx --package @gardenialiu/qwertysay@0.3.0 qwertysay
 ```
 
-For source development, run `npm ci` in TeXPro and use `node packages/qwertysay/bin/qwertysay.cjs`; install both local package paths together in the generated project.
+Choose Simplified Chinese/English, operation, plugin/theme, destination, ID, author and language/style. Review paths/configuration before confirmation. Enter cancels by default; Ctrl+C/EOF cancels an operation that has not started. The first theme option is accent-only: select a base and accent to generate just the manifest and LICENSE, without CSS, scripts or compilation.
 
-The default is `--type plugin --language ts`. For a theme, use e.g. `--type theme --style tcss`. Load **`dist/package`** for development, inspect, install disabled, then explicitly enable. Distribute plugins as `.tpp` and themes as `.tpt`. Source and runtime entry suffixes are different from installable package suffixes. Both artifacts are restricted ZIP containers; `.zip` is not an installable suffix.
+Creation never installs dependencies: run npm install explicitly. For ordinary sources, return to the guide to build and load dist/package in TeXPro. Minimal token themes check/pack directly. Pack suggests a new .tpp/.tpt outside source and refuses overwrite. Build executes trusted tools/configuration and may download dependencies; check/pack execute no code. Noninteractive startup fails instead of waiting. Complete legacy init/build/check/pack arguments remain for CI; see --help.
+
+For source maintenance, run npm ci at the repository root, then node packages/qwertysay/bin/qwertysay.cjs; generated projects need both matching local SDK/CLI paths installed together. Detailed guides: [qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay), [SDK](https://texpro.pyliubaolin.top/docs/extension-development), [development Skill](https://texpro.pyliubaolin.top/docs/extension-skill).
 
 ## Languages and styles
 
-| Plugin language | `--language` | Author source |
+| Plugin language | Guide choice | Author source |
 | --- | --- | --- |
 | TypeScript / JavaScript | `ts` / `js` | `.cts` / `.cjs` |
 | CoffeeScript / PureScript | `coffee` / `purs` | `.coffee` / `.purs` |
 | ReScript / ClojureScript | `rescript` / `cljs` | `.res` / `.cljs` |
 | Elm / Scala.js / GopherJS | `elm` / `scala` / `go` | `.elm` / `.scala` / `.go` |
 
-| Theme style | `--style` | Author source |
+| Theme style | Guide choice | Author source |
 | --- | --- | --- |
 | CSS / SCSS / Sass | `css` / `scss` / `sass` | `.css` / `.scss` / `.sass` |
 | Less / Stylus | `less` / `stylus` | `.less` / `.styl` |

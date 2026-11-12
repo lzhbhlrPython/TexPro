@@ -14,6 +14,25 @@ try {
   const sdk = path.join(root, 'node_modules/@gardenialiu/texpro-extension-sdk'), cli = path.join(root, 'node_modules/@gardenialiu/qwertysay/bin/qwertysay.cjs');
   assert.equal(fs.lstatSync(sdk).isSymbolicLink(), false, 'Must install actual distribution, not a source symlink');
   assert.equal(require(path.join(sdk, 'index.cjs')).API_VERSION, 1);
+  const cliVersion = require(path.join(root, 'node_modules/@gardenialiu/qwertysay/package.json')).version;
+  if (Number(cliVersion.split('.')[0]) > 0 || Number(cliVersion.split('.')[1]) >= 3) {
+    const cliRoot = path.join(root, 'node_modules/@gardenialiu/qwertysay');
+    run(['-e', `
+      const assert = require('node:assert/strict'), fs = require('node:fs');
+      const { planInteractive } = require(${JSON.stringify(path.join(cliRoot, 'lib/wizard.cjs'))});
+      const { scaffoldTokenTheme } = require(${JSON.stringify(path.join(cliRoot, 'lib/scaffold.cjs'))});
+      const { main } = require(${JSON.stringify(cli)});
+      (async () => {
+        const directory = ${JSON.stringify(path.join(root, 'guided theme'))};
+        const answers = ['en', 'init', 'theme', directory, 'test.guided', 'Writer', 'tokens', 'paper', '#123456', 'yes'];
+        const plan = await planInteractive({ ask: async () => { assert.ok(answers.length); return answers.shift(); }, write() {} });
+        scaffoldTokenTheme(plan.directory, plan.options);
+        assert.deepEqual(fs.readdirSync(directory).sort(), ['LICENSE', 'texpro.extension.json']);
+        await main(['check', directory]);
+        await main(['pack', directory, ${JSON.stringify(path.join(root, 'guided.tpt'))}]);
+      })().catch(error => { console.error(error); process.exitCode = 1; });
+    `]);
+  }
   for (const [type, language, suffix] of [['plugin', 'ts', 'tpp'], ['plugin', 'js', 'tpp'], ['theme', 'ts', 'tpt']]) {
     const directory = path.join(root, type + language), output = path.join(root, type + language + '.' + suffix);
     run([cli, 'init', directory, '--id', `test.${type}${language}`, '--author', 'Baolin Liu', '--type', type, '--language', language]);

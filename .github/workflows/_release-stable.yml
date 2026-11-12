@@ -60,4 +60,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
           RELEASE_SOURCE: ${{ github.sha }}
+          RELEASE_INITIAL: ${{ inputs.bump == 'initial' }}
         run: node scripts/publish-stable.cjs

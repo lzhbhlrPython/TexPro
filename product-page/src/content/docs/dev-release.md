@@ -66,6 +66,10 @@ LuaLaTeX 中文还依赖 `texlive-lang-japanese` 中的 LuaTeX-ja；共享任务
 
 ## 手动发布正式版本
 
+首次正式版本是 **v0.1.0 · Tajpilo**（2026-11-12）。**0.1.x** 系列代号 **Tajpilo** 是世界语“打字机”，定义于根 `release-series.json`。代号用于发布标题，版本、标签与安装包名不变。发布器优先读取 `docs/releases/vX.Y.Z.md` 双语说明，缺失才自动生成。
+
+仅首次发布当前基础版本时，在 **Release patch** 勾选 `initial_release`，本次保持 0.1.0。默认关闭，后续 patch 正常递增。首次路径要求没有其他正式标签且版本与受测源码一致；即使版本内容无需修改，也记录带运行身份的发布提交，供同一次 Actions 安全重试。已有正式版本后不再使用该选项。
+
 在 Actions 选择 **Release major**、**Release minor** 或 **Release patch**，选择 main 并运行。它们分别产生 X+1.0.0、X.Y+1.0、X.Y.Z+1，复用 `_release-stable.yml`，不会直接发布 npm SDK。
 
 所有测试和三平台打包完成后，才确认 main 仍是受测源码，并原子推送根 `package.json`／`package-lock.json` 的版本提交和 `vX.X.X` 标签。main 若已变化则拒绝发布，需以最新代码开启新运行，不能强推。标签不可覆盖；上传资产期间保持草稿，完整后才公开正式 Release，并刷新官网[正式版本列表](/releases)。上传或官网刷新失败时可重跑同一次 Actions；已提交的版本不会再次递增，已公开版本不重复上传。不要为修复同一上传失败另开一次版本递增运行。GitHub 分支／标签保护或环境审核仍可能要求仓库管理员处理。

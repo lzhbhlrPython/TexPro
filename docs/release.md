@@ -4,6 +4,12 @@ Nightly 每日上海时间 21:23 检查相对上一次成功公开、含资产�
 
 ## 正式版本
 
+首次正式版本为 **v0.1.0 · Tajpilo**（2026-11-12），说明见 [v0.1.0](releases/v0.1.0.md)。**0.1.x** 系列代号 **Tajpilo**，世界语“打字机”，统一来源为根 `release-series.json`；标题自动使用代号，SemVer、标签与安装包名不变。后续系列未配置时只显示版本，不继承旧代号。
+
+首次发布当前基础版本，在 **Release patch** 勾选 `initial_release`；本次保持 0.1.0，而非递增至 0.1.1。默认关闭，后续 patch 正常递增。首次路径要求没有其他正式标签、版本与受测源码一致。版本已一致时允许带运行身份的空版本提交，供同一次运行安全重试。已有正式发布后不再使用首次选项。
+
+发布器优先使用 `docs/releases/vX.Y.Z.md` 作为人工说明，缺失才自动生成。代号不加入标签，说明须写明变更、依赖、验证范围和限制。
+
 在 main 手动运行 Release major／minor／patch，分别递增 X、Y、Z 并清零较低位。三个入口共用 `_release-stable.yml`，Nightly 与正式版共用 `_release-build.yml`；固定源码 SHA 和包内版本，完整回归零跳过／TODO、类型与构建通过后才运行三平台打包。`beforePack`／`afterPack` 与外部 MCP 依赖核验保留。
 
 全部产物成功后，`publish-stable.cjs` 再检查 main 未前进，原子推送根 package／lock 的版本提交与不可覆盖的正式标签，再上传草稿并公开。并发 main 更新、权限或保护规则导致推送失败时不得强推。正式版不会递增 SDK／qwertysay；下一次 Nightly 自动读取新的基础版本。未签名状态不会因使用正式标签改变。

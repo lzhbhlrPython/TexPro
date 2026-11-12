@@ -39,7 +39,7 @@ export const SECTION_LINKS: SectionLink[] = [
 ];
 
 export const HERO_METRICS = [
-  { value: '135', label: '条回归用例', source: 'tests' },
+  { value: '137', label: '条回归用例', source: 'tests' },
   { value: '106', label: '个 IPC 通道', source: 'ipc' },
   { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
   { value: DOC_METRIC.value, label: DOC_METRIC.label, source: 'docs' },

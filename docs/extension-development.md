@@ -1,38 +1,15 @@
-# 插件与主题包开发
+# 插件 SDK 与宿主契约
 
 API 1 SDK 独立为 `@gardenialiu/texpro-extension-sdk`，离线脚手架独立为 `@gardenialiu/qwertysay`（命令 `qwertysay`），作者为 Baolin Liu（gardenialiu），MIT；源码位于 `packages/extension-sdk/`，不依赖 Electron／React。插件作者可使用脚手架或 `examples/extensions/`，自行分发 `.tpp` 插件与 `.tpt` 主题；没有公开市场和自动更新服务。
 
-```sh
-npx --package @gardenialiu/qwertysay@0.2.0 qwertysay init my-plugin --id gardenialiu.example --author "Baolin Liu"
-cd my-plugin
-npm install
-npm run build
-npm run check:extension
-npm run pack:extension
-```
+## 开发文档分工
 
-默认 TypeScript；`--language js` 创建 JavaScript 工程，`--type theme` 生成主题包。新工程均显式构建；`init`／`check`／`pack` 不自动安装、联网或执行扩展代码，明确的 `build` 会执行可信编译器及工程配置，并可能下载依赖；`npx` 可能下载工具。输出位于源码目录外，拒绝覆盖。校验与宿主共用同一核心，不代替实际交互验收。发布维护需先 `npm pack`，再从临时目录通过 `npm run test:extensions:sdk:package -- /absolute/sdk.tgz /absolute/qwertysay.tgz` 验证真正 tarball 的独立安装、TS 构建和归档；注册表发布后使用准确版本重复验证。
+- 本文保留 SDK/API、清单、宿主服务和主题契约，SDK 当前为 0.2.0 / API 1。
+- [qwertysay](qwertysay.md) 说明 0.3.0 引导式工具、真实编译、打包与 npm 验收。
+- [开发 Skill](extension-skill.md) 说明 AI 开发流程、安装、权限与交接。
+- [多语言构建契约](extension-authoring.md) 维护精确工具链、桥接和跨平台限制。
 
-## 多语言与主题构建
-
-SDK／qwertysay `0.2.0` 增加 CoffeeScript、PureScript、ReScript、ClojureScript、Elm、Scala.js、GopherJS，以及 SCSS／Sass／Less／Stylus／CSS-in-JS／Thematic CSS。新脚手架统一显式构建到 `dist/package`，插件 `.tpp`、主题 `.tpt`，开发源码后缀与运行入口后缀分别说明。编译器前提、JSON 桥接、本地源码步骤与版权见[多语言构建指南](extension-authoring.md)。
-
-## npm 发行版
-
-2026-11-12 首次发布 0.1.0；当前版本为 0.2.0，两包均为 MIT，作者为 Baolin Liu（gardenialiu）：
-
-| 包 | 版本 | 用途 |
-| --- | --- | --- |
-| [@gardenialiu/texpro-extension-sdk](https://www.npmjs.com/package/@gardenialiu/texpro-extension-sdk) | 0.2.0 | API 1 类型、作者辅助函数及共用校验核心 |
-| [@gardenialiu/qwertysay](https://www.npmjs.com/package/@gardenialiu/qwertysay) | 0.2.0 | qwertysay 脚手架、离线校验与打包 |
-
-发布验收需核对注册表版本及完整性摘要与实际测试的 tarball。可复现独立注册表安装检查：
-
-```sh
-npm run test:extensions:sdk:package -- @gardenialiu/texpro-extension-sdk@0.2.0 @gardenialiu/qwertysay@0.2.0
-```
-
-公开 npm 开发工具不代表公开插件市场。自行分发的 `.tpp`／`.tpt` 仍通过宿主安装和确认信任。
+官网分别提供同名中英文任务指南，旧 /docs/extension-development 仍为 SDK 入口，不删除旧链接。qwertysay 0.3.0 与 SDK 0.2.0 兼容，版本独立。
 
 ## 包清单
 

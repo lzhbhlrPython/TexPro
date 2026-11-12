@@ -384,15 +384,15 @@ export const EN: Record<string, string> = {
   '可以核对的部分': 'The parts you can verify',
   '下面几行来自当前仓库与最近一次夜间构建，不是估算。':
     'The lines below come from the repository and the latest nightly build. Nothing here is estimated.',
-  '135 个用例、21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
-    '135 tests across 21 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
+  '137 个用例、21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。':
+    '137 tests across 21 files: main-file detection, SyncTeX coordinates, history snapshots, saving and quitting.',
   '106 个 IPC 通道，preload 与主进程对应，按能力校验路径、参数和状态。':
     '106 IPC channels: preload matches the main process, with capability-specific path, argument and state validation.',
   '每次夜间构建产出 8 个安装包，三个平台来自同一份 main。':
     'Every nightly build produces 8 installers; all three platforms come from the same main branch.',
   'RSS 订阅': 'RSS feed',
   '可核对：': 'Verifiable: ',
-  '135 条回归用例': '135 regression tests',
+  '137 条回归用例': '137 regression tests',
   '106 个 IPC 通道': '106 IPC channels',
   '每次夜构 8 个安装包': '8 installers per nightly',
   '拖动分割线，对比 Studio 与 Night': 'Drag the divider to compare Studio and Night',
@@ -442,7 +442,7 @@ export const EN: Record<string, string> = {
   'TeXPro 是一个本地优先的 LaTeX 桌面工作台：可视编辑、纸面排版与工程化编译放在同一个窗口。它不是 Markdown 编辑器，也不是在线协作平台；源码 .tex 是文档原件，排版以本机 TeX 生成的 PDF 为准。': 'TeXPro is a local-first LaTeX desktop workbench: visual editing, paper-like typesetting and project-aware compilation in one window. It is not a Markdown editor or an online collaboration platform; the .tex source is the document of record and the PDF produced by the local TeX toolchain is the output.',
   '可以引用的事实': 'Facts you can cite',
   '主进程与 preload 使用 106 个 IPC 通道，其中 100 个请求、6 类事件。': 'The main process and preload use 106 IPC channels: 100 requests and 6 event types.',
-  'tests/ 下有 21 个测试文件、135 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 21 files and 135 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
+  'tests/ 下有 21 个测试文件、137 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。': 'tests/ holds 21 files and 137 cases covering main-file detection, SyncTeX coordinates, history snapshots and saving.',
   '文档：{zh} 篇中文、{en} 篇英文；博客只写简体中文。': '{zh} Chinese and {en} English documentation pages; the blog is written in Simplified Chinese only.',
   '篇文档（中文 / 英文）': 'docs (Chinese / English)',
   '篇文档（中文 / 英文）；缺译文时回落中文并在页头注明。': 'documents (Chinese / English); missing translations fall back to Chinese with a note.',

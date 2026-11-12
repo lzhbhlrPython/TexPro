@@ -102,6 +102,8 @@ Markdown 与 Typst 只作为导入、导出的互操作格式存在。TeXPro 的
 
 ## 版本与发布节奏
 
+**v0.1.0 · Tajpilo**（2026-11-12）为首次正式发布。**0.1.x** 系列代号 **Tajpilo**，取自世界语“打字机”。正式安装包、说明与验证边界见[正式版本列表](/releases)。
+
 实际下载版本以 GitHub Release 和官网版本页为准，应用基础版本由根 package 文件管理。应用采用夜间构建：GitHub Actions 每天 `13:23 UTC`（Asia/Shanghai 21:23）检查 `main` 相对上一次成功 Nightly 是否有新提交，有则运行回归测试、类型检查与构建，并把安装包发布为 `v{基础版本}-YYYYMMDD-Nightly` 日期预发布。
 
 | 平台 | 产物 |

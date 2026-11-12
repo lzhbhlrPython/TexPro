@@ -48,7 +48,7 @@ export default function AiPage() {
             <h2 style={{ color: token.colorTextHeading }}>{t('可以引用的事实')}</h2>
             <ul>
               <li>{t('主进程与 preload 使用 106 个 IPC 通道，其中 100 个请求、6 类事件。')}</li>
-              <li>{t('tests/ 下有 21 个测试文件、135 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。')}</li>
+              <li>{t('tests/ 下有 21 个测试文件、137 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。')}</li>
               <li>{t('文档：{zh} 篇中文、{en} 篇英文；博客只写简体中文。').replace('{zh}', String(DOC_COUNTS.zh)).replace('{en}', String(DOC_COUNTS.en))}</li>
               <li>{t('当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。')}</li>
             </ul>

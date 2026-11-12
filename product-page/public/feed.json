@@ -35,6 +35,20 @@
       ]
     },
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo",
+      "title": "首次正式发布：TeXPro v0.1.0 · Tajpilo",
+      "summary": "以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。",
+      "content_text": "以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。",
+      "date_published": "2026-11-11T16:00:00.000Z",
+      "tags": [
+        "[发布",
+        "连续写作",
+        "扩展",
+        "工程]"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes",
       "title": "多语言插件与静态主题：把作者工具和宿主运行时分开",

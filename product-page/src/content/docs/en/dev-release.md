@@ -66,6 +66,10 @@ Chinese LuaLaTeX also needs LuaTeX-ja from `texlive-lang-japanese`. The shared j
 
 ## Publish a stable version manually
 
+The first stable version is **v0.1.0 · Tajpilo** (2026-11-12). **Tajpilo**, Esperanto for “typewriter”, names the **0.1.x** series in the root `release-series.json`. It appears in release titles; versions, tags and asset filenames stay unchanged. The publisher uses bilingual `docs/releases/vX.Y.Z.md` notes when available, otherwise generated notes.
+
+Only for the first stable release of the current base, enable `initial_release` in **Release patch**; this release keeps 0.1.0. The option defaults to off, preserving normal patch increments. It requires no other stable tags and a version matching the tested source. A release commit records run identity even if version files need no changes, enabling safe retries of that same Actions run. Do not use this option after a stable release exists.
+
 In Actions choose **Release major**, **Release minor** or **Release patch**, select main and run. They produce X+1.0.0, X.Y+1.0 or X.Y.Z+1 through `_release-stable.yml`. They do not publish the npm SDK.
 
 Only after tests and all platform packages pass does the workflow verify main still matches the tested source, then atomically push the root `package.json`/`package-lock.json` version commit and `vX.X.X` tag. If main advanced, start a new run on the latest source; never force push. Stable tags cannot be overwritten. Assets upload to a draft, which becomes public only when complete, then refreshes the [stable releases page](/releases). Retry the same Actions run after an upload or website-refresh failure: it does not increment the committed version again or reupload a published release. Do not start a new version increment to fix the same failed upload. Branch/tag protection or environment reviews may still require repository administration.

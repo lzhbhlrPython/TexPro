@@ -14,3 +14,14 @@
 | releases-en-dark-390.png | 3909ecbdffbb67bda4af4655567cf9d9179196352c69f58344681a7615c90b14 |
 | download-zh-light-1440.png | b16e1fa3c6071a93f702ee5c5719dc736215f87d4198402003830cdb14596597 |
 | download-en-light-1440.png | 25ca2e07862730a11208db8fdb1eb7dec50ad0ac7efdb03f6e882ee2b7fe81d3 |
+
+2026-11-12：SDK、qwertysay 与开发 Skill 三篇新指南的实际生产构建预览，分别捕获中文浅色 1440×1000 与英文深色 390×1000；另验全部中英／明暗／宽窄组合、导航、无横向溢出及 29×2 文档和 137 回归事实。页面与截图均未合成。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| extension-development-zh-light-1440.png | 4f222ededfd3617e7f18c6297ada4b7bf7b5345ce604ed2b2d7b958d0619bfbb |
+| extension-development-en-dark-390.png | 8f7f441b5624d3c781662eb00a426f37d5bc88093d4081bc1b9e6800ecd9115b |
+| qwertysay-zh-light-1440.png | 174f36354ab28d4b960f92ecd5d630775ebdc38732f96bceb73218e17044e69f |
+| qwertysay-en-dark-390.png | 5a20a07eacf2f49f4d145bb3b6d9b522b1090e1e918232e13dc479aabf3067f1 |
+| extension-skill-zh-light-1440.png | 50a9ddd41d662ade285400eb2cff88557b84a17740db172fa53d4eb59b26e9a7 |
+| extension-skill-en-dark-390.png | e1b222c797bf043d87a16887230fce6ac0dbbaf444787d446a333e1da71f5f79 |

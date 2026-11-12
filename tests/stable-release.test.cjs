@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { nextVersion, stampVersion } = require('../scripts/release-version.cjs');
-const { commitVersion, publish } = require('../scripts/publish-stable.cjs');
+const { commitVersion, publish, releasePresentation } = require('../scripts/publish-stable.cjs');
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-stable-'));
@@ -14,17 +14,43 @@ function fixture(t) {
   const remote = path.join(root, 'origin.git'), work = path.join(root, 'work');
   git(root, 'init', '--bare', remote); fs.mkdirSync(work); git(work, 'init', '-b', 'main');
   git(work, 'config', 'user.name', 'Test'); git(work, 'config', 'user.email', 'test@example.invalid');
-  fs.writeFileSync(path.join(work, 'package.json'), JSON.stringify({ version: '1.2.3', private: true }));
-  fs.writeFileSync(path.join(work, 'package-lock.json'), JSON.stringify({ version: '1.2.3', packages: { '': { version: '1.2.3' }, 'packages/extension-sdk': { version: '0.2.0' } }, custom: 'keep' }));
+  fs.writeFileSync(path.join(work, 'package.json'), JSON.stringify({ version: '1.2.3', private: true }, null, 2) + '\n');
+  fs.writeFileSync(path.join(work, 'package-lock.json'), JSON.stringify({ version: '1.2.3', packages: { '': { version: '1.2.3' }, 'packages/extension-sdk': { version: '0.2.0' } }, custom: 'keep' }, null, 2) + '\n');
   git(work, 'add', '.'); git(work, 'commit', '-m', 'source'); git(work, 'remote', 'add', 'origin', remote); git(work, 'push', 'origin', 'main');
   return { work, remote, sourceSha: git(work, 'rev-parse', 'HEAD') };
 }
 test('stable bumps reset lower segments and stamping preserves independent SDK versions', t => {
   assert.equal(nextVersion('1.2.3','major'),'2.0.0'); assert.equal(nextVersion('1.2.3','minor'),'1.3.0'); assert.equal(nextVersion('1.2.3','patch'),'1.2.4');
+  assert.equal(nextVersion('1.2.3','initial'),'1.2.3');
   for (const args of [['1.2.3-beta','patch'], ['01.2.3','patch'], ['1.2.3','shell']]) assert.throws(() => nextVersion(...args));
   const { work } = fixture(t); stampVersion(work, '2.0.0');
   const lock = JSON.parse(fs.readFileSync(path.join(work,'package-lock.json')));
   assert.equal(lock.version,'2.0.0'); assert.equal(lock.packages[''].version,'2.0.0'); assert.equal(lock.packages['packages/extension-sdk'].version,'0.2.0'); assert.equal(lock.custom,'keep');
+  fs.writeFileSync(path.join(work,'release-series.json'),JSON.stringify({'0.1':{codename:'Tajpilo'}}));
+  fs.mkdirSync(path.join(work,'docs/releases'),{recursive:true});fs.writeFileSync(path.join(work,'docs/releases/v0.1.0.md'),'First release / 首次发布');
+  assert.deepEqual(releasePresentation(work,'0.1.0'),{title:'v0.1.0 · Tajpilo',notes:['--notes-file',path.join('docs','releases','v0.1.0.md')]});
+  assert.deepEqual(releasePresentation(work,'0.1.9'),{title:'v0.1.9 · Tajpilo',notes:['--generate-notes']});
+  assert.equal(releasePresentation(work,'0.2.0').title,'v0.2.0');
+  assert.throws(()=>releasePresentation(work,'../../escape'),/Invalid release version/);
+});
+test('initial stable release preserves the base version and retries its empty version commit safely', t => {
+  const {work,remote,sourceSha}=fixture(t), identity={version:'1.2.3',sourceSha,runId:'123',initial:true};
+  const before=fs.readFileSync(path.join(work,'package-lock.json'),'utf8');
+  const commit=commitVersion(work,identity);
+  assert.equal(fs.readFileSync(path.join(work,'package-lock.json'),'utf8'),before);
+  assert.equal(git(work,'diff-tree','--no-commit-id','--name-only','-r',commit),'');
+  assert.equal(git(remote,'rev-parse','refs/tags/v1.2.3'),commit);
+  assert.equal(commitVersion(work,identity),commit);
+  assert.throws(()=>commitVersion(work,{...identity,runId:'456'}),/another release/);
+  assert.throws(()=>commitVersion(work,{...identity,runId:'12'}),/another release/);
+});
+test('initial stable release rejects a different base and any previous stable series', t => {
+  const {work,remote,sourceSha}=fixture(t), identity={version:'1.2.3',sourceSha,runId:'123',initial:true};
+  assert.throws(()=>commitVersion(work,{...identity,version:'1.2.4'}),/current base/);
+  git(work,'tag','v1.2.2');git(work,'push','origin','v1.2.2');
+  assert.throws(()=>commitVersion(work,identity),/previous stable tags/);
+  assert.equal(git(remote,'rev-parse','refs/heads/main'),sourceSha);
+  assert.equal(git(remote,'tag','--list','v1.2.3'),'');
 });
 test('stable commits and tags publish atomically, retry the same run and never overwrite another release', t => {
   const { work, remote, sourceSha } = fixture(t), identity = {version:'1.2.4',sourceSha,runId:'123'};
@@ -66,5 +92,7 @@ test('release workflows gate publishing on shared three-platform success and pin
   for(const job of Object.values(build.jobs))assert.equal(job.steps[0].with.ref,'${{ inputs.source_sha }}');
   assert.deepEqual(stable.jobs.publish.needs,['prepare','build']);assert.deepEqual(nightly.jobs.release.needs,['changes','build']);
   assert.equal(stable.jobs.build.uses,nightly.jobs.build.uses);assert.equal(nightly.on.schedule[0].cron,'23 13 * * *');
-  for(const bump of ['major','minor','patch']) {const entry=read(`release-${bump}.yml`);assert.equal(entry.jobs.release.with.bump,bump);assert.equal(entry.jobs.release.if,"github.ref == 'refs/heads/main'");assert.deepEqual(entry.concurrency,nightly.concurrency);assert.equal(entry.concurrency['cancel-in-progress'],false);}
+  for(const bump of ['major','minor','patch']) {const entry=read(`release-${bump}.yml`);assert.equal(entry.jobs.release.with.bump,bump==='patch'?"${{ inputs.initial_release && 'initial' || 'patch' }}":bump);assert.equal(entry.jobs.release.if,"github.ref == 'refs/heads/main'");assert.deepEqual(entry.concurrency,nightly.concurrency);assert.equal(entry.concurrency['cancel-in-progress'],false);}
+  assert.equal(read('release-patch.yml').on.workflow_dispatch.inputs.initial_release.default,false);
+  assert.equal(stable.jobs.publish.steps.at(-1).env.RELEASE_INITIAL,"${{ inputs.bump == 'initial' }}");
 });

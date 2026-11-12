@@ -19,7 +19,9 @@
 | 保存、改名、关闭、退出 | [写作可靠性](writing-reliability.md) |
 | 实时 LuaLaTeX 预览、rtex-ts 嵌入与打包 | [实时 TeX 预览](realtime-tex.md) |
 | 本地插件包、SDK、宿主与主题扩展 | [扩展架构](extensions.md) |
-| 独立 SDK、qwertysay 脚手架与开发 Skill | [扩展开发](extension-development.md) |
+| 插件 SDK 与宿主契约 | [SDK 开发](extension-development.md) |
+| 引导式脚手架与工具发布 | [qwertysay](qwertysay.md) |
+| AI 扩展开发与交接 | [开发 Skill](extension-skill.md) |
 | 连续编辑、选择、粘贴、修订 | [写作](writing.md) |
 | 乐谱源码、依赖与预览 | [乐谱](music.md) |
 | 素材与文件树联动 | [素材](assets.md) |
@@ -34,6 +36,6 @@
 
 源码与配置是实现现状的证据。设计要求不代表旧界面已经全部符合，历史测试结果不代表当前验证通过。发现不一致时同时修正文档并记录实际限制，不通过删掉风险说明来制造一致。
 
-多语言扩展与主题编译、源码／运行产物／安装包后缀、JSON 桥接和工具链限制见[多语言构建指南](extension-authoring.md)。使用 SDK／qwertysay `0.2.0`。
+多语言扩展与主题编译、源码／运行产物／安装包后缀、JSON 桥接和工具链限制见[多语言构建指南](extension-authoring.md)。使用 SDK `0.2.0` 与 qwertysay `0.3.0`。
 
 - [应用版本与发布](release.md)：Nightly 成功基线、三段正式版本、失败重试与官网刷新。

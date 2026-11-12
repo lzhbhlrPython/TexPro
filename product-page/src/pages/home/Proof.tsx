@@ -12,7 +12,7 @@ const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 const FIGURES = [
   {
     source: 'tests/',
-    figure: '135',
+    figure: '137',
     text: '条回归用例，21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
     href: `${REPO}/tree/main/tests`,
   },

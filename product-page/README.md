@@ -82,3 +82,5 @@ Pages 自动来源仅产品页路径变化与成功 Nightly／正式版的准确
 `/releases` 使用现有 SectionHeading、Ant Design Flex／Table 与纸面 token，入口位于页脚资源区；`/changelog` 保留当前构建。`vite.config.ts` 的 contentFiles 自动分页同步真实正式 Release，排除草稿和预发布；失败回退明确标识的旧快照，首次失败显示不可用，不能虚构空列表。正式版准确 tag 刷新要求列表包含本次版本与资产。说明作为纯文本显示，下载使用原始 URL。站点预览核对中英、明暗、390px、减少动态效果及 Pages 子路径。
 
 本次官网真实版本页预览及来源记录见 `docs/screenshots/site/`；这组图不替代桌面应用展示截图，也不包含私有版本夹具。
+
+2026-11-12 首次正式发布联动：SDK、qwertysay、开发 Skill 拆为三篇同 slug 中英文指南，旧 extension-development 保留为 SDK 入口；文档计数由 glob 自动变为 29 × 2。qwertysay 0.3.0 增加中英引导，SDK 保持 0.2.0；完整基线 137 项／21 文件，真实语言／样式矩阵 16 项。正式版真实列表与前端预览在发布后核对。

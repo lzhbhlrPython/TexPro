@@ -1,8 +1,8 @@
 # Compiler and bridge work
 
-Use this reference for SDK/qwertysay 0.2.0. Read docs/extension-authoring.md and the SDK public declarations for exact versions and protocol. Packaging/compilation tests do not imply a release; verify registry and deployment outcomes separately.
+Use this reference for SDK 0.2.0 / API 1 and qwertysay 0.3.0. Read docs/extension-authoring.md and the SDK public declarations for exact versions and protocol. Packaging/compilation tests do not imply a release; verify registry and deployment outcomes separately.
 
-Use local qwertysay init with --language ts/js/coffee/purs/rescript/cljs/elm/scala/go or --type theme --style css/scss/sass/less/stylus/css-in-js/tcss. Install matching local SDK and CLI paths in one explicit npm install command. The generated README lists prerequisites: Java 21+ for modern ClojureScript, Java/sbt for Scala.js, matched Go/GopherJS and official tcss-cli for Thematic CSS. TCSS is not Textual CSS. Never silently replace a missing compiler with a hand-written output file.
+Authors use the bilingual qwertysay guide without arguments. Unattended scripts may use local qwertysay init with --language ts/js/coffee/purs/rescript/cljs/elm/scala/go or --type theme --style css/scss/sass/less/stylus/css-in-js/tcss. Install matching local SDK and CLI paths in one explicit npm install command. The generated README lists prerequisites: Java 21+ for modern ClojureScript, Java/sbt for Scala.js, matched Go/GopherJS and official tcss-cli for Thematic CSS. TCSS is not Textual CSS. Never silently replace a missing compiler with a hand-written output file.
 
 Explicit build may execute compiler/project code and download toolchain dependencies. Init/check/pack and MCP inspection never build or run package entries. Stage dist/package with only manifest, license/notices, runtime entry or static CSS and assets. Use .tpp for plugins and .tpt for themes; .tcss/.scss/.elm/etc are author sources, not installable artifacts. CSS-in-JS evaluation JS never enters .tpt. Keep source-root stale-build/failure checks and legacy self-contained directory compatibility.
 
