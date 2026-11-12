@@ -135,3 +135,7 @@ The last one runs the packaging check against a real ASAR and is the closest thi
 A successful Nightly or stable release explicitly dispatches the Product page workflow with its exact tag. Skipped or failed releases do not refresh the site. A pinned release fetch must fail the build rather than deploy stale metadata. Ordinary website builds can use a previous snapshot when offline.
 
 Pages also builds for product-page changes; PRs validate, while main deploys. A local build does not prove deployment. See docs/product-page-deployment.md in the repository.
+
+## macOS universal ASAR
+
+Both architectures currently share identical JavaScript ASAR contents. `build.mac.mergeASARs: false` avoids an upstream merge step expanding external Node files into an oversized glob. Universal DMG/ZIP delivery remains, with ASAR and external MCP checks on each architecture and the final bundle. Actual local directory packaging and lipo checks confirm x86_64/arm64. Revalidate the archive layout if architecture-specific modules are introduced; never bypass verification.

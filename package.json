@@ -109,7 +109,8 @@
         "dmg",
         "zip"
       ],
-      "icon": "build/icon.icns"
+      "icon": "build/icon.icns",
+      "mergeASARs": false
     },
     "win": {
       "icon": "build/icon.png",

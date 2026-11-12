@@ -25,3 +25,5 @@ major、minor、patch 三个手动工作流复用相同的测试与三平台打�
 首次远端执行暴露了标准 Ubuntu runner 没有 pdflatex 的环境缺口，真实编译测试明确失败，未进入打包或发布。共享测试任务因此显式安装三引擎、CTeX/Fandol 与所需宏包；没有改成跳过测试。
 
 随后实际中文 LuaLaTeX 编译定位到 `luatexja.sty` 缺失：Ubuntu 将它放在日文语言包中，只有中文语言包仍不足。共享任务显式安装该依赖，并预检 CTeX、LuaTeX-ja 和 Fandol 后继续完整基线。
+
+三引擎与 135 项基线在 CI 全部通过后，Windows／Linux 已完成打包；macOS universal 的 ASAR 合并触发上游 glob 长度限制。当前两架构的 JavaScript 内容一致，改用不重复合并 ASAR 的路径，保留每个架构及最终包校验。本机实际 universal 目录打包和 lipo 双架构检查通过；包外 Node MCP 另作真实启动验证。此结果不替代 Intel／Windows／Linux 安装后的原生运行验收。

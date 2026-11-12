@@ -21,3 +21,5 @@ Nightly 每日上海时间 21:23 检查相对上一次成功公开、含资产�
 共享测试任务先安装三种 TeX 引擎、CTeX/Fandol 和所需宏包，再运行基线中的真实编译。首次远端运行发现标准 Ubuntu runner 缺少 pdflatex，发布被测试闸门阻止；应补齐工具链而非删除或跳过用例。
 
 LuaLaTeX 中文还需要 texlive-lang-japanese 提供的 LuaTeX-ja；CI 显式安装并预检该宏包及 Fandol，不依赖推荐包被隐式安装。
+
+macOS 保留 universal DMG／ZIP，`build.mac.mergeASARs: false` 避开上游工具将大量外部 Node 文件展开为超长 glob 的限制。当前两架构的 JavaScript ASAR 内容相同，不生成架构分派入口；两个架构及最终 universal 包均需通过原有 ASAR／外部 MCP 校验。若未来引入架构专属内容，必须重新验证此布局，不能跳过包内校验。本机实际 universal 目录打包、lipo 双架构检查和包外 Node MCP 启动用于验证此路径。

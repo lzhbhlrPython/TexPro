@@ -135,3 +135,7 @@ node scripts/verify-release.cjs release/mac-arm64/TeXPro.app/Contents/Resources/
 Nightly／正式版发布成功后显式 dispatch Product page 工作流，传入准确标签；跳过或失败不刷新。指定标签获取失败必须停止构建，不能部署旧版本并宣称更新。普通官网构建离线时才允许旧快照。
 
 产品页路径变化也会构建 Pages；PR 只验证，main 才部署。本地构建不能证明已上线，详见仓库 docs/product-page-deployment.md。
+
+## macOS universal ASAR
+
+当前两架构共用相同 JavaScript ASAR，`build.mac.mergeASARs: false` 避免上游合并工具将大量外部 Node 文件展开成超长 glob。仍发布 universal DMG／ZIP，两个架构与最终包都保留 ASAR／外部 MCP 校验；本机实际目录打包和 lipo 检查确认包含 x86_64／arm64。若未来引入架构专属模块，需重新验证归档布局，不能跳过校验。
