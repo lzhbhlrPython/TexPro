@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Typography, theme } from 'antd';
 import { GROUP_LABELS, findTopic, navFor, neighbors } from '@/content/docs';
+import { documentationHome } from '@/content/docs/sections.mjs';
 import { useLocale, useT } from '@/i18n';
 import { MarkdownBlocks, collectSections } from '@/components/MarkdownBlocks';
 
@@ -14,7 +15,7 @@ export default function DocsPage() {
   const topic = findTopic(slug, locale);
   const { token } = theme.useToken();
   const { prev, next } = neighbors(topic.slug, locale);
-  const docsNav = navFor(locale);
+  const docsNav = navFor(locale, topic.section);
   // 英文模式下这一篇还没有译文时，正文仍是中文，页面顶部给出提示
   const englishMissing = locale === 'en' && Boolean(topic.englishFallback);
   const sections = collectSections(topic.blocks);
@@ -39,14 +40,14 @@ export default function DocsPage() {
         }
       }
     }
-  }, [topic.slug, topic.title, locale]);
+  }, [topic.slug, topic.title, locale, t]);
 
   return (
-    <article className="docs">
+    <article className={`docs docs--${topic.section}`}>
       <div className="shell">
         <header className="docs-head docs-enter" key={`head-${topic.slug}`}>
           <Text className="docs-kicker" style={{ color: token.colorPrimary }}>
-            {t('文档')} · {locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}
+            <Link to={documentationHome(topic.section)}>{t(topic.section === 'develop' ? '开发文档' : '使用文档')}</Link> · {locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}
           </Text>
           <h1 className="docs-title" style={{ color: token.colorTextHeading }}>
             {topic.title}
@@ -63,6 +64,10 @@ export default function DocsPage() {
 
         <div className="docs-body">
           <nav className="docs-nav" aria-label={t('文档目录')}>
+            <div className="docs-section-links">
+              <Link to="/docs" style={{ color: topic.section === 'use' ? token.colorPrimary : token.colorTextSecondary }}>{t('使用文档')}</Link>
+              <Link to="/developers" style={{ color: topic.section === 'develop' ? token.colorPrimary : token.colorTextSecondary }}>{t('开发文档')}</Link>
+            </div>
             {docsNav.map((group) => (
               <div className="docs-nav-group" key={group.label}>
                 <Text className="docs-nav-label" style={{ color: token.colorTextTertiary }}>
@@ -73,7 +78,7 @@ export default function DocsPage() {
                   return (
                     <Link
                       key={item.slug}
-                      to={item.slug === 'start' ? '/docs' : `/docs/${item.slug}`}
+                      to={`/docs/${item.slug}`}
                       className={active ? 'is-active' : undefined}
                       aria-current={active ? 'page' : undefined}
                       style={{
@@ -94,7 +99,7 @@ export default function DocsPage() {
 
             <nav className="docs-pager" aria-label={t('上一页与下一页')}>
               {prev ? (
-                <Link to={prev.slug === 'start' ? '/docs' : `/docs/${prev.slug}`} style={{ color: token.colorPrimary }}>
+                <Link to={`/docs/${prev.slug}`} style={{ color: token.colorPrimary }}>
                   <span style={{ color: token.colorTextTertiary }}>{t('上一篇')}</span>
                   {prev.title}
                 </Link>

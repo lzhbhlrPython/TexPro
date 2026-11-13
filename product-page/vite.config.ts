@@ -39,6 +39,7 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1600,
+    license: { fileName: 'third-party-licenses.txt' },
     rollupOptions: {
       output: {
         manualChunks: {

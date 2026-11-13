@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
-const { readPackage, relative } = require('@texpro/extension-sdk/package-tools');
+const { readNpmExtension } = require('@texpro/extension-sdk/package-tools');
 const { writeScaffold } = require('./scaffold.cjs');
 function environmentInit(directory, packageManager = 'npm') {
   if (!['npm', 'yarn'].includes(packageManager)) throw new Error('Choose npm or yarn');
@@ -21,15 +21,9 @@ function environmentPlan(directory) {
   for (const name of Object.keys(pkg.dependencies || {})) {
     if (require('./registry.cjs').parseSpec(name).name !== name) throw new Error('Invalid dependency name');
     // Resolve data paths directly. Never require a dependency or run its lifecycle code.
-    const directory = path.join(root, 'node_modules', name), metadataFile = path.join(directory, 'package.json');
-    const metadata = JSON.parse(fs.readFileSync(metadataFile));
-    if (metadata.name !== name || !metadata.texpro?.package) throw new Error('Dependency is not a TeXPro extension wrapper: ' + name);
-    relative(metadata.texpro.package);
-    const source = fs.realpathSync(path.join(directory, metadata.texpro.package));
-    const actualRoot = fs.realpathSync(directory);
-    if (!source.startsWith(actualRoot + path.sep)) throw new Error('Extension artifact escapes its npm package');
-    const info = readPackage(source);
-    if (info.development || ids.has(info.manifest.id)) throw new Error('Duplicate extension identity or unpacked artifact');
+    const directory = path.join(root, 'node_modules', name);
+    const info = readNpmExtension(directory), metadata = info.metadata, source = info.source;
+    if (metadata.name !== name || ids.has(info.manifest.id)) throw new Error('Duplicate extension identity or changed npm package');
     ids.add(info.manifest.id);
     packages.push({ name, version: metadata.version, source, id: info.manifest.id, digest: info.digest });
   }

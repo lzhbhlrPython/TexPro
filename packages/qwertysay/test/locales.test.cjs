@@ -6,7 +6,7 @@ const { planInteractive } = require('../lib/wizard.cjs');
 const { main } = require('../bin/qwertysay.cjs');
 const { readPackage } = require('@texpro/extension-sdk/package-tools');
 function fixture(t) { const root = fs.mkdtempSync(path.join(os.tmpdir(), 'qwertysay-locale-')); t.after(() => fs.rmSync(root, { recursive: true, force: true })); return root; }
-test('guided language pack selects Yarn, reports missing translations and packs without a build', async t => {
+test('guided language pack selects yarn, reports missing translations and packs without a build', async t => {
   const root = fixture(t), directory = path.join(root, 'language with spaces');
   const answers = ['en', 'init', 'locale', directory, 'author.french', 'Writer', 'fr', 'Français', 'yarn', 'yes'];
   const plan = await planInteractive({ ask: async () => { assert.ok(answers.length); return answers.shift(); }, write() {} });

@@ -36,7 +36,14 @@ test('real MCP stdio exposes read-only authoring and inspects packages without r
   const capabilities = parse(await call('texpro_extension_capabilities'));
   assert.equal(capabilities.languages.elm.source, '.elm'); assert.equal(capabilities.styles.tcss.name, 'Thematic CSS'); assert.equal(capabilities.mcp.invokesPlugins, false);
   assert.equal(capabilities.locales.code, false); assert.equal(capabilities.locales.preinstalled, '@texpro/extension-translate-zh-cn'); assert.equal(capabilities.distribution.reviewRequired, true);
+  assert.equal(capabilities.distribution.sourceField, 'texpro.source'); assert.equal(capabilities.distribution.trustedLocalBuild, true);
   await call('texpro_open_project', { root });
+  const npmSource = path.join(root, 'npm-source'); fs.mkdirSync(npmSource);
+  fs.writeFileSync(path.join(npmSource, 'package.json'), JSON.stringify({ name: 'test-source', version: '1.0.0', texpro: { source: '.' }, scripts: { install: 'must not run' } }));
+  fs.writeFileSync(path.join(npmSource, 'texpro.extension.json'), JSON.stringify(manifest)); fs.writeFileSync(path.join(npmSource, 'LICENSE'), 'MIT');
+  fs.writeFileSync(path.join(npmSource, 'qwertysay.build.json'), '{"version":1,"type":"plugin","language":"ts"}');
+  const sourceReport = parse(await call('texpro_inspect_extension', { path: 'npm-source' }));
+  assert.equal(sourceReport.requiresBuild, true); assert.equal(sourceReport.npm.name, 'test-source'); assert.equal(fs.existsSync(path.join(npmSource, 'node_modules')), false);
   const language = { ...manifest, entry: undefined, contributes: { locales: [{ id: 'fr', title: 'Français', messages: 'fr.json' }] } };
   const languageFiles = new Map([['texpro.extension.json', JSON.stringify(language)], ['LICENSE', 'MIT'], ['fr.json', '{"Save":"Enregistrer"}']]);
   fs.writeFileSync(path.join(root, 'language.tpp'), pack(languageFiles));

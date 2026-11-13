@@ -11,7 +11,7 @@ summary: Install the SDK and understand manifests, handlers, services, lifecycle
 This guide covers **@texpro/extension-sdk 0.3.0 / API 1**, by Baolin Liu (gardenialiu), with MIT original code. It provides public types, helpers, a JSON bridge and shared validation without Electron, React or TeX. Use [guided qwertysay](/docs/qwertysay) to create projects and choose toolchains; use the [development Skill](/docs/extension-skill) for AI-assisted work.
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.3.0
+npm install --save-dev @texpro/extension-sdk@0.4.0
 ```
 
 Installing the SDK does not install a plugin into TeXPro. The host consumes finished, self-contained entries and resources; it does not install npm dependencies or compile author sources. Bundle runtime SDK helpers into the entry. A direct `activate(ctx)` export needs no runtime SDK import.
@@ -94,7 +94,7 @@ Handoff includes source, API/package versions, capabilities, artifact, digest, t
 
 ## Language packs and package-manager environments
 
-See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
 
 ## Independent i18n for functional plugins
 
@@ -102,4 +102,8 @@ Each functional plugin owns its i18n library and translation resources. Host lan
 
 For an independent `i18n/messages.json` with en and fr catalogs, select `messages[context.language] || messages[context.language.split('-')[0]] || messages.en`, then use `table[key] || messages.en[key]` for missing messages. Keep plugin-owned keys and placeholders out of the host catalog. `contributes.locales` is reserved for declarative host translations and cannot be mixed with functional entries.
 
-Use npm/Yarn to install your chosen language's i18n library. Bundle its runtime and include every referenced JSON/resource in the final self-contained `.tpp`; do not depend on host node_modules, private dictionaries or runtime downloads. Test target locales, regional and missing-message fallback, and language changes between two invocations in the same plugin process. Treat translations as text, never executable code or HTML.
+Use npm/yarn to install your chosen language's i18n library. Bundle its runtime and include every referenced JSON/resource in the final self-contained `.tpp`; do not depend on host node_modules, private dictionaries or runtime downloads. Test target locales, regional and missing-message fallback, and language changes between two invocations in the same plugin process. Treat translations as text, never executable code or HTML.
+
+## npm source publishing and build safety
+
+Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.

@@ -3,6 +3,7 @@ import { CodeOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Segmented, theme } from 'antd';
 import { DEMO_MATH } from '@/components/latexMarkHtml';
 import { useT } from '@/i18n';
+import { CodeHighlight } from '@/components/CodeHighlight';
 import { SectionHeading } from '@/components/SectionHeading';
 
 type BlockKey = 'heading' | 'math' | 'table';
@@ -78,7 +79,7 @@ export function VisualDemo() {
           >
             <button type="button" className="demo-block" onClick={() => toggle('heading')}>
               {flipped('heading') ? (
-                <pre style={codeStyle}>{'\\section{A quiet writing surface}'}</pre>
+                <pre style={codeStyle}><CodeHighlight language="tex" text={'\\section{A quiet writing surface}'} /></pre>
               ) : (
                 <h3 className="demo-heading" style={{ color: token.colorTextHeading }}>
                   A quiet writing surface
@@ -92,7 +93,7 @@ export function VisualDemo() {
 
             <button type="button" className="demo-block" onClick={() => toggle('math')}>
               {flipped('math') ? (
-                <pre style={codeStyle}>{`\\[ ${ENERGY_TEX} \\]`}</pre>
+                <pre style={codeStyle}><CodeHighlight language="tex" text={`\\[ ${ENERGY_TEX} \\]`} /></pre>
               ) : (
                 <div
                   className="demo-math"
@@ -104,7 +105,7 @@ export function VisualDemo() {
 
             <button type="button" className="demo-block" onClick={() => toggle('table')}>
               {flipped('table') ? (
-                <pre style={codeStyle}>{TABLE_SOURCE}</pre>
+                <pre style={codeStyle}><CodeHighlight language="tex" text={TABLE_SOURCE} /></pre>
               ) : (
                 <table className="demo-table" style={{ color: token.colorText }}>
                   <thead>

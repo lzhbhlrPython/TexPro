@@ -182,3 +182,7 @@ The documentation is organized into six groups; reading along the usage path is 
 > First time here? Start with "Installation and Your First Project". To connect AI or build your own integration, read "MCP: Handing the Project to AI" and "A Second-Development Guide for AI".
 
 Stable releases use three manual major/minor/patch workflows, committing the incremented version only after tests and all platform packages pass. See [stable releases](/releases) for history, notes and downloads. Minimal color-only themes still need no stylesheet compiler; see [theme packs](/docs/themes).
+
+## Website language
+
+Click the language icon in the navigation and choose a language by its ISO 639-1 code and native name: zh · 简体中文 or en · English. The selected item marks the current language. The same icon is available on narrow screens, and your choice is remembered. This changes the website language; desktop language packs are managed separately.

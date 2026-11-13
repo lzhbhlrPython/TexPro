@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
-const { readPackage } = require('./packages.cjs');
+const { readNpmExtension } = require('../../../packages/extension-sdk/lib/npm-source.cjs');
 function syncReview(manager, source) {
   const stat = fs.lstatSync(source);
   if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024) throw new Error('Invalid extension sync plan');
@@ -17,13 +17,9 @@ function syncReview(manager, source) {
     if (typeof item.name !== 'string' || !Object.hasOwn(pkg.dependencies || {}, item.name) || names.has(item.name) || !path.isAbsolute(item.source)) throw new Error('Invalid or changed extension dependency');
     names.add(item.name);
     if (!/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(item.name)) throw new Error('Invalid npm dependency name');
-    const packageRoot = fs.realpathSync(path.join(root, 'node_modules', item.name));
-    const metadata = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json')));
-    require('./schema.cjs').relative(metadata.texpro?.package);
-    const actual = fs.realpathSync(path.join(packageRoot, metadata.texpro.package));
-    if (metadata.name !== item.name || metadata.version !== item.version || actual !== fs.realpathSync(item.source) || !actual.startsWith(packageRoot + path.sep)) throw new Error('Installed npm wrapper changed; sync again');
-    const info = readPackage(actual);
-    if (info.development || info.digest !== item.digest || info.manifest.id !== item.id || ids.has(item.id)) throw new Error('Extension artifact changed; sync again');
+    const info = readNpmExtension(path.join(root, 'node_modules', item.name));
+    if (info.metadata.name !== item.name || info.metadata.version !== item.version || info.source !== fs.realpathSync(item.source)) throw new Error('Installed npm source changed; sync again');
+    if (info.digest !== item.digest || info.manifest.id !== item.id || ids.has(item.id)) throw new Error('Extension artifact changed; sync again');
     ids.add(item.id);
     const record = manager.records[item.id];
     if (record?.origin && record.origin.environment !== plan.environment) throw new Error('Extension belongs to another environment: ' + item.id);

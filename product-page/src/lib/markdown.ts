@@ -10,7 +10,7 @@ export type DocBlock =
   | { kind: 'h3'; text: string }
   | { kind: 'h4'; text: string }
   | { kind: 'ul'; items: string[] }
-  | { kind: 'code'; text: string }
+  | { kind: 'code'; text: string; language?: string }
   | { kind: 'note'; text: string }
   | { kind: 'table'; head: string[]; rows: string[][] };
 
@@ -67,12 +67,13 @@ export function parseMarkdown(body: string): DocBlock[] {
     if (trimmed.startsWith('```')) {
       flushParagraph();
       const code: string[] = [];
+      const language = trimmed.slice(3).trim().split(/\s+/, 1)[0] || undefined;
       index += 1;
       while (index < lines.length && !lines[index].trim().startsWith('```')) {
         code.push(lines[index]);
         index += 1;
       }
-      blocks.push({ kind: 'code', text: code.join('\n') });
+      blocks.push({ kind: 'code', text: code.join('\n'), language });
       continue;
     }
 

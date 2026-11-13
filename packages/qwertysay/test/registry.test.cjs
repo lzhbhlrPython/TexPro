@@ -25,6 +25,19 @@ test('registry names and cross-platform launch use fixed executables and argumen
   const file = '/tmp/plugin with spaces.tpp';
   for (const platform of ['darwin', 'win32', 'linux']) await openForReview(file, { platform, execFile(command, args, options, done) { assert.ok(['open', 'explorer.exe', 'xdg-open'].includes(command)); assert.equal(args.at(-1), file); assert.equal(options.shell, undefined); done(); } });
 });
+test('registry accepts direct source payloads and rejects implicit compilation', t => {
+  const root = fixture(t), directory = path.join(root, 'package'); fs.mkdirSync(directory);
+  const pkg = { name: 'source-plugin', version: '1.0.0', texpro: { source: '.' }, scripts: { install: 'never execute' } };
+  const manifest = { id: 'author.source', name: 'Source', version: '1.0.0', author: 'Writer', license: 'MIT', apiVersion: 1, capabilities: [], contributes: {} };
+  fs.writeFileSync(path.join(directory, 'package.json'), JSON.stringify(pkg)); fs.writeFileSync(path.join(directory, 'texpro.extension.json'), JSON.stringify(manifest)); fs.writeFileSync(path.join(directory, 'LICENSE'), 'MIT');
+  const create = () => {
+    const archive = path.join(root, 'npm.tgz'); execFileSync('tar', ['--format=ustar', '--no-xattrs', '-czf', archive, '-C', root, 'package'], { env: { ...process.env, COPYFILE_DISABLE: '1' } });
+    const bytes = fs.readFileSync(archive); return [bytes, { name: pkg.name, version: pkg.version, dist: { integrity: 'sha512-' + crypto.createHash('sha512').update(bytes).digest('base64') } }];
+  };
+  const result = registryArtifact(...create()); assert.equal(result.artifact, 'extension.tpp'); assert.ok(result.bytes.length);
+  fs.writeFileSync(path.join(directory, 'qwertysay.build.json'), '{}');
+  assert.throws(() => registryArtifact(...create()), /trusted local build/);
+});
 test('sync launches a persistent desktop independently and forwards macOS arguments on repeat launch', async () => {
   const { EventEmitter } = require('node:events'), file = '/tmp/environment with spaces/review.json';
   await openSyncReview(file, { platform: 'darwin', executable: undefined, execFile(command, args, options, done) {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { App, Button, theme } from 'antd';
 import type { DocBlock } from '@/lib/markdown';
 import { useT } from '@/i18n';
+import { CodeHighlight } from './CodeHighlight';
 
 /** 行内标记：`代码`、**加粗**、[链接](地址)。其余按纯文本输出。 */
 export function inline(text: string): ReactNode {
@@ -70,7 +71,7 @@ export function inline(text: string): ReactNode {
 }
 
 /** 文档与博客共用的正文渲染：把解析出来的块排成带样式的元素。 */
-function CodeBlock({ text }: { text: string }) {
+function CodeBlock({ text, language }: { text: string; language?: string }) {
   const { token } = theme.useToken();
   const { message } = App.useApp();
   const t = useT();
@@ -91,12 +92,13 @@ function CodeBlock({ text }: { text: string }) {
     <div className="code-block" style={{ borderColor: token.colorBorderSecondary }}>
       <pre
         className="docs-code"
+        tabIndex={0}
         style={{
           background: token.colorFillQuaternary,
           color: token.colorText,
         }}
       >
-        {text}
+        <CodeHighlight text={text} language={language} />
       </pre>
       <Button
         type="text"
@@ -148,7 +150,7 @@ export function MarkdownBlocks({ blocks, idPrefix = 'sec', headingOffset = 0 }: 
               </ul>
             );
           case 'code':
-            return <CodeBlock key={key} text={block.text} />;
+            return <CodeBlock key={key} text={block.text} language={block.language} />;
           case 'note':
             return (
               <div

@@ -1,5 +1,6 @@
 # 文档导航
 
+产品介绍：[简体中文](../README.md) · [English](../README.en.md)
 新会话从根目录 [AGENTS.md](../AGENTS.md) 开始，再按任务阅读下面的入口。本文整理于 2026-11-10；运行状态、测试结果与发布状态应在每次交付时重新核对。
 
 ## 阅读顺序
@@ -42,4 +43,4 @@
 - [应用版本与发布](release.md)：Nightly 成功基线、三段正式版本、失败重试与官网刷新。
 
 - [声明式语言包](language-packs.md)：预装简中、翻译源与英文恢复。
-- [npm／Yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。
+- [npm／yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。

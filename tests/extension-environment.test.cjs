@@ -26,7 +26,7 @@ function fixture(t, pm = 'npm') {
   const manager = new ExtensionManager(path.join(root, 'installed')); t.after(() => manager.stop());
   return { root, env, directory, manager, pkg };
 }
-test('npm and Yarn dependency sync install disabled, update only their own records and remove after package-manager uninstall', async t => {
+test('npm and yarn dependency sync install disabled, update only their own records and remove after package-manager uninstall', async t => {
   for (const pm of ['npm', 'yarn']) {
     const { env, directory, manager, pkg } = fixture(t, pm);
     const file = writeEnvironmentPlan(env), review = syncReview(manager, file);
@@ -79,4 +79,23 @@ test('an uninstall review expires when rollback changes the installed package', 
   await manager.rollback(manifest.id);
   await assert.rejects(callbacks.get('extensions:sync-apply')({ sender: contents }, manifest.id), /sync changed/);
   assert.equal(manager.manifest(manifest.id).version, '1.0.0');
+});
+test('npm source packages install an immutable disabled snapshot without running entries or npm scripts', async t => {
+  const { env, directory, manager } = fixture(t);
+  const metadata = { name: '@author/words', version: '1.0.0', texpro: { source: 'extension' }, scripts: { install: 'must never execute' } };
+  fs.writeFileSync(path.join(directory, 'package.json'), JSON.stringify(metadata));
+  const payload = path.join(directory, 'extension'); fs.mkdirSync(payload);
+  const marker = path.join(env, 'executed');
+  fs.writeFileSync(path.join(payload, 'texpro.extension.json'), JSON.stringify({ ...manifest, entry: 'index.cjs' })); fs.writeFileSync(path.join(payload, 'LICENSE'), 'MIT');
+  fs.writeFileSync(path.join(payload, 'index.cjs'), `module.exports = { activate() { require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'enabled'); } };`);
+  const file = writeEnvironmentPlan(env), change = syncReview(manager, file).changes[0];
+  assert.equal(fs.existsSync(marker), false);
+  await manager.install(change.source, change.digest, change.origin);
+  assert.equal(manager.list()[0].enabled, false); assert.equal(manager.list()[0].development, false);
+  assert.equal(fs.existsSync(marker), false); await manager.enable(manifest.id, true, true); assert.equal(fs.readFileSync(marker, 'utf8'), 'enabled');
+  fs.writeFileSync(path.join(payload, 'LICENSE'), 'modified');
+  assert.throws(() => syncReview(manager, file), /changed/);
+  assert.equal(fs.readFileSync(path.join(manager.folder(manifest.id), 'LICENSE'), 'utf8'), 'MIT');
+  fs.rmSync(payload, { recursive: true }); fs.symlinkSync(os.tmpdir(), payload, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => writeEnvironmentPlan(env), /symbolic/);
 });

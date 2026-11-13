@@ -46,18 +46,24 @@ async function planInteractive({ ask, write = console.log, command } = {}) {
   }
   const action = command || await choice(t('要进行什么操作？', 'What would you like to do?'), [
     ['init', t('创建插件或主题', 'Create a plugin or theme')], ['build', t('构建可信源码', 'Build trusted source')],
-    ['check', t('校验目录或安装包', 'Check a directory or package')], ['pack', t('打包分发', 'Pack for distribution')], ['install', t('从 npm 获取扩展并交给 TeXPro 审核', 'Get an extension from npm for TeXPro review')], ['npm-package', t('创建 npm 分发包', 'Create an npm distribution wrapper')], ['environment', t('创建 npm／Yarn 扩展管理环境', 'Create an npm/Yarn extension environment')], ['sync', t('同步已安装依赖与移除请求', 'Sync installed dependencies and removal requests')],
+    ['check', t('校验目录或安装包', 'Check a directory or package')], ['pack', t('打包分发', 'Pack for distribution')], ['install', t('从 npm 获取扩展并交给 TeXPro 审核', 'Get an extension from npm for TeXPro review')], ['npm-package', t('创建 npm 分发包', 'Create an npm distribution wrapper')], ['environment', t('创建 npm／yarn 扩展管理环境', 'Create an npm/yarn extension environment')], ['sync', t('同步已安装依赖与移除请求', 'Sync installed dependencies and removal requests')], ['prepare', t('构建已安装的源码扩展', 'Prepare installed source')],
   ]);
   let plan;
   if (action === 'environment') {
     const directory = await text(t('新扩展环境目录', 'New extension environment directory'), 'texpro-extensions', value => !fs.existsSync(value));
-    const pm = await choice(t('包管理器', 'Package manager'), [['npm', 'npm'], ['yarn', 'Yarn']]);
+    const pm = await choice(t('包管理器', 'Package manager'), [['npm', 'npm'], ['yarn', 'yarn']]);
     plan = { command: action, args: [action, path.resolve(directory), pm] };
     write(t('仅创建环境，不联网或安装依赖。后续安装依赖时禁用生命周期脚本。', 'Creates configuration only; no network or dependency installation. Disable lifecycle scripts when installing dependencies.'));
+  } else if (action === 'prepare') {
+    const directory = await text(t('扩展环境目录', 'Extension environment directory'), '.', value => fs.existsSync(path.join(value, 'package.json')));
+    const name = await text(t('需要构建的 npm 包名', 'npm package name to build'), '', value => { require('./prepare.cjs').prepareTarget(directory, value); return true; });
+    const scripts = await choice(t('编译依赖安装脚本（会以你的权限执行第三方代码）', 'Compiler dependency installer scripts (execute third-party code with your permissions)'), [['no', t('禁用，缺少工具时停止（默认）', 'Disable; stop on missing tools (default)')], ['yes', t('仅本次构建允许：我已审核并信任编译依赖', 'Allow for this build: I reviewed and trust compiler dependencies')]]);
+    plan = { command: action, args: [action, path.resolve(directory), name, '--trust-build', ...(scripts === 'yes' ? ['--trust-install-scripts'] : [])] };
+    write(t('安全提醒：这会联网安装编译依赖（安装脚本默认禁用，允许时会执行第三方代码），并以你的用户权限执行编译器、构建配置和源码。临时目录不是安全沙箱；恶意代码仍可读取文件、联网或运行进程。仅确认可信作者与锁定版本。缺少工具时先停止；仅在上一步单独选择信任编译依赖后，本次临时构建才允许安装脚本。扩展环境配置不改变。完成后仍须同步、安装审核与启用确认。', 'Security: downloads compiler dependencies (lifecycle scripts are disabled by default; allowing them executes third-party code), then executes compilers, build configuration and source with your user permissions. A temporary directory is not a sandbox; malicious code can read files, access networks and launch processes. Trust the author and pinned version first. Missing tools stop the build; only the separate trust choice allows compiler dependency installer scripts for this temporary build. Extension environment settings stay unchanged. Sync, installation review and enable confirmation are still required.'));
   } else if (action === 'sync') {
     const directory = await text(t('扩展环境目录', 'Extension environment directory'), '.', value => { require('./environment.cjs').environmentPlan(value); return true; });
     plan = { command: action, args: [action, path.resolve(directory)] };
-    write(t('读取已安装包与锁文件，交给 TeXPro 审核新增、更新与移除；不自动启用。', 'Reads installed wrappers and the lockfile; asks TeXPro to review additions, updates and removals. Never auto-enables.'));
+    write(t('读取已安装包与锁文件，交给 TeXPro 审核新增、更新与移除；不自动启用。', 'Reads installed source packages or wrappers and the lockfile; asks TeXPro to review additions, updates and removals. Never auto-enables.'));
   } else if (action === 'install') {
     const spec = await text(t('公开 npm 包名（可附版本）', 'Public npm package name (optional version)'), '@texpro/extension-translate-zh-cn', value => { require('./registry.cjs').parseSpec(value); return true; });
     const output = await text(t('保存为新 .tpp 或 .tpt 文件', 'Save as a new .tpp or .tpt file'), 'extension.tpp', value => /\.(tpp|tpt)$/.test(value) && !fs.existsSync(value));
@@ -93,7 +99,7 @@ async function planInteractive({ ask, write = console.log, command } = {}) {
         options.accent = await text(t('强调色（六位或八位十六进制）', 'Accent color (6 or 8 hex digits)'), '#9c472b', value => /^#[a-f\d]{6}(?:[a-f\d]{2})?$/i.test(value));
       }
     }
-    if (options.style !== 'tokens') options.packageManager = await choice(t('包管理器（仅配置，不自动安装）', 'Package manager (configuration only, no installation)'), [['npm', 'npm'], ['yarn', 'Yarn (node_modules)']]);
+    if (options.style !== 'tokens') options.packageManager = await choice(t('包管理器（仅配置，不自动安装）', 'Package manager (configuration only, no installation)'), [['npm', 'npm'], ['yarn', 'yarn (node_modules)']]);
     plan = { command: action, directory: path.resolve(directory), options, tokensOnly: options.style === 'tokens' };
     write(t('仅创建源码，不安装依赖、不构建。', 'Creates source only; no dependency installation or build.'));
   } else {

@@ -104,7 +104,7 @@ const tool = (name, description, properties = {}, required = [], annotations = {
 
 const TOOLS = [
   tool('texpro_extension_capabilities', 'Describe plugin languages, theme styles, build prerequisites, package suffixes and current MCP limits. Does not load plugins or run compilers.', {}, [], { readOnlyHint: true }),
-  tool('texpro_inspect_extension', 'Validate a built extension directory or .tpp/.tpt package inside the open project. Returns manifest, digest, size and risks; never imports code, runs builds, installs or enables packages.', {
+  tool('texpro_inspect_extension', 'Inspect npm extension source (including unbuilt source), a built directory or .tpp/.tpt inside the open project. Returns manifest, digest, size, requiresBuild when applicable and risks; never imports code, runs builds, installs or enables packages.', {
     path: { type: 'string', description: 'Project-relative path to a built package directory or .tpp/.tpt file.' },
   }, ['path'], { readOnlyHint: true }),
   tool('texpro_open_project', 'Open a TeX project directory and return its root file and file tree.', {
@@ -182,7 +182,7 @@ async function callTool(name, args = {}) {
   setProject(projectState.root);
   switch (name) {
     case 'texpro_inspect_extension': {
-      if (typeof args.path !== 'string' || !args.path || args.path.length > 4096 || path.isAbsolute(args.path)) throw new Error('Choose a project-relative built package path');
+      if (typeof args.path !== 'string' || !args.path || args.path.length > 4096 || path.isAbsolute(args.path)) throw new Error('Choose a project-relative extension source or package path');
       const target = inside(args.path), realRoot = fs.realpathSync(projectState.root), real = fs.realpathSync(target);
       const relative = path.relative(realRoot, real);
       if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) throw new Error('Extension path escapes the project');

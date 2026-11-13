@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import SiteLayout from '@/layouts/SiteLayout';
 import HomePage from '@/pages/home';
 import DocsPage from '@/pages/docs';
+import DocsLanding from '@/pages/docs/landing';
 import AiPage from '@/pages/ai';
 import BlogIndexPage from '@/pages/blog';
 import BlogPostPage from '@/pages/blog/post';
@@ -21,7 +22,8 @@ export const router = createBrowserRouter([
     handle: { title: 'TeXPro · 本地优先的 LaTeX 工作台' },
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'docs', element: <DocsPage />, handle: { title: '文档 · TeXPro' } },
+      { path: 'docs', element: <DocsLanding section="use" />, handle: { title: '使用文档 · TeXPro' } },
+      { path: 'developers', element: <DocsLanding section="develop" />, handle: { title: '开发文档 · TeXPro' } },
       { path: 'docs/:slug', element: <DocsPage />, handle: { title: '文档 · TeXPro' } },
       { path: 'releases', element: <ReleasesPage />, handle: { title: '正式版本列表 · TeXPro' } },
       { path: 'changelog', element: <ChangelogPage />, handle: { title: '更新日志 · TeXPro' } },

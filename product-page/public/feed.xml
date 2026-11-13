@@ -8,16 +8,27 @@
     <lastBuildDate>Thu, 12 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>让语言成为插件，让 npm／Yarn 管理扩展版本</title>
+      <title>扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions</guid>
+      <pubDate>Thu, 12 Nov 2026 16:00:00 GMT</pubDate>
+      <description>保留 tpp／tpt 分发，同时让 npm／yarn 管理源码包；需要编译时明确确认，并与宿主和 MCP 共享只读校验。</description>
+      <category>扩展</category>
+      <category>SDK</category>
+      <category>qwertysay</category>
+      <category>安全</category>
+    </item>
+    <item>
+      <title>让语言成为插件，让 npm／yarn 管理扩展版本</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments</guid>
       <pubDate>Thu, 12 Nov 2026 16:00:00 GMT</pubDate>
       <description>简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。</description>
-      <category>[插件</category>
+      <category>插件</category>
       <category>i18n</category>
       <category>SDK</category>
       <category>qwertysay</category>
-      <category>发布]</category>
+      <category>发布</category>
     </item>
     <item>
       <title>Nightly 的成功基线与正式版发布入口</title>
@@ -25,9 +36,9 @@
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule</guid>
       <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
       <description>每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。</description>
-      <category>[Nightly</category>
+      <category>Nightly</category>
       <category>CI</category>
-      <category>发布]</category>
+      <category>发布</category>
     </item>
     <item>
       <title>本地插件、自由主题，以及有职责的工作台</title>
@@ -35,11 +46,11 @@
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces</guid>
       <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
       <description>用共享命令、写作端口和专业工作台开放 API 1，本地分发插件与主题，同时把信任和恢复说清楚。</description>
-      <category>[扩展</category>
+      <category>扩展</category>
       <category>主题</category>
       <category>架构</category>
       <category>连续写作</category>
-      <category>验证]</category>
+      <category>验证</category>
     </item>
     <item>
       <title>首次正式发布：TeXPro v0.1.0 · Tajpilo</title>
@@ -47,10 +58,10 @@
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/first-stable-tajpilo</guid>
       <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
       <description>以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。</description>
-      <category>[发布</category>
+      <category>发布</category>
       <category>连续写作</category>
       <category>扩展</category>
-      <category>工程]</category>
+      <category>工程</category>
     </item>
     <item>
       <title>多语言插件与静态主题：把作者工具和宿主运行时分开</title>
@@ -58,12 +69,12 @@
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/extension-authoring-languages-and-static-themes</guid>
       <pubDate>Wed, 11 Nov 2026 16:00:00 GMT</pubDate>
       <description>扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。</description>
-      <category>[扩展</category>
+      <category>扩展</category>
       <category>SDK</category>
       <category>qwertysay</category>
       <category>主题</category>
       <category>MCP</category>
-      <category>测试]</category>
+      <category>测试</category>
     </item>
     <item>
       <title>未保存的这一句，也可以先排出来</title>
@@ -82,9 +93,9 @@
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/quiet-realtime-preview</guid>
       <pubDate>Tue, 10 Nov 2026 16:00:00 GMT</pubDate>
       <description>移除实时预览的独立开关、模式标签和状态栏，让 rtex-ts 成为现有 PDF 预览的内部增强。</description>
-      <category>[&quot;编辑器&quot;</category>
-      <category>&quot;实时预览&quot;</category>
-      <category>&quot;交互设计&quot;]</category>
+      <category>编辑器</category>
+      <category>实时预览</category>
+      <category>交互设计</category>
     </item>
     <item>
       <title>缺一张图，也可以把这一段写完</title>

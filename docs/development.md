@@ -86,4 +86,4 @@ pnpm dev
 
 CTeX 的 LuaLaTeX 中文路径依赖 `luatexja.sty`，Ubuntu 将它放在 texlive-lang-japanese，安装中文语言包并不能替代它。CI 用 kpsewhich 预检 CTeX、LuaTeX-ja 与 Fandol，再执行完整基线。
 
-扩展包管理器的真实验收入口为 `npm run test:extensions:package-managers -- /absolute/sdk.tgz /absolute/qwertysay.tgz /absolute/chinese.tgz`，也可传已发布的精确 npm 版本。该流程在临时目录通过实际 npm 与 Yarn 安装独立作者工具、语言包与最简主题，验证生命周期脚本禁用、导入保持停用、卸载审核和数据保留；需要网络及已安装的 Yarn。它补充完整基线，不代替桌面原生测试或三平台打包。
+扩展包管理器的真实验收入口为 `npm run test:extensions:package-managers -- /absolute/sdk.tgz /absolute/qwertysay.tgz /absolute/chinese.tgz`，也可传已发布的精确 npm 版本。该流程在临时目录通过实际 npm 与 yarn 安装独立作者工具、语言包与最简主题，验证生命周期脚本禁用、导入保持停用、卸载审核和数据保留；需要网络及已安装的 yarn。它补充完整基线，不代替桌面原生测试或三平台打包。

@@ -12,7 +12,8 @@ export interface NavItem {
 /** Header 只放跨页面入口，页内段落交给侧边栏（SectionRail）。 */
 export const PAGE_LINKS: NavItem[] = [
   { to: '/blog', label: '博客' },
-  { to: '/docs', label: '文档' },
+  { to: '/docs', label: '使用文档' },
+  { to: '/developers', label: '开发文档' },
 ];
 
 export interface SectionLink {
@@ -213,7 +214,7 @@ export const FOOTER_GROUPS = [
     title: '资源',
     links: [
       { label: '使用文档', to: '/docs' },
-      { label: '开发文档', to: '/docs/dev-setup' },
+      { label: '开发文档', to: '/developers' },
       { label: 'MCP 教程', to: '/docs/mcp' },
       { label: '常见问题', to: '/docs/faq' },
       { label: '更新日志', to: '/changelog' },

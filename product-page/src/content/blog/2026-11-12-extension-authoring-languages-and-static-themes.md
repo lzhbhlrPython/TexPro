@@ -2,7 +2,7 @@
 title: 多语言插件与静态主题：把作者工具和宿主运行时分开
 date: 2026-11-12
 summary: 扩展 SDK 与 qwertysay 0.2.0 加入七种插件语言、主题编译与只读 MCP 检查；保留既有安装和信任流程。
-tags: [扩展, SDK, qwertysay, 主题, MCP, 测试]
+tags: 扩展, SDK, qwertysay, 主题, MCP, 测试
 author: Baolin Liu
 ---
 

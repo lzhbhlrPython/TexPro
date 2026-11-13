@@ -31,6 +31,6 @@ JSON 是英文源目录中的稳定消息键到翻译字符串的映射；部分
 
 ## 开发与验收
 
-运行 qwertysay 的中英引导，选择「语言包（仅数据）」、目标语言、语言自称及 npm／Yarn。生成的 `reference/en.json` 是参考快照，编辑 `locales/{语言}.json`；无需构建，直接校验与打包为 `.tpp`。npm 分发格式和受控同步见[包管理方案](extension-package-management.md)。
+运行 qwertysay 的中英引导，选择「语言包（仅数据）」、目标语言、语言自称及 npm／yarn。生成的 `reference/en.json` 是参考快照，编辑 `locales/{语言}.json`；无需构建，直接校验与打包为 `.tpp`。npm 分发格式和受控同步见[包管理方案](extension-package-management.md)。
 
 验证源目录覆盖、占位符、坏 JSON、预装与更新、启停、重启、卸载回退、原生菜单、快捷键、完整基线与真实 UI。新增文案同时修改英文目录和简中包；其他语言保持英文回退。构建简中发行物使用 `node packages/extension-translate-zh-cn/build.cjs`，不要手改 dist 归档。

@@ -1,10 +1,12 @@
 # TeXPro
 
+**简体中文** · [English](README.en.md)
+
 以写作为中心的 LaTeX 桌面编辑器：普通 `.tex` 是文档原件，可视预览、工程管理、本地编译和 PDF 定位围绕同一份源码工作。
 
 ![TeXPro 写作界面](docs/screenshots/workbench.png)
 
-[产品文档](https://texpro.pyliubaolin.top/docs) · [下载与发布](https://github.com/lzhbhlrPython/TexPro/releases) · [工程文档](docs/README.md) · [协作规则](AGENTS.md)
+[使用文档](https://texpro.pyliubaolin.top/docs) · [开发文档](https://texpro.pyliubaolin.top/developers) · [下载与发布](https://github.com/lzhbhlrPython/TexPro/releases) · [工程文档](docs/README.md) · [协作规则](AGENTS.md)
 
 ## 写作与工程
 
@@ -66,7 +68,7 @@ npm run build
 npm run verify:release
 ```
 
-按改动追加真实编译、MCP 和原生交互检查，详见 [验证矩阵](docs/development.md)。报告实际通过、失败、跳过及所用平台，不把固定测试数量当作当前结果。
+按改动追加真实编译、MCP 和原生交互检查，详见 [验证矩阵](docs/development.md)。完整基线必须零失败、零跳过、零 TODO。报告实际检查及所用平台，不把固定测试数量当作当前结果。
 
 ## 官网
 
@@ -78,7 +80,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-维护与发布见 [站点说明](product-page/README.md)和 [Pages 部署](docs/product-page-deployment.md)。中英文使用文档同时更新，博客保留简体中文历史记录。
+维护与发布见 [站点说明](product-page/README.md)和 [Pages 部署](docs/product-page-deployment.md)。使用文档 `/docs` 与开发文档 `/developers` 分别组织日常写作和开发任务，中英文同轮更新；博客保留简体中文历史记录。
 
 ## Nightly
 
@@ -92,10 +94,12 @@ pnpm dev
 
 ## 本地扩展与专业工作空间
 
-通过「扩展」安装手工分发的插件／主题包，无公开市场。命令、补全、检查、转换、导入导出和工具使用 API 1；代码插件是受信任 Node 代码，主题可改变布局和字体，两者均有安全风险。原生视图菜单提供重置和停用，`--safe-mode` 可在加载插件前恢复。SDK、引导工具、开发 Skill 分别见[SDK](docs/extension-development.md)、[qwertysay](docs/qwertysay.md)、[Skill](docs/extension-skill.md)；示例与能力边界见 [扩展架构](docs/extensions.md) 和 [开发指南](docs/extension-development.md)。复杂绘图、手写和模板任务使用共享工作空间；编译详情回到问题面板，论文 API 为独立按需集成。
+通过「扩展」安装手工分发的插件包（`.tpp`）／主题包（`.tpt`），无公开市场。命令、补全、检查、转换、导入导出和工具使用 API 1；代码插件是以用户权限运行的受信任 Node 代码，主题可改变布局和字体，亦可隐藏或伪装控件，两者均有安全风险。原生视图菜单提供重置和停用，`--safe-mode` 可在加载插件前恢复。SDK、引导工具、开发 Skill 分别见[SDK](docs/extension-development.md)、[qwertysay](docs/qwertysay.md)、[Skill](docs/extension-skill.md)；示例与能力边界见 [扩展架构](docs/extensions.md) 和 [开发指南](docs/extension-development.md)。复杂绘图、手写和模板任务使用共享工作空间；编译详情回到问题面板，论文 API 为独立按需集成。
 
-插件开发工具：独立 npm 包 [@texpro/extension-sdk](https://www.npmjs.com/package/@texpro/extension-sdk)（0.3.0）提供 API 1 类型、JSON 桥接与校验核心；[@texpro/qwertysay](https://www.npmjs.com/package/@texpro/qwertysay)（0.4.1）提供中英引导、多语言脚手架、显式构建、校验与打包 CLI（两包均为 MIT，Baolin Liu / gardenialiu）。见[开发指南](docs/extension-development.md)与[双语包说明](packages/extension-sdk/README.md)。
+插件开发工具：独立 npm 包 [@texpro/extension-sdk](https://www.npmjs.com/package/@texpro/extension-sdk)提供 API 1 类型、JSON 桥接与校验核心；[@texpro/qwertysay](https://www.npmjs.com/package/@texpro/qwertysay)提供中英引导、多语言脚手架、显式构建、校验与打包 CLI（两包均为 MIT，Baolin Liu / gardenialiu）。版本及兼容关系见 [SDK 说明](packages/extension-sdk/README.zh-CN.md)与 [qwertysay 说明](packages/qwertysay/README.zh-CN.md)。
 
 正式版通过 Actions 的 Release major／minor／patch 三个手动入口递增，全部测试和三平台打包成功后才同步根版本文件并发布；详见[发布指南](docs/release.md)及官网[正式版本列表](https://texpro.pyliubaolin.top/releases)。
 
-语言插件与包管理：[语言包](docs/language-packs.md)、[npm／Yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。
+语言插件与包管理：[语言包](docs/language-packs.md)、[npm／yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。
+
+直接发布到 npm 的源码包可能需要单独确认信任后在本机编译，再导入应用。包管理器安装、构建与启用插件是不同的信任判断；禁用安装脚本不是安全沙箱。

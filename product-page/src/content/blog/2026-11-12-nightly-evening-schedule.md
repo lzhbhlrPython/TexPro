@@ -2,7 +2,7 @@
 title: Nightly 的成功基线与正式版发布入口
 date: 2026-11-12
 summary: 每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。
-tags: [Nightly, CI, 发布]
+tags: Nightly, CI, 发布
 author: Baolin Liu
 ---
 

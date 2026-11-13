@@ -5,6 +5,7 @@
  */
 
 import { parseMarkdown, splitFrontMatter, type DocBlock } from '@/lib/markdown';
+import { documentationSection, type DocumentationSection } from './sections.mjs';
 
 export type { DocBlock };
 
@@ -15,11 +16,13 @@ export interface DocTopic {
   summary: string;
   order: number;
   blocks: DocBlock[];
+  section: DocumentationSection;
   /** 英文模式下这一篇还没有译文，正文回落中文 */
   englishFallback?: boolean;
 }
 
 export interface DocsNavGroup {
+  group: string;
   label: string;
   items: { slug: string; title: string }[];
 }
@@ -54,6 +57,7 @@ function parseTopic(path: string, raw: string): DocTopic {
   return {
     slug,
     group: data.group ?? '使用',
+    section: documentationSection(data.group ?? '使用'),
     title: data.title ?? slug,
     summary: data.summary ?? '',
     order: Number(data.order ?? 99),
@@ -71,6 +75,7 @@ const groups = Array.from(new Set(DOC_TOPICS.map((topic) => topic.group))).sort(
 );
 
 export const DOCS_NAV: DocsNavGroup[] = groups.map((label) => ({
+  group: label,
   label,
   items: DOC_TOPICS.filter((topic) => topic.group === label).map(({ slug, title }) => ({
     slug,
@@ -91,22 +96,25 @@ export const DOC_TOPICS_EN: DocTopic[] = DOC_TOPICS.map((zh) => {
     ...en,
     slug: zh.slug,
     group: zh.group,
+    section: zh.section,
     order: zh.order,
     // 英文正文缺失时用中文补位，页面会提示
     blocks: en.blocks.length ? en.blocks : zh.blocks,
   };
 });
 
-export function topicsFor(locale: 'zh' | 'en'): DocTopic[] {
-  return locale === 'en' ? DOC_TOPICS_EN : DOC_TOPICS;
+export function topicsFor(locale: 'zh' | 'en', section?: DocumentationSection): DocTopic[] {
+  const topics = locale === 'en' ? DOC_TOPICS_EN : DOC_TOPICS;
+  return section ? topics.filter(topic => topic.section === section) : topics;
 }
 
-export function navFor(locale: 'zh' | 'en'): DocsNavGroup[] {
-  const topics = topicsFor(locale);
+export function navFor(locale: 'zh' | 'en', section?: DocumentationSection): DocsNavGroup[] {
+  const topics = topicsFor(locale, section);
   const labels = Array.from(new Set(topics.map((topic) => topic.group))).sort(
     (a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b),
   );
   return labels.map((group) => ({
+    group,
     label: locale === 'en' ? (GROUP_LABELS[group] ?? group) : group,
     items: topics
       .filter((topic) => topic.group === group)
@@ -123,7 +131,9 @@ export function neighbors(
   slug: string,
   locale: 'zh' | 'en' = 'zh',
 ): { prev?: DocTopic; next?: DocTopic } {
-  const topics = topicsFor(locale);
+  const all = topicsFor(locale);
+  const section = all.find(topic => topic.slug === slug)?.section;
+  const topics = topicsFor(locale, section);
   const index = topics.findIndex((topic) => topic.slug === slug);
   return {
     prev: index > 0 ? topics[index - 1] : undefined,

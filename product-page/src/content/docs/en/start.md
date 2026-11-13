@@ -12,6 +12,10 @@ A local-first LaTeX workbench: write on the left, typeset on the right, with no 
 
 It is not a Markdown editor, nor an online collaboration platform. Before you open it, you do not need to register an account or upload your manuscript to any server.
 
+## Finding the right guide
+
+The [User guide](/docs) covers installation, writing, compilation and delivery. For plugins, themes, MCP integration or app contributions, start with [Developer docs](/developers). Search covers both sections; article navigation and previous/next links stay within the current section. Existing article links remain valid.
+
 ## Preparing the Environment
 
 ### The Application

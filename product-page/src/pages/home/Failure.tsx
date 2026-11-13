@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { theme } from 'antd';
+import { CodeHighlight } from '@/components/CodeHighlight';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { useT } from '@/i18n';
@@ -66,7 +67,7 @@ export function Failure() {
                   <span className="failure-no" style={{ color: token.colorTextTertiary }}>
                     {row.line}
                   </span>
-                  <code style={{ color: token.colorText }}>{row.text}</code>
+                  <CodeHighlight text={row.text} language="tex" />
                 </li>
               ))}
             </ol>

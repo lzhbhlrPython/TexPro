@@ -4,11 +4,11 @@ const path = require('node:path');
 const { randomUUID, createHash } = require('node:crypto');
 const { unpack, LIMIT } = require('./archive.cjs');
 const { validateManifest, relative } = require('./schema.cjs');
-function directoryFiles(directory) {
+function directoryFiles(directory, excluded = () => false) {
   const files = new Map(); let total = 0;
   const visit = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+      if (entry.name.startsWith('.') || entry.name === 'node_modules' || excluded(entry.name)) continue;
       const name = prefix + entry.name; relative(name);
       if (entry.isSymbolicLink()) throw new Error('Extension packages cannot contain symbolic links');
       if (entry.isDirectory()) visit(path.join(dir, entry.name), name + '/');

@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/docs</loc></url>
+  <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/developers</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/blog</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/changelog</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/releases</loc></url>
@@ -37,6 +38,7 @@
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-skill</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/docs/language-packs</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/docs/extension-package-management</loc></url>
+  <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule</loc></url>
   <url><loc>https://lzhbhlrpython.github.io/TexStudioPro/blog/local-extensions-and-workspaces</loc></url>

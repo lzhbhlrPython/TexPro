@@ -1,0 +1,41 @@
+'use strict';
+const test = require('node:test'), assert = require('node:assert/strict');
+const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
+const { prepareInstalled, managerCommand } = require('../lib/prepare.cjs');
+const { environmentInit, environmentPlan } = require('../lib/environment.cjs');
+const { scaffold } = require('../lib/scaffold.cjs');
+const { inspectPackage } = require('@texpro/extension-sdk/package-tools');
+test('trusted preparation compiles published TS sources, snapshots outputs and rejects stale or failed builds', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'qwertysay-npm-source-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const env = path.join(root, 'environment'); environmentInit(env);
+  const pkgFile = path.join(env, 'package.json'), pkg = JSON.parse(fs.readFileSync(pkgFile)); pkg.dependencies = { 'author-plugin': '1.0.0' }; fs.writeFileSync(pkgFile, JSON.stringify(pkg)); fs.writeFileSync(path.join(env, 'package-lock.json'), 'fixture');
+  const source = path.join(env, 'node_modules/author-plugin'); scaffold(source, { id: 'author.plugin', author: 'Test', language: 'ts' });
+  const { planInteractive } = require('../lib/wizard.cjs');
+  let answers = ['zh', env, 'author-plugin', 'no', '']; const messages = [];
+  assert.equal(await planInteractive({ command: 'prepare', ask: async () => answers.shift(), write: message => messages.push(message) }), null);
+  assert.ok(messages.some(message => message.includes('不是安全沙箱')));
+  assert.equal(fs.existsSync(path.join(source, '.texpro-prepared')), false);
+  assert.equal(inspectPackage(source).requiresBuild, true); assert.throws(() => environmentPlan(env), /explicit trusted build/);
+  let installed = 0;
+  const run = (file, args, options) => {
+    installed++; assert.equal(file, 'npm'); assert.ok(args.includes('--ignore-scripts')); assert.equal(options.shell, undefined);
+    fs.symlinkSync(path.resolve(__dirname, '../../../node_modules'), path.join(options.cwd, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
+  };
+  await assert.rejects(prepareInstalled(env, 'author-plugin', { run }), /explicit trust/); assert.equal(installed, 0);
+  const result = await prepareInstalled(env, 'author-plugin', { trusted: true, run });
+  assert.equal(result.manifest.id, 'author.plugin'); assert.equal(environmentPlan(env).packages[0].digest, result.digest);
+  assert.equal(result.development, false); assert.ok(result.files.get('index.cjs').length > 100);
+  await assert.rejects(prepareInstalled(env, 'author-plugin', { trusted: true, run, compile: async () => { throw new Error('same-source failed rebuild'); } }), /failed rebuild/);
+  assert.throws(() => environmentPlan(env), /explicit trusted build/);
+  await prepareInstalled(env, 'author-plugin', { trusted: true, run });
+  fs.appendFileSync(path.join(source, 'src/index.cts'), '\n// new source');
+  assert.throws(() => environmentPlan(env), /explicit trusted build/);
+  await assert.rejects(prepareInstalled(env, 'author-plugin', { trusted: true, run, compile: async () => { throw new Error('failed compiler'); } }), /failed compiler/);
+  assert.throws(() => environmentPlan(env), /explicit trusted build/);
+});
+test('Windows package managers use JavaScript entries with argv rather than a command shell', () => {
+  const entry = path.resolve('tools with spaces/npm-cli.js');
+  const command = managerCommand('npm', { platform: 'win32', env: { npm_execpath: entry }, exists: file => file === entry });
+  assert.equal(command.file, process.execPath); assert.deepEqual(command.args, [entry]);
+  assert.throws(() => managerCommand('yarn', { platform: 'win32', env: {}, exists: () => false }), /Cannot locate/);
+});

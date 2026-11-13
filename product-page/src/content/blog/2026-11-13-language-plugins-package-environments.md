@@ -1,8 +1,8 @@
 ---
-title: "让语言成为插件，让 npm／Yarn 管理扩展版本"
+title: "让语言成为插件，让 npm／yarn 管理扩展版本"
 date: 2026-11-13
 summary: 简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。
-tags: [插件, i18n, SDK, qwertysay, 发布]
+tags: 插件, i18n, SDK, qwertysay, 发布
 author: Baolin Liu
 ---
 
@@ -18,11 +18,11 @@ author: Baolin Liu
 
 ## 包管理器与宿主各守一个边界
 
-SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro/extension-sdk 和 @texpro/qwertysay。旧作用域发布记录不会覆盖。脚手架增加语言包模板、缺译统计与 npm／Yarn 选择；最简强调色主题继续只需要清单和 LICENSE。
+SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro/extension-sdk 和 @texpro/qwertysay。旧作用域发布记录不会覆盖。脚手架增加语言包模板、缺译统计与 npm／yarn 选择；最简强调色主题继续只需要清单和 LICENSE。
 
-专用扩展环境用 package.json 与单一锁文件管理版本。npm install／Yarn add 改变依赖，qwertysay sync 把新增或更新交给 TeXPro 逐项审核，安装保持停用；npm uninstall／Yarn remove 后再次同步，才审核卸载宿主副本。卸载默认保留插件数据，不能接管手动安装或其他环境拥有的记录。
+专用扩展环境用 package.json 与单一锁文件管理版本。npm install／yarn add 改变依赖，qwertysay sync 把新增或更新交给 TeXPro 逐项审核，安装保持停用；npm uninstall／yarn remove 后再次同步，才审核卸载宿主副本。卸载默认保留插件数据，不能接管手动安装或其他环境拥有的记录。
 
-分发包通过 texpro.package 指向唯一 .tpp／.tpt。单独下载路径只读取公开 npm 元数据与归档，检查 SHA-512、身份与实际内容，不安装 wrapper 依赖或运行生命周期脚本。环境方式也配置禁用脚本；这不等于给 npm、Yarn 或已启用的 Node 插件建立沙箱。主题能隐藏控件，语言包能误导指引，摘要不能证明作者可信。
+分发包通过 texpro.package 指向唯一 .tpp／.tpt。单独下载路径只读取公开 npm 元数据与归档，检查 SHA-512、身份与实际内容，不安装 wrapper 依赖或运行生命周期脚本。环境方式也配置禁用脚本；这不等于给 npm、yarn 或已启用的 Node 插件建立沙箱。主题能隐藏控件，语言包能误导指引，摘要不能证明作者可信。
 
 ## Skill 随版本交付
 
@@ -30,6 +30,6 @@ SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro/extension-sdk 和 @texpro/qwertysay
 
 ## 验证与边界
 
-修改前完整基线为 137 项，第一轮实现后为 147 项，均零失败、零跳过、零 TODO。最终补齐独立插件 i18n、参数重排与发行必需模块测试后，完整基线为 151 项，同样零失败、零跳过、零 TODO。另验声明式安装、启停、重启、占位符、坏包、环境所有权、锁文件变化、卸载保留数据与 Skill 正式／Nightly 归档。本机已通过实际 npm tarball 独立安装、npm／Yarn 的真实安装与卸载同步、原生语言／主题 UI、九种插件语言及七种主题样式的真实编译、实际 macOS ASAR 和包外普通 Node 的 MCP。系统级验收发现 Electron 会重排第二实例参数，改用单参数路径并在宿主兼容旧写法；qwertysay 0.4.1 保留此前版本，修复转交行为。跨平台打包和线上部署分别核对，不把本机验收写成三平台原生验收。
+修改前完整基线为 137 项，第一轮实现后为 147 项，均零失败、零跳过、零 TODO。最终补齐独立插件 i18n、参数重排与发行必需模块测试后，完整基线为 151 项，同样零失败、零跳过、零 TODO。另验声明式安装、启停、重启、占位符、坏包、环境所有权、锁文件变化、卸载保留数据与 Skill 正式／Nightly 归档。本机已通过实际 npm tarball 独立安装、npm／yarn 的真实安装与卸载同步、原生语言／主题 UI、九种插件语言及七种主题样式的真实编译、实际 macOS ASAR 和包外普通 Node 的 MCP。系统级验收发现 Electron 会重排第二实例参数，改用单参数路径并在宿主兼容旧写法；qwertysay 0.4.1 保留此前版本，修复转交行为。跨平台打包和线上部署分别核对，不把本机验收写成三平台原生验收。
 
-v0.1.0 的公开安装包早于这项更新，需要后续包含该能力的桌面构建。现代 Yarn 使用 node_modules，暂不承诺 PnP；不存在后台同步或公开插件市场。详细操作见[语言包教程](/docs/language-packs)、[包管理器管理扩展](/docs/extension-package-management)与[开发 Skill](/docs/extension-skill)。
+v0.1.0 的公开安装包早于这项更新，需要后续包含该能力的桌面构建。现代 yarn 使用 node_modules，暂不承诺 PnP；不存在后台同步或公开插件市场。详细操作见[语言包教程](/docs/language-packs)、[包管理器管理扩展](/docs/extension-package-management)与[开发 Skill](/docs/extension-skill)。

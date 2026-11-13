@@ -44,4 +44,8 @@ summary: 安装、信任、配置和手动更新 TeXPro 扩展，保留本地优
 
 ## 语言插件与包管理环境
 
-[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.4.0 与 qwertysay 0.5.0 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+
+## 源码发布 npm 与构建安全
+
+源码可直接发布 npm，texpro.source 指向目录（省略为包根），不必先内嵌 .tpp／.tpt。SDK 0.4.0、qwertysay 0.5.0 和对应宿主支持此路径；旧归档分发继续兼容。可运行 JS／静态文件安装后直接同步；需要编译的包在 qwertysay 选择「构建已安装的源码扩展」，单独确认信任后再同步到 TeXPro 审核。构建配置和编译器拥有用户权限；禁用安装脚本和临时目录都不是沙箱。完整的作者发布、用户安装／升级／卸载、工具链限制与风险见 [npm／yarn 管理扩展](/docs/extension-package-management)。
