@@ -16,8 +16,12 @@ export default function DocsPage({ section }: { section?: DocumentationSection }
   const { token } = theme.useToken();
   const { prev, next } = neighbors(topic.slug, locale);
   const docsNav = navFor(locale, topic.section);
-  // 英文模式下这一篇还没有译文时，正文仍是中文，页面顶部给出提示
-  const englishMissing = locale === 'en' && Boolean(topic.englishFallback);
+  // 当前语言缺这一篇时，正文退回英文或中文，页面顶部说明实际语言
+  const fallbackNotice = topic.bodyFallback
+    ? locale === 'eo'
+      ? msg('site.this.page.is.not.yet.available.in.esperanto.the.text')
+      : msg('site.the.english.version.of.this.page.is.still.being')
+    : null;
   const sections = collectSections(topic.blocks);
 
   useEffect(() => {
@@ -88,14 +92,16 @@ export default function DocsPage({ section }: { section?: DocumentationSection }
               <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
                 {topic.summary}
               </p>
-              {englishMissing ? (
+              {fallbackNotice ? (
                 <p className="docs-lang-note" style={{ color: token.colorTextTertiary }}>
-                  {msg("site.the.english.version.of.this.page.is.still.being")}
+                  {fallbackNotice}
                 </p>
               ) : null}
             </header>
 
-            <MarkdownBlocks blocks={topic.blocks} />
+            <div lang={topic.bodyFallback === 'zh' ? 'zh-CN' : topic.bodyFallback === 'en' ? 'en' : undefined}>
+              <MarkdownBlocks blocks={topic.blocks} />
+            </div>
 
             <nav className="docs-pager" aria-label={msg("site.previous.and.next.page")}>
               {prev ? (

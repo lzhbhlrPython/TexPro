@@ -245,6 +245,8 @@
   "site.two.way.synctex.variant2": "Two-way SyncTeX",
   "site.privacy": "Privacy",
   "site.the.english.version.of.this.page.is.still.being": "The English version of this page is still being translated; the body below is in Simplified Chinese for now.",
+  "site.this.page.is.not.yet.available.in.esperanto.the.text": "This page is not yet available in Esperanto; the body below is in English for now.",
+  "site.blog.posts.are.written.in.simplified.chinese.only.readers": "Blog posts are written in Simplified Chinese only — readers of other languages will need to translate them.",
   "site.texpro.docs": "TeXPro docs",
   "site.documentation.index": "Documentation index",
   "site.previous.and.next.page": "Previous and next page",

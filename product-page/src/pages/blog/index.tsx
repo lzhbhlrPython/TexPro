@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { Typography, theme } from 'antd';
 import { BLOG_POSTS } from '@/content/blog';
 import { useLocale, useMessages } from '@/i18n';
+import { dateLocale, type Locale } from '@/i18n/locales';
 
 const { Text } = Typography;
 
-function formatDate(value: string, locale: 'zh' | 'en') {
+function formatDate(value: string, locale: Locale) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN', {
+  return date.toLocaleDateString(dateLocale(locale), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -50,10 +51,9 @@ export default function BlogIndexPage() {
           <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
             {msg("site.texpro.moves.fast.and.the.reasons.get.lost.these")}
           </p>
-          {locale === 'en' ? (
+          {locale !== 'zh' ? (
             <p className="blog-lang-note">
-              Blog posts are written in Simplified Chinese only — readers of other languages will need
-              to translate them.
+              {msg("site.blog.posts.are.written.in.simplified.chinese.only.readers")}
             </p>
           ) : null}
 

@@ -1,6 +1,7 @@
 import { GROUP_LABELS, topicsFor } from '@/content/docs';
 import { BLOG_POSTS } from '@/content/blog';
 import type { MessageId } from '@/i18n/catalog';
+import type { Locale } from '@/i18n/locales';
 import type { DocBlock } from '@/lib/markdown';
 
 export interface SearchHit {
@@ -37,10 +38,10 @@ function blocksToText(blocks: DocBlock[]): string {
     .join(' ');
 }
 
-const cache = new Map<'zh' | 'en', SearchHit[]>();
+const cache = new Map<Locale, SearchHit[]>();
 
 /** 文档 + 博客建一份内存索引；内容只在构建期变化，所以每种语言只建一次。 */
-export function searchIndex(locale: 'zh' | 'en', message: (id: MessageId) => string): SearchHit[] {
+export function searchIndex(locale: Locale, message: (id: MessageId) => string): SearchHit[] {
   const cached = cache.get(locale);
   if (cached) return cached;
 
@@ -72,7 +73,7 @@ export function searchIndex(locale: 'zh' | 'en', message: (id: MessageId) => str
 }
 
 /** 多个关键词按「全部命中」匹配，结果按标题命中优先排序。 */
-export function searchAll(query: string, limit: number, locale: 'zh' | 'en', message: (id: MessageId) => string): SearchHit[] {
+export function searchAll(query: string, limit: number, locale: Locale, message: (id: MessageId) => string): SearchHit[] {
   const terms = query
     .toLowerCase()
     .split(/\s+/)

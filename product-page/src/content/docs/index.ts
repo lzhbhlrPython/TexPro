@@ -7,6 +7,7 @@
 import { parseMarkdown, splitFrontMatter, type DocBlock } from '@/lib/markdown';
 import { documentationSection, type DocumentationSection } from './sections.mjs';
 import type { MessageId } from '@/i18n/catalog';
+import type { Locale } from '@/i18n/locales';
 
 export type { DocBlock };
 
@@ -18,8 +19,8 @@ export interface DocTopic {
   order: number;
   blocks: DocBlock[];
   section: DocumentationSection;
-  /** 英文模式下这一篇还没有译文，正文回落中文 */
-  englishFallback?: boolean;
+  /** 当前语言缺这一篇时，正文实际使用的语言 */
+  bodyFallback?: 'en' | 'zh';
 }
 
 export interface DocsNavGroup {
@@ -38,6 +39,13 @@ const rawZhFiles = import.meta.glob('./zh/*.md', {
 
 /** 英文版：`src/content/docs/en/<slug>.md`，缺哪篇就回落到中文正文。 */
 const rawEnFiles = import.meta.glob('./en/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+/** 世界语版：`src/content/docs/eo/<slug>.md`，缺哪篇就先回落英文、再回落中文。 */
+const rawEoFiles = import.meta.glob('./eo/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -85,30 +93,56 @@ export const DOCS_NAV: DocsNavGroup[] = groups.map((label) => ({
 
 export const DEFAULT_DOC_SLUG = DOC_TOPICS[0]?.slug ?? 'start';
 
-/** 英文版目录：与中文同结构，标题/摘要取自 en 文件；缺失的篇目回落中文正文。 */
-export const DOC_TOPICS_EN: DocTopic[] = DOC_TOPICS.map((zh) => {
-  const raw = Object.entries(rawEnFiles).find(
-    ([path]) => path.split('/').pop() === `${zh.slug}.md`,
-  )?.[1];
-  if (!raw) return { ...zh, englishFallback: true };
-  const en = parseTopic(`${zh.slug}.md`, raw);
-  return {
-    ...en,
-    slug: zh.slug,
-    group: zh.group,
-    section: zh.section,
-    order: zh.order,
-    // 英文正文缺失时用中文补位，页面会提示
-    blocks: en.blocks.length ? en.blocks : zh.blocks,
-  };
-});
+/** 译文目录：与中文同结构，标题/摘要取自目标语言文件；缺失的篇目按 en → zh 补位。 */
+function localizedTopics(files: Record<string, string>): DocTopic[] {
+  return DOC_TOPICS.map((zh) => {
+    const raw = Object.entries(files).find(
+      ([path]) => path.split('/').pop() === `${zh.slug}.md`,
+    )?.[1];
+    if (raw) {
+      const translated = parseTopic(`${zh.slug}.md`, raw);
+      return {
+        ...translated,
+        slug: zh.slug,
+        group: zh.group,
+        section: zh.section,
+        order: zh.order,
+        // 译文正文为空时用中文补位，页面会提示
+        blocks: translated.blocks.length ? translated.blocks : zh.blocks,
+      };
+    }
+    const english = Object.entries(rawEnFiles).find(
+      ([path]) => path.split('/').pop() === `${zh.slug}.md`,
+    )?.[1];
+    if (english) {
+      return {
+        ...parseTopic(`${zh.slug}.md`, english),
+        slug: zh.slug,
+        group: zh.group,
+        section: zh.section,
+        order: zh.order,
+        bodyFallback: 'en' as const,
+      };
+    }
+    return { ...zh, bodyFallback: 'zh' as const };
+  });
+}
 
-export function topicsFor(locale: 'zh' | 'en', section?: DocumentationSection): DocTopic[] {
-  const topics = locale === 'en' ? DOC_TOPICS_EN : DOC_TOPICS;
+export const DOC_TOPICS_EN = localizedTopics(rawEnFiles);
+export const DOC_TOPICS_EO = localizedTopics(rawEoFiles);
+
+const TOPICS_BY_LOCALE: Record<Locale, DocTopic[]> = {
+  zh: DOC_TOPICS,
+  en: DOC_TOPICS_EN,
+  eo: DOC_TOPICS_EO,
+};
+
+export function topicsFor(locale: Locale, section?: DocumentationSection): DocTopic[] {
+  const topics = TOPICS_BY_LOCALE[locale] ?? DOC_TOPICS;
   return section ? topics.filter(topic => topic.section === section) : topics;
 }
 
-export function navFor(locale: 'zh' | 'en', section?: DocumentationSection): DocsNavGroup[] {
+export function navFor(locale: Locale, section?: DocumentationSection): DocsNavGroup[] {
   const topics = topicsFor(locale, section);
   const labels = Array.from(new Set(topics.map((topic) => topic.group))).sort(
     (a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b),
@@ -122,14 +156,14 @@ export function navFor(locale: 'zh' | 'en', section?: DocumentationSection): Doc
   }));
 }
 
-export function findTopic(slug?: string, locale: 'zh' | 'en' = 'zh'): DocTopic {
+export function findTopic(slug?: string, locale: Locale = 'zh'): DocTopic {
   const topics = topicsFor(locale);
   return topics.find((topic) => topic.slug === slug) ?? topics[0];
 }
 
 export function neighbors(
   slug: string,
-  locale: 'zh' | 'en' = 'zh',
+  locale: Locale = 'zh',
 ): { prev?: DocTopic; next?: DocTopic } {
   const all = topicsFor(locale);
   const section = all.find(topic => topic.slug === slug)?.section;

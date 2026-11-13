@@ -13,16 +13,16 @@
 | 范围 | 入口 | 交接规则 |
 | --- | --- | --- |
 | 官网界面 | `product-page/src/i18n/locales.ts`、`catalog.ts`、`index.tsx`、`messages/{zh,en}.json` | 使用 `useMessages` 与稳定语义 ID；中英都是独立 JSON。`useLocalizedFields` 明确列出文本字段，不递归翻译业务对象 |
-| 官网任务文档 | `product-page/src/content/docs/index.ts`、`zh/` 与 `en/` | 各语种目录平级，保留同 slug、顺序和分组身份，各语言使用独立正文文件，缺译有明确提示 |
+| 官网任务文档 | `product-page/src/content/docs/index.ts`、`zh/`、`en/` 与 `eo/` | 各语种目录平级，保留同 slug、顺序和分组身份，各语言使用独立正文文件，缺译有明确提示 |
 | 博客 | `product-page/src/content/blog/index.ts`、根目录 Markdown | 保留简体中文原文及历史日期；只翻译周围界面和语言提示 |
 | 页面路由与资源 | `product-page/src/router/`、`vite.config.ts` | 保留现有路由与基路径约定，不以翻译标题替换稳定链接 |
 | 机器可读内容 | `product-page/scripts/gen-llms.mjs`、`gen-feed.mjs`、Vite `contentFiles` | 修改源生成逻辑并重新构建，不手改生成文件 |
 
-当前官网 `Locale`、文档 `topicsFor`／`navFor`、语言切换与自动检测只支持 `zh`／`en`；中英文文档分别在平级的 `zh/` 与 `en/`，不自动发现其他语言。新增语种同样使用 `{locale}/`，不能在文档根目录放正文。日期、数字及部分中英文条件分支也需要逐处核对。以上是接入边界，不是任意语种已经接入的声明。
+当前官网 `Locale`、文档 `topicsFor`／`navFor`、语言切换与自动检测接入 `zh`／`en`／`eo`；三语文档分别在平级的 `zh/`、`en/` 与 `eo/`，不自动发现其他语言。新增语种同样使用 `{locale}/`，不能在文档根目录放正文。日期、数字及语言条件分支也需要逐处核对，不能假设只剩中英两种。
 
-官网导航已通过 LanguageSwitch 图标菜单读取 locales.ts 的注册项，显示 ISO 639-1 代码和自称，当前仅列 zh 与 en；HTML lang 区分 zh-CN 与 en。第三方新增语种时，先在该入口核对 ISO 语言代码、自称、HTML `lang` 与词典注册，再让现有翻译接口和文档加载入口读取该注册信息。复用页面与数据，不复制每种语言的业务状态、路由组件和解析器。选择器、持久化、浏览器语言匹配、文档回退、分组名称、日期／数字、Ant Design locale 与文字方向须一起验证；现有两语种切换不能直接用于第三种语言。
+官网导航已通过 LanguageSwitch 图标菜单读取 locales.ts 的注册项，显示 ISO 639-1 代码和自称；当前注册 zh、en 与 eo，HTML lang 分别为 zh-CN、en 与 eo。新增语种时先在该入口核对 ISO 语言代码、自称、HTML `lang` 与词典注册，再让现有翻译接口和文档加载入口读取该注册信息。复用页面与数据，不复制每种语言的业务状态、路由组件和解析器。选择器、持久化、浏览器语言匹配、文档回退、分组名称、日期／数字、Ant Design locale 与文字方向须一起验证；Ant Design 没有世界语语言包，eo 界面暂以 enUS 组件文案为准。
 
-`gen-llms.mjs` 当前只聚合 `docs/zh/` 的简体中文正文；博客 feed 也来自简体中文文章。新增语种须明确哪些产物保持中文、哪些新增语言入口，并验证 sitemap、摘要、语言提示和 URL，不能将中文内容标为目标语种。正文与目录引用继续使用稳定 slug。
+`gen-llms.mjs` 当前只聚合 `docs/zh/` 的简体中文正文；博客 feed 也来自简体中文文章。新增语种须明确哪些产物保持中文、哪些新增语言入口，并验证 sitemap、摘要、语言提示和 URL，不能将中文内容标为目标语种。世界语文档已接入正文与搜索，但上述机器可读产物仍以简体中文为准。
 
 ## 翻译内容要求
 

@@ -1395,6 +1395,11 @@ a {
     font-weight: 600;
   }
 
+  html[lang='eo'] .hero-lede::before {
+    content: 'Resumo\00a0\00a0';
+    font-weight: 600;
+  }
+
   .hero-lede {
     max-width: 148mm;
     margin: 0 auto !important;
@@ -3660,11 +3665,13 @@ html[lang='zh-CN'] .qwerty-prose p.qwerty-sign {
   text-indent: 0;
 }
 
-html[lang='en'] .qwerty-prose {
+html[lang='en'] .qwerty-prose,
+html[lang='eo'] .qwerty-prose {
   max-width: 68ch;
 }
 
-html[lang='en'] .qwerty-prose p {
+html[lang='en'] .qwerty-prose p,
+html[lang='eo'] .qwerty-prose p {
   font-family: var(--serif-latin);
   text-align: left;
   text-indent: 0;
@@ -3674,13 +3681,15 @@ html[lang='en'] .qwerty-prose p {
 }
 
 html[lang='en'] .qwerty-title,
+html[lang='eo'] .qwerty-title,
 html[lang='en'] .qwerty-lede,
 html[lang='en'] .qwerty-salutation,
 html[lang='en'] .qwerty-sign {
   font-family: var(--serif-latin);
 }
 
-html[lang='en'] .qwerty-code {
+html[lang='en'] .qwerty-code,
+html[lang='eo'] .qwerty-code {
   hyphens: none;
 }
 

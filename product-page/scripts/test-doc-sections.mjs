@@ -10,7 +10,10 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const docsRoot = path.join(root, 'src/content/docs');
 assert.ok(!(await readdir(docsRoot)).some(file => file.endsWith('.md')), 'Every language must have its own documentation directory');
 const sourceFiles = await readdir(path.join(docsRoot, 'zh'));
-assert.deepEqual(sourceFiles.filter(file => file.endsWith('.md')).sort(), (await readdir(path.join(docsRoot, 'en'))).filter(file => file.endsWith('.md')).sort(), 'Chinese and English documents have matching filenames');
+const chineseFiles = sourceFiles.filter(file => file.endsWith('.md')).sort();
+for (const locale of ['en', 'eo']) {
+  assert.deepEqual(chineseFiles, (await readdir(path.join(docsRoot, locale))).filter(file => file.endsWith('.md')).sort(), `Chinese and ${locale} documents have matching filenames`);
+}
 const server = await createServer({ root, configFile: false, appType: 'custom', resolve: { alias: { '@': path.join(root, 'src') } }, optimizeDeps: { noDiscovery: true }, server: { middlewareMode: true, watch: null, ws: false } });
 try {
   const { topicsFor, navFor, neighbors } = await server.ssrLoadModule('/src/content/docs/index.ts');
@@ -19,8 +22,8 @@ try {
   assert.ok(BLOG_POSTS.every(post => post.tags.every(tag => !/[\[\]`]/.test(tag))), 'Blog labels contain no formatting marks');
   const { documentationEntry } = await server.ssrLoadModule('/src/content/docs/sections.mjs');
   const ownership = new Map();
-  const catalogues = Object.fromEntries(await Promise.all(['zh','en'].map(async locale => [locale, JSON.parse(await readFile(path.join(root, `src/i18n/messages/${locale}.json`), 'utf8'))])));
-  for (const locale of ['zh', 'en']) {
+  const catalogues = Object.fromEntries(await Promise.all(['zh','en','eo'].map(async locale => [locale, JSON.parse(await readFile(path.join(root, `src/i18n/messages/${locale}.json`), 'utf8'))])));
+  for (const locale of ['zh', 'en', 'eo']) {
     const all = topicsFor(locale);
     assert.equal(all.find(topic => topic.slug === 'extension-skill').group, 'AI 协作');
     for (const section of ['use', 'develop']) {
@@ -42,7 +45,7 @@ try {
         if (next) assert.equal(next.section, section);
         const hit = searchIndex(locale, id => catalogues[locale][id]).find(hit => hit.id === `doc-${topic.slug}`);
         assert.equal(hit.to, `/docs/${topic.slug}`, 'Existing article URLs stay stable');
-        assert.ok(hit.meta.startsWith(locale === 'en' ? (section === 'develop' ? 'Developer docs' : 'User guide') : (section === 'develop' ? '开发文档' : '使用文档')));
+        assert.ok(hit.meta.startsWith(catalogues[locale][section === 'develop' ? 'site.developer.docs' : 'site.user.guide']));
         if (locale === 'zh') ownership.set(topic.slug, section);
         else assert.equal(section, ownership.get(topic.slug), 'Translation inherits canonical ownership');
       }

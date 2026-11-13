@@ -32,7 +32,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       return 'failed' as const;
     });
   }, []);
-  const value = useMemo(() => ({ ...catalog, setLocale, toggle: () => setLocale(catalog.locale === 'zh' ? 'en' : 'zh') }), [catalog, setLocale]);
+  const toggle = useCallback(() => {
+    const index = SITE_LANGUAGES.findIndex(language => language.code === catalog.locale);
+    return setLocale(SITE_LANGUAGES[(index + 1) % SITE_LANGUAGES.length].code);
+  }, [catalog.locale, setLocale]);
+  const value = useMemo(() => ({ ...catalog, setLocale, toggle }), [catalog, setLocale, toggle]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 export function useLocale(): LocaleValue {
