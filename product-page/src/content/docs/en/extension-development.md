@@ -11,7 +11,7 @@ summary: Install the SDK and understand manifests, handlers, services, lifecycle
 This guide covers **@texpro/extension-sdk 0.3.0 / API 1**, by Baolin Liu (gardenialiu), with MIT original code. It provides public types, helpers, a JSON bridge and shared validation without Electron, React or TeX. Use [guided qwertysay](/docs/qwertysay) to create projects and choose toolchains; use the [development Skill](/docs/extension-skill) for AI-assisted work.
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.4.0
+npm install --save-dev @texpro/extension-sdk@0.5.0
 ```
 
 Installing the SDK does not install a plugin into TeXPro. The host consumes finished, self-contained entries and resources; it does not install npm dependencies or compile author sources. Bundle runtime SDK helpers into the entry. A direct `activate(ctx)` export needs no runtime SDK import.

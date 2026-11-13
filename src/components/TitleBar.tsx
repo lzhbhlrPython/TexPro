@@ -60,32 +60,32 @@ export function TitleBar({
   onShowProblems,
   onOpenPalette,
 }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [moreOpen, setMoreOpen] = useState(false);
-  const fileName = doc?.path.split('/').pop() || t('No document');
+  const fileName = doc?.path.split('/').pop() || msg("app.no.document");
 
   return (
     <header className="titlebar minimal-titlebar">
       <div className="titlebar-left">
-        <button className="brand" onClick={project ? onCloseProject : onOpenFolder} title={t(project ? 'Close project and return to Welcome' : 'Open project (⌘O)')} aria-label={t(project ? 'Close project and return to Welcome' : 'Open project (⌘O)')}>
+        <button className="brand" onClick={project ? onCloseProject : onOpenFolder} title={msg(project ? "app.close.project.and.return.to.welcome" : "app.open.project.o")} aria-label={msg(project ? "app.close.project.and.return.to.welcome" : "app.open.project.o")}>
           <Logo size={22} />
         </button>
         {project && <button
           className={`icon-btn ${sidebarOpen ? 'active' : ''}`}
           onClick={onToggleSidebar}
-          title={t('Toggle sidebar')}
-          aria-label={t('Toggle sidebar')}
+          title={msg("app.toggle.sidebar.variant2")}
+          aria-label={msg("app.toggle.sidebar.variant2")}
         >
           <PanelLeft size={15} />
         </button>}
         <div className="titlebar-document">
           <div className="titlebar-file-row">
             <FileText size={12} className="titlebar-file-icon" />
-            <span className="titlebar-file-name">{project ? fileName : t('Your writing desk')}</span>
-            {doc?.dirty && <span className="dirty-dot" title={t('Unsaved changes')} />}
+            <span className="titlebar-file-name">{project ? fileName : msg("app.your.writing.desk")}</span>
+            {doc?.dirty && <span className="dirty-dot" title={msg("app.unsaved.changes")} />}
           </div>
           {project && (
-            <button className="titlebar-project" onClick={onOpenFolder} title={t('Switch project')}>
+            <button className="titlebar-project" onClick={onOpenFolder} title={msg("app.switch.project")}>
               {project.name}
               <ChevronDown size={10} />
             </button>
@@ -94,31 +94,31 @@ export function TitleBar({
       </div>
 
       <div className="titlebar-right">
-        {project && <button className={`titlebar-main-file ${project.rootFile ? '' : 'needs-selection'}`} onClick={onOpenMain} title={project.rootFile || t('Choose main file')}>
-          <span>{t('Main file')}</span><strong>{project.rootFile?.slice(project.root.length + 1) || t('Choose main file')}</strong>
+        {project && <button className={`titlebar-main-file ${project.rootFile ? '' : 'needs-selection'}`} onClick={onOpenMain} title={project.rootFile || msg("app.choose.main.file")}>
+          <span>{msg("app.main.file")}</span><strong>{project.rootFile?.slice(project.root.length + 1) || msg("app.choose.main.file")}</strong>
         </button>}
-        <button className="workbench-tools-btn" onClick={onOpenPalette} title={t('Search tools (⌘K)')} aria-keyshortcuts="Meta+k Control+k">
-          <Search size={14} /><span>{t('Tools')}</span><kbd>{formatShortcut('⌘K')}</kbd>
+        <button className="workbench-tools-btn" onClick={onOpenPalette} title={msg("app.search.tools.k")} aria-keyshortcuts="Meta+k Control+k">
+          <Search size={14} /><span>{msg("app.tools")}</span><kbd>{formatShortcut('⌘K')}</kbd>
         </button>
         {project && (compiling ? (
           <div className="compile-status">
             <Loader2 size={11} className="spin" />
-            <span>{t('Typesetting')}</span>
+            <span>{msg("app.typesetting")}</span>
           </div>
         ) : compileResult && !compileResult.ok ? (
           <button className="compile-status compile-status-error" onClick={onShowProblems} title={compileResult.error || undefined}>
             <AlertCircle size={11} />
-            <span>{t('Compile failed')}{compileResult.errorCount ? ` · ${compileResult.errorCount}` : ''}</span>
+            <span>{msg("app.compile.failed")}{compileResult.errorCount ? ` · ${compileResult.errorCount}` : ''}</span>
           </button>
         ) : (
-          <button className="compile-status" onClick={onShowProblems} title={t('Show build diagnostics')} aria-label={t('Show build diagnostics')}>
+          <button className="compile-status" onClick={onShowProblems} title={msg("app.show.build.diagnostics")} aria-label={msg("app.show.build.diagnostics")}>
             {compileResult ? (
               <>
                 <Check size={11} className="success-text" />
-                <span>{formatDuration(compileResult.duration)}{compileResult.warningCount ? ` · ${compileResult.warningCount} ${t('warnings')}` : ''}</span>
+                <span>{formatDuration(compileResult.duration)}{compileResult.warningCount ? ` · ${compileResult.warningCount} ${msg("app.warnings.variant2")}` : ''}</span>
               </>
             ) : hasPdf ? (
-              <span className="muted">{t('PDF preview')}</span>
+              <span className="muted">{msg("app.pdf.preview")}</span>
             ) : null}
           </button>
         ))}
@@ -127,8 +127,8 @@ export function TitleBar({
           data-testid="toggle-pdf"
           className={`icon-btn ${pdfOpen ? 'active' : ''}`}
           onClick={onTogglePdf}
-          title={t('Toggle PDF preview')}
-          aria-label={t('Toggle PDF preview')}
+          title={msg("app.toggle.pdf.preview")}
+          aria-label={msg("app.toggle.pdf.preview")}
         >
           <PanelRight size={15} />
         </button>}
@@ -137,18 +137,18 @@ export function TitleBar({
           className={`compile-btn subtle-compile ${compiling ? 'cancel-build' : ''}`}
           onClick={compiling ? onCancel : onCompile}
           disabled={!project}
-          title={compiling ? t('Cancel compilation') : `${t('Compile main file · saves all changes')} · ${project?.rootFile?.split('/').pop() || t('Choose main file')} (${formatShortcut('⌘↩')})`}
+          title={compiling ? msg("app.cancel.compilation") : `${msg("app.compile.main.file.saves.all.changes")} · ${project?.rootFile?.split('/').pop() || msg("app.choose.main.file")} (${formatShortcut('⌘↩')})`}
         >
           {compiling ? <Square size={11} fill="currentColor" /> : <Play size={12} fill="currentColor" />}
-          <span>{compiling ? t('Cancel') : t('Compile')}</span>
+          <span>{compiling ? msg("app.cancel") : msg("app.compile")}</span>
         </button>}
 
         <button
           className={`icon-btn ${moreOpen ? 'active' : ''}`}
           data-testid="more-menu"
           onClick={(event) => { event.currentTarget.focus(); setMoreOpen((value) => !value); }}
-          title={t('More')}
-          aria-label={t('More')}
+          title={msg("app.more")}
+          aria-label={msg("app.more")}
           aria-expanded={moreOpen}
           aria-haspopup="dialog"
         >

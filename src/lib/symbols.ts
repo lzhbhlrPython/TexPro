@@ -26,7 +26,7 @@ const s = (id: string, name: string, latex: string, preview?: string, aliases?: 
 export const symbolModules: SymbolModule[] = [
   {
     id: 'greek',
-    name: 'Greek',
+    name: "app.greek",
     description: 'Lowercase and uppercase Greek letters',
     symbols: [
       s('alpha', 'alpha', '\\alpha'), s('beta', 'beta', '\\beta'), s('gamma', 'gamma', '\\gamma'),
@@ -47,7 +47,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'operators',
-    name: 'Operators',
+    name: "app.operators",
     description: 'Sums, integrals, fractions, roots and large operators',
     symbols: [
       s('sum', 'sum', '\\sum_{i=1}^{n}', '\\sum_{i=1}^{n}', ['sigma', 'total']),
@@ -78,7 +78,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'relations',
-    name: 'Relations',
+    name: "app.relations",
     description: 'Comparisons, set relations and approximations',
     symbols: [
       s('leq', 'less or equal', '\\leq', '\\leq', ['le']),
@@ -105,7 +105,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'logic',
-    name: 'Sets & Logic',
+    name: "app.sets.logic",
     description: 'Logic quantifiers, numbers and special sets',
     symbols: [
       s('forall', 'for all', '\\forall', '\\forall'),
@@ -128,7 +128,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'arrows',
-    name: 'Arrows',
+    name: "app.arrows",
     description: 'Mappings, implications and directional arrows',
     symbols: [
       s('to', 'to', '\\to', '\\to', ['rightarrow']),
@@ -148,7 +148,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'delimiters',
-    name: 'Delimiters',
+    name: "app.delimiters",
     description: 'Parentheses, brackets, angles and norms',
     symbols: [
       s('paren', 'parentheses', '\\left( \\right)', '\\left( x \\right)'),
@@ -166,7 +166,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'accents',
-    name: 'Accents',
+    name: "app.accents",
     description: 'Vectors, hats, bars and decorated symbols',
     symbols: [
       s('hat', 'hat', '\\hat{}', '\\hat{x}'),
@@ -185,7 +185,7 @@ export const symbolModules: SymbolModule[] = [
   },
   {
     id: 'structures',
-    name: 'Structures',
+    name: "app.structures",
     description: 'Matrices, cases, aligned equations and text',
     symbols: [
       s('pmatrix', 'parenthesized matrix', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}'),

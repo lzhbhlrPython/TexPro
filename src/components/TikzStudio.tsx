@@ -23,7 +23,7 @@ interface Props {
 const templates = [
   {
     id: 'axes',
-    name: 'Function plot',
+    name: "app.function.plot",
     source: String.raw`\begin{tikzpicture}[scale=1.1]
   \draw[->] (-0.2,0) -- (4.4,0) node[right] {$x$};
   \draw[->] (0,-0.2) -- (0,3.4) node[above] {$y$};
@@ -34,7 +34,7 @@ const templates = [
   },
   {
     id: 'flow',
-    name: 'Flowchart',
+    name: "app.flowchart",
     source: String.raw`\begin{tikzpicture}[
   node distance=1.5cm,
   box/.style={draw,rounded corners,fill=blue!8,minimum width=2.8cm,minimum height=0.9cm},
@@ -50,7 +50,7 @@ const templates = [
   },
   {
     id: 'geometry',
-    name: 'Geometry',
+    name: "app.geometry",
     source: String.raw`\begin{tikzpicture}[scale=1.2]
   \coordinate (A) at (0,0);
   \coordinate (B) at (4,0);
@@ -66,7 +66,7 @@ const templates = [
 ];
 
 export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose, onInsert }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [source, setSource] = useState(templates[0].source);
   const [preview, setPreview] = useState<string | null>(null);
   const [engine, setEngine] = useState<string | null>(null);
@@ -131,22 +131,22 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
           <div className="studio-heading">
             <div className="studio-icon"><PenTool size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Diagram studio')}</span>
+              <span className="modal-eyebrow">{msg("app.diagram.studio")}</span>
               <h2>TikZ Studio</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className={`studio-engine ${error ? 'failed' : preview ? 'ok' : ''}`}>
               {busy ? <Loader2 size={11} className="spin" /> : null}
-              {error ? t('Error') : engine || 'latex'}
+              {error ? msg("app.error") : engine || 'latex'}
             </span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="tikz-body">
           <div className="tikz-editor-pane">
-            <div className="pane-label"><Code2 size={12} /> {t('Diagram source')}</div>
+            <div className="pane-label"><Code2 size={12} /> {msg("app.diagram.source")}</div>
             <textarea
               ref={textareaRef}
               className="tikz-source"
@@ -155,38 +155,38 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
               spellCheck={false}
             />
             <div className="tikz-template-row">
-              <span><Sparkles size={11} /> {t('Templates')}</span>
+              <span><Sparkles size={11} /> {msg("app.templates")}</span>
               {templates.map((item) => (
-                <button key={item.id} onClick={() => setSource(item.source)}>{t(item.name)}</button>
+                <button key={item.id} onClick={() => setSource(item.source)}>{msg.text(item.name)}</button>
               ))}
             </div>
           </div>
 
           <div className="tikz-preview-pane">
             <div className="pane-label">
-              <Play size={12} /> {t('Preview')}
-              <button className="mini-refresh" onClick={() => setSource((value) => value + ' ')} title={t('Refresh')}>
+              <Play size={12} /> {msg("app.preview")}
+              <button className="mini-refresh" onClick={() => setSource((value) => value + ' ')} title={msg("app.refresh")}>
                 <RefreshCw size={11} />
               </button>
             </div>
             <div className="tikz-preview">
               {busy && !previewUrl && (
-                <div className="tikz-placeholder"><Loader2 size={18} className="spin" /> {t('Typesetting diagram…')}</div>
+                <div className="tikz-placeholder"><Loader2 size={18} className="spin" /> {msg("app.typesetting.diagram")}</div>
               )}
               {!busy && !previewUrl && !error && (
-                <div className="tikz-placeholder">{t('Preview will appear here.')}</div>
+                <div className="tikz-placeholder">{msg("app.preview.will.appear.here")}</div>
               )}
               {previewUrl && <TexArtwork src={previewUrl} alt="TikZ preview" />}
               {error && (
                 <div className="tikz-error-box">
-                  <strong>{t('Could not render this diagram')}</strong>
+                  <strong>{msg("app.could.not.render.this.diagram")}</strong>
                   <p>{error}</p>
                 </div>
               )}
             </div>
             {log && (
               <details className="tikz-studio-log">
-                <summary>{t('Show log')}</summary>
+                <summary>{msg("app.show.log")}</summary>
                 <pre>{log}</pre>
               </details>
             )}
@@ -194,9 +194,9 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('TikZ previews use the current document preamble and tools.')}</span>
+          <span className="studio-hint">{msg("app.tikz.previews.use.the.current.document.preamble.and.tools")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
           <button
             className="primary-btn"
             disabled={!preview || busy}
@@ -205,7 +205,7 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
               onClose();
             }}
           >
-            <PenTool size={13} /> {t('Insert diagram')}
+            <PenTool size={13} /> {msg("app.insert.diagram")}
           </button>
         </footer>
       </section>

@@ -3,36 +3,36 @@ import { Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Reveal } from '@/components/Reveal';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useT, useLocalize } from '@/i18n';
+import { useMessages, useLocalizedFields } from '@/i18n';
 
 const PATHS = [
   {
     key: 'overleaf',
-    from: '在线协作 / Overleaf',
-    keep: '工程还是那个工程：main.tex、.bib、图片目录原样拿回来，主文件自动识别。',
-    gain: '本地编译不再等队列；Git 面板直接提交，想推回远端也行。',
-    doc: { label: '工程与文件', to: '/docs/project' },
+    from: "site.online.collaboration.overleaf",
+    keep: "site.the.project.stays.the.project.main.tex.bib.and",
+    gain: "site.local.builds.no.longer.wait.in.a.queue.commit",
+    doc: { label: "site.projects.and.files", to: '/docs/project' },
   },
   {
     key: 'markdown',
-    from: 'Markdown / Typst 笔记',
-    keep: '导入时把标题层级、公式、表格、列表换成对应的 LaTeX 结构，剩下的正文照抄。',
-    gain: '同一份稿子既能继续用 Markdown 写，也能直接编译成投稿用的 PDF。',
-    doc: { label: '导入、模板与素材', to: '/docs/import' },
+    from: "site.markdown.typst.notes",
+    keep: "site.import.converts.headings.formulas.tables.and.lists.into.latex",
+    gain: "site.keep.writing.in.markdown.or.compile.straight.to.a",
+    doc: { label: "site.import.templates.and.assets", to: '/docs/import' },
   },
   {
     key: 'ide',
-    from: '传统 LaTeX IDE',
-    keep: '不用改导言区，也不用换编译命令：仍然由 latexmk 驱动，pdflatex / xelatex / lualatex 都在。',
-    gain: '多了正文内的可视化、双向定位与写作模式；快捷键有一张对照表。',
-    doc: { label: '快捷键', to: '/docs/shortcuts' },
+    from: "site.classic.latex.ides",
+    keep: "site.no.preamble.rewrite.no.new.build.command.latexmk.still",
+    gain: "site.you.gain.in.place.visuals.two.way.navigation.and",
+    doc: { label: "site.shortcuts", to: '/docs/shortcuts' },
   },
 ] as const;
 
 export function Migrate() {
-  const localize = useLocalize();
-  const t = useT();
-  const paths = localize(PATHS);
+  const localize = useLocalizedFields();
+  const msg = useMessages();
+  const paths = localize(PATHS, ["from","keep","gain"]);
   const { token } = theme.useToken();
   const navigate = useNavigate();
 
@@ -40,9 +40,9 @@ export function Migrate() {
     <section className="section section-alt" id="migrate">
       <div className="shell">
         <SectionHeading
-          eyebrow="迁移"
-          title="从哪来，都只搬一次"
-          description="三条常见路径：没人要求你重写导言区，也没有导入配额。"
+          eyebrow="site.switching"
+          title="site.wherever.you.come.from.you.move.once"
+          description="site.three.common.paths.nobody.asks.you.to.rewrite.the"
         />
 
         <div className="path-list">
@@ -50,7 +50,7 @@ export function Migrate() {
             <Reveal key={path.key} className="path-row" delay={index * 60}>
               <div className="path-from">
                 <span className="path-label" style={{ color: token.colorTextTertiary }}>
-                  {t('从')}
+                  {msg("site.from")}
                 </span>
                 <h3 className="path-title" style={{ color: token.colorTextHeading }}>
                   {path.from}
@@ -71,7 +71,7 @@ export function Migrate() {
                 iconPlacement="end"
                 icon={<ArrowRightOutlined />}
               >
-                {t(path.doc.label)}
+                {msg.text(path.doc.label)}
               </Button>
             </Reveal>
           ))}

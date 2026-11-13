@@ -30,7 +30,7 @@ const HEIGHT = 620;
 const COLUMNS: Record<GraphNode['type'], number> = { file: 150, label: 480, citation: 810 };
 
 export function ProjectGraph({ open, projectRoot, onClose, onOpen }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,14 +76,14 @@ export function ProjectGraph({ open, projectRoot, onClose, onOpen }: Props) {
           <div className="studio-heading">
             <div className="studio-icon"><Network size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Project structure')}</span>
-              <h2>{t('Citation & label graph')}</h2>
+              <span className="modal-eyebrow">{msg("app.project.structure")}</span>
+              <h2>{msg("app.citation.label.graph")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{nodes.length} {t('nodes')} · {edges.length} {t('edges')}</span>
-            <button className="secondary-btn" onClick={() => void load()} disabled={loading}><RefreshCw size={12} className={loading ? 'spin' : ''} /> {t('Re-scan')}</button>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.edges")}</span>
+            <button className="secondary-btn" onClick={() => void load()} disabled={loading}><RefreshCw size={12} className={loading ? 'spin' : ''} /> {msg("app.re.scan")}</button>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -92,13 +92,13 @@ export function ProjectGraph({ open, projectRoot, onClose, onOpen }: Props) {
             {(['file', 'label', 'citation'] as const).map((type) => (
               <label key={type} className="chart-check">
                 <input type="checkbox" checked={filter[type]} onChange={(event) => setFilter({ ...filter, [type]: event.target.checked })} />
-                <i className={`graph-dot ${type}`} /> {t(type === 'file' ? 'Files' : type === 'label' ? 'Labels' : 'Citations')}
+                <i className={`graph-dot ${type}`} /> {msg(type === 'file' ? "app.files.variant2" : type === 'label' ? "app.labels.variant2" : "app.citations")}
               </label>
             ))}
-            <p>{t('Click a node to jump to its source. Orphan labels are marked in amber.')}</p>
+            <p>{msg("app.click.a.node.to.jump.to.its.source.orphan")}</p>
           </aside>
           <div className="graph-canvas">
-            <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={t('Citation & label graph')}>
+            <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={msg("app.citation.label.graph")}>
               {edges.map((edge, index) => {
                 const from = positions.get(edge.from);
                 const to = positions.get(edge.to);
@@ -134,9 +134,9 @@ export function ProjectGraph({ open, projectRoot, onClose, onOpen }: Props) {
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Graph is built from \\label, \\ref, \\cite and \\input/\\include relationships.')}</span>
+          <span className="studio-hint">{msg("app.graph.is.built.from.label.ref.cite.and.input")}</span>
           <div className="spacer" />
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="primary-btn" onClick={onClose}>{msg("app.done")}</button>
         </footer>
       </section>
     </div>

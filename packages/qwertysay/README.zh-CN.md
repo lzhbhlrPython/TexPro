@@ -1,6 +1,6 @@
 # @texpro/qwertysay
 
-当前源码 **0.5.0** 增加直接发布 npm 源码与显式信任后的本地构建，依赖 SDK 0.4.0。
+当前源码 **0.6.0** 的语言脚手架采用第 2 版语义消息键，依赖 SDK 0.5.0。0.5.0 加入直接发布 npm 源码与显式信任后的本地构建。
 
 作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.4.1`** 加入语言包、npm／yarn 作者环境及经过审核的包管理同步。旧作用域的 `0.3.0` 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
 
@@ -11,7 +11,7 @@
 0.3.0 起，直接启动即可按步骤选择创建、构建、校验或打包，无需记住参数：
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 选择简体中文／English、操作、插件／主题、目录、包标识、作者和开发语言／样式。输入路径及配置预览后确认，默认回车取消，Ctrl+C／EOF 取消尚未开始的操作。主题的第一项是“仅修改主题色”：选择基础模式与强调色，只生成 manifest 和 LICENSE，无需 CSS、脚本或构建。
@@ -93,3 +93,9 @@ Security: compilation executes compilers, project configuration and source gener
 编译依赖安装脚本默认禁用。需要此类安装器时，qwertysay prepare 引导提供独立的、默认拒绝的信任选择；自动化须同时传 --trust-build 与 --trust-install-scripts。允许后第三方编译依赖安装脚本以用户权限运行，仅作用于本次临时构建，不改扩展环境的脚本禁用设置。缺少外部 Java／Go 等工具仍须自行安装。不得把同意构建等同于同意安装脚本。
 
 Compiler dependency lifecycle scripts are disabled by default. The prepare wizard offers a separate, default-deny trust choice; automation requires both --trust-build and --trust-install-scripts. Allowing them executes third-party dependency installers with user permissions for this temporary build only, without changing extension environment settings. External Java/Go tools still require installation. Build trust alone never grants installer-script trust.
+
+## 语言目录第 2 版与长文本
+
+宿主语言贡献声明 `catalogVersion: 2`，JSON 使用 `app.save` 等稳定语义键。SDK 0.5.0、qwertysay 0.6.0、中文包 2.0.0 需要配套宿主。旧正文键词典明确拒绝，不保留兼容层。重新生成 `reference/en.json`，按语义键填写译文并保留占位符，递增包版本后校验、打包；只改清单版本不够。缺译回退内置英文，未知语义键按当前 SDK 参考目录报告。
+
+文档、长信和教程按语言保存完整 Markdown、共用渲染器，不逐段建立 UI 键。功能插件保留自己的词典并按每次调用选择语言；技术 ID、路径与作者内容不参与翻译。固定英文恢复命令不能覆盖。源码版本、注册表发布与桌面 Release 分别核验，详见[迁移教程](https://texpro.pyliubaolin.top/docs/language-packs)。

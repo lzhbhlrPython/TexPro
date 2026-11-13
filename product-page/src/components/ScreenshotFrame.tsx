@@ -1,3 +1,4 @@
+import { PreviewImage } from './PreviewImage';
 import { theme } from 'antd';
 import type { CSSProperties } from 'react';
 
@@ -35,8 +36,8 @@ export function ScreenshotFrame({
         ...style,
       }}
     >
-      <img
-        src={src.startsWith('/') && !src.startsWith('//') ? `${import.meta.env.BASE_URL}${src.slice(1)}` : src}
+      <PreviewImage
+        src={src}
         alt={alt}
         width={width}
         height={height}

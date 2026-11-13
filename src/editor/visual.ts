@@ -7,7 +7,7 @@ import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, typ
 import { StateEffect, StateField, type EditorState, type Extension, type Range } from '@codemirror/state';
 import katex from 'katex';
 import { assetUrl, dirname, joinPath, parseDocumentTitle } from '../lib/latex';
-import { getLanguage, t } from '../i18n';
+import { getLanguage, msg } from '../i18n';
 import { themeTexArtwork } from '../lib/texArtwork';
 import { rasterizeTexPdf } from '../lib/texPdfArtwork';
 import { reviewedRanges } from './writingReview';
@@ -81,7 +81,7 @@ abstract class LatexWidget extends WidgetType {
       event.stopPropagation();
       activate(view, this.focusPos);
     });
-    dom.setAttribute('title', t('Click to edit LaTeX source'));
+    dom.setAttribute('title', msg("app.click.to.edit.latex.source"));
     dom.setAttribute('data-texpro-pos', String(this.focusPos));
   }
 }
@@ -92,9 +92,9 @@ class PlaceholderWidget extends LatexWidget {
   toDOM(view: EditorView) {
     const dom = document.createElement('span');
     dom.className = `cm-writing-placeholder${this.block ? ' is-block' : ''}`;
-    const labels = { text: 'Text placeholder', figure: 'Figure placeholder', table: 'Table placeholder', citation: 'Citation placeholder', data: 'Data placeholder' };
-    const label = document.createElement('small'); label.textContent = t(labels[this.item.kind]);
-    const description = document.createElement('span'); description.textContent = this.item.text === 'TODO' ? t('Describe what belongs here') : this.item.text.replace(/\\([%#$&_{}])/g, '$1');
+    const labels = { text: "app.text.placeholder", figure: "app.figure.placeholder", table: "app.table.placeholder", citation: "app.citation.placeholder", data: "app.data.placeholder" };
+    const label = document.createElement('small'); label.textContent = msg.text(labels[this.item.kind]);
+    const description = document.createElement('span'); description.textContent = this.item.text === 'TODO' ? msg("app.describe.what.belongs.here") : this.item.text.replace(/\\([%#$&_{}])/g, '$1');
     dom.append(label, description); this.bind(dom, view);
     dom.setAttribute('role', 'button'); dom.tabIndex = 0;
     dom.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(view, this.focusPos); } });
@@ -175,8 +175,8 @@ class SectionBadgeWidget extends LatexWidget {
   toDOM(view: EditorView) {
     const span = document.createElement('span');
     span.className = `cm-section-badge cm-section-badge-${this.level}`;
-    const labels: Record<string, string> = { part: 'Part', chapter: 'Chapter', section: 'Section', subsection: 'Subsection', subsubsection: 'Subsubsection', paragraph: 'Paragraph' };
-    span.textContent = t(labels[this.command] || 'Section');
+    const labels: Record<string, string> = { part: "app.part", chapter: "app.chapter", section: "app.section", subsection: "app.subsection", subsubsection: "app.subsubsection", paragraph: "app.paragraph" };
+    span.textContent = msg.text(labels[this.command] || "app.section");
     this.bind(span, view);
     return span;
   }
@@ -226,7 +226,7 @@ class ImageWidget extends LatexWidget {
       img.remove();
       const fallback = document.createElement('span');
       fallback.className = 'cm-image-fallback';
-      fallback.textContent = t('Missing image: {name}', { name: this.label });
+      fallback.textContent = msg("app.missing.image.name", { name: this.label });
       figure.appendChild(fallback);
     });
     figure.appendChild(img);
@@ -267,7 +267,7 @@ class TableWidget extends LatexWidget {
     wrap.appendChild(table);
     const hint = document.createElement('div');
     hint.className = 'cm-table-hint';
-    hint.textContent = `${t('n rows', { n: this.rows })} · ${t('click to edit source')}`;
+    hint.textContent = `${msg("app.n.rows", { n: this.rows })} · ${msg("app.click.to.edit.source")}`;
     wrap.appendChild(hint);
     this.bind(wrap, view);
 
@@ -299,7 +299,7 @@ class CodeBlockWidget extends LatexWidget {
     head.className = 'cm-code-head';
     const dot = document.createElement('i');
     const label = document.createElement('span');
-    label.textContent = this.language === 'code' || !this.language ? t('Code') : this.language;
+    label.textContent = this.language === 'code' || !this.language ? msg("app.code") : this.language;
     head.append(dot, label);
     const pre = document.createElement('pre');
     pre.textContent = this.code;
@@ -336,13 +336,13 @@ class PreambleWidget extends LatexWidget {
     const text = document.createElement('div');
     text.className = 'cm-preamble-text';
     const strong = document.createElement('strong');
-    strong.textContent = t('Preamble');
+    strong.textContent = msg("app.preamble");
     const detail = document.createElement('span');
-    detail.textContent = `${this.documentClass} · ${t('n packages', { n: this.packages })} · ${t('n lines hidden', { n: this.lines })}`;
+    detail.textContent = `${this.documentClass} · ${msg("app.n.packages", { n: this.packages })} · ${msg("app.n.lines.hidden", { n: this.lines })}`;
     text.append(strong, detail);
     const action = document.createElement('div');
     action.className = 'cm-preamble-action';
-    action.textContent = t('Reveal');
+    action.textContent = msg("app.reveal");
     wrap.append(icon, text, action);
     this.bind(wrap, view);
     return wrap;
@@ -372,12 +372,12 @@ class TitleWidget extends LatexWidget {
     wrap.className = 'cm-title-widget';
     const eyebrow = document.createElement('div');
     eyebrow.className = 'cm-title-eyebrow';
-    eyebrow.textContent = t('TITLE PAGE');
+    eyebrow.textContent = msg("app.title.page");
     const h1 = document.createElement('h1');
     h1.textContent = this.title || 'Untitled document';
     const meta = document.createElement('div');
     meta.className = 'cm-title-meta';
-    meta.textContent = [this.author, this.date === '\\today' ? t('Resolved at compile time') : this.date].filter(Boolean).join('  ·  ');
+    meta.textContent = [this.author, this.date === '\\today' ? msg("app.resolved.at.compile.time") : this.date].filter(Boolean).join('  ·  ');
     wrap.append(eyebrow, h1);
     if (meta.textContent) wrap.appendChild(meta);
     this.bind(wrap, view);
@@ -488,15 +488,15 @@ class TikzWidget extends LatexWidget {
     header.className = 'cm-tikz-header';
     const label = document.createElement('span');
     label.className = 'cm-tikz-label';
-    label.textContent = this.kind === 'chemistry' ? t('Chemical structure') : this.kind === 'circuit' ? t('Circuit / logic') : 'TikZ';
+    label.textContent = this.kind === 'chemistry' ? msg("app.chemical.structure") : this.kind === 'circuit' ? msg("app.circuit.logic") : 'TikZ';
     const status = document.createElement('span');
     status.className = 'cm-tikz-status';
-    status.textContent = t('rendering…');
+    status.textContent = msg("app.rendering");
     const studio = document.createElement('button');
     studio.type = 'button';
     studio.className = 'cm-tikz-studio';
-    studio.textContent = t('Studio');
-    studio.title = t('Open TikZ studio');
+    studio.textContent = msg("app.studio");
+    studio.title = msg("app.open.tikz.studio");
     studio.addEventListener('mousedown', (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -508,7 +508,7 @@ class TikzWidget extends LatexWidget {
     body.className = 'cm-tikz-body';
     const spinner = document.createElement('div');
     spinner.className = 'cm-tikz-spinner';
-    spinner.textContent = t('Typesetting diagram…');
+    spinner.textContent = msg("app.typesetting.diagram");
     body.appendChild(spinner);
     wrap.append(header, body);
     this.bind(body, view);
@@ -518,12 +518,12 @@ class TikzWidget extends LatexWidget {
       if (abort.signal.aborted || !body.isConnected) return;
       const message = document.createElement('div');
       message.className = 'cm-tikz-error';
-      message.textContent = result.error || t('TikZ rendering failed');
+      message.textContent = result.error || msg("app.tikz.rendering.failed");
       body.replaceChildren(message);
-      status.textContent = t('Render error'); status.classList.add('failed');
+      status.textContent = msg("app.render.error"); status.classList.add('failed');
       if (result.log) {
         const details = document.createElement('details'); details.className = 'cm-tikz-log';
-        const summary = document.createElement('summary'); summary.textContent = t('Show log');
+        const summary = document.createElement('summary'); summary.textContent = msg("app.show.log");
         const pre = document.createElement('pre'); pre.textContent = result.log.slice(-3000);
         details.append(summary, pre); wrap.appendChild(details);
       }
@@ -546,9 +546,9 @@ class TikzWidget extends LatexWidget {
         img.addEventListener('load', () => { if (!abort.signal.aborted && body.isConnected) { themeTexArtwork(frame, img); view.requestMeasure(); } });
         img.alt = 'TikZ diagram';
         img.loading = 'lazy';
-        img.addEventListener('error', () => showFailure({ ok: false, error: t('Could not load the rendered diagram.') }));
+        img.addEventListener('error', () => showFailure({ ok: false, error: msg("app.could.not.load.the.rendered.diagram") }));
         frame.appendChild(img); body.replaceChildren(frame);
-        status.textContent = result.cached ? t('Cached') : result.engine || t('Rendered');
+        status.textContent = result.cached ? msg("app.cached") : result.engine || msg("app.rendered");
         status.classList.add('ready');
       } else {
         showFailure(result);
@@ -579,7 +579,7 @@ class MusicDataWidget extends WidgetType {
   readonly locale = getLanguage();
   eq(other: MusicDataWidget) { return other.locale === this.locale; }
   toDOM() {
-    const dom = document.createElement('div'); dom.className = 'cm-music-data'; dom.textContent = t('Music data · preserved');
+    const dom = document.createElement('div'); dom.className = 'cm-music-data'; dom.textContent = msg("app.music.data.preserved");
     return dom;
   }
 }
@@ -660,7 +660,7 @@ class CaptionBadgeWidget extends LatexWidget {
   toDOM(view: EditorView) {
     const element = document.createElement('span');
     element.className = 'cm-caption-badge';
-    element.textContent = t('Caption');
+    element.textContent = msg("app.caption.variant2");
     this.bind(element, view);
     return element;
   }

@@ -2,13 +2,13 @@ import { Fragment, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { App, Button, theme } from 'antd';
 import type { DocBlock } from '@/lib/markdown';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 import { CodeHighlight } from './CodeHighlight';
 
 /** 行内标记：`代码`、**加粗**、[链接](地址)。其余按纯文本输出。 */
 export function inline(text: string): ReactNode {
   return text
-    .split(/(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\))/g)
+    .split(/(`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~|\[[^\]]+\]\([^)\s]+\))/g)
     .map((part, index) => {
       if (part.startsWith('`') && part.endsWith('`')) {
         return (
@@ -17,6 +17,7 @@ export function inline(text: string): ReactNode {
           </code>
         );
       }
+      if (part.startsWith('~~') && part.endsWith('~~')) return <del key={index}>{part.slice(2, -2)}</del>;
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={index}>{part.slice(2, -2)}</strong>;
       }
@@ -74,17 +75,17 @@ export function inline(text: string): ReactNode {
 function CodeBlock({ text, language }: { text: string; language?: string }) {
   const { token } = theme.useToken();
   const { message } = App.useApp();
-  const t = useT();
+  const msg = useMessages();
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      message.success(t('已复制'));
+      message.success(msg("site.copied"));
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
-      message.error(t('复制失败，请手动选择'));
+      message.error(msg("site.copy.failed.select.it.manually"));
     }
   };
 
@@ -105,10 +106,10 @@ function CodeBlock({ text, language }: { text: string; language?: string }) {
         size="small"
         className="code-copy"
         onClick={copy}
-        aria-label={t('复制代码')}
+        aria-label={msg("site.copy.code")}
         style={{ color: token.colorTextTertiary, background: token.colorBgContainer }}
       >
-        {copied ? t('已复制') : t('复制')}
+        {copied ? msg("site.copied") : msg("site.copy")}
       </Button>
     </div>
   );

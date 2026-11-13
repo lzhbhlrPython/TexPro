@@ -6,7 +6,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const site = (process.env.SITE_URL || 'https://lzhbhlrpython.github.io/TexStudioPro').replace(/\/$/, '');
 const blogBase = (process.env.SITE_URL || 'https://lzhbhlrpython.github.io/TexStudioPro').replace(/\/$/, '');
 
-const docsDir = path.join(root, 'src/content/docs');
+const docsDir = path.join(root, 'src/content/docs/zh');
 const blogDir = path.join(root, 'src/content/blog');
 const out = (name, body) => fs.writeFileSync(path.join(root, 'public', name), body);
 
@@ -57,7 +57,7 @@ lines.push('');
 lines.push('- 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。');
 lines.push('- 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。');
 lines.push('- 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。');
-lines.push(`- 中文文档 ${docs.length} 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。`);
+lines.push(`- 中文文档 ${docs.length} 篇，中英文分别位于 zh 与 en 目录，使用相同 slug；博客只写简体中文，只记录应用本体开发。`);
 lines.push('- 许可：MIT。');
 lines.push('');
 for (const [section, title, route] of [['use', '使用文档', 'docs'], ['develop', '开发文档', 'developers']]) {

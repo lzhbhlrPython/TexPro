@@ -3,7 +3,7 @@ import { Decoration, EditorView, WidgetType } from '@codemirror/view';
 import { isolateHistory } from '@codemirror/commands';
 import { writingRevisions, type WritingRevision } from '../lib/writingRevisions';
 import { composingWriting, writingComposition } from './writing';
-import { t } from '../i18n';
+import { msg } from '../i18n';
 
 export const reviewWriting = StateEffect.define<{ source: string; label: string } | null>();
 const keepRevision = StateEffect.define<WritingRevision>();
@@ -37,8 +37,8 @@ class RevisionWidget extends WidgetType {
     const dom = document.createElement('div'); dom.className = 'cm-writing-revision';
     if (this.hunk.before) { const before = document.createElement('pre'); before.className = 'cm-revision-before'; before.textContent = this.hunk.before; dom.appendChild(before); }
     const tools = document.createElement('div'); tools.className = 'cm-revision-tools';
-    for (const [label, restore] of [['Keep this change', false], ['Restore this passage', true]] as const) {
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = t(label);
+    for (const [label, restore] of [["app.keep.this.change", false], ["app.restore.this.passage", true]] as const) {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = msg(label);
       button.addEventListener('mousedown', e => e.preventDefault());
       button.addEventListener('click', () => {
         if (restore) view.dispatch({ changes: { from: this.hunk.from, to: this.hunk.to, insert: this.hunk.before }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() });

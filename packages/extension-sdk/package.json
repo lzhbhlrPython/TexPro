@@ -1,6 +1,6 @@
 {
   "name": "@texpro/extension-sdk",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "TeXPro API 1 TypeScript contracts, authoring helpers and shared .tpp/.tpt validation core",
   "license": "MIT",
   "types": "index.d.ts",

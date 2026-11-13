@@ -4,7 +4,7 @@ import { Reveal } from '@/components/Reveal';
 import { SITE_LINKS } from '@/config/constants';
 import { CLAIMS } from '@/data/claims';
 import { MCP_METRIC } from '@/data/site';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 
 const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 
@@ -12,20 +12,20 @@ const REPO = SITE_LINKS.repo.replace(/\/$/, '');
 const FIGURES = [
   {
     source: 'tests/',
-    figure: '137',
-    text: '条回归用例，21 个文件：主文件判定、SyncTeX 坐标、历史快照、保存与退出。',
+    figure: '158',
+    text: "site.metrics.regression.details",
     href: `${REPO}/tree/main/tests`,
   },
   {
     source: 'electron/',
     figure: '106',
-    text: '个 IPC 通道（100 个请求、6 类事件）。',
+    text: "site.ipc.channels.100.requests.and.6.event.types",
     href: `${REPO}/blob/main/electron/preload.cjs`,
   },
   {
     source: 'Releases',
     figure: '8',
-    text: '个安装包 / 次夜构，三平台同一份 main。',
+    text: "site.installers.per.nightly.build.all.three.platforms.from.the.variant2",
     href: SITE_LINKS.releases,
   },
   {
@@ -37,15 +37,15 @@ const FIGURES = [
 ];
 
 export function Proof() {
-  const t = useT();
+  const msg = useMessages();
 
   return (
     <section className="section section-proof" id="proof">
       <div className="shell">
         <SectionHeading
-          eyebrow="证据"
-          title="可以核对的部分"
-          description="正文里的每个上标都能在这里找到出处：左边是文件，右边是那句结论，编号与正文一一对应。"
+          eyebrow="site.evidence"
+          title="site.the.parts.you.can.verify"
+          description="site.every.superscript.on.this.page.points.back.here.the"
         />
 
         <Reveal>
@@ -55,7 +55,7 @@ export function Proof() {
                 <a className="ref-line" href={claim.href} target="_blank" rel="noreferrer">
                   <span className="ref-num">[{index + 1}]</span>
                   <span className="ref-source">{claim.file}</span>
-                  <span className="ref-text">{t(claim.note)}</span>
+                  <span className="ref-text">{msg.text(claim.note)}</span>
                 </a>
               </li>
             ))}
@@ -68,7 +68,7 @@ export function Proof() {
                 <span className="ref-source">{row.source}</span>
                 <span className="ref-text">
                   <span className="proof-figure">{row.figure}</span>
-                  {t(row.text)}
+                  {msg.text(row.text)}
                 </span>
               </>
             );

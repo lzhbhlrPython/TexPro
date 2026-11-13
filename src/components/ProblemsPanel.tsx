@@ -41,7 +41,7 @@ export function ProblemsPanel({
   onToggle,
   onDiagnosticClick,
 }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [tab, setTab] = useState<'problems' | 'log'>('problems');
   useEffect(() => { if (logRequest) setTab('log'); }, [logRequest]);
   const [filter, setFilter] = useState<'all' | 'error' | 'warning'>('all');
@@ -64,7 +64,7 @@ export function ProblemsPanel({
       <div className="problems-collapsed">
         <button className="problems-toggle" onClick={onToggle}>
           <Terminal size={12} />
-          <span>{t('Problems')}</span>
+          <span>{msg("app.problems")}</span>
           {errors > 0 && <span className="count-pill error">{errors}</span>}
           {warnings > 0 && <span className="count-pill warning">{warnings}</span>}
           {!compiling && compileResult?.ok && <CheckCircle2 size={12} className="success-text" />}
@@ -79,12 +79,12 @@ export function ProblemsPanel({
       <header className="problems-header">
         <div className="problems-tabs">
           <button className={tab === 'problems' ? 'active' : ''} onClick={() => setTab('problems')}>
-            {t('Problems')}
+            {msg("app.problems")}
             {errors > 0 && <span className="count-pill error">{errors}</span>}
             {warnings > 0 && <span className="count-pill warning">{warnings}</span>}
           </button>
           <button className={tab === 'log' ? 'active' : ''} onClick={() => setTab('log')}>
-            {t('Compile log')}
+            {msg("app.compile.log")}
             {compiling && <Loader2 size={11} className="spin" />}
           </button>
         </div>
@@ -97,7 +97,7 @@ export function ProblemsPanel({
                   className={filter === value ? 'active' : ''}
                   onClick={() => setFilter(value)}
                 >
-                  {value === 'all' ? t('All') : value === 'error' ? t('Errors') : t('Warnings')}
+                  {value === 'all' ? msg("app.all") : value === 'error' ? msg("app.errors") : msg("app.warnings")}
                 </button>
               ))}
             </div>
@@ -105,14 +105,14 @@ export function ProblemsPanel({
           {compileResult && !compiling && (
             <span className={`compile-summary ${compileResult.ok ? 'ok' : 'failed'}`}>
               {compileResult.ok
-                ? t('Compiled in {duration}', { duration: formatDuration(compileResult.duration) })
-                : compileResult.error || t('n errors', { n: errors })}
+                ? msg("app.compiled.in.duration", { duration: formatDuration(compileResult.duration) })
+                : compileResult.error || msg("app.n.errors", { n: errors })}
             </span>
           )}
-          <button className="icon-btn" onClick={onToggle} title={t('Collapse panel')}>
+          <button className="icon-btn" onClick={onToggle} title={msg("app.collapse.panel")}>
             <ChevronDown size={14} />
           </button>
-          <button className="icon-btn" onClick={onToggle} title={t('Close')}>
+          <button className="icon-btn" onClick={onToggle} title={msg("app.close")}>
             <X size={13} />
           </button>
         </div>
@@ -123,13 +123,13 @@ export function ProblemsPanel({
           {compiling && (
             <div className="problem-empty">
               <Loader2 size={15} className="spin" />
-              <span>{t('Compiling… diagnostics will appear here.')}</span>
+              <span>{msg("app.compiling.diagnostics.will.appear.here")}</span>
             </div>
           )}
           {!compiling && visible.length === 0 && (
             <div className="problem-empty success">
               <CheckCircle2 size={16} />
-              <span>{diagnostics.length === 0 ? t('No problems found.') : t('No problems match this filter.')}</span>
+              <span>{diagnostics.length === 0 ? msg("app.no.problems.found") : msg("app.no.problems.match.this.filter")}</span>
             </div>
           )}
           {!compiling &&
@@ -141,7 +141,7 @@ export function ProblemsPanel({
                 title={[diagnostic.message, diagnostic.file].filter(Boolean).join('\n')}
               >
                 {severityIcon(diagnostic.severity)}
-                <span className="problem-message">{diagnostic.source === 'placeholder' && diagnostic.message.startsWith('Unresolved placeholder: ') ? t('Unresolved placeholder: {text}', { text: diagnostic.message.slice(24) }) : diagnostic.message}</span>
+                <span className="problem-message">{diagnostic.source === 'placeholder' && diagnostic.message.startsWith('Unresolved placeholder: ') ? msg("app.unresolved.placeholder.text", { text: diagnostic.message.slice(24) }) : diagnostic.message}</span>
                 <span className="problem-location">
                   {diagnostic.file ? basename(diagnostic.file) : ''}
                   {diagnostic.line ? `:${diagnostic.line}` : ''}
@@ -151,7 +151,7 @@ export function ProblemsPanel({
         </div>
       ) : (
         <pre className="compile-log" ref={logRef}>
-          {log || t('Compile output will appear here.')}
+          {log || msg("app.compile.output.will.appear.here")}
         </pre>
       )}
     </section>

@@ -160,7 +160,7 @@ PRs are welcome, but keep changes focused:
 
 ### Improving Documentation
 
-The product page documentation lives in `product-page/src/content/docs/`; each file is one page, and the front matter determines the title, group, and order. When writing:
+The product page documentation lives in `product-page/src/content/docs/{locale}/`. The `zh/` and `en/` directories are peers, with matching filenames and slugs. Each file contains a complete localized document; the front matter determines its title, group, and order. When writing:
 
 - Facts must follow the source code and repository documentation; do not document unimplemented features
 - Organize content with `##` and `###`, and write tables and notes the way the existing pages do

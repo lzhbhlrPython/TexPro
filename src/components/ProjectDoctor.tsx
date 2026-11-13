@@ -36,7 +36,7 @@ interface Props {
 }
 
 export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssue, onCleanBuild }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [report, setReport] = useState<Report | null>(null);
   const generation = useRef(0);
   const [loading, setLoading] = useState(false);
@@ -75,49 +75,49 @@ export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssu
           <div className="studio-heading">
             <div className="studio-icon"><Stethoscope size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Project health')}</span>
-              <h2>{t('TeX environment & project doctor')}</h2>
+              <span className="modal-eyebrow">{msg("app.project.health")}</span>
+              <h2>{msg("app.tex.environment.project.doctor")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <button className="secondary-btn" onClick={() => void scan()} disabled={loading}>
-              {loading ? <Loader2 size={12} className="spin" /> : <RefreshCw size={12} />} {t('Re-scan')}
+              {loading ? <Loader2 size={12} className="spin" /> : <RefreshCw size={12} />} {msg("app.re.scan")}
             </button>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="doctor-body">
           <div className="doctor-column">
-            <div className="pane-label"><Stethoscope size={12} /> {t('TeX tools')}</div>
+            <div className="pane-label"><Stethoscope size={12} /> {msg("app.tex.tools")}</div>
             <div className="doctor-tools">
               {report?.tools.map((tool) => (
                 <div className={`doctor-tool ${tool.ok ? 'ok' : tool.required ? 'bad' : 'warn'}`} key={tool.name}>
                   {tool.ok ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                   <strong>{tool.name}</strong>
-                  <span>{tool.ok ? t('ready') : t('not found')}</span>
+                  <span>{tool.ok ? msg("app.ready.variant2") : msg("app.not.found")}</span>
                 </div>
               ))}
-              {!report && loading && <div className="panel-empty"><Loader2 size={15} className="spin" /> {t('Checking TeX Live…')}</div>}
+              {!report && loading && <div className="panel-empty"><Loader2 size={15} className="spin" /> {msg("app.checking.tex.live")}</div>}
             </div>
             {report && !report.tools.find((tool) => tool.name === 'latexmk')?.ok && (
               <div className="doctor-setup">
-                <strong>{t('A local TeX distribution is required')}</strong>
-                <p>{t('Install TeX Live (or MacTeX on macOS), then restart TeXPro so latexmk and SyncTeX are available.')}</p>
+                <strong>{msg("app.a.local.tex.distribution.is.required")}</strong>
+                <p>{msg("app.install.tex.live.or.mactex.on.macos.then.restart")}</p>
               </div>
             )}
             <div className="doctor-stats">
-              <div><strong>{report?.stats.files ?? '—'}</strong><span>{t('source files')}</span></div>
-              <div><strong>{report?.stats.labels ?? '—'}</strong><span>{t('labels')}</span></div>
-              <div><strong>{report?.stats.bibKeys ?? '—'}</strong><span>{t('bib keys')}</span></div>
-              <div><strong>{report?.stats.unusedLabels ?? '—'}</strong><span>{t('unused labels')}</span></div>
+              <div><strong>{report?.stats.files ?? '—'}</strong><span>{msg("app.source.files")}</span></div>
+              <div><strong>{report?.stats.labels ?? '—'}</strong><span>{msg("app.labels")}</span></div>
+              <div><strong>{report?.stats.bibKeys ?? '—'}</strong><span>{msg("app.bib.keys")}</span></div>
+              <div><strong>{report?.stats.unusedLabels ?? '—'}</strong><span>{msg("app.unused.labels")}</span></div>
             </div>
           </div>
 
           <div className="doctor-column doctor-issues-column">
             <div className="pane-label">
-              <AlertTriangle size={12} /> {t('Issues')}
-              <span className="pane-hint">{errors.length} {t('errors')} · {warnings.length} {t('warnings')}</span>
+              <AlertTriangle size={12} /> {msg("app.issues")}
+              <span className="pane-hint">{errors.length} {msg("app.errors.variant2")} · {warnings.length} {msg("app.warnings.variant2")}</span>
             </div>
             {error && <div className="doctor-error">{error}</div>}
             <div className="doctor-issues">
@@ -138,8 +138,8 @@ export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssu
               {report && !report.issues.length && (
                 <div className="doctor-clean">
                   <CheckCircle2 size={26} />
-                  <strong>{t('No project issues found')}</strong>
-                  <p>{t('References, includes, images and labels look consistent.')}</p>
+                  <strong>{msg("app.no.project.issues.found")}</strong>
+                  <p>{msg("app.references.includes.images.and.labels.look.consistent")}</p>
                 </div>
               )}
             </div>
@@ -147,10 +147,10 @@ export function ProjectDoctor({ open, projectRoot, buildDir, onClose, onOpenIssu
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Build artifacts are stored in {dir}', { dir: buildDir })}</span>
+          <span className="studio-hint">{msg("app.build.artifacts.are.stored.in.dir", { dir: buildDir })}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={async () => { await onCleanBuild(); await scan(); }}><Trash2 size={12} /> {t('Clean build')}</button>
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="secondary-btn" onClick={async () => { await onCleanBuild(); await scan(); }}><Trash2 size={12} /> {msg("app.clean.build")}</button>
+          <button className="primary-btn" onClick={onClose}>{msg("app.done")}</button>
         </footer>
       </section>
     </div>

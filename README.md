@@ -103,3 +103,5 @@ pnpm dev
 语言插件与包管理：[语言包](docs/language-packs.md)、[npm／yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。
 
 直接发布到 npm 的源码包可能需要单独确认信任后在本机编译，再导入应用。包管理器安装、构建与启用插件是不同的信任判断；禁用安装脚本不是安全沙箱。
+
+界面短文案采用稳定语义键 JSON；语言包目录第 2 版不兼容旧正文键包。彩蛋、文档和长说明按语言保存完整 Markdown。翻译维护、SDK／脚手架配套版本与迁移步骤见 [语言包指南](docs/language-packs.md)。

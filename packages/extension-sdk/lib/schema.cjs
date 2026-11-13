@@ -43,7 +43,9 @@ function validateManifest(input) {
   }
   const localeIds = new Set();
   for (const locale of c.locales) {
-    const id = require('./locales.cjs').localeId(locale?.id);
+    const { localeId, LOCALE_CATALOG_VERSION } = require('./locales.cjs');
+    assert(locale?.catalogVersion === LOCALE_CATALOG_VERSION, 'Language catalogue version 2 required; migrate old phrase-key language packs');
+    const id = localeId(locale?.id);
     assert(!localeIds.has(id) && text(locale.title, 100), 'Invalid or duplicate language');
     relative(locale.messages); assert(/\.json$/.test(locale.messages), 'Language messages must be JSON');
     locale.id = id; localeIds.add(id);

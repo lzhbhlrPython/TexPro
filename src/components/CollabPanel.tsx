@@ -17,7 +17,7 @@ interface Props {
 const colors = ['#b4532a', '#3f7d62', '#477a9a', '#8a6a9d'];
 
 export function CollabPanel({ open, activeFile, content, onClose, onSessionChange }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [url, setUrl] = useState('');
   const [joinUrl, setJoinUrl] = useState('');
   const [connected, setConnected] = useState(false);
@@ -58,7 +58,7 @@ export function CollabPanel({ open, activeFile, content, onClose, onSessionChang
     if (activeFile !== sessionFileRef.current) {
       teardown();
       void window.texpro.stopCollab();
-      setNotice(t('Session ended because the active file changed.'));
+      setNotice(msg("app.session.ended.because.the.active.file.changed"));
     }
   }, [activeFile, connected]);
 
@@ -90,7 +90,7 @@ export function CollabPanel({ open, activeFile, content, onClose, onSessionChang
         socket.send(JSON.stringify({ type: 'presence', name }));
         setupAwarenessRelay(socket, awareness);
         window.setTimeout(() => { if (docRef.current === doc) onSessionChange(extension, activeFile); }, 80);
-        setNotice(seed ? t('Session started. The main editor is now shared.') : t('Connected. The main editor is now shared.'));
+        setNotice(seed ? msg("app.session.started.the.main.editor.is.now.shared") : msg("app.connected.the.main.editor.is.now.shared"));
       };
       socket.onmessage = (event) => {
         if (typeof event.data === 'string') {
@@ -107,7 +107,7 @@ export function CollabPanel({ open, activeFile, content, onClose, onSessionChang
         }
         Y.applyUpdate(doc, new Uint8Array(event.data), 'remote');
       };
-      socket.onerror = () => setNotice(t('Connection failed. Check the LAN address.'));
+      socket.onerror = () => setNotice(msg("app.connection.failed.check.the.lan.address"));
       socket.onclose = () => { setConnected(false); };
       doc.on('update', (update, origin) => {
         if (origin === 'remote') return;
@@ -152,48 +152,48 @@ export function CollabPanel({ open, activeFile, content, onClose, onSessionChang
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><Network size={18} /></div>
-            <div><span className="modal-eyebrow">{t('Collaboration')}</span><h2>{t('Writing room')}</h2></div>
+            <div><span className="modal-eyebrow">{msg("app.collaboration")}</span><h2>{msg("app.writing.room")}</h2></div>
           </div>
           <div className="studio-header-actions">
-            <span className={`studio-engine ${connected ? 'ok' : ''}`}>{connected ? `${peers} ${t('online')}` : t('Offline')}</span>
+            <span className={`studio-engine ${connected ? 'ok' : ''}`}>{connected ? `${peers} ${msg("app.online")}` : msg("app.offline")}</span>
             <button className="icon-btn" onClick={hide}><X size={16} /></button>
           </div>
         </header>
         <div className="collab-body">
           <aside className="collab-side">
-            <div className="pane-label"><Radio size={12} /> {t('Host a session')}</div>
-            <label className="workshop-field"><span>{t('Your name')}</span><input value={name} onChange={(event) => { setName(event.target.value); localStorage.setItem('texpro.collab.name', event.target.value); }} /></label>
-            <p className="schematic-hint">{t('Only devices on the same local network can join. The main editor becomes the shared document.')}</p>
-            <button className="primary-btn" onClick={() => void host()} disabled={busy || connected}>{t('Start hosting')}</button>
+            <div className="pane-label"><Radio size={12} /> {msg("app.host.a.session")}</div>
+            <label className="workshop-field"><span>{msg("app.your.name")}</span><input value={name} onChange={(event) => { setName(event.target.value); localStorage.setItem('texpro.collab.name', event.target.value); }} /></label>
+            <p className="schematic-hint">{msg("app.only.devices.on.the.same.local.network.can.join.variant2")}</p>
+            <button className="primary-btn" onClick={() => void host()} disabled={busy || connected}>{msg("app.start.hosting")}</button>
             {url && (
               <div className="collab-link">
                 <input value={url} readOnly />
-                <button className="icon-btn" onClick={() => void navigator.clipboard?.writeText(url)} title={t('Copy link')}><Copy size={12} /></button>
+                <button className="icon-btn" onClick={() => void navigator.clipboard?.writeText(url)} title={msg("app.copy.link")}><Copy size={12} /></button>
               </div>
             )}
-            <div className="pane-label collaborate-join"><Users size={12} /> {t('Join a session')}</div>
+            <div className="pane-label collaborate-join"><Users size={12} /> {msg("app.join.a.session")}</div>
             <input className="collab-input" value={joinUrl} onChange={(event) => setJoinUrl(event.target.value)} placeholder="ws://192.168.1.8:4177?room=…" />
-            <button className="secondary-btn" onClick={() => void connect(joinUrl, '')} disabled={!joinUrl || busy}>{t('Join')}</button>
-            <button className="danger-btn" onClick={leave}><Square size={11} /> {t('Leave room')}</button>
+            <button className="secondary-btn" onClick={() => void connect(joinUrl, '')} disabled={!joinUrl || busy}>{msg("app.join")}</button>
+            <button className="danger-btn" onClick={leave}><Square size={11} /> {msg("app.leave.room")}</button>
           </aside>
           <main className="collab-main">
             <div className="collab-main-head">
-              <span>{activeFile ? activeFile.split('/').pop() : t('Shared draft')}</span>
-              <div className="collab-people">{names.length ? names.map((person, index) => <span key={`${person}-${index}`} className={`collab-person tone-${index % 4}`}><i>{person.slice(0, 1).toUpperCase()}</i>{person}</span>) : <small>{t('Yjs CRDT · live cursors')}</small>}</div>
+              <span>{activeFile ? activeFile.split('/').pop() : msg("app.shared.draft")}</span>
+              <div className="collab-people">{names.length ? names.map((person, index) => <span key={`${person}-${index}`} className={`collab-person tone-${index % 4}`}><i>{person.slice(0, 1).toUpperCase()}</i>{person}</span>) : <small>{msg("app.yjs.crdt.live.cursors")}</small>}</div>
             </div>
             <div className="collab-editor-state">
               <Network size={24} />
-              <strong>{connected ? t('The main editor is shared') : t('Connect to start a writing room')}</strong>
-              <span>{connected ? t('Type in the editor behind this panel. Cursors, selections and text sync through Yjs.') : t('Host a room or join a LAN link; the document stays in the main CodeMirror editor.')}</span>
-              {connected && <div className="collab-live-badge"><span /><span /><span /> {t('Live sync active')}</div>}
+              <strong>{connected ? msg("app.the.main.editor.is.shared") : msg("app.connect.to.start.a.writing.room")}</strong>
+              <span>{connected ? msg("app.type.in.the.editor.behind.this.panel.cursors.selections") : msg("app.host.a.room.or.join.a.lan.link.the")}</span>
+              {connected && <div className="collab-live-badge"><span /><span /><span /> {msg("app.live.sync.active")}</div>}
             </div>
             {notice && <div className="collab-notice">{notice}</div>}
           </main>
         </div>
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Yjs merges concurrent edits. The file remains the document of record.')}</span>
+          <span className="studio-hint">{msg("app.yjs.merges.concurrent.edits.the.file.remains.the.document")}</span>
           <div className="spacer" />
-          <button className="primary-btn" onClick={hide}>{t('Back to document')}</button>
+          <button className="primary-btn" onClick={hide}>{msg("app.back.to.document")}</button>
         </footer>
       </section>
     </div>

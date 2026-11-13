@@ -1,5 +1,6 @@
 import { GROUP_LABELS, topicsFor } from '@/content/docs';
 import { BLOG_POSTS } from '@/content/blog';
+import type { MessageId } from '@/i18n/catalog';
 import type { DocBlock } from '@/lib/markdown';
 
 export interface SearchHit {
@@ -39,11 +40,11 @@ function blocksToText(blocks: DocBlock[]): string {
 const cache = new Map<'zh' | 'en', SearchHit[]>();
 
 /** 文档 + 博客建一份内存索引；内容只在构建期变化，所以每种语言只建一次。 */
-export function searchIndex(locale: 'zh' | 'en' = 'zh'): SearchHit[] {
+export function searchIndex(locale: 'zh' | 'en', message: (id: MessageId) => string): SearchHit[] {
   const cached = cache.get(locale);
   if (cached) return cached;
 
-  const blogWord = locale === 'en' ? 'Blog' : '博客';
+  const blogWord = message('site.blog');
 
   const docs: SearchHit[] = topicsFor(locale).map((topic) => ({
     id: `doc-${topic.slug}`,
@@ -51,7 +52,7 @@ export function searchIndex(locale: 'zh' | 'en' = 'zh'): SearchHit[] {
     title: topic.title,
     summary: topic.summary,
     to: `/docs/${topic.slug}`,
-    meta: `${locale === 'en' ? (topic.section === 'develop' ? 'Developer docs' : 'User guide') : (topic.section === 'develop' ? '开发文档' : '使用文档')} · ${locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}`,
+    meta: `${message(topic.section === 'develop' ? 'site.developer.docs' : 'site.user.guide')} · ${GROUP_LABELS[topic.group] ? message(GROUP_LABELS[topic.group]) : topic.group}`,
     haystack: `${topic.title} ${topic.summary} ${blocksToText(topic.blocks)}`.toLowerCase(),
   }));
 
@@ -71,7 +72,7 @@ export function searchIndex(locale: 'zh' | 'en' = 'zh'): SearchHit[] {
 }
 
 /** 多个关键词按「全部命中」匹配，结果按标题命中优先排序。 */
-export function searchAll(query: string, limit = 8, locale: 'zh' | 'en' = 'zh'): SearchHit[] {
+export function searchAll(query: string, limit: number, locale: 'zh' | 'en', message: (id: MessageId) => string): SearchHit[] {
   const terms = query
     .toLowerCase()
     .split(/\s+/)
@@ -79,7 +80,7 @@ export function searchAll(query: string, limit = 8, locale: 'zh' | 'en' = 'zh'):
     .filter(Boolean);
   if (!terms.length) return [];
 
-  return searchIndex(locale)
+  return searchIndex(locale, message)
     .filter((hit) => terms.every((term) => hit.haystack.includes(term)))
     .sort((a, b) => {
       const at = a.title.toLowerCase().includes(terms[0]) ? 0 : 1;

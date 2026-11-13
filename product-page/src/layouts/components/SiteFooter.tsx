@@ -6,7 +6,7 @@ import { useRelease } from '@/hooks/useRelease';
 import { FOOTER_GROUPS } from '@/data/site';
 import { useGoSection } from '@/lib/section';
 import { AppLogo } from '@/layouts/components/AppLogo';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 const { Text, Link } = Typography;
@@ -14,10 +14,10 @@ const { Text, Link } = Typography;
 export function SiteFooter() {
   const release = useRelease();
   const goSection = useGoSection();
-  const t = useT();
-  const localize = useLocalize();
-  const channelLabel = t(release.channel === 'nightly' ? '夜间构建' : '正式版');
-  const groups = localize(FOOTER_GROUPS);
+  const msg = useMessages();
+  const localize = useLocalizedFields();
+  const channelLabel = msg(release.channel === 'nightly' ? "site.nightly" : "site.stable");
+  const groups = localize(FOOTER_GROUPS, ["title","links"]).map(group => ({ ...group, links: group.links.map(link => ({ ...link, label: msg.text(link.label) })) }));
   const { canInstall, install } = useInstallPrompt();
   const { token } = theme.useToken();
 
@@ -31,7 +31,7 @@ export function SiteFooter() {
           <div className="foot-brand">
             <AppLogo />
             <Text type="secondary" style={{ display: 'block', marginTop: 12, fontSize: 13 }}>
-              {t('本地优先的 LaTeX 工作台。')}
+              {msg("site.a.local.first.latex.workbench")}
             </Text>
             <Flex gap={12} align="center" style={{ marginTop: 16 }}>
               <Button
@@ -45,7 +45,7 @@ export function SiteFooter() {
               </Button>
               {canInstall ? (
                 <Button size="small" icon={<DownloadOutlined />} onClick={install}>
-                  {t('安装到桌面')}
+                  {msg("site.install.app")}
                 </Button>
               ) : null}
               <Link
@@ -54,7 +54,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 style={{ fontSize: 13, color: token.colorTextSecondary }}
               >
-                {t('问题反馈')}
+                {msg("site.issues")}
               </Link>
             </Flex>
           </div>
@@ -69,7 +69,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     {'to' in link && link.to ? (
                       <RouterLink to={link.to} style={{ color: token.colorTextSecondary }}>
-                        {t(link.label)}
+                        {msg.text(link.label)}
                       </RouterLink>
                     ) : (
                       <a
@@ -85,7 +85,7 @@ export function SiteFooter() {
                         }}
                         style={{ color: token.colorTextSecondary }}
                       >
-                        {t(link.label)}
+                        {msg.text(link.label)}
                       </a>
                     )}
                   </li>
@@ -97,7 +97,7 @@ export function SiteFooter() {
         </div>
 
         <div className="foot-meta" style={{ color: token.colorTextTertiary }}>
-          <span>{t('版本')} v{release.version} · {channelLabel}</span>
+          <span>{msg("site.version")} v{release.version} · {channelLabel}</span>
           <span>Electron · React · Ant Design</span>
           <Link href={SITE_LINKS.license} target="_blank" rel="noreferrer" style={{ color: 'inherit' }}>
             MIT License
@@ -122,7 +122,7 @@ export function SiteFooter() {
               MIT License
             </Link>
           </span>
-          <span>{t('本页无账号、无跟踪脚本，也不收集使用数据。')}</span>
+          <span>{msg("site.no.accounts.no.tracking.scripts.no.usage.data.on")}</span>
         </div>
       </div>
     </footer>

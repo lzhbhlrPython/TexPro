@@ -8,6 +8,17 @@
     <lastBuildDate>Thu, 12 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>从正文查词到稳定消息键：语言资源的一次重整</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents</guid>
+      <pubDate>Thu, 12 Nov 2026 16:00:00 GMT</pubDate>
+      <description>桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。</description>
+      <category>i18n</category>
+      <category>扩展</category>
+      <category>SDK</category>
+      <category>qwertysay</category>
+    </item>
+    <item>
       <title>扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions</guid>

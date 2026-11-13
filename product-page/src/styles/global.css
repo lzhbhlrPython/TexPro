@@ -3839,3 +3839,10 @@ html[lang='en'] .qwerty-code {
   /* The shared header menu already provides section switching on narrow screens. */
   .docs-section-links { display: none; }
 }
+
+/* The letter is one Markdown document; typography follows document structure. */
+.qwerty-prose .docs-p:first-child { text-indent: 0; margin-bottom: 28px; }
+.qwerty-prose .docs-p:nth-last-child(-n+4) { text-indent: 0; text-align: right; }
+.qwerty-prose .docs-inline-code { color: inherit; background: none; border: 0; }
+
+.preview-image-error { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: var(--site-muted); background: var(--site-bg); }

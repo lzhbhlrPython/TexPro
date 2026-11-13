@@ -111,7 +111,7 @@ function containsPath(node: FileNode, path: string): boolean {
 interface TreeDraft { parent: string; kind: 'file' | 'folder'; name: string; busy: boolean; error: string }
 interface TreeCreationProps { draft: TreeDraft | null; onName: (name: string) => void; onSubmit: () => void; onCancel: () => void }
 function TreeCreation({ draft, onName, onSubmit, onCancel, depth = 0 }: TreeCreationProps & { depth?: number }) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!draft?.busy) input.current?.focus(); }, [draft?.parent, draft?.kind, draft?.busy]);
   if (!draft) return null;
@@ -121,9 +121,9 @@ function TreeCreation({ draft, onName, onSubmit, onCancel, depth = 0 }: TreeCrea
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onCancel(); }
   }}>
     <div className="tree-create-row">{draft.kind === 'file' ? <FilePlus2 size={13} /> : <FolderPlus size={13} />}
-      <input ref={input} aria-label={t(draft.kind === 'file' ? 'New file name' : 'New folder name')} aria-invalid={Boolean(draft.error)} aria-describedby={draft.error ? 'tree-create-error' : undefined} placeholder={draft.kind === 'file' ? 'section.tex' : 'sections'} value={draft.name} disabled={draft.busy} onChange={event => onName(event.target.value)} />
-      <button type="submit" className="mini-btn" disabled={draft.busy || !draft.name.trim()} title={t('Create')} aria-label={t('Create')}>{draft.busy ? <Loader2 size={13} className="spin" /> : <Check size={13} />}</button>
-      <button type="button" className="mini-btn" disabled={draft.busy} onClick={onCancel} title={t('Cancel')} aria-label={t('Cancel')}><X size={13} /></button>
+      <input ref={input} aria-label={msg(draft.kind === 'file' ? "app.new.file.name" : "app.new.folder.name")} aria-invalid={Boolean(draft.error)} aria-describedby={draft.error ? 'tree-create-error' : undefined} placeholder={draft.kind === 'file' ? 'section.tex' : 'sections'} value={draft.name} disabled={draft.busy} onChange={event => onName(event.target.value)} />
+      <button type="submit" className="mini-btn" disabled={draft.busy || !draft.name.trim()} title={msg("app.create")} aria-label={msg("app.create")}>{draft.busy ? <Loader2 size={13} className="spin" /> : <Check size={13} />}</button>
+      <button type="button" className="mini-btn" disabled={draft.busy} onClick={onCancel} title={msg("app.cancel")} aria-label={msg("app.cancel")}><X size={13} /></button>
     </div>
     {draft.error && <div id="tree-create-error" className="tree-create-error" role="alert">{draft.error}</div>}
   </form>;
@@ -144,7 +144,7 @@ function TreeItem({
   onNodeContextMenu: (node: FileNode, event: React.MouseEvent) => void;
   creation: TreeCreationProps;
 }) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [open, setOpen] = useState(() => Boolean(activePath && containsPath(node, activePath)));
   useEffect(() => {
     if (node.type === 'dir' && activePath && containsPath(node, activePath)) setOpen(true);
@@ -158,7 +158,7 @@ function TreeItem({
           style={{ paddingLeft: 9 + depth * 13 }}
           onClick={() => setOpen((value) => !value)}
           onContextMenu={(event) => { event.preventDefault(); onNodeContextMenu(node, event); }}
-          title={t('Right-click for file actions')}
+          title={msg("app.right.click.for.file.actions")}
         >
           {open ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
           {open ? <FolderOpen size={13} className="folder-icon" /> : <Folder size={13} className="folder-icon" />}
@@ -187,7 +187,7 @@ function TreeItem({
       style={{ paddingLeft: 21 + depth * 13 }}
       onClick={() => onOpenFile(node.path)}
       onContextMenu={(event) => { event.preventDefault(); onNodeContextMenu(node, event); }}
-      title={`${node.relative} · ${t('Right-click for file actions')}`}
+      title={`${node.relative} · ${msg("app.right.click.for.file.actions")}`}
     >
       {fileIcon(node)}
       <span>{node.name}</span>
@@ -262,7 +262,7 @@ export function Sidebar({
     } catch (failure) {
       if (draftRef.current !== pending) return;
       const message = String(failure);
-      const reason = message.includes('already exists') ? t('A file or folder with this name already exists.') : message.includes('Invalid') ? t('Use a file name without path separators or reserved characters.') : t(current.kind === 'file' ? 'Could not create file' : 'Could not create folder');
+      const reason = message.includes('already exists') ? msg("app.a.file.or.folder.with.this.name.already.exists") : message.includes('Invalid') ? msg("app.use.a.file.name.without.path.separators.or.reserved") : msg(current.kind === 'file' ? "app.could.not.create.file" : "app.could.not.create.folder");
       setDraft({ ...current, error: reason, busy: false });
     }
   };
@@ -286,7 +286,7 @@ export function Sidebar({
     }
   });
   const [assetFilter, setAssetFilter] = useState('');
-  const { t } = useI18n();
+  const { msg } = useI18n();
 
   useEffect(() => {
     if (tab !== 'search' || !project || query.trim().length < 2) {
@@ -351,29 +351,29 @@ export function Sidebar({
 
   return (
     <aside className="sidebar" data-tree-menu={treeMenu ? treeMenu.node.name : ""}>
-      <nav className="sidebar-rail" aria-label={t('Sidebar sections')}>
+      <nav className="sidebar-rail" aria-label={msg("app.sidebar.sections")}>
         <button className={tab === 'files' ? 'active' : ''} data-testid="tab-files"
-          onClick={() => onTabChange('files')} title={t('Project files')} aria-label={t('Project files')}>
+          onClick={() => onTabChange('files')} title={msg("app.project.files")} aria-label={msg("app.project.files")}>
           <Files size={17} />
         </button>
-        <button className={tab === 'outline' ? 'active' : ''} onClick={() => onTabChange('outline')} title={t('Outline')} aria-label={t('Outline')}>
+        <button className={tab === 'outline' ? 'active' : ''} onClick={() => onTabChange('outline')} title={msg("app.outline")} aria-label={msg("app.outline")}>
           <ListTree size={17} />
         </button>
         <button className={tab === 'assets' ? 'active' : ''} data-testid="tab-assets"
-          onClick={() => onTabChange('assets')} title={t('Asset library')} aria-label={t('Asset library')}>
+          onClick={() => onTabChange('assets')} title={msg("app.asset.library")} aria-label={msg("app.asset.library")}>
           <FileImageIcon size={17} />
         </button>
         <button className={tab === 'symbols' ? 'active' : ''} data-testid="tab-symbols"
-          onClick={() => onTabChange('symbols')} title={t('Symbols')} aria-label={t('Symbols')}>
+          onClick={() => onTabChange('symbols')} title={msg("app.symbols")} aria-label={msg("app.symbols")}>
           <Shapes size={17} />
         </button>
-        <button className={tab === 'search' ? 'active' : ''} onClick={() => onTabChange('search')} title={t('Search project')} aria-label={t('Search project')}>
+        <button className={tab === 'search' ? 'active' : ''} onClick={() => onTabChange('search')} title={msg("app.search.project")} aria-label={msg("app.search.project")}>
           <Search size={17} />
         </button>
-        <button className={tab === 'notes' ? 'active' : ''} data-testid="tab-notes" onClick={() => onTabChange('notes')} title={t('Revision memos')} aria-label={t('Revision memos')}><CheckSquare size={17} /></button>
-        <button className={tab === 'placeholders' ? 'active' : ''} data-testid="tab-placeholders" onClick={() => onTabChange('placeholders')} title={t('Placeholders')} aria-label={t('Placeholders')}><SquareDashed size={17} /></button>
+        <button className={tab === 'notes' ? 'active' : ''} data-testid="tab-notes" onClick={() => onTabChange('notes')} title={msg("app.revision.memos")} aria-label={msg("app.revision.memos")}><CheckSquare size={17} /></button>
+        <button className={tab === 'placeholders' ? 'active' : ''} data-testid="tab-placeholders" onClick={() => onTabChange('placeholders')} title={msg("app.placeholders")} aria-label={msg("app.placeholders")}><SquareDashed size={17} /></button>
         <div className="rail-spacer" />
-        <button onClick={onOpenFolder} title={t('Open another project')} aria-label={t('Open another project')}>
+        <button onClick={onOpenFolder} title={msg("app.open.another.project")} aria-label={msg("app.open.another.project")}>
           <Plus size={17} />
         </button>
       </nav>
@@ -384,11 +384,11 @@ export function Sidebar({
         {tab === 'files' && (
           <>
             <div className="panel-heading">
-              <span>{t('Project')}</span>
+              <span>{msg("app.project")}</span>
               <div className="panel-heading-actions">
-                <button className="mini-btn" data-testid="new-file" onClick={() => beginCreate(project?.root || '', 'file')} title={t('New file')} aria-label={t('New file')}><Plus size={11} /></button>
-                <button className="mini-btn" data-testid="new-folder" onClick={() => beginCreate(project?.root || '', 'folder')} title={t('New folder')} aria-label={t('New folder')}><FolderPlus size={11} /></button>
-                <button className="mini-btn" onClick={onOpenFolder} title={t('Open another project (⌘O)')} aria-label={t('Open another project (⌘O)')}><FolderOpen size={11} /></button>
+                <button className="mini-btn" data-testid="new-file" onClick={() => beginCreate(project?.root || '', 'file')} title={msg("app.new.file")} aria-label={msg("app.new.file")}><Plus size={11} /></button>
+                <button className="mini-btn" data-testid="new-folder" onClick={() => beginCreate(project?.root || '', 'folder')} title={msg("app.new.folder")} aria-label={msg("app.new.folder")}><FolderPlus size={11} /></button>
+                <button className="mini-btn" onClick={onOpenFolder} title={msg("app.open.another.project.o")} aria-label={msg("app.open.another.project.o")}><FolderOpen size={11} /></button>
               </div>
             </div>
             <div className="project-card">
@@ -399,13 +399,13 @@ export function Sidebar({
               </div>
             </div>
             {project && <div className={`project-main-file ${project.rootFile ? '' : 'needs-selection'}`}>
-              <label htmlFor="project-main-file">{t('Main file')}<small>{t(project.rootSource === 'configured' ? 'Pinned to project' : project.rootFile ? 'Auto detected' : 'Choose main file')}</small></label>
+              <label htmlFor="project-main-file">{msg("app.main.file")}<small>{msg(project.rootSource === 'configured' ? "app.pinned.to.project" : project.rootFile ? "app.auto.detected" : "app.choose.main.file")}</small></label>
               <select id="project-main-file" data-testid="project-main-file" value={project.rootFile || ''} disabled={compiling} onChange={(event) => onSelectRoot(event.target.value)}>
-                {!project.rootFile && <option value="" disabled>{t('Choose main file')}</option>}
+                {!project.rootFile && <option value="" disabled>{msg("app.choose.main.file")}</option>}
                 {(project.rootCandidates || (project.rootFile ? [project.rootFile] : [])).map(file => <option key={file} value={file}>{relativePath(project.root, file)}</option>)}
               </select>
-              {!project.rootFile && <p role="status">{t(project.rootSource === 'ambiguous' ? 'Several documents found. Select the one to compile.' : project.rootSource === 'invalid' ? 'Main file is unavailable. Select a valid entry.' : 'Add a file containing \\documentclass to begin.')}</p>}
-              {project.rootError && <details className="project-root-details"><summary>{t('Details')}</summary><p>{project.rootError}</p></details>}
+              {!project.rootFile && <p role="status">{msg(project.rootSource === 'ambiguous' ? "app.several.documents.found.select.the.one.to.compile" : project.rootSource === 'invalid' ? "app.main.file.is.unavailable.select.a.valid.entry" : "app.add.a.file.containing.documentclass.to.begin")}</p>}
+              {project.rootError && <details className="project-root-details"><summary>{msg("app.details")}</summary><p>{project.rootError}</p></details>}
             </div>}
             <div className="file-tree" onContextMenu={event => {
               if (!project) return; event.preventDefault();
@@ -426,10 +426,10 @@ export function Sidebar({
                     />
                   ))
                 ) : (
-                  <div className="panel-empty">{t('This folder is empty.')}</div>
+                  <div className="panel-empty">{msg("app.this.folder.is.empty")}</div>
                 )
               ) : (
-                <div className="panel-empty">{t('No project open.')}</div>
+                <div className="panel-empty">{msg("app.no.project.open")}</div>
               )}
             </div>
           </>
@@ -438,12 +438,12 @@ export function Sidebar({
         {tab === 'outline' && (
           <>
             <div className="panel-heading">
-              <span>{t('Outline')}</span>
+              <span>{msg("app.outline")}</span>
               <span className="panel-badge">{outline.length}</span>
             </div>
             <div className="outline-list">
               {outline.length === 0 && (
-                <div className="panel-empty">{t('outline empty')}</div>
+                <div className="panel-empty">{msg("app.outline.empty")}</div>
               )}
               {outline.map((item) => {
                 const active = Math.abs(cursorLine - item.line) <= 1;
@@ -456,7 +456,7 @@ export function Sidebar({
                     title={`Line ${item.line}`}
                   >
                     {outlineIcon(item)}
-                    <span>{item.title}</span>
+                    <span>{msg.text(item.title)}</span>
                     <span className="outline-line">{item.line}</span>
                   </button>
                 );
@@ -468,12 +468,12 @@ export function Sidebar({
         {tab === 'assets' && (
           <>
             <div className="panel-heading">
-              <span>{t('Assets')}</span>
+              <span>{msg("app.assets")}</span>
               <span className="panel-badge">{assets.length}</span>
             </div>
             <div className="asset-toolbar">
               <button className="asset-import" onClick={() => void onImportAssets()}>
-                <Upload size={12} /> {t('Import images')}
+                <Upload size={12} /> {msg("app.import.images")}
               </button>
             </div>
             <div className="sidebar-search">
@@ -481,7 +481,7 @@ export function Sidebar({
               <input
                 value={assetFilter}
                 onChange={(event) => setAssetFilter(event.target.value)}
-                placeholder={t('Filter assets…')}
+                placeholder={msg("app.filter.assets")}
               />
             </div>
             <div className="asset-grid">
@@ -489,7 +489,7 @@ export function Sidebar({
                 .filter((asset) => asset.name.toLowerCase().includes(assetFilter.toLowerCase()))
                 .map((asset) => (
                   <div className="asset-card" key={asset.path}>
-                    <button className="asset-thumb" onClick={() => onPreviewAsset(asset)} title={t('Preview file')}>
+                    <button className="asset-thumb" onClick={() => onPreviewAsset(asset)} title={msg("app.preview.file")}>
                       {['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'].includes(asset.ext) ? (
                         <img src={assetUrl(asset.path)} alt={asset.name} loading="lazy" />
                       ) : (
@@ -501,25 +501,25 @@ export function Sidebar({
                       <small>{formatBytes(asset.size)} · {asset.ext.replace('.', '').toUpperCase()}</small>
                     </div>
                     <div className="asset-actions">
-                      <button onClick={() => onInsertAsset(asset)} title={t('Insert into document')}><ImagePlus size={11} /></button>
-                      <button onClick={() => onPreviewAsset(asset)} title={t('Preview file')}><Eye size={11} /></button>
+                      <button onClick={() => onInsertAsset(asset)} title={msg("app.insert.into.document")}><ImagePlus size={11} /></button>
+                      <button onClick={() => onPreviewAsset(asset)} title={msg("app.preview.file")}><Eye size={11} /></button>
                       <button
                         onClick={() => {
                           void navigator.clipboard?.writeText(asset.relative);
                         }}
-                        title={t('Copy path')}
+                        title={msg("app.copy.path")}
                       >
                         <Copy size={11} />
                       </button>
-                      <button onClick={() => void window.texpro.reveal(asset.path)} title={t('Reveal in Finder')}>
+                      <button onClick={() => void window.texpro.reveal(asset.path)} title={msg("app.reveal.in.finder")}>
                         <FileImageIcon size={11} />
                       </button>
                       <button
                         className="asset-delete"
                         onClick={() => {
-                          if (window.confirm(`${t('Delete asset?')}\n${asset.name}\n\n${t('The file is moved to .texpro/trash.')}`)) void onDeleteAsset(asset);
+                          if (window.confirm(`${msg("app.delete.asset")}\n${asset.name}\n\n${msg("app.the.file.is.moved.to.texpro.trash")}`)) void onDeleteAsset(asset);
                         }}
-                        title={t('Delete')}
+                        title={msg("app.delete")}
                       >
                         <Trash2 size={11} />
                       </button>
@@ -529,10 +529,10 @@ export function Sidebar({
               {assets.length === 0 && (
                 <div className="asset-empty">
                   <ImagePlus size={22} />
-                  <strong>{t('No assets yet')}</strong>
-                  <span>{t('Import an image to preview and insert it here.')}</span>
+                  <strong>{msg("app.no.assets.yet")}</strong>
+                  <span>{msg("app.import.an.image.to.preview.and.insert.it.here")}</span>
                   <button className="primary-btn" onClick={() => void onImportAssets()}>
-                    <Upload size={12} /> {t('Import assets')}
+                    <Upload size={12} /> {msg("app.import.assets")}
                   </button>
                 </div>
               )}
@@ -543,13 +543,13 @@ export function Sidebar({
         {tab === 'symbols' && (
           <>
             <div className="panel-heading">
-              <span>{t('Symbols')}</span>
+              <span>{msg("app.symbols")}</span>
               <div className="symbol-heading-actions">
                 <span className="panel-badge">{catalog.length}</span>
                 <button
                   className={`mini-btn ${symbolConfigOpen ? 'active' : ''}`}
                   onClick={() => setSymbolConfigOpen((value) => !value)}
-                  title={t('Configure symbol modules')}
+                  title={msg("app.configure.symbol.modules")}
                 >
                   <SlidersHorizontal size={12} />
                 </button>
@@ -557,7 +557,7 @@ export function Sidebar({
             </div>
             {symbolConfigOpen && (
               <div className="symbol-config">
-                <div className="symbol-config-title">{t('Symbol modules')}</div>
+                <div className="symbol-config-title">{msg("app.symbol.modules")}</div>
                 <div className="symbol-config-list">
                   {symbolModules.map((module) => {
                     const enabled = enabledModules.includes(module.id);
@@ -572,7 +572,7 @@ export function Sidebar({
                             );
                           }}
                         />
-                        <span>{t(module.name)}</span>
+                        <span>{msg.text(module.name)}</span>
                         <em>{module.symbols.length}</em>
                       </label>
                     );
@@ -582,7 +582,7 @@ export function Sidebar({
                   className="symbol-config-reset"
                   onClick={() => setEnabledModules(symbolModules.map((module) => module.id))}
                 >
-                  {t('Enable all')}
+                  {msg("app.enable.all")}
                 </button>
               </div>
             )}
@@ -591,13 +591,13 @@ export function Sidebar({
               <input
                 value={symbolFilter}
                 onChange={(event) => setSymbolFilter(event.target.value)}
-                placeholder={t('Filter symbols…')}
+                placeholder={msg("app.filter.symbols")}
               />
             </div>
             <div className="symbol-scroll">
               {recentItems.length > 0 && !symbolFilter && (
                 <div className="symbol-group">
-                  <div className="symbol-title">{t('Recently used')}</div>
+                  <div className="symbol-title">{msg("app.recently.used")}</div>
                   <div className="symbol-grid rendered">
                     {recentItems.map((symbol) => (
                       <button
@@ -614,7 +614,7 @@ export function Sidebar({
               {filteredModules.map((module) => (
                 <div className="symbol-group" key={module.id}>
                   <div className="symbol-title">
-                    {t(module.name)}
+                    {msg.text(module.name)}
                     <span>{module.symbols.length}</span>
                   </div>
                   <div className="symbol-grid rendered">
@@ -630,19 +630,19 @@ export function Sidebar({
                   </div>
                 </div>
               ))}
-              {enabledModules.length === 0 && <div className="panel-empty">{t('No symbol modules enabled.')}</div>}
+              {enabledModules.length === 0 && <div className="panel-empty">{msg("app.no.symbol.modules.enabled")}</div>}
               {filteredModules.length === 0 && enabledModules.length > 0 && (
-                <div className="panel-empty">{t('No symbols match this filter.')}</div>
+                <div className="panel-empty">{msg("app.no.symbols.match.this.filter")}</div>
               )}
               <div className="symbol-group">
-                <div className="symbol-title">{t('Structures')}</div>
+                <div className="symbol-title">{msg("app.structures")}</div>
                 <div className="snippet-list">
                   {snippetLibrary.map((item) => (
                     <button key={item.id} className="snippet-row" onClick={() => onInsert(item.template)}>
                       <Braces size={13} />
                       <span>
-                        <strong>{item.title}</strong>
-                        <small>{item.description}</small>
+                        <strong>{msg.text(item.title)}</strong>
+                        <small>{msg.text(item.description)}</small>
                       </span>
                     </button>
                   ))}
@@ -655,11 +655,11 @@ export function Sidebar({
         {tab === 'search' && (
           <>
             <div className="panel-heading">
-              <span>{t('Search project')}</span>
+              <span>{msg("app.search.project")}</span>
               <button
                 className={`mini-btn ${caseSensitive ? 'active' : ''}`}
                 onClick={() => setCaseSensitive((value) => !value)}
-                title={t('Match case')}
+                title={msg("app.match.case")}
               >
                 Aa
               </button>
@@ -670,12 +670,12 @@ export function Sidebar({
                 autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={t('Search .tex, .bib, .sty…')}
+                placeholder={msg("app.search.tex.bib.sty")}
               />
               {searching && <Loader2 size={12} className="spin" />}
             </div>
             <div className="search-meta">
-              {query.length >= 2 && !searching ? `${results.length} result${results.length === 1 ? '' : 's'}` : t('Type at least 2 characters')}
+              {query.length >= 2 && !searching ? `${results.length} result${results.length === 1 ? '' : 's'}` : msg("app.type.at.least.2.characters")}
             </div>
             <div className="search-results">
               {searchError && <div className="panel-empty danger-text">{searchError}</div>}
@@ -694,7 +694,7 @@ export function Sidebar({
                 </button>
               ))}
               {!searching && query.length >= 2 && results.length === 0 && !searchError && (
-                <div className="panel-empty">{t('No matches found.')}</div>
+                <div className="panel-empty">{msg("app.no.matches.found")}</div>
               )}
             </div>
           </>
@@ -707,18 +707,18 @@ export function Sidebar({
             <div className="tree-menu-title">{treeMenu.node.type === 'dir' ? treeMenu.node.name : basename(treeMenu.node.path)}</div>
             {treeMenu.node.type === 'dir' ? (
               <>
-                <button onClick={() => { beginCreate(treeMenu.node.path, 'file'); }}><FilePlus2 size={12} /> {t('New file')}</button>
-                <button onClick={() => { beginCreate(treeMenu.node.path, 'folder'); }}><FolderPlus size={12} /> {t('New folder')}</button>
-                {treeMenu.node.path !== project?.root && <button onClick={() => { onRenameFolder(treeMenu.node.path); setTreeMenu(null); }}><Pencil size={12} /> {t('Rename folder')}</button>}
-                {treeMenu.node.path !== project?.root && <button className="danger" onClick={() => { onDeleteFolder(treeMenu.node.path); setTreeMenu(null); }}><Trash2 size={12} /> {t('Delete folder')}</button>}
+                <button onClick={() => { beginCreate(treeMenu.node.path, 'file'); }}><FilePlus2 size={12} /> {msg("app.new.file")}</button>
+                <button onClick={() => { beginCreate(treeMenu.node.path, 'folder'); }}><FolderPlus size={12} /> {msg("app.new.folder")}</button>
+                {treeMenu.node.path !== project?.root && <button onClick={() => { onRenameFolder(treeMenu.node.path); setTreeMenu(null); }}><Pencil size={12} /> {msg("app.rename.folder")}</button>}
+                {treeMenu.node.path !== project?.root && <button className="danger" onClick={() => { onDeleteFolder(treeMenu.node.path); setTreeMenu(null); }}><Trash2 size={12} /> {msg("app.delete.folder")}</button>}
               </>
             ) : (
               <>
-                <button onClick={() => beginCreate(dirname(treeMenu.node.path), 'file')}><FilePlus2 size={12} /> {t('New file')}</button>
-                <button onClick={() => beginCreate(dirname(treeMenu.node.path), 'folder')}><FolderPlus size={12} /> {t('New folder')}</button>
-                <button onClick={() => { onRenameFile(treeMenu.node.path); setTreeMenu(null); }}><Pencil size={12} /> {t('Rename file')}</button>
-                <button onClick={() => { onMoveFile(treeMenu.node.path); setTreeMenu(null); }}><FolderInput size={12} /> {t('Move file')}</button>
-                <button className="danger" onClick={() => { onDeleteFile(treeMenu.node.path); setTreeMenu(null); }}><Trash2 size={12} /> {t('Delete file')}</button>
+                <button onClick={() => beginCreate(dirname(treeMenu.node.path), 'file')}><FilePlus2 size={12} /> {msg("app.new.file")}</button>
+                <button onClick={() => beginCreate(dirname(treeMenu.node.path), 'folder')}><FolderPlus size={12} /> {msg("app.new.folder")}</button>
+                <button onClick={() => { onRenameFile(treeMenu.node.path); setTreeMenu(null); }}><Pencil size={12} /> {msg("app.rename.file")}</button>
+                <button onClick={() => { onMoveFile(treeMenu.node.path); setTreeMenu(null); }}><FolderInput size={12} /> {msg("app.move.file")}</button>
+                <button className="danger" onClick={() => { onDeleteFile(treeMenu.node.path); setTreeMenu(null); }}><Trash2 size={12} /> {msg("app.delete.file")}</button>
               </>
             )}
           </div>

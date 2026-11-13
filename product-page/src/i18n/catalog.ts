@@ -1,0 +1,32 @@
+import englishUrl from './messages/en.json?url';
+import chineseUrl from './messages/zh.json?url';
+import type { Locale } from './locales';
+export type MessageId = keyof typeof import('./messages/en.json');
+export type Messages = Record<MessageId, string>;
+const resources: Record<Locale, string> = { en: englishUrl, zh: chineseUrl };
+const requests = new Map<Locale, Promise<Messages>>();
+export function loadMessages(locale: Locale): Promise<Messages> {
+  let request = requests.get(locale);
+  if (!request) {
+    request = fetch(resources[locale], { credentials: 'omit', cache: 'no-cache' }).then(async response => {
+      if (!response.ok || !response.headers.get('content-type')?.includes('json')) throw new Error(`Language resource unavailable: ${locale}`);
+      const value: unknown = await response.json();
+      if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.keys(value).length || Object.entries(value).some(([id, text]) => !/^site\.[a-z0-9.]+$/.test(id) || typeof text !== 'string')) throw new Error(`Invalid language catalogue: ${locale}`);
+      return value as Messages;
+    }).catch(error => { requests.delete(locale); throw error; });
+    requests.set(locale, request);
+  }
+  return request;
+}
+export function initialLocale(): Locale {
+  try { const stored = localStorage.getItem('texpro:locale'); if (stored === 'zh' || stored === 'en') return stored; } catch { /* optional storage */ }
+  return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+}
+let initial: { locale: Locale; messages: Messages; fallback: Messages; startupFailure: boolean };
+export async function initializeLocale() {
+  const fallback = await loadMessages('en');
+  const locale = initialLocale();
+  try { initial = { locale, messages: await loadMessages(locale), fallback, startupFailure: false }; }
+  catch { initial = { locale: 'en', messages: fallback, fallback, startupFailure: true }; }
+}
+export function initialCatalog() { return initial; }

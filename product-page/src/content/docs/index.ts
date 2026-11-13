@@ -1,11 +1,12 @@
 /**
- * 文档内容：一篇文档 = `src/content/docs/*.md` 一个文件。
+ * 文档内容：一篇译文 = `src/content/docs/<locale>/<slug>.md` 一个文件。
  * 文件顶部是 front matter（slug / title / group / order / summary），正文用 Markdown 写。
  * 解析器在 `src/lib/markdown.ts`，博客页共用同一套。
  */
 
 import { parseMarkdown, splitFrontMatter, type DocBlock } from '@/lib/markdown';
 import { documentationSection, type DocumentationSection } from './sections.mjs';
+import type { MessageId } from '@/i18n/catalog';
 
 export type { DocBlock };
 
@@ -29,7 +30,7 @@ export interface DocsNavGroup {
 
 const GROUP_ORDER = ['开始', '使用', '参考', '开发', 'AI 协作', '关于'];
 
-const rawFiles = import.meta.glob('./*.md', {
+const rawZhFiles = import.meta.glob('./zh/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -42,13 +43,13 @@ const rawEnFiles = import.meta.glob('./en/*.md', {
   eager: true,
 }) as Record<string, string>;
 
-export const GROUP_LABELS: Record<string, string> = {
-  开始: 'Start',
-  使用: 'Using',
-  参考: 'Reference',
-  开发: 'Development',
-  'AI 协作': 'AI workflow',
-  关于: 'About',
+export const GROUP_LABELS: Record<string, MessageId> = {
+  开始: 'site.docs.group.start',
+  使用: 'site.docs.group.using',
+  参考: 'site.docs.group.reference',
+  开发: 'site.docs.group.development',
+  'AI 协作': 'site.docs.group.ai',
+  关于: 'site.docs.group.about',
 };
 
 function parseTopic(path: string, raw: string): DocTopic {
@@ -65,8 +66,7 @@ function parseTopic(path: string, raw: string): DocTopic {
   };
 }
 
-export const DOC_TOPICS: DocTopic[] = Object.entries(rawFiles)
-  .filter(([path]) => !path.includes('/en/'))
+export const DOC_TOPICS: DocTopic[] = Object.entries(rawZhFiles)
   .map(([path, raw]) => parseTopic(path, raw))
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, 'zh-Hans-CN'));
 
@@ -115,7 +115,7 @@ export function navFor(locale: 'zh' | 'en', section?: DocumentationSection): Doc
   );
   return labels.map((group) => ({
     group,
-    label: locale === 'en' ? (GROUP_LABELS[group] ?? group) : group,
+    label: GROUP_LABELS[group] ?? group,
     items: topics
       .filter((topic) => topic.group === group)
       .map(({ slug, title }) => ({ slug, title })),

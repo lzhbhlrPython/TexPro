@@ -1,6 +1,6 @@
 # @texpro/qwertysay
 
-Source version **0.5.0** adds direct npm source import and explicitly trusted local preparation; it depends on SDK 0.4.0.
+Source version **0.6.0** uses catalogue v2 semantic message IDs in language scaffolds and SDK 0.5.0. Direct npm source import and explicitly trusted local preparation were added in 0.5.0.
 
 Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js 20+, without Electron or TeX. Version **`0.4.1`** adds language packs, npm/yarn authoring and reviewed package-manager synchronization. The former scope’s `0.3.0` added bilingual guided workflows and minimal accent themes; `0.2.0` adds multilingual plugin builds, static theme compilation and the API 1 JSON bridge. Version `0.1.0` contains the original TS/JS/CSS scaffolds.
 
@@ -11,7 +11,7 @@ Authored by **Baolin Liu (gardenialiu)**; original code is MIT. Requires Node.js
 Since 0.3.0, start without arguments and choose create, build, check or pack step by step:
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 Choose Simplified Chinese/English, operation, plugin/theme, destination, ID, author and language/style. Review paths/configuration before confirmation. Enter cancels by default; Ctrl+C/EOF cancels an operation that has not started. The first theme option is accent-only: select a base and accent to generate just the manifest and LICENSE, without CSS, scripts or compilation.
@@ -93,3 +93,9 @@ Security: compilation executes compilers, project configuration and source gener
 编译依赖安装脚本默认禁用。需要此类安装器时，qwertysay prepare 引导提供独立的、默认拒绝的信任选择；自动化须同时传 --trust-build 与 --trust-install-scripts。允许后第三方编译依赖安装脚本以用户权限运行，仅作用于本次临时构建，不改扩展环境的脚本禁用设置。缺少外部 Java／Go 等工具仍须自行安装。不得把同意构建等同于同意安装脚本。
 
 Compiler dependency lifecycle scripts are disabled by default. The prepare wizard offers a separate, default-deny trust choice; automation requires both --trust-build and --trust-install-scripts. Allowing them executes third-party dependency installers with user permissions for this temporary build only, without changing extension environment settings. External Java/Go tools still require installation. Build trust alone never grants installer-script trust.
+
+## Catalogue v2 and prose resources
+
+Host language contributions require `catalogVersion: 2`, semantic message IDs such as `app.save`, and JSON string values. SDK 0.5.0, qwertysay 0.6.0 and Chinese pack 2.0.0 require a matching host. Old phrase-key catalogues are rejected without a compatibility layer. Regenerate `reference/en.json`, translate values without changing IDs or placeholders, bump your pack version, then check and pack. Changing the manifest version alone is insufficient. Missing keys use built-in English; unknown semantic IDs are reported relative to the SDK version.
+
+Long documentation, letters and tutorials use complete Markdown resources per language and a shared renderer, not one UI key per paragraph. Functional plugins keep their own catalogues and per-invocation language selection. Technical IDs, paths and author content are not translation keys. The fixed-English recovery command cannot be overridden. Source versions, registry publication and desktop releases must be verified separately. See the [migration guide](https://texpro.pyliubaolin.top/docs/language-packs).

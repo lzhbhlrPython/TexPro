@@ -190,6 +190,7 @@ export interface AssetItem {
 export interface TemplateItem {
   id: string;
   name: string;
+  nameKey?: import('./i18n').MessageId;
   description: string;
   category: string;
   engine: Engine;

@@ -129,7 +129,7 @@ function PdfThumbnail({ doc, pageNumber, active, onClick }: {
 }
 
 function PdfPageView({ doc, pageNumber, scale, syncTarget, onInverse, selectRegion, previousDoc, diffMode, diffOpacity = 0.5, hotspots = [] }: PageViewProps) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<PageViewport | null>(null);
@@ -372,7 +372,7 @@ function PdfPageView({ doc, pageNumber, scale, syncTarget, onInverse, selectRegi
 
   return (
     <div className="pdf-page-shell" data-page={pageNumber}>
-      <div className="pdf-page-label">{t('Page {page}', { page: pageNumber })}</div>
+      <div className="pdf-page-label">{msg("app.page.page", { page: pageNumber })}</div>
       <div
         className={`pdf-page ${selectRegion ? 'pdf-region-mode' : ''}`}
         ref={wrapRef}
@@ -383,7 +383,7 @@ function PdfPageView({ doc, pageNumber, scale, syncTarget, onInverse, selectRegi
         onPointerCancel={(event) => endRegion(event, true)}
         onLostPointerCapture={(event) => endRegion(event, true)}
         data-text-ready={textReady}
-        title={t(selectRegion ? 'Drag to select a PDF region and locate its source. Esc cancels.' : 'Hold ⌘ / Ctrl and click or drag to locate source')}
+        title={msg(selectRegion ? "app.drag.to.select.a.pdf.region.and.locate.its" : "app.hold.ctrl.and.click.or.drag.to.locate.source")}
       >
         {!rendered && (
           <div className="pdf-page-loading">
@@ -436,7 +436,7 @@ export function PdfPane({
   onPageChange,
   hotspots = [],
 }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [pageCount, setPageCount] = useState(0);
@@ -709,10 +709,10 @@ export function PdfPane({
         <div className="pdf-toolbar">
           <div className="pdf-toolbar-title">
             <FileText size={14} />
-            <span>{t('PDF Preview')}</span>
+            <span>{msg("app.pdf.preview.variant2")}</span>
           </div>
           <div className="pdf-toolbar-actions">
-            <button className="icon-btn" onClick={onCompile} title={t('Compile (⌘↩)')} disabled={compiling}>
+            <button className="icon-btn" onClick={onCompile} title={msg("app.compile.variant2")} disabled={compiling}>
               <RefreshCw size={14} className={compiling ? 'spin' : ''} />
             </button>
           </div>
@@ -730,25 +730,25 @@ export function PdfPane({
           {(compiling || realtime?.running) && !loadError ? (
             <>
               <Loader2 size={22} className="spin" />
-              <h3>{t('Typesetting…')}</h3>
-              <p>{t('You can keep writing while the page is prepared.')}</p>
+              <h3>{msg("app.typesetting.variant2")}</h3>
+              <p>{msg("app.you.can.keep.writing.while.the.page.is.prepared")}</p>
             </>
           ) : loadError ? (
             <>
-              <h3>{t('Could not display the PDF')}</h3>
+              <h3>{msg("app.could.not.display.the.pdf")}</h3>
               <p className="danger-text">{loadError}</p>
               <button className="primary-btn" onClick={onCompile}>
-                {t('Recompile')}
+                {msg("app.recompile")}
               </button>
             </>
           ) : (
             <>
-              <h3>{t('No PDF yet')}</h3>
-              <p>{error || t('Compile the project to see the typeset page here.')}</p>
+              <h3>{msg("app.no.pdf.yet")}</h3>
+              <p>{error || msg("app.compile.the.project.to.see.the.typeset.page.here")}</p>
               <button className="primary-btn" onClick={onCompile}>
-                {t('Compile document')}
+                {msg("app.compile.document")}
               </button>
-              <span className="pdf-empty-hint">{t('⌘↩ compile · ⌘-click PDF to jump back')}</span>
+              <span className="pdf-empty-hint">{msg("app.compile.click.pdf.to.jump.back")}</span>
             </>
           )}
         </div>
@@ -761,30 +761,30 @@ export function PdfPane({
       <div className="pdf-toolbar">
         <div className="pdf-toolbar-title">
           <FileText size={14} />
-          <span>{t('PDF Preview')}</span>
+          <span>{msg("app.pdf.preview.variant2")}</span>
           <span className="pdf-counter">
             {currentPage} / {displayedCount}
           </span>
         </div>
         <div className="pdf-toolbar-actions">
-          <button className="icon-btn" onClick={() => goToPage(currentPage - 1)} title={t('Previous page')} aria-label={t('Previous page')} disabled={currentPage <= 1}>
+          <button className="icon-btn" onClick={() => goToPage(currentPage - 1)} title={msg("app.previous.page")} aria-label={msg("app.previous.page")} disabled={currentPage <= 1}>
             <ChevronLeft size={14} />
           </button>
-          <button className="icon-btn" onClick={() => goToPage(currentPage + 1)} title={t('Next page')} aria-label={t('Next page')} disabled={currentPage >= displayedCount}>
+          <button className="icon-btn" onClick={() => goToPage(currentPage + 1)} title={msg("app.next.page")} aria-label={msg("app.next.page")} disabled={currentPage >= displayedCount}>
             <ChevronRight size={14} />
           </button>
           <span className="toolbar-sep" />
-          <button className="icon-btn" onClick={zoomOut} title={t('Zoom out')} aria-label={t('Zoom out')}>
+          <button className="icon-btn" onClick={zoomOut} title={msg("app.zoom.out")} aria-label={msg("app.zoom.out")}>
             <Minus size={14} />
           </button>
           <span className="zoom-label">{Math.round(zoom * 100)}%</span>
-          <button className="icon-btn" onClick={zoomIn} title={t('Zoom in')} aria-label={t('Zoom in')}>
+          <button className="icon-btn" onClick={zoomIn} title={msg("app.zoom.in")} aria-label={msg("app.zoom.in")}>
             <Plus size={14} />
           </button>
           <button
             className={`icon-btn ${fitMode ? 'active' : ''}`}
             onClick={() => setFitMode(true)}
-            title={t('Fit page width')} aria-label={t('Fit page width')}
+            title={msg("app.fit.page.width")} aria-label={msg("app.fit.page.width")}
           >
             <Maximize2 size={14} />
           </button>
@@ -794,8 +794,8 @@ export function PdfPane({
             data-testid="pdf-thumb-toggle"
             onClick={() => void prepare(() => setShowThumbs(value => !value))}
             disabled={preparing || compiling}
-            title={t('Page thumbnails')}
-            aria-label={t('Page thumbnails')}
+            title={msg("app.page.thumbnails")}
+            aria-label={msg("app.page.thumbnails")}
             aria-pressed={showThumbs}
           >
             <PanelLeft size={14} />
@@ -805,8 +805,8 @@ export function PdfPane({
             data-testid="pdf-search-toggle"
             onClick={() => void prepare(() => setSearchOpen(value => !value))}
             disabled={preparing || compiling}
-            title={t('Search in PDF')}
-            aria-label={t('Search in PDF')}
+            title={msg("app.search.in.pdf")}
+            aria-label={msg("app.search.in.pdf")}
             aria-pressed={searchOpen}
           >
             <Search size={14} />
@@ -817,16 +817,16 @@ export function PdfPane({
             data-testid="pdf-region-toggle"
             onClick={() => void prepare(() => setSelectRegion(value => !value))}
             disabled={preparing || compiling}
-            title={t('Select PDF region')}
-            aria-label={t('Select PDF region')}
+            title={msg("app.select.pdf.region")}
+            aria-label={msg("app.select.pdf.region")}
             aria-pressed={selectRegion}
           ><ScanLine size={14} /></button>
           <div className="pdf-view-menu">
             <button
               className={`icon-btn ${viewMenuOpen ? 'active' : ''}`}
               onClick={() => setViewMenuOpen((value) => !value)}
-              title={t('More PDF tools')}
-              aria-label={t('More PDF tools')}
+              title={msg("app.more.pdf.tools")}
+              aria-label={msg("app.more.pdf.tools")}
               aria-haspopup="menu"
               aria-expanded={viewMenuOpen}
             >
@@ -835,19 +835,19 @@ export function PdfPane({
             {viewMenuOpen && (
               <div className="pdf-view-popover" role="menu">
                 <button role="menuitemcheckbox" aria-checked={diffMode} onClick={() => void prepare(() => setDiffMode(value => !value))} disabled={!previousDoc || preparing || compiling}>
-                  <GitCompare size={13} /> {t('Compare with previous compile')}
+                  <GitCompare size={13} /> {msg("app.compare.with.previous.compile")}
                 </button>
-                {diffMode && <input className="pdf-diff-opacity" type="range" min={0.15} max={0.9} step={0.05} value={diffOpacity} onChange={(event) => setDiffOpacity(Number(event.target.value))} title={t('Diff opacity')} />}
+                {diffMode && <input className="pdf-diff-opacity" type="range" min={0.15} max={0.9} step={0.05} value={diffOpacity} onChange={(event) => setDiffOpacity(Number(event.target.value))} title={msg("app.diff.opacity")} />}
                 <button role="menuitemcheckbox" aria-checked={spread} onClick={() => setSpread((value) => !value)}>
-                  <Columns2 size={13} /> {t('Two-page spread')}
+                  <Columns2 size={13} /> {msg("app.two.page.spread")}
                 </button>
                 <button role="menuitem" onClick={() => { if (document.fullscreenElement) void document.exitFullscreen(); else void pdfPaneRef.current?.requestFullscreen(); setViewMenuOpen(false); }}>
-                  <Presentation size={13} /> {t('Presentation mode')}
+                  <Presentation size={13} /> {msg("app.presentation.mode")}
                 </button>
                 <span className="pdf-view-sep" />
-                <button role="menuitem" onClick={() => void prepare(() => setPendingCopy(true))} disabled={preparing || compiling}><Copy size={13} /> {t('Copy page text')}</button>
-                <button role="menuitem" onClick={() => void prepare(onOpenPdf)} disabled={preparing || compiling}><ExternalLink size={13} /> {t('Open PDF in default viewer')}</button>
-                <button role="menuitem" onClick={() => void prepare(onReveal)} disabled={preparing || compiling}><FolderOpen size={13} /> {t('Reveal PDF in Finder')}</button>
+                <button role="menuitem" onClick={() => void prepare(() => setPendingCopy(true))} disabled={preparing || compiling}><Copy size={13} /> {msg("app.copy.page.text")}</button>
+                <button role="menuitem" onClick={() => void prepare(onOpenPdf)} disabled={preparing || compiling}><ExternalLink size={13} /> {msg("app.open.pdf.in.default.viewer")}</button>
+                <button role="menuitem" onClick={() => void prepare(onReveal)} disabled={preparing || compiling}><FolderOpen size={13} /> {msg("app.reveal.pdf.in.finder")}</button>
               </div>
             )}
           </div>
@@ -865,10 +865,10 @@ export function PdfPane({
               if (event.key === 'Enter') jumpSearch(event.shiftKey ? -1 : 1);
               if (event.key === 'Escape') setSearchOpen(false);
             }}
-            placeholder={t('Search text in PDF…')}
+            placeholder={msg("app.search.text.in.pdf")}
           />
           <span className="pdf-search-count">
-            {searching ? <Loader2 size={10} className="spin" /> : searchHits.length ? `${searchIndex + 1}/${searchHits.length}` : t('No matches')}
+            {searching ? <Loader2 size={10} className="spin" /> : searchHits.length ? `${searchIndex + 1}/${searchHits.length}` : msg("app.no.matches")}
           </span>
           <button className="icon-btn" onClick={() => jumpSearch(-1)} disabled={!searchHits.length}><ChevronLeft size={12} /></button>
           <button className="icon-btn" onClick={() => jumpSearch(1)} disabled={!searchHits.length}><ChevronRight size={12} /></button>
@@ -895,13 +895,13 @@ export function PdfPane({
         {formalCurrent && syncTarget && (
           <div className="pdf-sync-banner">
             <Crosshair size={12} />
-            {t('Synced to page {page}', { page: syncTarget.page })}{syncTarget.sourceLine ? ` · ${t('line')} ${syncTarget.sourceLine}` : ''}
+            {msg("app.synced.to.page.page", { page: syncTarget.page })}{syncTarget.sourceLine ? ` · ${msg("app.line.variant2")} ${syncTarget.sourceLine}` : ''}
           </div>
         )}
         {diffMode && (
           <div className="pdf-diff-legend">
-            <span><i className="removed" /> {t('Removed')}</span>
-            <span><i className="added" /> {t('Added')}</span>
+            <span><i className="removed" /> {msg("app.removed")}</span>
+            <span><i className="added" /> {msg("app.added")}</span>
           </div>
         )}
         <div onPointerDownCapture={event => {
@@ -926,7 +926,7 @@ export function PdfPane({
             ))}
           {!live && !activeDoc && Array.from({ length: pageCount }, (_, index) => (
             <div className="pdf-page-shell" data-page={index + 1} key={index + 1}>
-              <div className="pdf-page-label">{t('Page {page}', { page: index + 1 })}</div>
+              <div className="pdf-page-label">{msg("app.page.page", { page: index + 1 })}</div>
               <div className="pdf-page" style={{ width: pageWidth * zoom, height: pageHeight * zoom }} />
             </div>
           ))}
@@ -934,11 +934,11 @@ export function PdfPane({
         {(preparing || (!live && loading)) && (
           <div className="pdf-loading-overlay">
             <Loader2 size={18} className="spin" />
-            {t('Rendering pages')}
+            {msg("app.rendering.pages")}
           </div>
         )}
         <div className="pdf-footnote">
-          <Crosshair size={11} /> {t(selectRegion ? 'Drag to select a PDF region and locate its source. Esc cancels.' : 'Hold ⌘ / Ctrl and click or drag to locate source')}
+          <Crosshair size={11} /> {msg(selectRegion ? "app.drag.to.select.a.pdf.region.and.locate.its" : "app.hold.ctrl.and.click.or.drag.to.locate.source")}
         </div>
       </div>
       </div>

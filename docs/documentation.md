@@ -29,7 +29,7 @@
 
 文档操作步骤使用该语种界面的实际文案，按桌面英文源目录、对应语言包、原生菜单与相关工具的翻译源核对；中文步骤不混入英文按钮，英文步骤不沿用中文按钮。品牌、命令、文件路径、配置键、API／协议及源码示例保留技术原文。尚无翻译的真实界面明确注明，外部编译器和服务错误保留原文并解释，不编造软件中不存在的译名。
 
-官网篇目保持 slug 和站内链接稳定；中文放 `product-page/src/content/docs/*.md`，英文放 `en/` 同名文件。front matter 包含 slug、title、group、order、summary。只用站点解析器支持的标题、段落、列表、代码块、引用、表格和行内标记，不写 Mermaid、HTML 或复杂嵌套列表。
+官网篇目保持 slug 和站内链接稳定；各语种统一放在 `product-page/src/content/docs/{locale}/{slug}.md`，当前 `zh/` 与 `en/` 平级、同名同 slug。文档根目录仅保留共享索引和模块，不能把中文正文放在根目录作为特例。front matter 包含 slug、title、group、order、summary。只用站点解析器支持的标题、段落、列表、代码块、引用、表格和行内标记，不写 Mermaid、HTML 或复杂嵌套列表。目录调整同步 glob、搜索、统计、生成器与测试夹具，公开文章链接仍为 `/docs/:slug`。
 
 内容自动被 glob 加载，不需要改路由、组件、依赖或布局基线。先后运行 `pnpm check:layout`，再运行类型检查与构建。生成的 feed、llms、sitemap 和 robots 由 Vite 生命周期调用脚本生成，不手改。修改生成器需要单独核对发布范围；只更新内容不授权改页面设计。
 
@@ -42,3 +42,7 @@
 ## 官网文档的读者分区
 
 使用入口 `/docs` 直接阅读 start，开发入口 `/developers` 直接阅读 dev-setup；共用文章阅读器，不设导览首页，保留 `/docs/:slug` 的文章链接。开发 Skill 归入 AI 协作。按规范中文 group 分类，开发和 AI 协作进入开发区，开始、使用、参考和关于进入使用区；实现与生成器共用 product-page/src/content/docs/sections.mjs，英文不独立判断。安装／卸载扩展、语言包切换面向使用者，SDK、qwertysay、Skill、MCP 和应用架构面向开发者。维护新篇目时检查目录、侧栏、前后篇、搜索、llms 与 sitemap；跨区推荐可用正文链接或分区首页，不混入另一套侧栏。
+
+## 国际化资源的颗粒度
+
+菜单、按钮与短状态使用语义键 JSON；文档、彩蛋和长篇说明使用按语言保存的整篇 Markdown，统一渲染。不要为段落和句子分配 UI 翻译键。中文指南的操作名称取自中文包，英文取自英文 JSON，保持语义键身份稳定；修改目录格式或语言包兼容性时同步 [翻译维护](language-packs.md) 与第三方交接指引。

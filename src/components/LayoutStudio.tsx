@@ -52,25 +52,25 @@ const defaults: LayoutState = {
 };
 
 const presets: Array<{ id: string; label: string; state: Partial<LayoutState> }> = [
-  { id: 'manuscript', label: 'Manuscript', state: { ...defaults } },
+  { id: 'manuscript', label: "app.manuscript", state: { ...defaults } },
   {
     id: 'compact',
-    label: 'Compact',
+    label: "app.compact",
     state: { top: 1.8, bottom: 1.8, left: 1.8, right: 1.8, fontSize: 10, lineSpacing: 1.0 },
   },
   {
     id: 'two-column',
-    label: 'Two columns',
+    label: "app.two.columns",
     state: { twoColumn: true, top: 2.0, bottom: 2.0, left: 1.8, right: 1.8, fontSize: 10, lineSpacing: 1.0 },
   },
   {
     id: 'thesis',
-    label: 'Thesis',
+    label: "app.thesis",
     state: { top: 3.0, bottom: 2.8, left: 3.2, right: 2.6, lineSpacing: 1.5, fontSize: 12 },
   },
   {
     id: 'chinese',
-    label: 'Chinese ctex',
+    label: "app.chinese.ctex.variant2",
     state: {
       language: 'chinese',
       top: 2.5,
@@ -130,7 +130,7 @@ function generate(state: LayoutState, documentText: string): LayoutResult {
 }
 
 export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [state, setState] = useState<LayoutState>(defaults);
 
   useEffect(() => {
@@ -156,13 +156,13 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
           <div className="studio-heading">
             <div className="studio-icon"><LayoutTemplate size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Page layout')}</span>
-              <h2>{t('Design the page')}</h2>
+              <span className="modal-eyebrow">{msg("app.page.layout")}</span>
+              <h2>{msg("app.design.the.page")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok"><Ruler size={11} /> geometry</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -171,15 +171,15 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
             <div className="layout-presets">
               {presets.map((preset) => (
                 <button key={preset.id} onClick={() => setState({ ...state, ...preset.state })}>
-                  {t(preset.label)}
+                  {msg.text(preset.label)}
                 </button>
               ))}
             </div>
 
             <div className="layout-section">
-              <div className="layout-section-title">{t('Page')}</div>
+              <div className="layout-section-title">{msg("app.page")}</div>
               <label className="layout-row">
-                <span>{t('Paper size')}</span>
+                <span>{msg("app.paper.size")}</span>
                 <select value={state.paper} onChange={(event) => update({ paper: event.target.value as Paper })}>
                   <option value="a4paper">A4</option>
                   <option value="letterpaper">Letter</option>
@@ -189,7 +189,7 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
               <div className="layout-four">
                 {(['top', 'bottom', 'left', 'right'] as const).map((side) => (
                   <label key={side}>
-                    <span>{t(side)}</span>
+                    <span>{msg(({ top: 'app.top', bottom: 'app.bottom', left: 'app.left', right: 'app.right' } as const)[side])}</span>
                     <input
                       type="number"
                       min={0.5}
@@ -201,13 +201,13 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
                   </label>
                 ))}
               </div>
-              <div className="layout-hint">{t('Margins in cm')}</div>
+              <div className="layout-hint">{msg("app.margins.in.cm")}</div>
             </div>
 
             <div className="layout-section">
-              <div className="layout-section-title">{t('Typography')}</div>
+              <div className="layout-section-title">{msg("app.typography")}</div>
               <label className="layout-row">
-                <span>{t('Base font size')}</span>
+                <span>{msg("app.base.font.size")}</span>
                 <select value={state.fontSize} onChange={(event) => update({ fontSize: Number(event.target.value) as LayoutState['fontSize'] })}>
                   <option value={10}>10 pt</option>
                   <option value={11}>11 pt</option>
@@ -215,7 +215,7 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
                 </select>
               </label>
               <label className="layout-row">
-                <span>{t('Line spacing')}</span>
+                <span>{msg("app.line.spacing")}</span>
                 <select value={state.lineSpacing} onChange={(event) => update({ lineSpacing: Number(event.target.value) })}>
                   <option value={1}>1.0</option>
                   <option value={1.15}>1.15</option>
@@ -224,44 +224,44 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
                 </select>
               </label>
               <label className="layout-row">
-                <span>{t('Title style')}</span>
+                <span>{msg("app.title.style")}</span>
                 <select value={state.titleStyle} onChange={(event) => update({ titleStyle: event.target.value as LayoutState['titleStyle'] })}>
-                  <option value="classic">{t('Classic centered')}</option>
-                  <option value="minimal">{t('Minimal left')}</option>
+                  <option value="classic">{msg("app.classic.centered")}</option>
+                  <option value="minimal">{msg("app.minimal.left")}</option>
                 </select>
               </label>
-              <label className="chart-check"><input type="checkbox" checked={state.twoColumn} onChange={(event) => update({ twoColumn: event.target.checked })} /> {t('Two-column body')}</label>
+              <label className="chart-check"><input type="checkbox" checked={state.twoColumn} onChange={(event) => update({ twoColumn: event.target.checked })} /> {msg("app.two.column.body")}</label>
             </div>
 
             <div className="layout-section">
-              <div className="layout-section-title">{t('Language & typesetting')}</div>
+              <div className="layout-section-title">{msg("app.language.typesetting")}</div>
               <label className="layout-row">
-                <span>{t('Document language')}</span>
+                <span>{msg("app.document.language")}</span>
                 <select value={state.language} onChange={(event) => update({ language: event.target.value as LanguageProfile })}>
-                  <option value="latin">{t('Latin / English')}</option>
-                  <option value="chinese">{t('Chinese (ctex)')}</option>
-                  <option value="japanese">{t('Japanese (luatexja)')}</option>
-                  <option value="arabic">{t('Arabic (polyglossia)')}</option>
-                  <option value="russian">{t('Russian (babel)')}</option>
+                  <option value="latin">{msg("app.latin.english")}</option>
+                  <option value="chinese">{msg("app.chinese.ctex")}</option>
+                  <option value="japanese">{msg("app.japanese.luatexja")}</option>
+                  <option value="arabic">{msg("app.arabic.polyglossia")}</option>
+                  <option value="russian">{msg("app.russian.babel")}</option>
                 </select>
               </label>
               <div className="layout-engine-note">
-                {t('Compile engine')}: <strong>{result.engine}</strong>
+                {msg("app.compile.engine")}: <strong>{result.engine}</strong>
               </div>
             </div>
 
             <div className="layout-section">
-              <div className="layout-section-title">{t('Header & footer')}</div>
-              <label className="chart-check"><input type="checkbox" checked={state.pageNumbers} onChange={(event) => update({ pageNumbers: event.target.checked })} /> {t('Page numbers')}</label>
+              <div className="layout-section-title">{msg("app.header.footer")}</div>
+              <label className="chart-check"><input type="checkbox" checked={state.pageNumbers} onChange={(event) => update({ pageNumbers: event.target.checked })} /> {msg("app.page.numbers")}</label>
               <label className="layout-field">
-                <span>{t('Running header')}</span>
-                <input value={state.runningHeader} onChange={(event) => update({ runningHeader: event.target.value })} placeholder={t('Optional')} />
+                <span>{msg("app.running.header")}</span>
+                <input value={state.runningHeader} onChange={(event) => update({ runningHeader: event.target.value })} placeholder={msg("app.optional")} />
               </label>
             </div>
           </aside>
 
           <div className="layout-preview-pane">
-            <div className="layout-preview-label"><Columns3 size={12} /> {t('Live page preview')}</div>
+            <div className="layout-preview-label"><Columns3 size={12} /> {msg("app.live.page.preview")}</div>
             <div
               className="layout-page"
               style={{
@@ -279,9 +279,9 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
               </div>
               <div className={`layout-page-body ${state.twoColumn ? 'two-col' : ''}`} style={{ lineHeight: state.lineSpacing }}>
                 <div className="layout-page-title" style={{ textAlign: state.titleStyle === 'minimal' ? 'left' : 'center' }}>
-                  {t('A Visual LaTeX Document')}
+                  {msg("app.a.visual.latex.document")}
                 </div>
-                <div className="layout-page-byline">{t('Author · 2026')}</div>
+                <div className="layout-page-byline">{msg("app.author.2026")}</div>
                 {Array.from({ length: state.twoColumn ? 2 : 1 }, (_, column) => (
                   <div className="layout-column" key={column}>
                     <span className="layout-para" />
@@ -297,22 +297,22 @@ export function LayoutStudio({ open, documentText, onClose, onApply }: Props) {
               </div>
             </div>
             <div className="layout-footer-note">
-              <Sparkles size={11} /> {t('The layout is applied as a clean, editable preamble block.')}
+              <Sparkles size={11} /> {msg("app.the.layout.is.applied.as.a.clean.editable.preamble")}
             </div>
           </div>
 
           <aside className="layout-code-pane">
-            <div className="pane-label"><Ruler size={12} /> {t('Generated preamble')}</div>
+            <div className="pane-label"><Ruler size={12} /> {msg("app.generated.preamble")}</div>
             <pre>{`\\documentclass[${result.documentClassOptions}]{...}\n\n${result.preambleBlock}`}</pre>
           </aside>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Existing TeXPro layout blocks are replaced; your content is untouched.')}</span>
+          <span className="studio-hint">{msg("app.existing.texpro.layout.blocks.are.replaced.your.content.is")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
           <button className="primary-btn" onClick={() => { onApply(result); onClose(); }}>
-            <LayoutTemplate size={13} /> {t('Apply layout')}
+            <LayoutTemplate size={13} /> {msg("app.apply.layout")}
           </button>
         </footer>
       </section>

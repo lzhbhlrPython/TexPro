@@ -38,7 +38,7 @@ function parseTable(source: string): { rows: string[][]; aligns: Align[]; bookta
 }
 
 export function TableStudio({ open, source, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const parsed = useMemo(() => parseTable(source), [source]);
   const [rows, setRows] = useState<string[][]>(parsed.rows);
   const [aligns, setAligns] = useState<Align[]>(parsed.aligns);
@@ -100,23 +100,23 @@ export function TableStudio({ open, source, onClose, onApply }: Props) {
           <div className="studio-heading">
             <div className="studio-icon"><Table2 size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Table editor')}</span>
-              <h2>{t('Edit table visually')}</h2>
+              <span className="modal-eyebrow">{msg("app.table.editor")}</span>
+              <h2>{msg("app.edit.table.visually")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok"><Grid2X2 size={11} /> {rows.length} × {width}</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="table-studio-body">
           <div className="table-studio-grid-pane">
             <div className="table-toolbar">
-              <button className="mini-btn" onClick={addRow} title={t('Add row')}><Plus size={11} /> {t('Row')}</button>
-              <button className="mini-btn" onClick={removeRow} title={t('Remove row')}><Minus size={11} /> {t('Row')}</button>
-              <button className="mini-btn" onClick={addColumn} title={t('Add column')}><Plus size={11} /> {t('Column')}</button>
-              <button className="mini-btn" onClick={removeColumn} title={t('Remove column')}><Minus size={11} /> {t('Column')}</button>
+              <button className="mini-btn" onClick={addRow} title={msg("app.add.row.variant2")}><Plus size={11} /> {msg("app.row")}</button>
+              <button className="mini-btn" onClick={removeRow} title={msg("app.remove.row")}><Minus size={11} /> {msg("app.row")}</button>
+              <button className="mini-btn" onClick={addColumn} title={msg("app.add.column.variant2")}><Plus size={11} /> {msg("app.column")}</button>
+              <button className="mini-btn" onClick={removeColumn} title={msg("app.remove.column")}><Minus size={11} /> {msg("app.column")}</button>
               <div className="spacer" />
               <label className="chart-check"><input type="checkbox" checked={booktabs} onChange={(event) => setBooktabs(event.target.checked)} /> booktabs</label>
             </div>
@@ -129,9 +129,9 @@ export function TableStudio({ open, source, onClose, onApply }: Props) {
                     {Array.from({ length: width }, (_, col) => (
                       <th key={col}>
                         <select value={aligns[col] || 'l'} onChange={(event) => setAligns((current) => current.map((value, i) => (i === col ? event.target.value as Align : value)))}>
-                          <option value="l">{t('Left')}</option>
-                          <option value="c">{t('Center')}</option>
-                          <option value="r">{t('Right')}</option>
+                          <option value="l">{msg("app.left.variant2")}</option>
+                          <option value="c">{msg("app.center.variant2")}</option>
+                          <option value="r">{msg("app.right.variant2")}</option>
                         </select>
                       </th>
                     ))}
@@ -153,22 +153,22 @@ export function TableStudio({ open, source, onClose, onApply }: Props) {
             </div>
 
             <div className="table-caption-row">
-              <label><span>{t('Caption')}</span><input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder={t('Optional caption')} /></label>
-              <label><span>{t('Label')}</span><input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="tab:results" /></label>
+              <label><span>{msg("app.caption.variant2")}</span><input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder={msg("app.optional.caption")} /></label>
+              <label><span>{msg("app.label")}</span><input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="tab:results" /></label>
             </div>
           </div>
 
           <div className="table-studio-preview">
-            <div className="workshop-preview-head"><span>{t('Generated LaTeX')}</span></div>
+            <div className="workshop-preview-head"><span>{msg("app.generated.latex")}</span></div>
             <pre className="workshop-code">{code}</pre>
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Edits replace the selected tabular block. The source stays ordinary LaTeX.')}</span>
+          <span className="studio-hint">{msg("app.edits.replace.the.selected.tabular.block.the.source.stays")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
-          <button className="primary-btn" onClick={() => onApply(code, booktabs)}>{t('Apply table')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
+          <button className="primary-btn" onClick={() => onApply(code, booktabs)}>{msg("app.apply.table")}</button>
         </footer>
       </section>
     </div>

@@ -9,9 +9,9 @@ interface Props {
 }
 
 const MCP_MARKET = [
-  { id: 'texpro', name: 'TeXPro', description: 'The local TeXPro project server', command: 'node', args: [] },
-  { id: 'git', name: 'Git', description: 'Inspect history, diffs and commit state', command: 'npx', args: ['-y', '@modelcontextprotocol/server-git'] },
-  { id: 'zotero', name: 'Zotero', description: 'Import BibTeX from a Zotero library', command: 'npx', args: ['-y', 'zotero-mcp'] },
+  { id: 'texpro', name: 'TeXPro', description: "app.the.local.texpro.project.server", command: 'node', args: [] },
+  { id: 'git', name: 'Git', description: "app.inspect.history.diffs.and.commit.state", command: 'npx', args: ['-y', '@modelcontextprotocol/server-git'] },
+  { id: 'zotero', name: 'Zotero', description: "app.import.bibtex.from.a.zotero.library", command: 'npx', args: ['-y', 'zotero-mcp'] },
 ];
 
 const MCP_RESOURCES = ['Project sources', 'Bibliography', 'Prompts: fix error, summarize, write section'];
@@ -24,7 +24,7 @@ const MCP_TOOLS = [
 ];
 
 export function McpPanel({ open, projectRoot, onClose }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [mcpPath, setMcpPath] = useState('');
   const [copied, setCopied] = useState(false);
   const [active, setActive] = useState<{ id: string; tools: Array<{ name: string; description?: string }> } | null>(null);
@@ -85,7 +85,7 @@ export function McpPanel({ open, projectRoot, onClose }: Props) {
     setClientError('');
     try {
       let parsed = {};
-      try { parsed = JSON.parse(callArgs || '{}'); } catch { throw new Error(t('Arguments must be valid JSON')); }
+      try { parsed = JSON.parse(callArgs || '{}'); } catch { throw new Error(msg("app.arguments.must.be.valid.json")); }
       const result = await window.texpro.mcpCall(active.id, callTool, parsed);
       setCallResult(JSON.stringify(result, null, 2));
     } catch (error) {
@@ -122,101 +122,101 @@ export function McpPanel({ open, projectRoot, onClose }: Props) {
           <div className="studio-heading">
             <div className="studio-icon"><Plug size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Integration')}</span>
-              <h2>{t('TeXPro MCP server')}</h2>
+              <span className="modal-eyebrow">{msg("app.integration")}</span>
+              <h2>{msg("app.texpro.mcp.server")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok"><Terminal size={11} /> stdio</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="mcp-body">
           <div className="mcp-config">
-            <div className="pane-label"><Plug size={12} /> {t('Client configuration')}</div>
-            <p className="mcp-hint">{t('Add this to Claude Desktop or another MCP client. Restart the client after changing the project.')}</p>
+            <div className="pane-label"><Plug size={12} /> {msg("app.client.configuration")}</div>
+            <p className="mcp-hint">{msg("app.add.this.to.claude.desktop.or.another.mcp.client")}</p>
             <pre className="mcp-code">{config}</pre>
             <button className="primary-btn" onClick={async () => { await navigator.clipboard?.writeText(config); setCopied(true); window.setTimeout(() => setCopied(false), 1200); }}>
-              {copied ? <Check size={12} /> : <Clipboard size={12} />} {copied ? t('Copied') : t('Copy config')}
+              {copied ? <Check size={12} /> : <Clipboard size={12} />} {copied ? msg("app.copied") : msg("app.copy.config")}
             </button>
           </div>
           <div className="mcp-tools">
             <div className="mcp-tabs">
-              <button className={tab === 'tools' ? 'active' : ''} onClick={() => setTab('tools')}>{t('Tools')}<span>{MCP_TOOLS.length}</span></button>
-              <button className={tab === 'clients' ? 'active' : ''} onClick={() => setTab('clients')}>{t('MCP clients')}<span>{active ? 1 : 0}</span></button>
-              <button className={tab === 'call' ? 'active' : ''} onClick={() => setTab('call')} disabled={!active}>{t('Call a tool')}</button>
+              <button className={tab === 'tools' ? 'active' : ''} onClick={() => setTab('tools')}>{msg("app.tools")}<span>{MCP_TOOLS.length}</span></button>
+              <button className={tab === 'clients' ? 'active' : ''} onClick={() => setTab('clients')}>{msg("app.mcp.clients")}<span>{active ? 1 : 0}</span></button>
+              <button className={tab === 'call' ? 'active' : ''} onClick={() => setTab('call')} disabled={!active}>{msg("app.call.a.tool")}</button>
             </div>
             {tab === 'tools' && (
               <>
-                <div className="pane-label"><Terminal size={12} /> {t('Exposed tools')}<span className="pane-hint">{MCP_TOOLS.length}</span></div>
+                <div className="pane-label"><Terminal size={12} /> {msg("app.exposed.tools")}<span className="pane-hint">{MCP_TOOLS.length}</span></div>
                 <div className="mcp-tool-list">{MCP_TOOLS.map((name) => <span key={name}>{name}</span>)}</div>
-                <div className="pane-label mcp-resource-label"><Terminal size={12} /> {t('Resources & prompts')}<span className="pane-hint">{MCP_RESOURCES.length}</span></div>
-                <div className="mcp-tool-list">{MCP_RESOURCES.map((name) => <span key={name}>{t(name)}</span>)}</div>
+                <div className="pane-label mcp-resource-label"><Terminal size={12} /> {msg("app.resources.prompts")}<span className="pane-hint">{MCP_RESOURCES.length}</span></div>
+                <div className="mcp-tool-list">{MCP_RESOURCES.map((name) => <span key={name}>{msg.text(name)}</span>)}</div>
                 <div className="mcp-warning">
-                  <strong>{t('Write access is explicit')}</strong>
-                  <p>{t('The server only operates inside the project passed with --project. write_file is the only mutating document tool; call it only when the user asks.')}</p>
+                  <strong>{msg("app.write.access.is.explicit")}</strong>
+                  <p>{msg("app.the.server.only.operates.inside.the.project.passed.with")}</p>
                 </div>
               </>
             )}
             {tab === 'clients' && (
               <>
-                <div className="pane-label"><Terminal size={12} /> {t('MCP clients')}<span className="pane-hint">{active ? 1 : 0}</span></div>
+                <div className="pane-label"><Terminal size={12} /> {msg("app.mcp.clients")}<span className="pane-hint">{active ? 1 : 0}</span></div>
                 <div className="mcp-market">
-                  {[...MCP_MARKET.map((preset) => ({ ...preset, installed: configs.some((item) => item.id === preset.id), custom: false })), ...configs.map((config) => ({ ...config, description: 'Saved custom server', installed: true, custom: true }))].map((preset) => (
+                  {[...MCP_MARKET.map((preset) => ({ ...preset, installed: configs.some((item) => item.id === preset.id), custom: false })), ...configs.map((config) => ({ ...config, description: "app.saved.custom.server", installed: true, custom: true }))].map((preset) => (
                     <div key={preset.id} className={`mcp-market-card ${active?.id === preset.id ? 'connected' : ''}`}>
                       <div>
                         <strong>{preset.name}</strong>
-                        <span>{t(preset.description)}</span>
+                        <span>{msg.text(preset.description)}</span>
                         <code>{preset.command} {preset.id === 'texpro' ? 'mcp/server.mjs' : preset.args.join(' ')}</code>
                       </div>
                       <div className="mcp-card-actions">
                         <button className="mini-btn" onClick={() => active?.id === preset.id ? void disconnect() : void connect(preset)} disabled={busy || !projectRoot}>
-                          {active?.id === preset.id ? t('Disconnect') : t('Connect')}
+                          {active?.id === preset.id ? msg("app.disconnect") : msg("app.connect")}
                         </button>
                         {preset.custom ? (
-                          <button className="mini-btn danger" onClick={() => void removeConfig(preset.id)} title={t('Remove server')}><Trash2 size={11} /></button>
+                          <button className="mini-btn danger" onClick={() => void removeConfig(preset.id)} title={msg("app.remove.server")}><Trash2 size={11} /></button>
                         ) : preset.installed ? (
-                          <button className="mini-btn" onClick={() => void removeConfig(preset.id)} title={t('Uninstall')}>{t('Installed')}</button>
+                          <button className="mini-btn" onClick={() => void removeConfig(preset.id)} title={msg("app.uninstall")}>{msg("app.installed")}</button>
                         ) : (
-                          <button className="mini-btn" onClick={() => void installPreset(preset)} title={t('Install preset')}>{t('Install')}</button>
+                          <button className="mini-btn" onClick={() => void installPreset(preset)} title={msg("app.install.preset")}>{msg("app.install")}</button>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="mcp-custom">
-                  <input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder={t('Server name')} />
+                  <input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder={msg("app.server.name")} />
                   <input value={customCommand} onChange={(event) => setCustomCommand(event.target.value)} placeholder="command" />
-                  <input value={customArgs} onChange={(event) => setCustomArgs(event.target.value)} placeholder={t('Arguments')} />
-                  <button className="mini-btn" onClick={() => void saveCustom()}>{t('Save server')}</button>
+                  <input value={customArgs} onChange={(event) => setCustomArgs(event.target.value)} placeholder={msg("app.arguments")} />
+                  <button className="mini-btn" onClick={() => void saveCustom()}>{msg("app.save.server")}</button>
                 </div>
-                <p className="mcp-hint mcp-security">{t('Only connect MCP servers you trust; they run as separate processes with your user permissions.')}</p>
+                <p className="mcp-hint mcp-security">{msg("app.only.connect.mcp.servers.you.trust.they.run.as")}</p>
                 {clientError && <div className="ai-error">{clientError}</div>}
               </>
             )}
             {tab === 'call' && (
               <>
-                <div className="pane-label"><Terminal size={12} /> {t('Call a tool')}<span className="pane-hint">{active?.tools.length || 0}</span></div>
+                <div className="pane-label"><Terminal size={12} /> {msg("app.call.a.tool")}<span className="pane-hint">{active?.tools.length || 0}</span></div>
                 {active ? (
                   <div className="mcp-call">
                     <select value={callTool} onChange={(event) => setCallTool(event.target.value)}>
                       {active.tools.map((tool) => <option key={tool.name} value={tool.name}>{tool.name}</option>)}
                     </select>
                     <textarea value={callArgs} onChange={(event) => setCallArgs(event.target.value)} spellCheck={false} />
-                    <button className="secondary-btn" onClick={() => void call()} disabled={busy || !callTool}>{busy ? t('Running…') : t('Call tool')}</button>
+                    <button className="secondary-btn" onClick={() => void call()} disabled={busy || !callTool}>{busy ? msg("app.running") : msg("app.call.tool")}</button>
                     {callResult && <pre className="mcp-call-result">{callResult}</pre>}
                   </div>
-                ) : <div className="panel-empty">{t('Connect an MCP client first.')}</div>}
+                ) : <div className="panel-empty">{msg("app.connect.an.mcp.client.first")}</div>}
               </>
             )}
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('The MCP server is a separate stdio process and does not depend on the Electron window.')}</span>
+          <span className="studio-hint">{msg("app.the.mcp.server.is.a.separate.stdio.process.and")}</span>
           <div className="spacer" />
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="primary-btn" onClick={onClose}>{msg("app.done")}</button>
         </footer>
       </section>
     </div>

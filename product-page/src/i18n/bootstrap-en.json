@@ -1,0 +1,4 @@
+{
+  "bootstrap.language.failed": "TeXPro could not load its language resources. Restart or reload to try again.",
+  "bootstrap.action.reload": "Reload"
+}

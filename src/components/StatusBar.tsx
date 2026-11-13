@@ -26,7 +26,7 @@ export function StatusBar({
   focus,
   onProblems,
 }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const errors = diagnostics.filter((item) => item.severity === 'error').length;
   const warnings = diagnostics.filter((item) => item.severity === 'warning').length;
   return (
@@ -34,31 +34,31 @@ export function StatusBar({
       <div className="status-left">
         {compiling ? (
           <span className="status-item accent">
-            <Loader2 size={10} className="spin" /> {t('Typesetting')}
+            <Loader2 size={10} className="spin" /> {msg("app.typesetting")}
           </span>
         ) : compileResult ? (
           <span className={`status-item ${compileResult.ok ? 'ok' : 'failed'}`}>
             {compileResult.ok ? <Check size={10} /> : <AlertCircle size={10} />}
-            {compileResult.ok ? `${t('PDF ready')} · ${formatDuration(compileResult.duration)}` : t('Compile failed')}
+            {compileResult.ok ? `${msg("app.pdf.ready")} · ${formatDuration(compileResult.duration)}` : msg("app.compile.failed")}
           </span>
         ) : (
-          <span className="status-item muted"><Circle size={8} /> {t('Ready')}</span>
+          <span className="status-item muted"><Circle size={8} /> {msg("app.ready")}</span>
         )}
         {compileResult?.engine && <span className="status-item muted">{compileResult.engine}</span>}
-        {compileResult?.ok && <span className="status-item muted">{t('SyncTeX on')}</span>}
+        {compileResult?.ok && <span className="status-item muted">{msg("app.synctex.on")}</span>}
       </div>
       <div className="status-center">
-        <span>{t('Ln {line}, Col {col}', { line: cursor.line, col: cursor.column })}</span>
-        {cursor.selected > 0 && <span>{t('n selected', { n: cursor.selected })}</span>}
-        <span>{t('n words', { n: words.toLocaleString() })}</span>
+        <span>{msg("app.ln.line.col.col", { line: cursor.line, col: cursor.column })}</span>
+        {cursor.selected > 0 && <span>{msg("app.n.selected", { n: cursor.selected })}</span>}
+        <span>{msg("app.n.words", { n: words.toLocaleString() })}</span>
       </div>
       <div className="status-right">
         <button className="status-button" onClick={onProblems}>
           {errors > 0 ? <AlertCircle size={10} className="error-text" /> : <Check size={10} className="success-text" />}
-          {errors + warnings > 0 ? t('n problems', { n: errors + warnings }) : t('No problems')}
+          {errors + warnings > 0 ? msg("app.n.problems", { n: errors + warnings }) : msg("app.no.problems")}
         </button>
-        <span className="status-item muted">{visual ? t('Visual') : t('Source')}</span>
-        {focus && <span className="status-item accent">{t('Focus')}</span>}
+        <span className="status-item muted">{visual ? msg("app.visual") : msg("app.source")}</span>
+        {focus && <span className="status-item accent">{msg("app.focus")}</span>}
         <span className="status-item muted">p.{page}</span>
         <span className="status-item muted">UTF-8</span>
       </div>

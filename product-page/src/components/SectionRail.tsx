@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SECTION_LINKS } from '@/data/site';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 import { scrollToSection } from '@/lib/section';
 
 /** 首页右侧的页内定位：一列小点，当前段落实心；不放文字，避免和正文抢注意力。 */
 export function SectionRail() {
   const { pathname } = useLocation();
-  const t = useT();
+  const msg = useMessages();
   const [active, setActive] = useState(SECTION_LINKS[0]?.id ?? '');
   const onHome = pathname === '/';
 
@@ -42,17 +42,17 @@ export function SectionRail() {
   if (!onHome) return null;
 
   return (
-    <nav className="dot-rail" aria-label={t('页面段落')}>
+    <nav className="dot-rail" aria-label={msg("site.on.this.page.variant3")}>
       {SECTION_LINKS.map((item) => (
         <button
           key={item.id}
           type="button"
           className={`dot${active === item.id ? ' is-active' : ''}`}
-          aria-label={t(item.label)}
+          aria-label={msg.text(item.label)}
           aria-current={active === item.id ? 'true' : undefined}
           onClick={() => scrollToSection(item.id)}
         >
-          <span className="dot-name">{t(item.label)}</span>
+          <span className="dot-name">{msg.text(item.label)}</span>
           <span className="dot-mark" />
         </button>
       ))}

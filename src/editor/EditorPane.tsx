@@ -2,7 +2,7 @@ import { stableViewport } from './stableViewport';
 import { applyExternalEdits } from './externalEdits';
 import { extensionCompletionSource, extensionHover } from './extensionProviders';
 import { labelAt, textChange } from '../lib/labelRename';
-import { t, useI18n } from '../i18n';
+import { msg, useI18n } from '../i18n';
 import { smartInput } from './smartInput';
 import { prosePosition, TEX_CLIPBOARD } from '../lib/writingFormats';
 import { rememberWritingPosition, resumePosition } from '../lib/writingResume';
@@ -412,9 +412,9 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           spellcheck: 'false',
           autocorrect: 'off',
           autocapitalize: 'off',
-          'aria-label': t('LaTeX source editor'),
+          'aria-label': msg("app.latex.source.editor"),
         }),
-        placeholder(t('Start writing, or open a .tex file from the project…')),
+        placeholder(msg("app.start.writing.or.open.a.tex.file.from.the")),
         lintGutter(),
         linter((view) => findSpellingIssues(view.state.doc.toString(), spellWordsRef.current).map((issue) => ({
           from: issue.from,
@@ -933,23 +933,23 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   return (
     <>
       {resumeMemo && <div className={`revision-memo-reminder ${memoDismissed || !liveResumeMemo ? 'is-dismissed' : ''}`} data-testid="revision-memo-reminder" aria-hidden={memoDismissed || !liveResumeMemo}>
-        <MessageSquare size={13} /><button className="memo-resume-text" onClick={() => { const view = viewRef.current; if (!view || !liveResumeMemo) return; const line = view.state.doc.line(Math.max(1, liveResumeMemo.line - 1)); view.dispatch({ selection: { anchor: line.to }, scrollIntoView: true }); view.focus(); }} title={t('Continue revising this passage')}><span>{t('Continue revising')}</span> {liveResumeMemo?.text || resumeMemo.text}</button>
-        <button className="mini-btn" title={t('Complete memo')} aria-label={t('Complete memo')} onClick={() => {
+        <MessageSquare size={13} /><button className="memo-resume-text" onClick={() => { const view = viewRef.current; if (!view || !liveResumeMemo) return; const line = view.state.doc.line(Math.max(1, liveResumeMemo.line - 1)); view.dispatch({ selection: { anchor: line.to }, scrollIntoView: true }); view.focus(); }} title={msg("app.continue.revising.this.passage")}><span>{msg("app.continue.revising")}</span> {liveResumeMemo?.text || resumeMemo.text}</button>
+        <button className="mini-btn" title={msg("app.complete.memo")} aria-label={msg("app.complete.memo")} onClick={() => {
           const view = viewRef.current; if (!view || !liveResumeMemo) return;
           const line = view.state.doc.line(liveResumeMemo.line), next = toggleWritingNote(line.text, liveResumeMemo);
           if (next) view.dispatch({ changes: { from: line.from, to: line.to, insert: next }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() }); view.focus();
         }}><Check size={13} /></button>
-        <button className="mini-btn" title={t('Dismiss reminder')} aria-label={t('Dismiss reminder')} onClick={() => { setMemoDismissed(true); viewRef.current?.focus(); }}><X size={13} /></button>
+        <button className="mini-btn" title={msg("app.dismiss.reminder")} aria-label={msg("app.dismiss.reminder")} onClick={() => { setMemoDismissed(true); viewRef.current?.focus(); }}><X size={13} /></button>
       </div>}
       {renaming && <form className="writing-rename" onSubmit={async event => {
         event.preventDefault(); if (renaming.busy) return;
         setRenaming({ ...renaming, busy: true, error: '' });
         try { await propsRef.current.onRenameLabel(renaming.before, renaming.value.trim()); setRenaming(null); viewRef.current?.focus(); }
-        catch (error) { setRenaming(current => current && ({ ...current, busy: false, error: t(error instanceof Error ? error.message : String(error)) })); }
+        catch (error) { setRenaming(current => current && ({ ...current, busy: false, error: msg.text(error instanceof Error ? error.message : String(error)) })); }
       }}>
-        <label>{t('Rename label and references')}<input autoFocus onFocus={event => event.currentTarget.select()} aria-label={t('New label')} value={renaming.value} disabled={renaming.busy} onChange={event => setRenaming({ ...renaming, value: event.target.value, error: '' })} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } if (event.key === 'Escape' && !renaming.busy) { event.preventDefault(); setRenaming(null); viewRef.current?.focus(); } }} /></label>
-        <button className="primary-btn" disabled={renaming.busy || !renaming.value.trim()}>{t(renaming.busy ? 'Updating…' : 'Rename')}</button>
-        <button type="button" className="secondary-btn" disabled={renaming.busy} onClick={() => { setRenaming(null); viewRef.current?.focus(); }}>{t('Cancel')}</button>
+        <label>{msg("app.rename.label.and.references")}<input autoFocus onFocus={event => event.currentTarget.select()} aria-label={msg("app.new.label")} value={renaming.value} disabled={renaming.busy} onChange={event => setRenaming({ ...renaming, value: event.target.value, error: '' })} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } if (event.key === 'Escape' && !renaming.busy) { event.preventDefault(); setRenaming(null); viewRef.current?.focus(); } }} /></label>
+        <button className="primary-btn" disabled={renaming.busy || !renaming.value.trim()}>{msg(renaming.busy ? "app.updating" : "app.rename")}</button>
+        <button type="button" className="secondary-btn" disabled={renaming.busy} onClick={() => { setRenaming(null); viewRef.current?.focus(); }}>{msg("app.cancel")}</button>
         {renaming.error && <span role="alert">{renaming.error}</span>}
       </form>}
       {reviewing && <WritingReviewBar root={props.root} file={props.path} saved={props.savedContent} onCompare={(source, label) => viewRef.current?.dispatch({ effects: reviewWriting.of({ source, label }) })} onClose={() => { setReviewing(false); viewRef.current?.dispatch({ effects: reviewWriting.of(null) }); viewRef.current?.focus(); }} />}
@@ -960,13 +960,13 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           style={{ left: selectionBubble.left, top: selectionBubble.top }}
           onMouseDown={(event) => event.preventDefault()}
         >
-          <button onClick={() => applyBubble('\\textbf{', '}')} title={t('Bold')}><Bold size={12} /></button>
-          <button onClick={() => applyBubble('\\textit{', '}')} title={t('Italic')}><Italic size={12} /></button>
-          <button onClick={() => applyBubble('\\texttt{', '}')} title={t('Code')}><Code2 size={12} /></button>
+          <button onClick={() => applyBubble('\\textbf{', '}')} title={msg("app.bold.variant2")}><Bold size={12} /></button>
+          <button onClick={() => applyBubble('\\textit{', '}')} title={msg("app.italic.variant2")}><Italic size={12} /></button>
+          <button onClick={() => applyBubble('\\texttt{', '}')} title={msg("app.code")}><Code2 size={12} /></button>
           <span />
-          <button onClick={() => applyBubble('$', '$')} title={t('Inline math')}><Sigma size={12} /></button>
-          <button onClick={() => applyBubble('\\cite{', '}')} title={t('Citation')}><Quote size={12} /></button>
-          <button onClick={() => applyBubble('\\ref{', '}')} title={t('Reference')}><Link2 size={12} /></button>
+          <button onClick={() => applyBubble('$', '$')} title={msg("app.inline.math")}><Sigma size={12} /></button>
+          <button onClick={() => applyBubble('\\cite{', '}')} title={msg("app.citation")}><Quote size={12} /></button>
+          <button onClick={() => applyBubble('\\ref{', '}')} title={msg("app.reference")}><Link2 size={12} /></button>
         </div>,
         document.body,
       )}

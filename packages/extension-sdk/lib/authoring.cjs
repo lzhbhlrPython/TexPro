@@ -23,7 +23,7 @@ const styles = Object.freeze({
 });
 function authoringCapabilities() {
   return { apiVersion: 1, bridgeVersion: 1, languages, styles, artifacts: { plugin: '.tpp', theme: '.tpt' },
-    locales: { contribution: 'contributes.locales', format: 'JSON strings', code: false, fallback: 'en', preinstalled: '@texpro/extension-translate-zh-cn' },
+    locales: { catalogVersion: 2, keys: 'semantic message IDs', longText: 'localized Markdown documents', contribution: 'contributes.locales', format: 'JSON strings', code: false, fallback: 'en', preinstalled: '@texpro/extension-translate-zh-cn' },
     distribution: { registry: 'https://registry.npmjs.org', field: 'texpro.package', sourceField: 'texpro.source', sourceDefault: '.', trustedLocalBuild: true, compilerInstallScripts: 'disabled unless separately trusted for prepare', reviewRequired: true, executesInstallScripts: false },
     runtime: { plugin: 'Self-contained .cjs/.mjs in trusted Node process', theme: 'Validated static CSS, configuration and local assets only' },
     security: ['Build commands execute trusted developer toolchains; never run them on untrusted sources.', 'Node plugins have user file, network and process permissions. Process isolation is not a sandbox.', 'Themes can hide controls or imitate trusted UI. File suffixes do not certify safety.'],

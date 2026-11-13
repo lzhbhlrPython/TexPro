@@ -44,11 +44,11 @@ test('real MCP stdio exposes read-only authoring and inspects packages without r
   fs.writeFileSync(path.join(npmSource, 'qwertysay.build.json'), '{"version":1,"type":"plugin","language":"ts"}');
   const sourceReport = parse(await call('texpro_inspect_extension', { path: 'npm-source' }));
   assert.equal(sourceReport.requiresBuild, true); assert.equal(sourceReport.npm.name, 'test-source'); assert.equal(fs.existsSync(path.join(npmSource, 'node_modules')), false);
-  const language = { ...manifest, entry: undefined, contributes: { locales: [{ id: 'fr', title: 'Français', messages: 'fr.json' }] } };
-  const languageFiles = new Map([['texpro.extension.json', JSON.stringify(language)], ['LICENSE', 'MIT'], ['fr.json', '{"Save":"Enregistrer"}']]);
+  const language = { ...manifest, entry: undefined, contributes: { locales: [{ catalogVersion: 2, id: 'fr', title: 'Français', messages: 'fr.json' }] } };
+  const languageFiles = new Map([['texpro.extension.json', JSON.stringify(language)], ['LICENSE', 'MIT'], ['fr.json', '{"app.save":"Enregistrer"}']]);
   fs.writeFileSync(path.join(root, 'language.tpp'), pack(languageFiles));
   assert.equal(parse(await call('texpro_inspect_extension', { path: 'language.tpp' })).executable, false);
-  languageFiles.set('fr.json', '{"Hello {name}":"Bonjour {wrong}"}'); fs.writeFileSync(path.join(root, 'bad-language.tpp'), pack(languageFiles));
+  languageFiles.set('fr.json', '{"app.could.not.open.file":"Bonjour {wrong}"}'); fs.writeFileSync(path.join(root, 'bad-language.tpp'), pack(languageFiles));
   assert.equal((await call('texpro_inspect_extension', { path: 'bad-language.tpp' })).isError, true);
   const report = parse(await call('texpro_inspect_extension', { path: 'inspect.tpp' }));
   assert.equal(report.manifest.id, manifest.id); assert.equal(report.executable, true); assert.equal(report.fileCount, 3);

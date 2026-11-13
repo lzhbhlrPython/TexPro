@@ -1,17 +1,21 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { TranslationOutlined } from '@ant-design/icons';
-import { Button, Dropdown } from 'antd';
-import { useLocale, useT } from '@/i18n';
+import { App, Button, Dropdown } from 'antd';
+import { useLocale, useMessages } from '@/i18n';
 import { isLocale, SITE_LANGUAGES } from '@/i18n/locales';
 
 /** One icon and a selected language menu, shared by wide and narrow navigation. */
 export function LanguageSwitch() {
-  const t = useT();
-  const { locale, setLocale } = useLocale();
+  const msg = useMessages();
+  const { message } = App.useApp();
+  const { locale, setLocale, startupFailure } = useLocale();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef(false);
   const menuId = useId();
+  useEffect(() => {
+    if (startupFailure) void message.warning({ key: 'language-startup-failure', content: msg('site.language.load.failed') });
+  }, [startupFailure, message, msg]);
   useEffect(() => {
     if (!open && !returnFocus.current) return;
     const frame = requestAnimationFrame(() => {
@@ -30,7 +34,7 @@ export function LanguageSwitch() {
       id: menuId,
       selectable: true,
       selectedKeys: [locale],
-      'aria-label': t('选择语言'),
+      'aria-label': msg("site.choose.language"),
       items: SITE_LANGUAGES.map(language => ({
         key: language.code,
         label: <span lang={language.htmlLang}>{language.code} · {language.name}</span>,
@@ -39,7 +43,7 @@ export function LanguageSwitch() {
         // Prevent Enter's release from clicking the trigger after focus returns to it.
         domEvent.preventDefault();
         returnFocus.current = true;
-        if (isLocale(key)) setLocale(key);
+        if (isLocale(key)) void setLocale(key).then(result => { if (result === 'failed') message.error(msg('site.language.load.failed')); });
         setOpen(false);
       },
       onKeyDown: event => {
@@ -51,7 +55,7 @@ export function LanguageSwitch() {
     }}
   >
     <Button ref={trigger} type="text" size="large" className="locale-switch"
-      icon={<TranslationOutlined />} aria-label={t('选择语言')} title={t('选择语言')}
+      icon={<TranslationOutlined />} aria-label={msg("site.choose.language")} title={msg("site.choose.language")}
       aria-haspopup="menu" aria-expanded={open} aria-controls={open ? menuId : undefined} />
   </Dropdown>;
 }

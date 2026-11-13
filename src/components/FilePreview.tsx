@@ -39,7 +39,7 @@ function formatBytes(size: number): string {
 }
 
 export function FilePreview({ path, onClose, onOpenText, onInsertImage, onReveal, onOpenExternal }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [stat, setStat] = useState<{ size: number; modified: number; name: string; ext: string; directory: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -90,32 +90,32 @@ export function FilePreview({ path, onClose, onOpenText, onInsertImage, onReveal
         <div className="file-preview-title">
           {isImage ? <FileImage size={14} /> : isPdf ? <FileText size={14} /> : isAudio ? <Music size={14} /> : isVideo ? <Video size={14} /> : isArchive ? <FileArchive size={14} /> : <File size={14} />}
           <span>{name}</span>
-          <span className="file-preview-ext">{ext.replace('.', '').toUpperCase() || t('FILE')}</span>
+          <span className="file-preview-ext">{ext.replace('.', '').toUpperCase() || msg("app.file")}</span>
           {stat && <span className="file-preview-size">{formatBytes(stat.size)}</span>}
           {dimensions && <span className="file-preview-size">{dimensions.width} × {dimensions.height}</span>}
         </div>
         <div className="file-preview-actions">
           {isImage && (
             <>
-              <button className="icon-btn" onClick={() => setZoom((value) => Math.max(0.25, value - 0.15))} title={t('Zoom out')}><Minus size={13} /></button>
+              <button className="icon-btn" onClick={() => setZoom((value) => Math.max(0.25, value - 0.15))} title={msg("app.zoom.out")}><Minus size={13} /></button>
               <span className="zoom-label">{Math.round(zoom * 100)}%</span>
-              <button className="icon-btn" onClick={() => setZoom((value) => Math.min(4, value + 0.15))} title={t('Zoom in')}><Plus size={13} /></button>
-              <button className="icon-btn" onClick={() => setZoom(1)} title={t('Actual size')}><Maximize2 size={13} /></button>
-              <button className="icon-btn" onClick={() => onInsertImage(path)} title={t('Insert into document')}><ImagePlus size={14} /></button>
+              <button className="icon-btn" onClick={() => setZoom((value) => Math.min(4, value + 0.15))} title={msg("app.zoom.in")}><Plus size={13} /></button>
+              <button className="icon-btn" onClick={() => setZoom(1)} title={msg("app.actual.size")}><Maximize2 size={13} /></button>
+              <button className="icon-btn" onClick={() => onInsertImage(path)} title={msg("app.insert.into.document")}><ImagePlus size={14} /></button>
             </>
           )}
-          {isText && <button className="secondary-btn small" onClick={() => onOpenText(path)}><FileText size={12} /> {t('Edit text')}</button>}
-          <button className="icon-btn" onClick={() => onReveal(path)} title={t('Reveal in Finder')}><FolderOpen size={14} /></button>
-          <button className="icon-btn" onClick={() => onOpenExternal(path)} title={t('Open with default app')}><ExternalLink size={14} /></button>
+          {isText && <button className="secondary-btn small" onClick={() => onOpenText(path)}><FileText size={12} /> {msg("app.edit.text")}</button>}
+          <button className="icon-btn" onClick={() => onReveal(path)} title={msg("app.reveal.in.finder")}><FolderOpen size={14} /></button>
+          <button className="icon-btn" onClick={() => onOpenExternal(path)} title={msg("app.open.with.default.app")}><ExternalLink size={14} /></button>
           <button className="icon-btn" data-testid="close-preview"
           onClick={onClose}
-          title={t('Close preview')}><X size={15} /></button>
+          title={msg("app.close.preview")}><X size={15} /></button>
         </div>
       </header>
 
       <div className="file-preview-body">
-        {!stat && !error && <div className="file-preview-loading"><Loader2 size={18} className="spin" /> {t('Reading file…')}</div>}
-        {error && <div className="file-preview-unknown"><strong>{t('Could not preview this file')}</strong><p>{error}</p></div>}
+        {!stat && !error && <div className="file-preview-loading"><Loader2 size={18} className="spin" /> {msg("app.reading.file")}</div>}
+        {error && <div className="file-preview-unknown"><strong>{msg("app.could.not.preview.this.file")}</strong><p>{error}</p></div>}
         {stat && isImage && (
           <div className="image-preview-stage">
             <img src={url} alt={name} style={{ transform: `scale(${zoom})` }} />
@@ -138,7 +138,7 @@ export function FilePreview({ path, onClose, onOpenText, onInsertImage, onReveal
         {stat && !isImage && !isPdf && !isAudio && !isVideo && (
           <div className="file-preview-unknown">
             {isArchive ? <FileArchive size={38} /> : <File size={38} />}
-            <strong>{isArchive ? t('Archive file') : t('No inline preview for this format')}</strong>
+            <strong>{isArchive ? msg("app.archive.file") : msg("app.no.inline.preview.for.this.format")}</strong>
             <p>{name}</p>
             <div className="file-preview-meta">
               <span>{formatBytes(stat.size)}</span>
@@ -146,9 +146,9 @@ export function FilePreview({ path, onClose, onOpenText, onInsertImage, onReveal
               <span>{path}</span>
             </div>
             <div className="file-preview-buttons">
-              {isText && <button className="primary-btn" onClick={() => onOpenText(path)}>{t('Edit text')}</button>}
-              <button className="secondary-btn" onClick={() => onOpenExternal(path)}>{t('Open with default app')}</button>
-              <button className="secondary-btn" onClick={() => onReveal(path)}>{t('Reveal in Finder')}</button>
+              {isText && <button className="primary-btn" onClick={() => onOpenText(path)}>{msg("app.edit.text")}</button>}
+              <button className="secondary-btn" onClick={() => onOpenExternal(path)}>{msg("app.open.with.default.app")}</button>
+              <button className="secondary-btn" onClick={() => onReveal(path)}>{msg("app.reveal.in.finder")}</button>
             </div>
           </div>
         )}

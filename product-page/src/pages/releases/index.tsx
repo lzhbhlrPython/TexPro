@@ -9,10 +9,10 @@ import { SITE_LINKS } from '@/config/constants';
 import snapshot from '@/config/stable-releases.json';
 import { groupStableReleases, type StableRelease } from '@/lib/stable-releases.mjs';
 import { formatSize } from '@/lib/release';
-import { useLocale, useT } from '@/i18n';
+import { useLocale, useMessages } from '@/i18n';
 
 export default function ReleasesPage() {
-  const t = useT();
+  const msg = useMessages();
   const { locale } = useLocale();
   const { token } = theme.useToken();
   const { message } = App.useApp();
@@ -25,36 +25,36 @@ export default function ReleasesPage() {
   const copy = async (digest: string) => {
     try {
       await navigator.clipboard.writeText(digest.replace(/^sha256:/, ''));
-      message.success(t('SHA256 已复制'));
+      message.success(msg("site.sha256.copied"));
     } catch {
-      message.error(t('浏览器不允许写剪贴板'));
+      message.error(msg("site.the.browser.blocked.clipboard.access"));
     }
   };
   const status = snapshot.source === 'github'
-    ? '构建时已同步 GitHub'
+    ? "site.synced.from.github.at.build.time"
     : snapshot.source === 'stale'
-      ? 'GitHub 暂不可用，显示此前快照'
-      : '暂时无法获取正式版本，请前往 GitHub 查看';
+      ? "site.github.is.unavailable.showing.a.previous.snapshot"
+      : "site.release.data.is.unavailable.check.github";
 
   return (
     <div className="section">
       <div className="shell">
         <SectionHeading
-          eyebrow="正式版本列表"
-          title="选择一个正式版本"
-          description="按系列代号浏览正式版本，展开小版本查看发布说明与安装包。Nightly 继续在更新日志中展示。"
+          eyebrow="site.stable.releases"
+          title="site.choose.a.stable.release"
+          description="site.browse.stable.releases.by.series.expand.a.version.for"
         />
         <Space wrap style={{ marginBlock: 24 }}>
-          <Link to="/changelog"><Button>{t('查看最新构建')}</Button></Link>
+          <Link to="/changelog"><Button>{msg("site.view.latest.build")}</Button></Link>
           <Button href={SITE_LINKS.releases} target="_blank" rel="noreferrer">GitHub Releases</Button>
           <Typography.Text type="secondary" role="status">
-            {t(status)}{snapshot.syncedAt ? ` · ${date(snapshot.syncedAt)}` : ''}
+            {msg.text(status)}{snapshot.syncedAt ? ` · ${date(snapshot.syncedAt)}` : ''}
           </Typography.Text>
         </Space>
         {!releases.length && snapshot.source !== 'unavailable' ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={t('暂无正式版本；可在更新日志中获取 Nightly。')}
+            description={msg("site.no.stable.releases.yet.find.nightly.builds.in.the")}
           />
         ) : null}
         {groups.map((group, groupIndex) => (
@@ -72,7 +72,7 @@ export default function ReleasesPage() {
                 label: (
                   <Flex align="center" justify="space-between" wrap gap={token.marginXS}>
                     <Typography.Title level={3} style={{ margin: 0, fontSize: token.fontSizeLG }}>{release.tag}</Typography.Title>
-                    <Typography.Text type="secondary">{t('发布于')} {date(release.publishedAt)}</Typography.Text>
+                    <Typography.Text type="secondary">{msg("site.published")} {date(release.publishedAt)}</Typography.Text>
                   </Flex>
                 ),
                 children: (
@@ -80,27 +80,27 @@ export default function ReleasesPage() {
                     <div className="release-notes">
                       {release.notes ? (
                         <MarkdownBlocks blocks={parseMarkdown(release.notes)} idPrefix={`release-${release.tag}`} headingOffset={3} />
-                      ) : <Typography.Paragraph>{t('此版本未提供发布说明。')}</Typography.Paragraph>}
+                      ) : <Typography.Paragraph>{msg("site.no.release.notes.provided")}</Typography.Paragraph>}
                     </div>
                     <Button
                       href={release.url || `${SITE_LINKS.releases}/tag/${release.tag}`}
                       target="_blank" rel="noreferrer" style={{ marginBlock: token.marginLG }}
                     >
-                      {t('原始发布说明')}
+                      {msg("site.original.release.notes")}
                     </Button>
                     <Table
                       rowKey="name" size="middle" pagination={false} dataSource={release.assets}
                       scroll={{ x: 640 }}
-                      locale={{ emptyText: t('此版本没有可下载的安装包。') }}
+                      locale={{ emptyText: msg("site.this.release.has.no.downloadable.assets") }}
                       columns={[
                         {
-                          title: t('安装包'), dataIndex: 'name',
+                          title: msg("site.installer"), dataIndex: 'name',
                           render: (name: string, asset: StableRelease['assets'][number]) => (
                             <a href={asset.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'var(--mono)' }}>{name}</a>
                           ),
                         },
                         {
-                          title: t('体积'), dataIndex: 'size', width: 110,
+                          title: msg("site.size"), dataIndex: 'size', width: 110,
                           render: (size: number) => formatSize(size) || '—',
                         },
                         {
@@ -108,7 +108,7 @@ export default function ReleasesPage() {
                           render: (digest: string | null) => digest ? (
                             <Button
                               type="text" size="small" icon={<CopyOutlined />}
-                              title={t('复制完整校验值')} aria-label={t('复制完整校验值')}
+                              title={msg("site.copy.complete.checksum")} aria-label={msg("site.copy.complete.checksum")}
                               onClick={() => copy(digest)} style={{ fontFamily: 'var(--mono)' }}
                             >
                               {digest.replace(/^sha256:/, '').slice(0, 12)}…

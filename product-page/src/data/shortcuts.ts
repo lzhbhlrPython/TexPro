@@ -11,38 +11,38 @@ export interface ShortcutGroup {
 /** 与 electron/main.cjs 的菜单加速键、编辑器 keymap 一一对应。 */
 export const SHORTCUTS: ShortcutGroup[] = [
   {
-    title: '文件',
+    title: "site.file",
     items: [
-      { keys: '⌘ O', label: '打开文件夹' },
-      { keys: '⌘ S', label: '保存当前文件' },
-      { keys: '⌘ ⇧ W', label: '关闭工程' },
+      { keys: '⌘ O', label: "site.open.folder" },
+      { keys: '⌘ S', label: "site.save.current.file" },
+      { keys: '⌘ ⇧ W', label: "site.close.project" },
     ],
   },
   {
-    title: '写作',
+    title: "site.writing",
     items: [
-      { keys: '⌘ K', label: '命令面板' },
-      { keys: '⌘ ⇧ H', label: '插入占位符' },
-      { keys: 'F4', label: '循环当前文件的占位符' },
-      { keys: '⌘ ⇧ N', label: '插入修订备忘' },
+      { keys: '⌘ K', label: "site.command.palette" },
+      { keys: '⌘ ⇧ H', label: "site.insert.placeholder" },
+      { keys: 'F4', label: "site.cycle.placeholders.in.file" },
+      { keys: '⌘ ⇧ N', label: "site.insert.revision.memo" },
     ],
   },
   {
-    title: '编译与定位',
+    title: "site.build.and.jump",
     items: [
-      { keys: '⌘ ↩', label: '编译' },
-      { keys: '⌘ J', label: 'Forward Search：源码跳到 PDF' },
-      { keys: '⌘ ⇧ P', label: '收起 / 展开 PDF 预览' },
+      { keys: '⌘ ↩', label: "site.compile" },
+      { keys: '⌘ J', label: "site.forward.search.source.to.pdf" },
+      { keys: '⌘ ⇧ P', label: "site.toggle.pdf.preview" },
     ],
   },
   {
-    title: '视图',
+    title: "site.view",
     items: [
-      { keys: '⌘ \\', label: '收起 / 展开侧栏' },
-      { keys: '⌘ ⇧ M', label: '切换可视模式' },
-      { keys: '⌘ ⇧ F', label: '切换聚焦模式' },
-      { keys: '⌘ ⇧ T', label: '切换打字机模式' },
-      { keys: '⌘ ⇧ L', label: '切换日间 / 夜间' },
+      { keys: '⌘ \\', label: "site.toggle.sidebar" },
+      { keys: '⌘ ⇧ M', label: "site.toggle.visual.mode" },
+      { keys: '⌘ ⇧ F', label: "site.toggle.focus.mode" },
+      { keys: '⌘ ⇧ T', label: "site.toggle.typewriter.mode" },
+      { keys: '⌘ ⇧ L', label: "site.toggle.light.dark" },
     ],
   },
 ];

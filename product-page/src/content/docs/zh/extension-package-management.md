@@ -28,7 +28,7 @@ summary: 从创建扩展目录开始，逐步用 npm 或 yarn 安装、升级和
 找一个保存扩展的父目录，在那里打开终端。不要在 LaTeX 工程、TeXPro 源码或插件源码目录里执行以下步骤。
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 第一次运行 npx 可能询问是否下载 qwertysay，确认后进入引导。按顺序填写：

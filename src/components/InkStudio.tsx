@@ -39,7 +39,7 @@ interface Props {
 }
 
 export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, onInsert }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
@@ -240,35 +240,35 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
   };
 
   return (
-    <WorkspaceFrame title={t('Ink studio')} className="ink-studio" onClose={onClose} testId="ink-studio" dataStrokes={strokes.length}>
+    <WorkspaceFrame title={msg("app.ink.studio")} className="ink-studio" onClose={onClose} testId="ink-studio" dataStrokes={strokes.length}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><PenLine size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Diagram')}</span>
-              <h2>{t('Ink studio')}</h2>
+              <span className="modal-eyebrow">{msg("app.diagram")}</span>
+              <h2>{msg("app.ink.studio")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{strokes.length} {t('strokes')}</span>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{strokes.length} {msg("app.strokes")}</span>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
-        {draftError && <p role="alert" className="extension-error">{t('Could not preserve this workspace draft. Export it before closing.')}</p>}
+        {draftError && <p role="alert" className="extension-error">{msg("app.could.not.preserve.this.workspace.draft.export.it.before")}</p>}
         <div className="ink-toolbar">
-          <input type="color" value={color} onChange={(event) => setColor(event.target.value)} title={t('Ink color')} />
-          <input type="range" min={1} max={14} step={0.5} value={width} onChange={(event) => setWidth(Number(event.target.value))} title={t('Ink width')} />
-          <span className="ink-size-preview" title={t('Brush preview')}><i style={{ width: width * 2.3, height: width * 2.3 }} /></span>
-          <button className={`icon-btn ${tool === 'pen' ? 'active' : ''}`} onClick={() => setTool('pen')} title={t('Pen')}><PenLine size={14} /></button>
-          <button className={`icon-btn ${tool === 'eraser' ? 'active' : ''}`} onClick={() => setTool('eraser')} title={t('Eraser')}><Eraser size={14} /></button>
-          <button className={`icon-btn ${pressure ? 'active' : ''}`} onClick={() => setPressure((value) => !value)} title={t('Pen pressure')}><Activity size={14} /></button>
-          <button className={`icon-btn ${smooth ? 'active' : ''}`} onClick={() => setSmooth((value) => !value)} title={smooth ? t('Smooth engine') : t('Precise input')}><Sparkles size={14} /></button>
-          <button className="icon-btn" onClick={undo} disabled={!strokes.length} title={t('Undo')}><Undo2 size={14} /></button>
-          <button className="icon-btn" onClick={redo} disabled={!redoStack.length} title={t('Redo')}><Redo2 size={14} /></button>
-          <button className="icon-btn" onClick={() => { setStrokes([]); setRedoStack([]); }} disabled={!strokes.length} title={t('Clear')}><Trash2 size={14} /></button>
+          <input type="color" value={color} onChange={(event) => setColor(event.target.value)} title={msg("app.ink.color")} />
+          <input type="range" min={1} max={14} step={0.5} value={width} onChange={(event) => setWidth(Number(event.target.value))} title={msg("app.ink.width")} />
+          <span className="ink-size-preview" title={msg("app.brush.preview")}><i style={{ width: width * 2.3, height: width * 2.3 }} /></span>
+          <button className={`icon-btn ${tool === 'pen' ? 'active' : ''}`} onClick={() => setTool('pen')} title={msg("app.pen")}><PenLine size={14} /></button>
+          <button className={`icon-btn ${tool === 'eraser' ? 'active' : ''}`} onClick={() => setTool('eraser')} title={msg("app.eraser")}><Eraser size={14} /></button>
+          <button className={`icon-btn ${pressure ? 'active' : ''}`} onClick={() => setPressure((value) => !value)} title={msg("app.pen.pressure")}><Activity size={14} /></button>
+          <button className={`icon-btn ${smooth ? 'active' : ''}`} onClick={() => setSmooth((value) => !value)} title={smooth ? msg("app.smooth.engine") : msg("app.precise.input")}><Sparkles size={14} /></button>
+          <button className="icon-btn" onClick={undo} disabled={!strokes.length} title={msg("app.undo")}><Undo2 size={14} /></button>
+          <button className="icon-btn" onClick={redo} disabled={!redoStack.length} title={msg("app.redo")}><Redo2 size={14} /></button>
+          <button className="icon-btn" onClick={() => { setStrokes([]); setRedoStack([]); }} disabled={!strokes.length} title={msg("app.clear")}><Trash2 size={14} /></button>
           <span className="spacer" />
-          <span className="ink-hint">{t('Pen pressure is used when available; mouse strokes use velocity.')}</span>
+          <span className="ink-hint">{msg("app.pen.pressure.is.used.when.available.mouse.strokes.use")}</span>
         </div>
 
         <div className="ink-canvas-wrap" ref={wrapRef}>
@@ -283,17 +283,17 @@ export function InkStudio({ open, projectRoot, activeFile, assetsDir, onClose, o
           {!strokes.length && (
             <div className="ink-empty">
               <PenLine size={22} />
-              <strong>{t('Start drawing')}</strong>
-              <span>{t('Use a pen for pressure, or a mouse with velocity dynamics.')}</span>
+              <strong>{msg("app.start.drawing")}</strong>
+              <span>{msg("app.use.a.pen.for.pressure.or.a.mouse.with")}</span>
             </div>
           )}
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('PNG works with every engine; TikZ stays editable in LaTeX.')}</span>
+          <span className="studio-hint">{msg("app.png.works.with.every.engine.tikz.stays.editable.in")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={() => { onInsert(toTikz()); onClose(); }} disabled={!strokes.length}>{t('Insert TikZ')}</button>
-          <button className="primary-btn" onClick={() => void savePng()} disabled={!strokes.length || !projectRoot || saving}>{t('Save PNG & insert')}</button>
+          <button className="secondary-btn" onClick={() => { onInsert(toTikz()); onClose(); }} disabled={!strokes.length}>{msg("app.insert.tikz")}</button>
+          <button className="primary-btn" onClick={() => void savePng()} disabled={!strokes.length || !projectRoot || saving}>{msg("app.save.png.insert")}</button>
         </footer>
     </WorkspaceFrame>
   );

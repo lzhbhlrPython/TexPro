@@ -3,7 +3,7 @@ import { theme } from 'antd';
 import { CodeHighlight } from '@/components/CodeHighlight';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 
 const SOURCE = [
   { line: 12, text: '\\section{Methods}' },
@@ -20,25 +20,25 @@ const DIAGNOSTICS = [
     line: 15,
     level: 'error',
     message: 'LaTeX Error: File `tables/bench.tex\' not found.',
-    hint: '路径相对主文件：改成 tables/bench 或把文件移回工程目录。',
+    hint: "site.paths.are.relative.to.the.main.file.either.point",
   },
   {
     line: 18,
     level: 'warning',
     message: 'Package biblatex Warning: Please rerun LaTeX.',
-    hint: '第二次编译才会把引用写进 PDF，重新编译即可。',
+    hint: "site.references.land.in.the.pdf.on.the.second.pass",
   },
   {
     line: 17,
     level: 'warning',
     message: 'Reference `tab:bench\' on page 3 undefined.',
-    hint: '标签在 tables/bench.tex 里定义，先修好上面的缺文件。',
+    hint: "site.the.label.is.defined.inside.tables.bench.tex.fix",
   },
 ];
 
 /** 错误现场：左边坏掉的源码，右边是真实的诊断面板，点一条跳到对应行。 */
 export function Failure() {
-  const t = useT();
+  const msg = useMessages();
   const { token } = theme.useToken();
   const [active, setActive] = useState(0);
   const current = DIAGNOSTICS[active];
@@ -47,16 +47,16 @@ export function Failure() {
     <section className="section section-failure" id="failure">
       <div className="shell">
         <SectionHeading
-          eyebrow="出错的时候"
-          title="报错不该是一屏日志"
-          description="编译失败时，问题按文件、行号和类型排进面板；点一条就跳到出错的源码行。下面这份是真实编译产物的片段。"
+          eyebrow="site.when.it.breaks"
+          title="site.an.error.should.not.be.a.wall.of.log"
+          description="site.when.a.build.fails.problems.are.sorted.by.file"
         />
 
         <div className="failure-grid">
           <Reveal className="failure-source" style={{ borderColor: token.colorBorderSecondary }}>
             <div className="failure-bar" style={{ background: token.colorFillQuaternary }}>
               <span>main.tex</span>
-              <span>{t('第 1 行，第 1 列')}</span>
+              <span>{msg("site.line.1.column.1")}</span>
             </div>
             <ol className="failure-lines">
               {SOURCE.map((row) => (
@@ -75,11 +75,11 @@ export function Failure() {
 
           <Reveal className="failure-panel" delay={60}>
             <div className="failure-title" style={{ color: token.colorTextTertiary }}>
-              {t('问题')} · {DIAGNOSTICS.length}
+              {msg("site.problems")} · {DIAGNOSTICS.length}
             </div>
             <ul className="failure-list">
               {DIAGNOSTICS.map((item, index) => (
-                <li key={t(item.message)}>
+                <li key={msg.text(item.message)}>
                   <button
                     type="button"
                     className={`failure-item${index === active ? ' is-active' : ''}`}
@@ -88,18 +88,18 @@ export function Failure() {
                   >
                     <div className="failure-item-head">
                       <span className={`diag-tag diag-${item.level}`}>
-                        {item.level === 'error' ? t('错误') : t('警告')}
+                        {item.level === 'error' ? msg("site.error") : msg("site.warning")}
                       </span>
                       <span className="failure-line" style={{ color: token.colorTextTertiary }}>
                         main.tex:{item.line}
                       </span>
                     </div>
                     <p className="failure-message" style={{ color: token.colorText }}>
-                      {t(item.message)}
+                      {msg.text(item.message)}
                     </p>
                     {index === active ? (
                       <p className="failure-hint" style={{ color: token.colorTextSecondary }}>
-                        {t(item.hint)}
+                        {msg.text(item.hint)}
                       </p>
                     ) : null}
                   </button>

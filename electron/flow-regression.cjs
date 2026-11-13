@@ -36,6 +36,8 @@ module.exports = function installFlowRegression(window, { app, ipcMain, extensio
   const shot = async name => {
     await js(`document.querySelectorAll('.toast button').forEach(e=>e.click())`);
     await pause(450);
+    const untranslated = await js(`document.body.innerText.match(/\\bapp\\.[a-z][a-z0-9.]*/g) || []`);
+    assert.deepEqual(untranslated, [], 'No semantic message IDs are visible in the interface');
     const dir = process.env.TEXPRO_ARTIFACTS || path.join(app.getPath('userData'), 'artifacts'); fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, `flow-${name}.png`), (await window.webContents.capturePage()).toPNG());
   };

@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import enUS from 'antd/locale/en_US';
 import { RouterProvider } from 'react-router-dom';
-import { LocaleProvider } from '@/i18n';
+import { LocaleProvider, useLocale } from '@/i18n';
 import { ThemeProvider, useThemeMode } from '@/lib/theme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BRAND_PRIMARY } from '@/config/design';
@@ -63,18 +64,19 @@ function ConfigEffects({ mode }: { mode: 'light' | 'dark' }) {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppShell />
+      <LocaleProvider><AppShell /></LocaleProvider>
     </ThemeProvider>
   );
 }
 
 function AppShell() {
+  const { locale } = useLocale();
   const { mode } = useThemeMode();
   const dark = mode === 'dark';
 
   return (
     <ConfigProvider
-      locale={zhCN}
+      locale={locale === 'zh' ? zhCN : enUS}
       theme={{
         algorithm: dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
@@ -99,9 +101,7 @@ function AppShell() {
       <AntdApp>
         <ConfigEffects mode={mode} />
         <ErrorBoundary>
-          <LocaleProvider>
-            <RouterProvider router={router} />
-          </LocaleProvider>
+          <RouterProvider router={router} />
         </ErrorBoundary>
       </AntdApp>
     </ConfigProvider>

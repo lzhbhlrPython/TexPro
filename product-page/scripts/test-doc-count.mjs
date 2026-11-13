@@ -7,6 +7,7 @@ import { createServer } from 'vite';
 const root = await realpath(await mkdtemp(path.join(tmpdir(), 'texpro-doc-count-')));
 const docs = path.join(root, 'src/content/docs');
 await mkdir(path.join(docs, 'en'), { recursive: true });
+await mkdir(path.join(docs, 'zh'), { recursive: true });
 await mkdir(path.join(root, 'src/data'), { recursive: true });
 await copyFile(new URL('../src/data/documentation.ts', import.meta.url), path.join(root, 'src/data/documentation.ts'));
 async function snapshot() {
@@ -18,7 +19,7 @@ async function snapshot() {
   } finally { await server.close(); }
 }
 try {
-  for (const file of ['a.md', 'b.md', 'c.md', 'en/a.md', 'en/b.md', 'en/orphan.md']) await writeFile(path.join(docs, file), '# Test');
+  for (const file of ['zh/a.md', 'zh/b.md', 'zh/c.md', 'en/a.md', 'en/b.md', 'en/orphan.md']) await writeFile(path.join(docs, file), '# Test');
   let data = await snapshot();
   assert.deepEqual(data.DOC_COUNTS, { zh: 3, en: 2 });
   assert.equal(data.DOC_METRIC.value, '3 / 2');
@@ -26,7 +27,7 @@ try {
   data = await snapshot();
   assert.deepEqual(data.DOC_COUNTS, { zh: 3, en: 3 });
   assert.equal(data.DOC_METRIC.value, '3 × 2');
-  await rm(path.join(docs, 'c.md'));
+  await rm(path.join(docs, 'zh/c.md'));
   data = await snapshot();
   assert.deepEqual(data.DOC_COUNTS, { zh: 2, en: 2 });
   assert.equal(data.DOC_METRIC.value, '2 × 2');

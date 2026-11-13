@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button, Result } from 'antd';
+import { useMessages } from '@/i18n';
 import { APP_NAME } from '@/config/constants';
 
 interface Props {
@@ -23,19 +24,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.error) {
-      return (
-        <Result
-          status="500"
-          title="页面出错了"
-          subTitle={this.state.error.message || '请刷新页面后重试，若仍无法恢复请联系系统管理员。'}
-          extra={
-            <Button type="primary" onClick={() => window.location.reload()}>
-              刷新页面
-            </Button>
-          }
-        />
-      );
+      return <ErrorContent error={this.state.error} />;
     }
     return this.props.children;
   }
+}
+
+function ErrorContent({ error }: { error: Error }) {
+  const msg = useMessages();
+  return <Result status="500" title={msg('site.error.title')}
+    subTitle={error.message || msg('site.error.description')}
+    extra={<Button type="primary" onClick={() => window.location.reload()}>{msg('site.error.reload')}</Button>} />;
 }
