@@ -6,14 +6,15 @@ import { SITE_LINKS } from '@/config/constants';
 import { useRelease } from '@/hooks/useRelease';
 import { formatSize } from '@/lib/release';
 import { useLocale, useMessages } from '@/i18n';
+import { dateLocale, type Locale } from '@/i18n/locales';
 
 const { Text } = Typography;
 
-function formatDate(locale: 'zh' | 'en', value?: string) {
+function formatDate(locale: Locale, value?: string) {
   if (!value) return '—';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN', {
+  return date.toLocaleDateString(dateLocale(locale), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

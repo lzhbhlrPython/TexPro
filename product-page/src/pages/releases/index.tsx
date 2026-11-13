@@ -10,6 +10,7 @@ import snapshot from '@/config/stable-releases.json';
 import { groupStableReleases, type StableRelease } from '@/lib/stable-releases.mjs';
 import { formatSize } from '@/lib/release';
 import { useLocale, useMessages } from '@/i18n';
+import { dateLocale } from '@/i18n/locales';
 
 export default function ReleasesPage() {
   const msg = useMessages();
@@ -19,7 +20,7 @@ export default function ReleasesPage() {
   const releases: StableRelease[] = snapshot.releases;
   const groups = groupStableReleases(releases, releaseSeries);
   const date = (value: string) => new Date(value).toLocaleDateString(
-    locale === 'zh' ? 'zh-CN' : 'en-US',
+    dateLocale(locale),
     { year: 'numeric', month: 'long', day: 'numeric' },
   );
   const copy = async (digest: string) => {

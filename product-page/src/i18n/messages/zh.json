@@ -245,6 +245,8 @@
   "site.two.way.synctex.variant2": "双向 SyncTeX",
   "site.privacy": "隐私",
   "site.the.english.version.of.this.page.is.still.being": "这一篇的英文版还在翻译中，正文暂时以简体中文呈现。",
+  "site.this.page.is.not.yet.available.in.esperanto.the.text": "这一篇还没有世界语版本，正文暂时以英文呈现。",
+  "site.blog.posts.are.written.in.simplified.chinese.only.readers": "博客只以简体中文撰写，其他语言的读者需要自行翻译。",
   "site.texpro.docs": "TeXPro 文档",
   "site.documentation.index": "文档目录",
   "site.previous.and.next.page": "上一页与下一页",

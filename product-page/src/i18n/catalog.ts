@@ -1,9 +1,10 @@
 import englishUrl from './messages/en.json?url';
 import chineseUrl from './messages/zh.json?url';
-import type { Locale } from './locales';
+import esperantoUrl from './messages/eo.json?url';
+import { isLocale, type Locale } from './locales';
 export type MessageId = keyof typeof import('./messages/en.json');
 export type Messages = Record<MessageId, string>;
-const resources: Record<Locale, string> = { en: englishUrl, zh: chineseUrl };
+const resources: Record<Locale, string> = { en: englishUrl, zh: chineseUrl, eo: esperantoUrl };
 const requests = new Map<Locale, Promise<Messages>>();
 export function loadMessages(locale: Locale): Promise<Messages> {
   let request = requests.get(locale);
@@ -19,8 +20,9 @@ export function loadMessages(locale: Locale): Promise<Messages> {
   return request;
 }
 export function initialLocale(): Locale {
-  try { const stored = localStorage.getItem('texpro:locale'); if (stored === 'zh' || stored === 'en') return stored; } catch { /* optional storage */ }
-  return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+  try { const stored = localStorage.getItem('texpro:locale'); if (isLocale(stored)) return stored; } catch { /* optional storage */ }
+  const browser = navigator.language.toLowerCase().split('-')[0];
+  return isLocale(browser) ? browser : 'en';
 }
 let initial: { locale: Locale; messages: Messages; fallback: Messages; startupFailure: boolean };
 export async function initializeLocale() {
