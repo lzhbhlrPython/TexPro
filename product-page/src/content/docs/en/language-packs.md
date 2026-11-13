@@ -1,7 +1,7 @@
 ---
 slug: language-packs
 title: "Language packs: install, translate and recover"
-group: 开发
+group: 使用
 order: 68
 summary: Use preinstalled Simplified Chinese, create declarative language plugins and verify fallback, placeholders and recovery.
 ---
@@ -18,7 +18,7 @@ The bundled Chinese pack can be disabled. Disabling, corrupting or removing the 
 
 ## Create a language pack
 
-Install Node.js 20+. Start [qwertysay](/docs/qwertysay) and select English, Create a plugin or theme, then Language pack (data only). Choose the directory, package ID, author, BCP 47 identifier such as fr, autonym such as Français, and npm or Yarn. No compiler or build is needed.
+Install Node.js 20+. Start [qwertysay](/docs/qwertysay) and select English, Create a plugin or theme, then Language pack (data only). Choose the directory, package ID, author, BCP 47 identifier such as fr, autonym such as Français, and npm or yarn. No compiler or build is needed.
 
 ```sh
 npx --package @texpro/qwertysay@0.4.1 qwertysay
@@ -54,3 +54,7 @@ Use Pack for distribution to create a `.tpp`. Test enable/disable, missing messa
 Language packs supply strings without executing code or HTML, but can still mistranslate controls into misleading instructions. Check the author and contents; validation and data-only packaging do not certify safety. Themes can hide controls, and Node plugins can access user files, networks and processes.
 
 Use View → Reset Appearance and Disable Extensions in the native menu. This recovery command deliberately stays in English so language plugins cannot replace it. Alternatively start with `--safe-mode`, which disables extensions and returns to English.
+
+## npm source publishing and build safety
+
+Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.

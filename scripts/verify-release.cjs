@@ -7,7 +7,7 @@ function verifyContents(read, files) {
     const file = `electron/services/extensions/${name}.cjs`;
     if (!files.has(file)) throw new Error(`Release is missing ${file}`);
   }
-  for (const name of ['schema', 'archive', 'packages', 'theme', 'locales']) if (!files.has(`packages/extension-sdk/lib/${name}.cjs`)) throw new Error('Release is missing shared extension SDK core: ' + name);
+  for (const name of ['schema', 'archive', 'packages', 'theme', 'locales', 'npm-source']) if (!files.has(`packages/extension-sdk/lib/${name}.cjs`)) throw new Error('Release is missing shared extension SDK core: ' + name);
   const required = ['packages/extension-sdk/lib/locale-source.json', 'packages/extension-translate-zh-cn/language/texpro.extension.json', 'packages/extension-translate-zh-cn/language/locales/zh.json', 'packages/extension-translate-zh-cn/language/LICENSE', 'package.json', 'electron/main.cjs', 'electron/preload.cjs', 'electron/quit-watchdog.cjs', 'electron/window-close.cjs', 'mcp/server.mjs', 'electron/services/writing-aids-core.mjs', 'electron/services/tex-engine.mjs', 'electron/services/realtime-tex.cjs', 'electron/services/realtime-scene.cjs', 'THIRD_PARTY_NOTICES.md', 'dist/index.html', ...['tex', 'history', 'git', 'project-files', 'project-root', 'project-operations', 'font-report', 'music', 'writing-aids'].map((name) => `electron/services/${name}.cjs`)];
   for (const file of required) if (!files.has(file)) throw new Error(`Release is missing ${file}. Run npm run build before packaging.`);
   const html = read('dist/index.html').toString();
@@ -42,7 +42,7 @@ function verifyArchive(archive) {
 
 function verifyExternalResources(root) {
   if (!fs.existsSync(path.join(root, 'packages/extension-sdk/lib/locale-source.json'))) throw new Error('Release is missing external MCP language source catalog');
-  for (const name of ['authoring', 'inspect', 'schema', 'packages', 'archive', 'theme', 'locales']) {
+  for (const name of ['authoring', 'inspect', 'schema', 'packages', 'archive', 'theme', 'locales', 'npm-source']) {
     const file = `packages/extension-sdk/lib/${name}.cjs`;
     if (!fs.existsSync(path.join(root, file))) throw new Error(`Release is missing external MCP extension dependency: ${file}`);
   }

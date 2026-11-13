@@ -1,6 +1,8 @@
 # @texpro/qwertysay
 
-作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.4.1`** 加入语言包、npm／Yarn 作者环境及经过审核的包管理同步。旧作用域的 `0.3.0` 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
+当前源码 **0.5.0** 增加直接发布 npm 源码与显式信任后的本地构建，依赖 SDK 0.4.0。
+
+作者 **Baolin Liu（gardenialiu）**，自有代码以 MIT 开源。Node.js 20+，无需 Electron／TeX。**`0.4.1`** 加入语言包、npm／yarn 作者环境及经过审核的包管理同步。旧作用域的 `0.3.0` 加入中英文引导和最简配色主题；`0.2.0` 加入多语言插件构建、静态主题编译与 API 1 JSON 桥接；`0.1.0` 为原有 TS／JS／CSS 脚手架。
 
 [English](README.md)
 
@@ -9,7 +11,7 @@
 0.3.0 起，直接启动即可按步骤选择创建、构建、校验或打包，无需记住参数：
 
 ```sh
-npx --package @texpro/qwertysay@0.4.1 qwertysay
+npx --package @texpro/qwertysay@0.5.0 qwertysay
 ```
 
 选择简体中文／English、操作、插件／主题、目录、包标识、作者和开发语言／样式。输入路径及配置预览后确认，默认回车取消，Ctrl+C／EOF 取消尚未开始的操作。主题的第一项是“仅修改主题色”：选择基础模式与强调色，只生成 manifest 和 LICENSE，无需 CSS、脚本或构建。
@@ -65,13 +67,29 @@ module.exports = defineTextTransform(text => text.toUpperCase());
 
 实际验收包含编译、归档、宿主调用、过期请求、停用、撤销、IME、三主题及恢复等适用路径；CLI 校验不代替原生交互验收。参阅[作者指南](https://github.com/lzhbhlrPython/TexPro/blob/main/docs/extension-authoring.md)与仓库开发 Skill。
 
-## Language packs and npm/Yarn / 语言包与包管理
+## Language packs and npm/yarn / 语言包与包管理
 
-SDK 0.3.0 / API 1 and qwertysay 0.4.1 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
+SDK 0.4.0 / API 1 and qwertysay 0.5.0 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
 
 - [Language packs / 语言包](https://texpro.pyliubaolin.top/docs/language-packs): declarative .tpp, placeholder checks, missing-key fallback and preinstalled @texpro/extension-translate-zh-cn. / 声明式语言插件、变量校验、英文回退及预装简中。
-- [npm/Yarn management / 包管理](https://texpro.pyliubaolin.top/docs/extension-package-management): one lockfile, node_modules, texpro.package wrappers, reviewed synchronization and removal with plugin data retained. / 单锁文件、分发包、逐项审核与卸载保留数据。
+- [npm/yarn management / 包管理](https://texpro.pyliubaolin.top/docs/extension-package-management): one lockfile, node_modules, texpro.source directories or texpro.package archives, reviewed synchronization and removal with plugin data retained. / 单锁文件、分发包、逐项审核与卸载保留数据。
 
-Language packs never contain code or styles, but translations may impersonate instructions. npm/Yarn changes dependencies; sync asks the host to install/update/remove its snapshots. It never auto-enables extensions. / 语言包没有代码或样式，文案仍可能误导用户。包管理器修改依赖，宿主另行审核同步，不自动启用。
+Language packs never contain code or styles, but translations may impersonate instructions. npm/yarn changes dependencies; sync asks the host to install/update/remove its snapshots. It never auto-enables extensions. / 语言包没有代码或样式，文案仍可能误导用户。包管理器修改依赖，宿主另行审核同步，不自动启用。
 
 功能插件生成后，在作者工程维护独立 i18n 库与资源；使用每次调用的 context.language 选择插件自身词典，并将依赖和资源一起构建到 .tpp。不要把功能插件误建为宿主语言包。清单多语种展示与运行消息是两条独立路径，详细示例见 SDK 指南。
+
+## npm source distribution / npm 源码分发
+
+Source imports require SDK 0.4.0, qwertysay 0.5.0 and the matching host. Publish texpro.extension.json, LICENSE and self-contained JS/static files directly; texpro.source selects a package directory and defaults to root. Do not combine it with texpro.package. Compiled sources include qwertysay.build.json, src, configuration and devDependencies; generated templates supply metadata and a files list, but stay private until the author deliberately changes the npm name and removes private: true. Inspect npm pack --dry-run --ignore-scripts and test the actual tgz before publishing.
+
+源码导入需要 SDK 0.4.0、qwertysay 0.5.0 和对应宿主。源码可直接发布 npm，无需内嵌 .tpp／.tpt；包含清单、LICENSE 和可运行 JS／静态资源，以 texpro.source 指向目录（默认根目录）。需要编译时保留 qwertysay.build.json、src、工具链配置和 devDependencies；模板默认私有，发布前由作者修改包名、移除 private: true 并核查实际 tgz。
+
+In an extension environment, install with lifecycle scripts disabled. Ready-to-run source can sync immediately. For compiled source, run the wizard and choose Prepare installed source, review author/version and explicitly confirm trust, then sync and review Install disabled in TeXPro. Automation: qwertysay prepare <environment> <npm-name> --trust-build. No implicit compilation during check/sync/MCP. Missing external or installer-dependent compilers require separate trusted installation. Runtime dependencies must be bundled; node_modules is not copied.
+
+扩展环境中禁用安装脚本。可运行源码安装后直接同步；需编译时在引导选择「构建已安装的源码扩展」，核对作者与版本、确认风险后再构建，随后同步到 TeXPro，选择「安装并保持停用」。check／sync／MCP 不隐式编译；缺失或依赖安装脚本的工具链须另行审核安装，运行时依赖需打包，不复制 node_modules。
+
+Security: compilation executes compilers, project configuration and source generators with user file/network/process permissions. Temporary directories, hashes and a later enable prompt do not undo those effects or certify safety. Themes can hide controls; language packs can impersonate instructions. Trust install, build and enable separately. / 安全：构建执行编译器、工程配置和源码生成器，拥有用户权限；临时目录、摘要及后续启用确认不是安全隔离，无法撤销构建的外部影响。主题可隐藏界面，语言包可误导操作；分别判断安装、构建与启用的信任。
+
+编译依赖安装脚本默认禁用。需要此类安装器时，qwertysay prepare 引导提供独立的、默认拒绝的信任选择；自动化须同时传 --trust-build 与 --trust-install-scripts。允许后第三方编译依赖安装脚本以用户权限运行，仅作用于本次临时构建，不改扩展环境的脚本禁用设置。缺少外部 Java／Go 等工具仍须自行安装。不得把同意构建等同于同意安装脚本。
+
+Compiler dependency lifecycle scripts are disabled by default. The prepare wizard offers a separate, default-deny trust choice; automation requires both --trust-build and --trust-install-scripts. Allowing them executes third-party dependency installers with user permissions for this temporary build only, without changing extension environment settings. External Java/Go tools still require installation. Build trust alone never grants installer-script trust.

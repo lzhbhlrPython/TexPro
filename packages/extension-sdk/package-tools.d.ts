@@ -10,7 +10,7 @@ export declare const styles: Readonly<Record<'css' | 'scss' | 'sass' | 'less' | 
 export declare function authoringCapabilities(): {
   apiVersion: 1; bridgeVersion: 1; languages: typeof languages; styles: typeof styles;
   locales: { contribution: string; format: string; code: false; fallback: 'en'; preinstalled: string };
-  distribution: { registry: string; field: string; reviewRequired: true; executesInstallScripts: false };
+  distribution: { registry: string; field: string; sourceField: string; sourceDefault: '.'; trustedLocalBuild: true; compilerInstallScripts: string; reviewRequired: true; executesInstallScripts: false };
   artifacts: { plugin: '.tpp'; theme: '.tpt' }; runtime: { plugin: string; theme: string }; security: string[];
   mcp: { inspectOnly: true; executesCompilers: false; invokesPlugins: false; readsUnsavedBuffers: false };
 };
@@ -18,12 +18,18 @@ export declare function validateManifest(value: unknown): PackageManifest;
 export declare function validateTheme(value: unknown): ThemeContribution;
 export declare function validateConfig(manifest: PackageManifest, value: unknown): Record<string, string | number | boolean>;
 export declare function relative(value: string): string;
-export declare function directoryFiles(directory: string): Map<string, Uint8Array>;
+export declare function directoryFiles(directory: string, excluded?: (name: string) => boolean): Map<string, Uint8Array>;
+export declare function buildSourceFiles(directory: string): Map<string, Uint8Array>;
+export declare function sourceFingerprint(directory: string): string;
+export interface NpmSource { root: string; metadata: { name: string; version: string; [key: string]: unknown }; source: string; mode: 'archive' | 'source' | 'build'; files?: Map<string, Uint8Array>; manifest?: PackageManifest; sourceDigest?: string }
+export declare function npmSource(directory: string): NpmSource;
+export declare function preparedPath(value: NpmSource): string;
+export declare function readNpmExtension(directory: string): NpmSource & ReturnType<typeof readPackage>;
 export declare function inspectFiles(files: Map<string, Uint8Array>): { manifest: PackageManifest; digest: string };
 export declare function readPackage(source: string): { manifest: PackageManifest; digest: string; files: Map<string, Uint8Array>; development: boolean };
 export declare function packageKind(manifest: PackageManifest): 'plugin' | 'theme';
 export declare function validatePackageType(manifest: PackageManifest, file: string, files: Map<string, Uint8Array>): void;
-export declare function inspectPackage(source: string): { manifest: PackageManifest; digest: string; kind: 'plugin' | 'theme'; development: boolean; fileCount: number; bytes: number; executable: boolean; warnings: string[] };
+export declare function inspectPackage(source: string): { manifest: PackageManifest; digest: string; kind: 'plugin' | 'theme'; development: boolean; requiresBuild?: boolean; npm?: { name: string; version: string }; fileCount: number; bytes: number; executable: boolean; warnings: string[] };
 export declare function pack(files: Map<string, string | Uint8Array>): Uint8Array;
 export declare function unpack(bytes: Uint8Array): Map<string, Uint8Array>;
 export declare function crc32(bytes: Uint8Array): number;

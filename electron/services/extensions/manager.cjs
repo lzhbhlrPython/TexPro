@@ -60,7 +60,7 @@ class ExtensionManager {
       for (const [name, data] of files) { const file = path.join(destination, name); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, data, { flag: 'wx' }); }
       // Updating never silently grants a changed executable new access. Enable after review.
       const previous = this.records[manifest.id];
-      this.records[manifest.id] = { folder, digest, enabled: false, ...(origin ? { origin } : {}), config: validateConfig(manifest, previous?.config || {}), ...(development ? { source: fs.realpathSync(source) } : {}), ...(previous ? { previous } : {}) };
+      this.records[manifest.id] = { folder, digest, enabled: false, ...(origin ? { origin } : {}), config: validateConfig(manifest, previous?.config || {}), ...(development && !origin ? { source: fs.realpathSync(source) } : {}), ...(previous ? { previous } : {}) };
       try { this.save(); } catch (error) { if (previous) this.records[manifest.id] = previous; else delete this.records[manifest.id]; throw error; }
       this.workers.get(manifest.id)?.stop(); this.workers.delete(manifest.id); this.errors.delete(manifest.id);
       // Retain the previous package for explicit rollback until the next successful enable.

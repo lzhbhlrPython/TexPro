@@ -12,4 +12,4 @@
 
 后续正式版与 Nightly 将提供 `texpro-extension-development-v{应用版本}.skill`，这是带顶层技能目录的 ZIP。从真实 GitHub Release 下载，检查来源／摘要，按 AI 工具的导入机制安装；工具只接受 ZIP 时可在本地改扩展名后解压。不把 `.skill` 当作 TeXPro 的 `.tpp` 插件安装。旧版本没有该资产时仍可复制仓库中的完整目录。发布脚本会核对全部 Skill 源文件与引用，拒绝私有文件和符号链接。
 
-语言包与 npm／Yarn 管理的 AI 交接另读 Skill 的 references/languages-and-distribution.md；维护英文恢复、占位符、单锁文件、逐项审核、卸载保留数据及真实发布证据。
+语言包与 npm／yarn 管理的 AI 交接另读 Skill 的 references/languages-and-distribution.md；维护英文恢复、占位符、单锁文件、逐项审核、卸载保留数据及真实发布证据。

@@ -1,7 +1,7 @@
 ---
 slug: language-packs
 title: "语言包：安装、翻译与恢复"
-group: 开发
+group: 使用
 order: 68
 summary: 使用预装简体中文包，创建声明式语言插件，并验证缺译回退、占位符与安全恢复。
 ---
@@ -18,7 +18,7 @@ TeXPro 内置英文作为恢复语言，简体中文通过预装的声明式 `.t
 
 ## 创建语言包
 
-需要 Node.js 20+。启动 [qwertysay](/docs/qwertysay) 的中英引导，选择「创建插件或主题」后选「语言包（仅数据）」，填写目录、包标识、作者、BCP 47 语言标识（例如 fr）、语言自称（例如 Français）和 npm／Yarn。没有编译器或构建步骤。
+需要 Node.js 20+。启动 [qwertysay](/docs/qwertysay) 的中英引导，选择「创建插件或主题」后选「语言包（仅数据）」，填写目录、包标识、作者、BCP 47 语言标识（例如 fr）、语言自称（例如 Français）和 npm／yarn。没有编译器或构建步骤。
 
 ```sh
 npx --package @texpro/qwertysay@0.4.1 qwertysay
@@ -54,3 +54,7 @@ npx --package @texpro/qwertysay@0.4.1 qwertysay
 语言包只提供字符串，不执行代码或 HTML，但仍可能把按钮翻译成误导性指令。确认作者与内容，不能把数据包或校验通过当作安全保证。主题也可能隐藏控件，Node 插件可能访问用户文件、网络和进程。
 
 恢复时使用原生「视图」菜单中的 `Reset Appearance and Disable Extensions`；这个命令刻意固定为英文，以免被语言插件替换。找不到菜单时，以 `--safe-mode` 启动，回到英文并停用扩展。在英文界面中，「偏好设置」「界面语言」「扩展」分别显示 Preferences、Interface language、Extensions。
+
+## 源码发布 npm 与构建安全
+
+源码可直接发布 npm，texpro.source 指向目录（省略为包根），不必先内嵌 .tpp／.tpt。SDK 0.4.0、qwertysay 0.5.0 和对应宿主支持此路径；旧归档分发继续兼容。可运行 JS／静态文件安装后直接同步；需要编译的包在 qwertysay 选择「构建已安装的源码扩展」，单独确认信任后再同步到 TeXPro 审核。构建配置和编译器拥有用户权限；禁用安装脚本和临时目录都不是沙箱。完整的作者发布、用户安装／升级／卸载、工具链限制与风险见 [npm／yarn 管理扩展](/docs/extension-package-management)。

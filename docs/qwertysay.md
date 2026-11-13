@@ -1,6 +1,6 @@
 # qwertysay 引导式开发工具
 
-独立包 @texpro/qwertysay 0.4.1，依赖公开 SDK 0.3.0，不依赖 Electron 或宿主源码；MIT，Baolin Liu（gardenialiu）。作者任务指南见[官网 qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)，中英同 slug。
+独立包 @texpro/qwertysay 0.5.0，依赖公开 SDK 0.4.0，不依赖 Electron 或宿主源码；MIT，Baolin Liu（gardenialiu）。作者任务指南见[官网 qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)，中英同 slug。
 
 ## 交互与自动化边界
 
@@ -20,8 +20,8 @@
 
 ## 语言与包管理
 
-0.4.1 的引导增加声明式语言包、npm／Yarn 作者环境、专用扩展管理环境、npm 分发包生成、只下载与宿主同步审核。语言模板无构建，check 报告缺译；插件／语言为 .tpp、主题为 .tpt。现代 Yarn 使用 node_modules，一项目一种锁文件。
+0.4.1 的引导增加声明式语言包、npm／yarn 作者环境、专用扩展管理环境、npm 分发包生成、只下载与宿主同步审核。语言模板无构建，check 报告缺译；插件／语言为 .tpp、主题为 .tpt。现代 yarn 使用 node_modules，一项目一种锁文件。
 
-技术方案与边界见[语言包](language-packs.md)、[npm／Yarn 管理](extension-package-management.md)。包管理器安装／卸载后必须显式 sync，宿主逐项审核，不自动启用。创建、check、pack 继续不联网或执行作者代码；install 是单独、明确确认的联网操作。
+技术方案与边界见[语言包](language-packs.md)、[npm／yarn 管理](extension-package-management.md)。包管理器安装／卸载后必须显式 sync，宿主逐项审核，不自动启用。创建、check、pack 继续不联网或执行作者代码；install 是单独、明确确认的联网操作。
 
 功能插件生成后，在作者工程维护独立 i18n 库与资源；使用每次调用的 context.language 选择插件自身词典，并将依赖和资源一起构建到 .tpp。不要把功能插件误建为宿主语言包。清单多语种展示与运行消息是两条独立路径，详细示例见 SDK 指南。

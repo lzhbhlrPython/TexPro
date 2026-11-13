@@ -11,16 +11,16 @@ summary: Start without arguments to create, build, check or pack; choose toolcha
 **@texpro/qwertysay 0.4.1** is an independent Node tool by Baolin Liu (gardenialiu), with MIT original code. It needs Node.js 20+, not Electron or TeX; some compilers need newer versions. The SDK remains 0.3.0 / API 1: see the [SDK guide](/docs/extension-development). For AI workflows, see the [development Skill](/docs/extension-skill).
 
 ```sh
-npx --package @texpro/qwertysay@0.4.1 qwertysay
+npx --package @texpro/qwertysay@0.5.0 qwertysay
 ```
 
 Alternatively install globally and run `qwertysay`. npm/npx may download tools, but qwertysay create/check/pack never installs dependencies for you. Windows PowerShell, macOS and Linux use the same numbered choices and Enter; no shell-specific syntax, color control or external menu tool is required.
 
-Choose Simplified Chinese or English, then create, build, check or pack. The menu also offers npm downloads, npm distribution wrappers, npm/Yarn extension environments and dependency synchronization. Review paths and configuration before execution. Only y, yes or 是 starts the operation; Enter cancels. Ctrl+C or EOF cancels an operation that has not started. Noninteractive input fails clearly instead of waiting for prompts or accepting defaults.
+Choose Simplified Chinese or English, then create, build, check or pack. The menu also offers npm downloads, npm distribution wrappers, npm/yarn extension environments and dependency synchronization. Review paths and configuration before execution. Only y, yes or 是 starts the operation; Enter cancels. Ctrl+C or EOF cancels an operation that has not started. Noninteractive input fails clearly instead of waiting for prompts or accepting defaults.
 
 ## Create a plugin
 
-The guide asks for package type, destination, package ID, author, language and package manager (npm/Yarn). TypeScript is the default; an example ID is `author.example`. The author is written into the MIT LICENSE. Use a real attribution and review bundled dependencies separately.
+The guide asks for package type, destination, package ID, author, language and package manager (npm/yarn). TypeScript is the default; an example ID is `author.example`. The author is written into the MIT LICENSE. Use a real attribution and review bundled dependencies separately.
 
 The destination must be new or empty. Occupied and symlink directories are rejected. Invalid choices, IDs and colors can be corrected. Nothing is created before final confirmation. Creation generates source only: no npm install, compiler or extension execution.
 
@@ -36,7 +36,7 @@ The destination must be new or empty. Occupied and symlink directories are rejec
 | Scala.js | `.scala` | Java, sbt, Scala.js |
 | GopherJS | `.go` | GopherJS 1.21, matching Go 1.21.x |
 
-Generated package.json pins tools. Enter the directory and explicitly run `npm install` or `yarn install` according to your selection, retaining only its lockfile; Yarn uses node_modules. Prepare non-npm prerequisites from the generated README. Run qwertysay again, choose build and supply the source directory. Load **dist/package** in TeXPro, not the author source root. Language packs need no build; see the [language-pack tutorial](/docs/language-packs).
+Generated package.json pins tools. Enter the directory and explicitly run `npm install` or `yarn install` according to your selection, retaining only its lockfile; yarn uses node_modules. Prepare non-npm prerequisites from the generated README. Run qwertysay again, choose build and supply the source directory. Load **dist/package** in TeXPro, not the author source root. Language packs need no build; see the [language-pack tutorial](/docs/language-packs).
 
 ## Choose a minimal or advanced theme
 
@@ -88,6 +88,10 @@ Build tools and Node plugins have user privileges; themes may impersonate UI. Ch
 
 ## Language packs and package-manager environments
 
-See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
 
 After scaffolding a functional plugin, maintain its own i18n library and resources. Use each invocation context.language to select its catalog and bundle runtime dependencies/resources into the .tpp. Do not create a host language pack for plugin business messages. Manifest localization and runtime messages are separate paths; see the SDK guide.
+
+## npm source publishing and build safety
+
+Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.

@@ -11,7 +11,7 @@ summary: SDK 安装、清单、处理器、服务、生命周期、JSON 桥接�
 这篇说明 `@texpro/extension-sdk` **0.3.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.3.0
+npm install --save-dev @texpro/extension-sdk@0.4.0
 ```
 
 SDK 安装不等于向 TeXPro 安装插件。宿主只加载完成的自包含入口和包资源，不在作者机器以外安装 npm 依赖，也不编译源码。SDK 辅助函数若被运行时使用，必须随作者代码打包；直接导出 `activate(ctx)` 则不要求运行时引用 SDK。
@@ -94,7 +94,7 @@ exports.activate = ctx => {
 
 ## 语言插件与包管理环境
 
-[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／Yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.3.0 与 qwertysay 0.4.1 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
+[语言包教程](/docs/language-packs)说明声明式模板、预装 @texpro/extension-translate-zh-cn、占位符校验与英文恢复。[npm／yarn 管理](/docs/extension-package-management)说明作者配置、分发包与经过审核的安装／更新／卸载同步。SDK 0.4.0 与 qwertysay 0.5.0 使用 @texpro；旧 @gardenialiu 版本保留独立历史。
 
 ## 功能插件自己的 i18n
 
@@ -102,4 +102,8 @@ exports.activate = ctx => {
 
 例如作者维护独立 `i18n/messages.json`（en、fr 等词典），处理器用 `messages[context.language] || messages[context.language.split('-')[0]] || messages.en` 选择，再用 `table[key] || messages.en[key]` 回退。插件键与占位符由作者维护，不合并到宿主 locale-source.json；`contributes.locales` 专用于宿主的纯数据语言包，不能和功能入口混用。
 
-可以用 npm／Yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。
+可以用 npm／yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。
+
+## 源码发布 npm 与构建安全
+
+源码可直接发布 npm，texpro.source 指向目录（省略为包根），不必先内嵌 .tpp／.tpt。SDK 0.4.0、qwertysay 0.5.0 和对应宿主支持此路径；旧归档分发继续兼容。可运行 JS／静态文件安装后直接同步；需要编译的包在 qwertysay 选择「构建已安装的源码扩展」，单独确认信任后再同步到 TeXPro 审核。构建配置和编译器拥有用户权限；禁用安装脚本和临时目录都不是沙箱。完整的作者发布、用户安装／升级／卸载、工具链限制与风险见 [npm／yarn 管理扩展](/docs/extension-package-management)。

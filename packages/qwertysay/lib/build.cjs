@@ -1,13 +1,12 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const { createHash, randomUUID } = require('node:crypto');
+const { randomUUID } = require('node:crypto');
 const { createRequire } = require('node:module');
 const { execFileSync } = require('node:child_process');
-const { readPackage, validateManifest, validatePackageType, relative, directoryFiles, languages, styles } = require('@texpro/extension-sdk/package-tools');
+const { readPackage, validateManifest, validatePackageType, directoryFiles, languages, styles, sourceFingerprint } = require('@texpro/extension-sdk/package-tools');
 const { templates: styleTemplates } = require('./templates/styles.cjs');
 const SDK = '@texpro/extension-sdk';
-const SKIP = new Set(['node_modules', 'dist', 'output', 'target', 'elm-stuff', 'lib']);
 
 function rootDirectory(directory) {
   const root = path.resolve(directory);
@@ -22,22 +21,7 @@ function config(root) {
   return value;
 }
 function fingerprint(root) {
-  const hash = createHash('sha256'); let total = 0, count = 0;
-  function visit(dir, prefix) {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      if (entry.name.startsWith('.') || SKIP.has(entry.name) || entry.name === 'spago.lock' || entry.name.endsWith('.res.js')) continue;
-      const name = prefix + entry.name; relative(name);
-      if (entry.isSymbolicLink()) throw new Error('Build sources cannot contain symbolic links');
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) visit(full, name + '/');
-      else if (entry.isFile()) {
-        const size = fs.statSync(full).size;
-        if (++count > 300 || (total += size) > 16 * 1024 * 1024) throw new Error('Author sources exceed package limits');
-        hash.update(name); hash.update('\0'); hash.update(fs.readFileSync(full));
-      } else throw new Error('Unsupported build source');
-    }
-  }
-  visit(root, ''); return hash.digest('hex');
+  return sourceFingerprint(root);
 }
 function safeDirectory(root, name) {
   const full = path.join(root, name);

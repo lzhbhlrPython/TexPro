@@ -46,4 +46,4 @@ API 1 提供命令、检查、转换、补全、文本悬浮信息、预览、�
 
 qwertysay 0.3.0 支持多种编译到 JavaScript 的语言和静态 CSS 编译工具，详见[作者指南](extension-authoring.md)。TeXPro 用户仍安装 `.tpp` 插件或 `.tpt` 主题，不能直接导入 `.purs`、`.elm`、`.scss`、`.tcss` 等作者源码。`.tpt` 中没有样式生成器 JavaScript；这不消除 CSS 隐藏控件或伪装界面的风险。npm `0.1.0` 不包含这些构建扩展；使用 `0.3.0`。
 
-声明式语言包、预装简中和英文恢复见[语言包](language-packs.md)。专用 npm／Yarn 环境的受控安装、更新与卸载同步见[技术方案](extension-package-management.md)。包管理器不直接操作宿主安装库；语言插件和所有新增扩展都不自动取得启用授权。
+声明式语言包、预装简中和英文恢复见[语言包](language-packs.md)。专用 npm／yarn 环境的受控安装、更新与卸载同步见[技术方案](extension-package-management.md)。包管理器不直接操作宿主安装库；语言插件和所有新增扩展都不自动取得启用授权。

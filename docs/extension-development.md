@@ -4,12 +4,12 @@ API 1 SDK 独立为 `@texpro/extension-sdk`，离线脚手架独立为 `@texpro/
 
 ## 开发文档分工
 
-- 本文保留 SDK/API、清单、宿主服务和主题契约，SDK 当前为 0.3.0 / API 1。
-- [qwertysay](qwertysay.md) 说明 0.4.1 引导式工具、真实编译、打包与 npm 验收。
+- 本文保留 SDK/API、清单、宿主服务和主题契约，SDK 当前为 0.4.0 / API 1。
+- [qwertysay](qwertysay.md) 说明 0.5.0 引导式工具、真实编译、打包与 npm 验收。
 - [开发 Skill](extension-skill.md) 说明 AI 开发流程、安装、权限与交接。
 - [多语言构建契约](extension-authoring.md) 维护精确工具链、桥接和跨平台限制。
 
-官网分别提供同名中英文任务指南，旧 /docs/extension-development 仍为 SDK 入口，不删除旧链接。qwertysay 0.4.1 与 SDK 0.3.0 兼容，版本独立。
+官网分别提供同名中英文任务指南，旧 /docs/extension-development 仍为 SDK 入口，不删除旧链接。qwertysay 0.5.0 与 SDK 0.4.0 兼容，版本独立。
 
 ## 包清单
 
@@ -97,7 +97,7 @@ node scripts/pack-extension.cjs examples/extensions/quiet-paper /tmp/quiet-paper
 
 SDK 0.3.0 新增 LocaleContribution、LanguagePack 及 `sourceMessages`、`localeId`、`validateMessages`、`localeContributions`、`messageCoverage`。详见[语言包契约](language-packs.md)。语言插件限定为纯 JSON、空 capabilities、无入口与其他贡献，安装后不启动 Node 进程；原生与渲染层消费同一受检数据。Localized 对象要求 en 回退，可增加任意语言键，不再强制所有作者同时提供 zh。
 
-npm 分发包使用 `texpro.package`，与宿主清单分开，不能通过 npm 生命周期取得权限。包管理同步不属于 SDK 的运行时服务，外部 MCP 只读检查也不安装或卸载。旧作用域保留历史版本，迁移到 @texpro 后仍保持 API 1；不要把包名变化当作宿主兼容性保证。
+npm 分发支持 `texpro.source` 源码目录（省略为包根）或兼容 `texpro.package` 安装包，与宿主清单分开，不能通过 npm 生命周期取得权限。包管理同步不属于 SDK 的运行时服务，外部 MCP 只读检查也不安装或卸载。旧作用域保留历史版本，迁移到 @texpro 后仍保持 API 1；不要把包名变化当作宿主兼容性保证。
 
 ## 功能插件自己的 i18n
 
@@ -105,4 +105,4 @@ npm 分发包使用 `texpro.package`，与宿主清单分开，不能通过 npm 
 
 例如作者维护独立 `i18n/messages.json`（en、fr 等词典），处理器用 `messages[context.language] || messages[context.language.split('-')[0]] || messages.en` 选择，再用 `table[key] || messages.en[key]` 回退。插件键与占位符由作者维护，不合并到宿主 locale-source.json；`contributes.locales` 专用于宿主的纯数据语言包，不能和功能入口混用。
 
-可以用 npm／Yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。
+可以用 npm／yarn 安装自己开发语言的 i18n 库，构建时将库打入自包含运行产物，并包含所有实际引用的 JSON 等资源。不要依赖宿主 node_modules、私有词典或运行时下载。验证最终 `.tpp` 的实际资源、目标语种、区域与缺译回退，以及同一插件进程两次调用之间切换语言。译文按普通文本使用，不执行代码或 HTML。

@@ -11,8 +11,8 @@ const { languages, styles } = require('@texpro/extension-sdk/package-tools');
 async function main(args) {
   const [command, ...rest] = args;
   if (command === '--version') return console.log(require('../package.json').version);
-  if (['--help', '-h', 'help'].includes(command)) return console.log(`qwertysay — guided setup / 引导式配置 (run without arguments in a terminal)\nSelect language, create/build/check/pack, package type and toolchain; review before execution.\nAutomation compatibility:\nqwertysay init <directory> [--id author.name] [--author "Your name"] [--type plugin|theme|locale] [--package-manager npm|yarn] [--locale fr] [--title Français] [--language ${Object.keys(languages).join('|')}] [--style ${Object.keys(styles).join('|')}]\nqwertysay environment <new-directory> [npm|yarn]\nqwertysay sync <extension-environment>\nqwertysay install <public-npm-name[@version]> <new-output.tpp|new-output.tpt>\nqwertysay npm-package <file.tpp|file.tpt> <new-directory> <npm-name>\nqwertysay build <source-directory>\nqwertysay check <source-or-built-directory|file.tpp|file.tpt>\nqwertysay pack <source-or-built-directory> <new-output.tpp|new-output.tpt>\nInit/check/pack never install, build, execute author code or access the network. Explicit build executes trusted compiler/project code; toolchains may download dependencies.`);
-  if (!command || command === 'wizard' || (['init', 'build', 'check', 'pack', 'install', 'npm-package', 'environment', 'sync'].includes(command) && !rest.length)) {
+  if (['--help', '-h', 'help'].includes(command)) return console.log(`qwertysay — guided setup / 引导式配置 (run without arguments in a terminal)\nSelect language, create/build/check/pack, package type and toolchain; review before execution.\nAutomation compatibility:\nqwertysay init <directory> [--id author.name] [--author "Your name"] [--type plugin|theme|locale] [--package-manager npm|yarn] [--locale fr] [--title Français] [--language ${Object.keys(languages).join('|')}] [--style ${Object.keys(styles).join('|')}]\nqwertysay environment <new-directory> [npm|yarn]\nqwertysay sync <extension-environment>\nqwertysay prepare <extension-environment> <npm-name> --trust-build [--trust-install-scripts]\nqwertysay install <public-npm-name[@version]> <new-output.tpp|new-output.tpt>\nqwertysay npm-package <file.tpp|file.tpt> <new-directory> <npm-name>\nqwertysay build <source-directory>\nqwertysay check <source-or-built-directory|file.tpp|file.tpt>\nqwertysay pack <source-or-built-directory> <new-output.tpp|new-output.tpt>\nInit/check/pack never install, build, execute author code or access the network. Explicit build executes trusted compiler/project code; toolchains may download dependencies.`);
+  if (!command || command === 'wizard' || (['init', 'build', 'check', 'pack', 'install', 'npm-package', 'environment', 'sync', 'prepare'].includes(command) && !rest.length)) {
     if (!process.stdin.isTTY) throw new Error('Guided setup requires a terminal / 引导式配置需要交互终端。For automation, use explicit commands; see qwertysay --help.');
     const { createPrompter, planInteractive } = require('../lib/wizard.cjs');
     const prompt = createPrompter(process.stdin, process.stdout);
@@ -29,6 +29,11 @@ async function main(args) {
   if (command === 'environment') {
     if (rest.length < 1 || rest.length > 2) throw new Error('Use environment <new-directory> [npm|yarn]');
     console.log(require('../lib/environment.cjs').environmentInit(rest[0], rest[1])); return;
+  }
+  if (command === 'prepare') {
+    if (![3, 4].includes(rest.length) || rest[2] !== '--trust-build' || rest.length === 4 && rest[3] !== '--trust-install-scripts') throw new Error('Use prepare <extension-environment> <npm-name> --trust-build [--trust-install-scripts]. Compiler dependency installers are disabled unless separately trusted; build code runs with user permissions.');
+    const result = await require('../lib/prepare.cjs').prepareInstalled(rest[0], rest[1], { trusted: true, trustedInstallScripts: rest[3] === '--trust-install-scripts' });
+    console.log(`Prepared ${result.manifest.id}: ${result.source}. Run sync next; the extension is not installed or enabled.`); return;
   }
   if (command === 'sync') {
     if (rest.length !== 1) throw new Error('Use sync <extension-environment>');

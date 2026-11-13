@@ -44,4 +44,8 @@ Author sources may use CSS, SCSS, Sass, Less, Stylus, build-time CSS-in-JS or Th
 
 ## Language packs and package-manager environments
 
-See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/Yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+
+## npm source publishing and build safety
+
+Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.

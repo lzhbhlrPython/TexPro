@@ -4,7 +4,7 @@ const path = require('node:path');
 const https = require('node:https');
 const zlib = require('node:zlib');
 const crypto = require('node:crypto');
-const { readPackage, relative, LIMIT } = require('@texpro/extension-sdk/package-tools');
+const { readPackage, relative, LIMIT, inspectFiles, packageKind, validatePackageType, pack } = require('@texpro/extension-sdk/package-tools');
 const { writeScaffold } = require('./scaffold.cjs');
 function parseSpec(spec) {
   const match = /^(?<name>(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*)(?:@(?<version>[a-zA-Z0-9][a-zA-Z0-9.+-]*))?$/.exec(spec);
@@ -63,6 +63,17 @@ function registryArtifact(bytes, metadata) {
   const files = tarFiles(bytes), pkg = JSON.parse(files.get('package.json'));
   if (pkg.name !== metadata.name || pkg.version !== metadata.version) throw new Error('Registry package identity mismatch');
   const artifact = pkg.texpro?.package;
+  if (artifact === undefined) {
+    const source = pkg.texpro?.source ?? '.';
+    if (source !== '.') relative(source);
+    const prefix = source === '.' ? '' : source + '/';
+    const payload = new Map([...files].filter(([name]) => name.startsWith(prefix) && !name.slice(prefix.length).split('/').some(part => part.startsWith('.') || part === 'node_modules')).map(([name, bytes]) => [name.slice(prefix.length), bytes]));
+    if (payload.has('qwertysay.build.json')) throw new Error('This npm package requires a trusted local build. Install it in an extension environment, choose Prepare installed source in qwertysay, then sync.');
+    const info = inspectFiles(payload), artifact = 'extension.' + (packageKind(info.manifest) === 'theme' ? 'tpt' : 'tpp');
+    validatePackageType(info.manifest, artifact, payload);
+    return { artifact, bytes: pack(payload), name: pkg.name, version: pkg.version };
+  }
+  if (pkg.texpro?.source !== undefined) throw new Error('Declare texpro.package or texpro.source, not both');
   relative(artifact);
   if (!/\.(?:tpp|tpt)$/.test(artifact) || !files.has(artifact) || [...files.keys()].filter(name => /\.(?:tpp|tpt)$/i.test(name)).length !== 1) throw new Error('Declare exactly one .tpp or .tpt artifact in package.json texpro.package');
   return { artifact, bytes: files.get(artifact), name: pkg.name, version: pkg.version };
