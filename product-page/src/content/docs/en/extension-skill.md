@@ -1,7 +1,7 @@
 ---
 slug: extension-skill
 title: "Development Skill: AI-assisted extension work"
-group: 开发
+group: AI 协作
 order: 67
 summary: Install and invoke the repository Skill; provide inputs, classify interactions, verify evidence and hand off safely.
 ---

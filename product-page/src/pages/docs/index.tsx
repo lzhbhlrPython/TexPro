@@ -2,17 +2,17 @@ import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Typography, theme } from 'antd';
 import { GROUP_LABELS, findTopic, navFor, neighbors } from '@/content/docs';
-import { documentationHome } from '@/content/docs/sections.mjs';
+import { documentationEntry, documentationHome, type DocumentationSection } from '@/content/docs/sections.mjs';
 import { useLocale, useT } from '@/i18n';
 import { MarkdownBlocks, collectSections } from '@/components/MarkdownBlocks';
 
 const { Text } = Typography;
 
-export default function DocsPage() {
+export default function DocsPage({ section }: { section?: DocumentationSection }) {
   const { slug } = useParams();
   const { locale } = useLocale();
   const t = useT();
-  const topic = findTopic(slug, locale);
+  const topic = findTopic(slug ?? documentationEntry(section ?? 'use'), locale);
   const { token } = theme.useToken();
   const { prev, next } = neighbors(topic.slug, locale);
   const docsNav = navFor(locale, topic.section);
@@ -45,28 +45,11 @@ export default function DocsPage() {
   return (
     <article className={`docs docs--${topic.section}`}>
       <div className="shell">
-        <header className="docs-head docs-enter" key={`head-${topic.slug}`}>
-          <Text className="docs-kicker" style={{ color: token.colorPrimary }}>
-            <Link to={documentationHome(topic.section)}>{t(topic.section === 'develop' ? '开发文档' : '使用文档')}</Link> · {locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}
-          </Text>
-          <h1 className="docs-title" style={{ color: token.colorTextHeading }}>
-            {topic.title}
-          </h1>
-          <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
-            {topic.summary}
-          </p>
-          {englishMissing ? (
-            <p className="docs-lang-note" style={{ color: token.colorTextTertiary }}>
-              {t('这一篇的英文版还在翻译中，正文暂时以简体中文呈现。')}
-            </p>
-          ) : null}
-        </header>
-
         <div className="docs-body">
           <nav className="docs-nav" aria-label={t('文档目录')}>
             <div className="docs-section-links">
-              <Link to="/docs" style={{ color: topic.section === 'use' ? token.colorPrimary : token.colorTextSecondary }}>{t('使用文档')}</Link>
-              <Link to="/developers" style={{ color: topic.section === 'develop' ? token.colorPrimary : token.colorTextSecondary }}>{t('开发文档')}</Link>
+              <Link to="/docs" aria-current={topic.section === 'use' ? 'location' : undefined} style={{ color: topic.section === 'use' ? token.colorPrimary : token.colorTextSecondary }}>{t('使用文档')}</Link>
+              <Link to="/developers" aria-current={topic.section === 'develop' ? 'location' : undefined} style={{ color: topic.section === 'develop' ? token.colorPrimary : token.colorTextSecondary }}>{t('开发文档')}</Link>
             </div>
             {docsNav.map((group) => (
               <div className="docs-nav-group" key={group.label}>
@@ -94,7 +77,24 @@ export default function DocsPage() {
             ))}
           </nav>
 
-          <div className="docs-main docs-enter" key={topic.slug}>
+          <div className="docs-main docs-reading-enter" key={topic.slug}>
+            <header className="docs-head">
+              <Text className="docs-kicker" style={{ color: token.colorPrimary }}>
+                <Link to={documentationHome(topic.section)}>{t(topic.section === 'develop' ? '开发文档' : '使用文档')}</Link> · {locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}
+              </Text>
+              <h1 className="docs-title" style={{ color: token.colorTextHeading }}>
+                {topic.title}
+              </h1>
+              <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
+                {topic.summary}
+              </p>
+              {englishMissing ? (
+                <p className="docs-lang-note" style={{ color: token.colorTextTertiary }}>
+                  {t('这一篇的英文版还在翻译中，正文暂时以简体中文呈现。')}
+                </p>
+              ) : null}
+            </header>
+
             <MarkdownBlocks blocks={topic.blocks} />
 
             <nav className="docs-pager" aria-label={t('上一页与下一页')}>
@@ -130,7 +130,7 @@ export default function DocsPage() {
                   style={{ color: token.colorTextSecondary }}
                   onClick={(event) => {
                     event.preventDefault();
-                    document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.getElementById(section.id)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
                   }}
                 >
                   {section.title}

@@ -13,9 +13,16 @@ try {
   const { searchIndex } = await server.ssrLoadModule('/src/lib/search.ts');
   const { BLOG_POSTS } = await server.ssrLoadModule('/src/content/blog/index.ts');
   assert.ok(BLOG_POSTS.every(post => post.tags.every(tag => !/[\[\]`]/.test(tag))), 'Blog labels contain no formatting marks');
+  const { documentationEntry } = await server.ssrLoadModule('/src/content/docs/sections.mjs');
   const ownership = new Map();
   for (const locale of ['zh', 'en']) {
     const all = topicsFor(locale);
+    assert.equal(all.find(topic => topic.slug === 'extension-skill').group, 'AI 协作');
+    for (const section of ['use', 'develop']) {
+      const entry = all.find(topic => topic.slug === documentationEntry(section));
+      assert.ok(entry?.blocks.length, 'A section entrance must open a real chapter');
+      assert.equal(entry.section, section);
+    }
     assert.equal(new Set(all.map(topic => topic.slug)).size, all.length, 'Slugs must be unique');
     const partition = ['use', 'develop'].flatMap(section => topicsFor(locale, section));
     assert.deepEqual(partition.map(topic => topic.slug).sort(), all.map(topic => topic.slug).sort(), 'Every topic belongs to exactly one section');

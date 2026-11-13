@@ -1,7 +1,7 @@
 ---
 slug: extension-skill
 title: "开发 Skill：让 AI 协助扩展开发"
-group: 开发
+group: AI 协作
 order: 67
 summary: 安装并调用仓库开发 Skill，组织输入、能力与 L0–L3 决策、测试证据及安全交接。
 ---

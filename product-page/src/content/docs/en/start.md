@@ -14,7 +14,7 @@ It is not a Markdown editor, nor an online collaboration platform. Before you op
 
 ## Finding the right guide
 
-The [User guide](/docs) covers installation, writing, compilation and delivery. For plugins, themes, MCP integration or app contributions, start with [Developer docs](/developers). Search covers both sections; article navigation and previous/next links stay within the current section. Existing article links remain valid.
+The [User guide](/docs) starts with this chapter and covers installation, writing, compilation and delivery. For plugins, themes, MCP integration or app contributions, start with the development setup chapter in [Developer docs](/developers). Search covers both sections; article navigation and previous/next links stay within the current section. Existing article links remain valid.
 
 ## Preparing the Environment
 
