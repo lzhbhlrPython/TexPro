@@ -12,7 +12,7 @@
 
 ## 使用文档
 
-- [使用文档首页](https://lzhbhlrpython.github.io/TexStudioPro/docs)
+- [使用文档入口](https://lzhbhlrpython.github.io/TexStudioPro/docs)
 - [安装与第一个工程](https://lzhbhlrpython.github.io/TexStudioPro/docs/start): TeXPro 是桌面应用，不依赖服务端。这一节只讲四件事：装好、打开、编译、看结果。
 - [导入、模板与素材](https://lzhbhlrpython.github.io/TexStudioPro/docs/import): 把 Markdown 与 Typst 稿子译成 LaTeX、用模板起一个新工程、把图片收进素材目录，这三件事各有入口和边界。
 - [编译与诊断](https://lzhbhlrpython.github.io/TexStudioPro/docs/compile): 编译是一层薄壳：定位主文件、挑引擎、跑 latexmk、把日志读成可跳转的诊断。理解这四步，「为什么没出 PDF」大多能自己回答。
@@ -35,7 +35,7 @@
 
 ## 开发文档
 
-- [开发文档首页](https://lzhbhlrpython.github.io/TexStudioPro/developers)
+- [开发文档入口](https://lzhbhlrpython.github.io/TexStudioPro/developers)
 - [开发环境](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-setup): 从安装依赖到启动应用与官网；按修改范围选择检查，不混用包管理器。
 - [架构与信任边界](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-arch): 按主进程、preload、渲染层与外部 MCP 理解文件、编译和发布边界。
 - [渲染层与连续写作](https://lzhbhlrpython.github.io/TexStudioPro/docs/dev-renderer): 按编辑状态、源码投影、异步身份与可选面板理解渲染层，不以大文件行数代替架构。

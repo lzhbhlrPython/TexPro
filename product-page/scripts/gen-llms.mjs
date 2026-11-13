@@ -63,7 +63,7 @@ lines.push('');
 for (const [section, title, route] of [['use', '使用文档', 'docs'], ['develop', '开发文档', 'developers']]) {
   lines.push(`## ${title}`);
   lines.push('');
-  lines.push(`- [${title}首页](${site}/${route})`);
+  lines.push(`- [${title}入口](${site}/${route})`);
   for (const doc of docs.filter(doc => doc.section === section)) lines.push(`- [${doc.title}](${site}/docs/${doc.slug}): ${doc.summary}`);
   lines.push('');
 }

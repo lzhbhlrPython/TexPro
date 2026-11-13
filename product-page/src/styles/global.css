@@ -808,7 +808,7 @@ a {
 
 .docs-head {
   max-width: 720px;
-  margin-bottom: 44px;
+  margin-bottom: 2.5em;
 }
 
 .docs-kicker {
@@ -838,8 +838,6 @@ a {
   grid-template-columns: 196px minmax(0, 1fr) 168px;
   gap: 52px;
   align-items: start;
-  padding-top: 36px;
-  border-top: 1px solid var(--site-border);
 }
 
 .docs-toc {
@@ -892,8 +890,8 @@ a {
   font-size: 13.5px;
   line-height: 1.6;
   transition:
-    color 0.2s var(--ease),
-    border-color 0.2s var(--ease);
+    color var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
 }
 
 .docs-nav a:hover {
@@ -1137,7 +1135,6 @@ a {
   .docs-body {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
-    padding-top: 22px;
   }
 
   .docs-toc {
@@ -3829,40 +3826,16 @@ html[lang='en'] .qwerty-code {
   font-weight: 500;
 }
 
-/* Two audiences share paper, typography and Reveal; spacing comes from Ant Design tokens. */
-.docs-landing { padding: calc(var(--site-doc-xxl) + var(--site-doc-lg)) 0 calc(2 * var(--site-doc-xxl)); }
-.docs-landing-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: calc(2 * var(--site-doc-xl)); align-items: center; margin-bottom: calc(var(--site-doc-xxl) + var(--site-doc-xl)); }
-.docs-landing-intro h1 { font-size: clamp(var(--site-doc-h2), 3.6vw, calc(var(--site-doc-h1) + var(--site-doc-font-sm))); font-weight: 600; line-height: 1.3; letter-spacing: -.025em; margin: var(--site-doc-lg) 0; text-wrap: balance; }
-.docs-landing-lede { max-width: 36em; font-size: var(--site-doc-font-lg); line-height: 1.9; margin: 0; }
-.docs-landing-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--site-doc-lg); margin-top: var(--site-doc-xl); }
-.docs-landing-actions > a { color: var(--site-brand); font-size: var(--site-doc-font); }
-.docs-landing-entry { min-width: 0; border: 1px solid; padding: var(--site-doc-xl); }
-.docs-landing-note { font-size: clamp(var(--site-doc-h3), 2.2vw, var(--site-doc-h2)); line-height: 1.7; margin: var(--site-doc-lg) 0 var(--site-doc-xl); text-wrap: balance; }
-.docs-landing-entry nav { display: grid; }
-.docs-landing-entry nav a { display: grid; grid-template-columns: var(--site-doc-xl) 1fr auto; gap: var(--site-doc-sm); align-items: baseline; padding: var(--site-doc-md) 0; border-top: 1px solid var(--site-border); font-size: var(--site-doc-font); }
-.docs-entry-number { font-family: var(--mono); font-size: var(--site-doc-font-sm); }
-.docs-landing-code { font-family: var(--mono); font-size: var(--site-doc-font-sm); line-height: 1.8; margin: var(--site-doc-lg) 0; overflow-x: auto; tab-size: 2; }
-.docs-directory-heading { border-bottom: 1px solid var(--site-border); padding-bottom: var(--site-doc-lg); margin-bottom: var(--site-doc-sm); }
-.docs-directory-heading h2 { font-size: var(--site-doc-h2); font-weight: 600; margin: 0 0 var(--site-doc-xs); }
-.docs-directory-heading p { margin: 0; font-size: var(--site-doc-font); line-height: 1.8; }
-.docs-directory-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: calc(2 * var(--site-doc-xl)); }
-.docs-directory-group { min-width: 0; padding: var(--site-doc-xl) 0; border-bottom: 1px solid; }
-.docs-directory-group h3 { margin: 0 0 var(--site-doc-xs); font-size: var(--site-doc-h3); font-weight: 600; }
-.docs-directory-group p { min-height: 2em; margin: 0 0 var(--site-doc-md); font-size: var(--site-doc-font); line-height: 1.8; }
-.docs-directory-group ul { list-style: none; margin: 0; padding: 0; }
-.docs-directory-group li a { display: flex; justify-content: space-between; align-items: baseline; gap: var(--site-doc-md); padding: var(--site-doc-sm) 0; font-size: var(--site-doc-font); line-height: 1.6; }
-.docs-directory-group li a:hover span, .docs-landing-entry nav a:hover > span:nth-child(2) { text-decoration: underline; text-underline-offset: .25em; }
-.docs-landing--develop .docs-landing-hero { align-items: start; gap: var(--site-doc-xxl); }
-.docs-landing--develop .docs-landing-intro h1 { font-size: clamp(var(--site-doc-h2), 3.2vw, var(--site-doc-h1)); }
-.docs-landing--develop .docs-directory-group { padding: var(--site-doc-lg) 0; }
-.docs-landing--develop .docs-directory-group li a { padding: var(--site-doc-xs) 0; }
-.docs-landing--develop .eyebrow, .docs--develop .docs-kicker { font-family: var(--mono); }
-.docs-section-links { display: flex; flex-wrap: wrap; gap: 1em; padding-bottom: 1em; margin-bottom: 1.5em; border-bottom: 1px solid var(--site-border); font-size: .85em; }
+/* The section entrances share the article reader, like chapters in the same book. */
+.docs-section-links { display: flex; flex-wrap: wrap; gap: 1em; padding-bottom: 1em; border-bottom: 1px solid var(--site-border); font-size: .85em; }
 .docs-kicker > a { color: inherit; }
-@media (max-width: 767px) {
-  .docs-landing { padding: var(--site-doc-xl) 0 calc(2 * var(--site-doc-xl)); }
-  .docs-landing-hero, .docs-landing--develop .docs-landing-hero { grid-template-columns: minmax(0, 1fr); gap: var(--site-doc-xl); margin-bottom: var(--site-doc-xxl); }
-  .docs-landing-entry { padding: var(--site-doc-lg); }
-  .docs-directory-groups { grid-template-columns: minmax(0, 1fr); }
-  .docs-directory-group p { min-height: 0; }
+.docs-reading-enter { animation: docs-reading-fade var(--dur-quick) var(--ease-out) both; }
+@keyframes docs-reading-fade { from { opacity: .65; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce), print {
+  .docs-reading-enter { animation: none; }
+}
+
+@media (max-width: 991px) {
+  /* The shared header menu already provides section switching on narrow screens. */
+  .docs-section-links { display: none; }
 }

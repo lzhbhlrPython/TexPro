@@ -66,3 +66,12 @@
 | shiki-blog-en-dark-390.png | 1ee6ad6433c7dcd01fe4194489cea33a8239ca69a22c1bb6a2640f8516ad9f7f |
 | shiki-home-zh-light-1440.png | 18a2afb32a73d31287f4f9c94a0d05f387b9e6b5f47e80da261c5c5a7eea037b |
 | shiki-home-en-dark-390.png | 38f569bb551516b9831f80eb3f6225f2d0d0b3c62a3885fc11843c7051a12f06 |
+
+2026-11-13（阅读布局修订）：移除使用／开发文档的独立导览首页，入口直接阅读首篇；标题归正文栏，章节目录保持稳定。以下四张替换同名预览，来自实际 Vite 生产构建。已验证中英、明暗、1440／390px 八组组合及 `/TexStudioPro` 子路径；最终窄屏改为单行章节导航，分区切换复用顶栏菜单。另验只淡入正文、reduced motion 和打印关闭动画，以及 Skill 的 AI 协作分组与旧文章链接。字体 CDN 等待有时限，超时使用站点系统字体回退。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| user-guide-zh-light-1440.png | fba9aa23a1694e747a80a841480de9374fd57da9b4141cf97f3dbe62354f0cec |
+| user-guide-en-dark-390.png | 2cfc0a28269f4cb07f2c82c73c75d211812bac0e11f59bf85048374cdab8ffcf |
+| developer-docs-zh-light-1440.png | 8077056495a2a2274a333016a50bed4fdcc87731c8fa97c9ea0d13ff65a70383 |
+| developer-docs-en-dark-390.png | 479db62db0d004c644f8fa8fcc4f9b356e333bbb8717a4d7d1612063dd4032f0 |

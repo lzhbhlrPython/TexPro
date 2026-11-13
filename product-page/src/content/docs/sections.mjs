@@ -5,3 +5,8 @@ export function documentationSection(group) {
 export function documentationHome(section) {
   return section === 'develop' ? '/developers' : '/docs';
 }
+
+/** Section entrances open a real chapter, without an intermediate landing page. */
+export function documentationEntry(section) {
+  return section === 'develop' ? 'dev-setup' : 'start';
+}

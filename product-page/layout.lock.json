@@ -48,8 +48,7 @@
     "src/pages/blog/index.tsx": "0c015d0113593c31",
     "src/pages/blog/post.tsx": "51c950fc3ca09916",
     "src/pages/changelog/index.tsx": "a79494c1192fc410",
-    "src/pages/docs/index.tsx": "f7e1644eb6e4ae54",
-    "src/pages/docs/landing.tsx": "92fb2ef929d819bb",
+    "src/pages/docs/index.tsx": "0c186e6d3c6e6912",
     "src/pages/download/index.tsx": "ca5885e5b7c501e3",
     "src/pages/easter/index.tsx": "69712c0197494067",
     "src/pages/easter/rose.tex": "a34c72d2111f2bd7",
@@ -71,8 +70,8 @@
     "src/pages/home/Workflow.tsx": "5cb2e22fc1c0601a",
     "src/pages/home/index.tsx": "9d82fe82ac87ce34",
     "src/pages/releases/index.tsx": "8f63d6915bb2dfe8",
-    "src/router/index.tsx": "da0772559b2177a6",
-    "src/styles/global.css": "4404f64bb06ca1b0",
+    "src/router/index.tsx": "b76a9c5a0bd9a341",
+    "src/styles/global.css": "4d9180577e5a59d9",
     "src/types/index.ts": "34c40285186170b4",
     "vite.config.ts": "fd7d04f257526cb7"
   }

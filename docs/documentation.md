@@ -41,4 +41,4 @@
 
 ## 官网文档的读者分区
 
-使用入口为 `/docs`，开发入口为 `/developers`，保留 `/docs/:slug` 的文章链接。按规范中文 group 分类，开发和 AI 协作进入开发区，开始、使用、参考和关于进入使用区；实现与生成器共用 product-page/src/content/docs/sections.mjs，英文不独立判断。安装／卸载扩展、语言包切换面向使用者，SDK、qwertysay、Skill、MCP 和应用架构面向开发者。维护新篇目时检查目录、侧栏、前后篇、搜索、llms 与 sitemap；跨区推荐可用正文链接或分区首页，不混入另一套侧栏。
+使用入口 `/docs` 直接阅读 start，开发入口 `/developers` 直接阅读 dev-setup；共用文章阅读器，不设导览首页，保留 `/docs/:slug` 的文章链接。开发 Skill 归入 AI 协作。按规范中文 group 分类，开发和 AI 协作进入开发区，开始、使用、参考和关于进入使用区；实现与生成器共用 product-page/src/content/docs/sections.mjs，英文不独立判断。安装／卸载扩展、语言包切换面向使用者，SDK、qwertysay、Skill、MCP 和应用架构面向开发者。维护新篇目时检查目录、侧栏、前后篇、搜索、llms 与 sitemap；跨区推荐可用正文链接或分区首页，不混入另一套侧栏。
