@@ -2,7 +2,7 @@
 title: 首次正式发布：TeXPro v0.1.0 · Tajpilo
 date: 2026-11-12
 summary: 以普通 TeX 源码和连续写作为起点，记录首次正式版本、Tajpilo 系列代号，以及分开的 SDK、引导式 qwertysay 和开发 Skill。
-tags: [发布, 连续写作, 扩展, 工程]
+tags: 发布, 连续写作, 扩展, 工程
 version: 0.1.0
 author: Baolin Liu
 ---

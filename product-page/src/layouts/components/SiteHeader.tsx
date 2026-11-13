@@ -16,7 +16,10 @@ import { PAGE_LINKS, SECTION_LINKS } from '@/data/site';
 import { AppLogo } from '@/layouts/components/AppLogo';
 import { SearchDialog } from '@/components/SearchDialog';
 import { ShortcutsDialog } from '@/components/ShortcutsDialog';
-import { useLocale, useT } from '@/i18n';
+import { useT } from '@/i18n';
+import { LanguageSwitch } from '@/components/LanguageSwitch';
+import { findTopic } from '@/content/docs';
+import { documentationHome } from '@/content/docs/sections.mjs';
 import { useThemeMode } from '@/lib/theme';
 
 const { Text } = Typography;
@@ -24,7 +27,6 @@ const { Text } = Typography;
 export function SiteHeader() {
   const { token } = theme.useToken();
   const t = useT();
-  const { locale, toggle } = useLocale();
   const { mode, toggle: toggleTheme } = useThemeMode();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -75,7 +77,12 @@ export function SiteHeader() {
     goToSection(id);
   };
 
-  const isActive = (to: string) => location.pathname === to || location.pathname.startsWith(`${to}/`);
+  const isActive = (to: string) => {
+    if ((to === '/docs' || to === '/developers') && location.pathname.startsWith('/docs/')) {
+      return documentationHome(findTopic(location.pathname.slice('/docs/'.length)).section) === to;
+    }
+    return location.pathname === to || location.pathname.startsWith(`${to}/`);
+  };
 
   return (
     <header
@@ -104,53 +111,55 @@ export function SiteHeader() {
 
         <span className="head-spacer" />
 
-        <Space size={4} className="site-head-actions">
-          <Button
-            type="text"
-            icon={<SearchOutlined />}
-            aria-label={t('搜索文档与博客（⌘K）')}
-            onClick={() => setSearchOpen(true)}
-          />
-          <Button
-            type="text"
-            icon={<KeyOutlined />}
-            aria-label={t('键盘快捷键')}
-            onClick={() => setShortcutsOpen(true)}
-          />
-          <Button
-            type="text"
-            icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-            onClick={toggleTheme}
-            aria-label={t(mode === 'dark' ? '切换到日间模式' : '切换到夜间模式')}
-          />
-          <Button type="text" className="locale-switch" onClick={toggle} aria-label={locale === 'zh' ? 'Switch to English' : '切换为简体中文'}>
-            {locale === 'zh' ? 'English' : '简体中文'}
-          </Button>
-          <Button
-            type="text"
-            icon={<GithubOutlined />}
-            href={SITE_LINKS.repo}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={t('在 GitHub 查看源码')}
-          />
-          <Button
-            type="primary"
-            className="dl-cta"
-            icon={<DownloadOutlined />}
-            onClick={() => goSection('download')}
-          >
-            {t('下载')}
-          </Button>
-        </Space>
+        <Flex align="center" gap={4}>
+          <Space size={4} className="site-head-actions">
+            <Button
+              type="text"
+              icon={<SearchOutlined />}
+              aria-label={t('搜索文档与博客（⌘K）')}
+              onClick={() => setSearchOpen(true)}
+            />
+            <Button
+              type="text"
+              icon={<KeyOutlined />}
+              aria-label={t('键盘快捷键')}
+              onClick={() => setShortcutsOpen(true)}
+            />
+            <Button
+              type="text"
+              icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+              onClick={toggleTheme}
+              aria-label={t(mode === 'dark' ? '切换到日间模式' : '切换到夜间模式')}
+            />
+          </Space>
+          <LanguageSwitch />
+          <Space size={4} className="site-head-actions">
+            <Button
+              type="text"
+              icon={<GithubOutlined />}
+              href={SITE_LINKS.repo}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t('在 GitHub 查看源码')}
+            />
+            <Button
+              type="primary"
+              className="dl-cta"
+              icon={<DownloadOutlined />}
+              onClick={() => goSection('download')}
+            >
+              {t('下载')}
+            </Button>
+          </Space>
 
-        <Button
-          className="site-menu-trigger"
-          type="text"
-          icon={<MenuOutlined />}
-          aria-label={t('打开导航菜单')}
-          onClick={() => setMenuOpen(true)}
-        />
+          <Button
+            className="site-menu-trigger"
+            type="text"
+            icon={<MenuOutlined />}
+            aria-label={t('打开导航菜单')}
+            onClick={() => setMenuOpen(true)}
+          />
+        </Flex>
       </div>
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -222,7 +231,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
           >
-            GitHub 源码
+            {t('GitHub 源码')}
           </Button>
           <Button
             block
@@ -239,7 +248,7 @@ export function SiteHeader() {
         </Flex>
 
         <Text type="secondary" style={{ display: 'block', marginTop: 20, fontSize: 12 }}>
-          本地优先 · 不建账号 · 不上传文件
+          {t('本地优先 · 不建账号 · 不上传文件')}
         </Text>
       </Drawer>
     </header>

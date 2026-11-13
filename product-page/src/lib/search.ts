@@ -43,7 +43,6 @@ export function searchIndex(locale: 'zh' | 'en' = 'zh'): SearchHit[] {
   const cached = cache.get(locale);
   if (cached) return cached;
 
-  const docsWord = locale === 'en' ? 'Docs' : '文档';
   const blogWord = locale === 'en' ? 'Blog' : '博客';
 
   const docs: SearchHit[] = topicsFor(locale).map((topic) => ({
@@ -52,7 +51,7 @@ export function searchIndex(locale: 'zh' | 'en' = 'zh'): SearchHit[] {
     title: topic.title,
     summary: topic.summary,
     to: `/docs/${topic.slug}`,
-    meta: `${docsWord} · ${locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}`,
+    meta: `${locale === 'en' ? (topic.section === 'develop' ? 'Developer docs' : 'User guide') : (topic.section === 'develop' ? '开发文档' : '使用文档')} · ${locale === 'en' ? (GROUP_LABELS[topic.group] ?? topic.group) : topic.group}`,
     haystack: `${topic.title} ${topic.summary} ${blocksToText(topic.blocks)}`.toLowerCase(),
   }));
 

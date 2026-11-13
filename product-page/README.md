@@ -89,4 +89,24 @@ Pages 自动来源仅产品页路径变化与成功 Nightly／正式版的准确
 
 2026-11-12：正式版本页按 major.minor 与 release-series.json 代号分组（V0.1 / Tajpilo），小版本可独立折叠，默认展开最新版本；复用 MarkdownBlocks，不执行原始 HTML。首页以可核对的 21 个 MCP 工具替代文档数；博客标签解析清理数组括号和反引号。中文操作文案按桌面和原生菜单 i18n 核对；英文指南保持英文界面名称。外链改用官网与当前仓库地址，TCSS 使用可访问的版本化分发文档。
 
-2026-11-13：补齐声明式语言插件、npm／Yarn 管理和 qwertysay 0.4.1 的中英任务文档、简体中文博客和真实预览；文档正文中的插件独立 i18n 边界与桌面原生恢复命令同步。主体开发只维护中文博客与其他页面中英双语，其他语种按翻译交接指引由第三方 AI 完成。
+2026-11-13：补齐声明式语言插件、npm／yarn 管理和 qwertysay 0.4.1 的中英任务文档、简体中文博客和真实预览；文档正文中的插件独立 i18n 边界与桌面原生恢复命令同步。主体开发只维护中文博客与其他页面中英双语，其他语种按翻译交接指引由第三方 AI 完成。
+
+## 代码高亮
+
+文档、博客和正式版本说明继续使用现有 Markdown 解析器，围栏语言传给共享 CodeHighlight；首页 TeX 演示与诊断源码也复用它。Shiki 4.6.0 使用独立 core、JavaScript 正则引擎和显式按需导入的语法，首屏不下载全部语法或外部 CDN/WASM。支持 sh/bash、tex/latex、js/ts/jsx/tsx、json/jsonc、css/scss/less、html/xml、yaml、toml、markdown、diff 与 powershell；text、base64、未标注与未知语言保留纯文本。新增语法需同时补齐 codeLanguages、加载器与 test:code，不启用自动猜测。
+
+CodeHighlight 以 React 文本节点渲染 Shiki token，不注入高亮 HTML。异步结果验证原文与语言，组件卸载后丢弃，失败保留原文。缓存最多 64 项；超过 40,000 字符、1,000 行或单行 2,000 字符回退纯文本。复制始终取原始代码字符串。色彩使用当前 Ant Design token，经局部 --site-code-* 传给 Shiki；不足 5:1 的语义色向正文色混合；切换站点主题无需重新着色，打印使用 CanvasText。
+
+验证入口：pnpm test:code、pnpm test:docs、pnpm typecheck、pnpm build。浏览器核对中英、明暗、1440／390px、复制、键盘、切换主题、失败回退和项目子路径。构建通过 Vite license 收集实际捆绑依赖的完整许可，输出 third-party-licenses.txt；随站点产物保留，不能用根项目 MIT 替代第三方许可。高亮属于官网，不写入应用功能开发博客。
+
+2026-11-13：统一 npm／yarn 小写；包管理指南按实际操作顺序重写，区分 npm、yarn 1 和 yarn 2+，明确简中预装无变更、应用内确认、精确版本升级及卸载保留数据。
+
+## 官网语言入口
+
+导航使用共享 LanguageSwitch 图标菜单，宽窄屏都直接可见；菜单显示 ISO 639-1 代码与自称，当前为 zh · 简体中文、en · English。i18n/locales.ts 维护代码、自称及 HTML lang，沿用既有 texpro:locale 持久选择与路由。选择后与 Escape 关闭后返回触发器；点击外部不抢焦点。菜单只列已接入的语言；新增语言仍需按翻译交接指引接入词典、内容、回退和格式化，单加注册项不等于完成翻译。
+
+## 使用与开发文档分区
+
+`/docs` 为使用文档首页，`/developers` 为开发文档首页；文章沿用 `/docs/:slug`。`src/content/docs/sections.mjs` 是运行期目录和静态生成器共用的归属规则：中文 group 为开发／AI 协作时进入开发区，其余既有分组进入使用区。英文继承中文归属，不能通过翻译 group 改变信息架构。安装与管理扩展属于使用区；编写 SDK 插件、qwertysay、MCP 与应用架构属于开发区。
+
+目录、文章侧栏、前后篇使用同一过滤规则，搜索显示分区标签；顶栏、页脚、llms 与 sitemap 同轮维护。使用区较疏朗，开发区突出代码、紧凑目录与技术契约；字体、token、组件和 Reveal 动画共用。`pnpm test:docs` 验证分区完整性、中英对应、前后篇边界、搜索与生成入口；浏览器另验两区明暗／宽窄屏、语言菜单、直接访问和 Pages 子路径。站点改版不新增应用开发博客。

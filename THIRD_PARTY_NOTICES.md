@@ -56,3 +56,9 @@ Theme styles are parsed using [PostCSS](https://github.com/postcss/postcss), MIT
 ## Extension authoring toolchains
 
 TeXPro SDK and qwertysay original code remain MIT, copyright Baolin Liu (gardenialiu). Language and stylesheet compilers are author development tools, not added Electron interpreters. Generated plugin code may embed upstream runtime libraries under their own licenses. qwertysay includes unmodified upstream license texts with source links in `packages/qwertysay/notices/` for Elm, Scala/Scala.js, Go/GopherJS and ClojureScript/Closure; PureScript build dependencies retain their package LICENSE files. The builder collects notices for its starter outputs; extension authors remain responsible for additional dependencies and assets. esbuild and vanilla-extract retain their own licenses in their npm distributions. Thematic CSS compilation uses the separately installed official tcss-cli; no TCSS compiler code is embedded in TeXPro. No compiler source is relicensed as TeXPro MIT.
+
+## Shiki (product website only / 仅产品站)
+
+The product website uses Shiki 4.6.0 (`@shikijs/core`, `@shikijs/engine-javascript`, `@shikijs/langs`) under MIT, Copyright (c) 2021 Pine Wu and Copyright (c) 2023 Anthony Fu. It is not part of the Electron runtime. Vite emits `third-party-licenses.txt` with full licenses for the actual website bundle, including Shiki and its dependencies. Preserve that file when redistributing the website; the project's MIT license does not relicense third-party code or grammar assets. Source: https://github.com/shikijs/shiki.
+
+产品站的代码高亮使用 Shiki，保留上述作者署名与 MIT 权利。构建产物附完整第三方许可文本；再分发网站时一并保留，不能仅附 TeXPro 自身 LICENSE。

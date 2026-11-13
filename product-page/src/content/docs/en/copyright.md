@@ -219,3 +219,7 @@ The independent `@texpro/extension-sdk` and `@texpro/qwertysay` packages are mai
 ## Third-party licenses in compiled plugins
 
 The SDK/scaffold retains Baolin Liu (gardenialiu) MIT licensing for original code. The author project LICENSE does not relicense embedded standard libraries. Elm, Scala/Scala.js, Go/GopherJS, ClojureScript/Closure and PureScript code retain their licenses and notices. The builder supplies known runtime notices and collects package licenses; authors must review added dependencies/assets and supplement THIRD_PARTY_NOTICES.md. Koishi inspires organization, without copied runtime or marketplace code. See [extension development](/docs/extension-development).
+
+## Website code highlighting
+
+The website uses [Shiki](https://github.com/shikijs/shiki) 4.6.0 (MIT), Copyright (c) 2021 Pine Wu and Copyright (c) 2023 Anthony Fu. It is separate from the desktop runtime. The website build includes third-party-licenses.txt with full notices for bundled dependencies; keep it when redistributing the site. Grammar assets and indirect dependencies retain their own licenses.

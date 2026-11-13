@@ -1,3 +1,4 @@
+import { CodeHighlight } from '@/components/CodeHighlight';
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { App, Button, theme } from 'antd';
 import { useT } from '@/i18n';
@@ -142,7 +143,7 @@ export default function QwertyPage() {
 
         <div className="qwerty-code-block">
           <pre className="qwerty-code" aria-label="base64">
-            {ROSE_BASE64}
+            <CodeHighlight text={ROSE_BASE64} language="text" />
           </pre>
           <Button
             type="text"

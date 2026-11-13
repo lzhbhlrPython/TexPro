@@ -2,7 +2,7 @@
 title: "让语言成为插件，让 npm／yarn 管理扩展版本"
 date: 2026-11-13
 summary: 简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。
-tags: [插件, i18n, SDK, qwertysay, 发布]
+tags: 插件, i18n, SDK, qwertysay, 发布
 author: Baolin Liu
 ---
 

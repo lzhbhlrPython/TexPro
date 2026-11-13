@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { documentationSection } from '../src/content/docs/sections.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const site = (process.env.SITE_URL || 'https://lzhbhlrpython.github.io/TexStudioPro').replace(/\/$/, '');
@@ -31,7 +32,7 @@ const docs = fs
   .filter((file) => file.endsWith('.md'))
   .map((file) => {
     const [meta, body] = frontMatter(fs.readFileSync(path.join(docsDir, file), 'utf8'));
-    return { slug: meta.slug ?? file.replace(/\.md$/, ''), title: meta.title ?? file, summary: meta.summary ?? '', order: Number(meta.order ?? 0), body };
+    return { slug: meta.slug ?? file.replace(/\.md$/, ''), section: documentationSection(meta.group), title: meta.title ?? file, summary: meta.summary ?? '', order: Number(meta.order ?? 0), body };
   })
   .sort((a, b) => a.order - b.order);
 
@@ -59,10 +60,12 @@ lines.push('- 架构与验证：以 electron/main.cjs、electron/preload.cjs、t
 lines.push(`- 中文文档 ${docs.length} 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。`);
 lines.push('- 许可：MIT。');
 lines.push('');
-lines.push('## 文档');
-lines.push('');
-for (const doc of docs) {
-  lines.push(`- [${doc.title}](${site}/docs/${doc.slug}): ${doc.summary}`);
+for (const [section, title, route] of [['use', '使用文档', 'docs'], ['develop', '开发文档', 'developers']]) {
+  lines.push(`## ${title}`);
+  lines.push('');
+  lines.push(`- [${title}首页](${site}/${route})`);
+  for (const doc of docs.filter(doc => doc.section === section)) lines.push(`- [${doc.title}](${site}/docs/${doc.slug}): ${doc.summary}`);
+  lines.push('');
 }
 lines.push('');
 lines.push('## 博客');
@@ -96,6 +99,7 @@ out('llms-full.txt', full.join('\n'));
 const urls = [
   '',
   'docs',
+  'developers',
   'blog',
   'changelog',
   'releases',

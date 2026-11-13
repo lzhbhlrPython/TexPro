@@ -42,4 +42,4 @@
 - [应用版本与发布](release.md)：Nightly 成功基线、三段正式版本、失败重试与官网刷新。
 
 - [声明式语言包](language-packs.md)：预装简中、翻译源与英文恢复。
-- [npm／Yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。
+- [npm／yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。

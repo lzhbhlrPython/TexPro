@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { EN } from '@/i18n/en';
 
-export type Locale = 'zh' | 'en';
+import { isLocale, SITE_LANGUAGES, type Locale } from './locales';
+export type { Locale } from './locales';
 
 interface LocaleValue {
   locale: Locale;
@@ -15,7 +16,7 @@ const LocaleContext = createContext<LocaleValue>({ locale: 'zh', setLocale: () =
 function initialLocale(): Locale {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'zh' || stored === 'en') return stored;
+    if (isLocale(stored)) return stored;
   } catch {
     /* 隐私模式：当作没存过 */
   }
@@ -26,7 +27,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => initialLocale());
 
   useEffect(() => {
-    document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = SITE_LANGUAGES.find(language => language.code === locale)?.htmlLang ?? 'en';
   }, [locale]);
 
   const setLocale = useCallback((next: Locale) => {

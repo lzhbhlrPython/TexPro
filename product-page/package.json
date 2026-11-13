@@ -8,16 +8,20 @@
     "build": "node scripts/fetch-release.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test:docs": "node scripts/test-doc-count.mjs",
+    "test:docs": "node scripts/test-doc-count.mjs && node scripts/test-doc-sections.mjs",
     "check:layout": "node scripts/layout-lock.mjs",
     "layout:update": "node scripts/layout-lock.mjs --update",
     "release:sync": "node scripts/fetch-release.mjs",
     "latex:mark": "node scripts/build-latex-mark.mjs",
     "feed:build": "node scripts/gen-feed.mjs",
-    "llms:build": "node scripts/gen-llms.mjs"
+    "llms:build": "node scripts/gen-llms.mjs",
+    "test:code": "node scripts/test-code-highlighting.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
+    "@shikijs/core": "4.6.0",
+    "@shikijs/engine-javascript": "4.6.0",
+    "@shikijs/langs": "4.6.0",
     "antd": "^6.7.0",
     "dayjs": "^1.11.23",
     "react": "^19.3.1",

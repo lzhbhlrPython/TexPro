@@ -2,7 +2,7 @@
 title: "扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断"
 date: 2026-11-13
 summary: "保留 tpp／tpt 分发，同时让 npm／yarn 管理源码包；需要编译时明确确认，并与宿主和 MCP 共享只读校验。"
-tags: [扩展, SDK, qwertysay, 安全]
+tags: 扩展, SDK, qwertysay, 安全
 author: Baolin Liu
 ---
 

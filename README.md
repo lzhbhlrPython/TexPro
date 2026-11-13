@@ -98,4 +98,4 @@ pnpm dev
 
 正式版通过 Actions 的 Release major／minor／patch 三个手动入口递增，全部测试和三平台打包成功后才同步根版本文件并发布；详见[发布指南](docs/release.md)及官网[正式版本列表](https://texpro.pyliubaolin.top/releases)。
 
-语言插件与包管理：[语言包](docs/language-packs.md)、[npm／Yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。
+语言插件与包管理：[语言包](docs/language-packs.md)、[npm／yarn 技术方案](docs/extension-package-management.md)。简体中文由预装且可独立分发的 `@texpro/extension-translate-zh-cn` 提供；英文内置恢复。

@@ -74,7 +74,8 @@ export default function AiPage() {
           <section>
             <h2 style={{ color: token.colorTextHeading }}>{t('可以去哪')}</h2>
             <ul>
-              <li><Link to="/docs">{t('使用与开发文档')}</Link></li>
+              <li><Link to="/docs">{t('使用文档')}</Link></li>
+              <li><Link to="/developers">{t('开发文档')}</Link></li>
               <li><Link to="/blog">{t('开发博客')}</Link></li>
               <li><a href={SITE_LINKS.repo} target="_blank" rel="noreferrer">{t('源码仓库')}</a></li>
             </ul>
