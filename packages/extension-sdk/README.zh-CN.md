@@ -1,6 +1,6 @@
 # @texpro/extension-sdk
 
-作者 **Baolin Liu（gardenialiu）**，自有代码 MIT。当前源码 **0.4.0 / API 1**，Node.js 20+，不依赖 Electron、React 或 TeX。
+作者 **Baolin Liu（gardenialiu）**，自有代码 MIT。当前源码 **0.5.0 / API 1**，Node.js 20+，不依赖 Electron、React 或 TeX。
 
 [English](README.md)
 
@@ -9,13 +9,13 @@
 SDK 提供 API 1 TypeScript 类型、defineExtension、defineTextTransform、defineJsonExtension 和公共 package-tools 校验／归档／只读检查核心。它不安装插件、不调用编译器、不运行宿主，也不提供权限沙箱。
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.4.0
+npm install --save-dev @texpro/extension-sdk@0.5.0
 ```
 
 ## 文档分工
 
 - [插件 SDK](https://texpro.pyliubaolin.top/docs/extension-development)：完整清单、处理器、能力、服务、生命周期、JSON 桥接及验收。
-- [qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)：独立 0.5.0 引导工具；创建、语言／样式选择、构建、校验和打包不需要记参数。
+- [qwertysay](https://texpro.pyliubaolin.top/docs/qwertysay)：独立 0.6.0 引导工具；创建、语言／样式选择、构建、校验和打包不需要记参数。
 - [开发 Skill](https://texpro.pyliubaolin.top/docs/extension-skill)：AI 技能安装、调用、开发约束和交接。
 
 ## 运行入口
@@ -76,3 +76,9 @@ In an extension environment, install with lifecycle scripts disabled. Ready-to-r
 扩展环境中禁用安装脚本。可运行源码安装后直接同步；需编译时在引导选择「构建已安装的源码扩展」，核对作者与版本、确认风险后再构建，随后同步到 TeXPro，选择「安装并保持停用」。check／sync／MCP 不隐式编译；缺失或依赖安装脚本的工具链须另行审核安装，运行时依赖需打包，不复制 node_modules。
 
 Security: compilation executes compilers, project configuration and source generators with user file/network/process permissions. Temporary directories, hashes and a later enable prompt do not undo those effects or certify safety. Themes can hide controls; language packs can impersonate instructions. Trust install, build and enable separately. / 安全：构建执行编译器、工程配置和源码生成器，拥有用户权限；临时目录、摘要及后续启用确认不是安全隔离，无法撤销构建的外部影响。主题可隐藏界面，语言包可误导操作；分别判断安装、构建与启用的信任。
+
+## 语言目录第 2 版与长文本
+
+宿主语言贡献声明 `catalogVersion: 2`，JSON 使用 `app.save` 等稳定语义键。SDK 0.5.0、qwertysay 0.6.0、中文包 2.0.0 需要配套宿主。旧正文键词典明确拒绝，不保留兼容层。重新生成 `reference/en.json`，按语义键填写译文并保留占位符，递增包版本后校验、打包；只改清单版本不够。缺译回退内置英文，未知语义键按当前 SDK 参考目录报告。
+
+文档、长信和教程按语言保存完整 Markdown、共用渲染器，不逐段建立 UI 键。功能插件保留自己的词典并按每次调用选择语言；技术 ID、路径与作者内容不参与翻译。固定英文恢复命令不能覆盖。源码版本、注册表发布与桌面 Release 分别核验，详见[迁移教程](https://texpro.pyliubaolin.top/docs/language-packs)。

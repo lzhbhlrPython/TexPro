@@ -16,17 +16,18 @@ interface Props {
 
 type NodeType = 'symbol' | 'frac' | 'sqrt' | 'script' | 'matrix' | 'cases' | 'text' | 'raw';
 
+const nodeTypeMessages: Record<NodeType, import('../i18n').MessageId> = {"symbol":"app.symbol","frac":"app.frac","sqrt":"app.sqrt","script":"app.script","matrix":"app.matrix.variant2","cases":"app.cases.variant2","text":"app.text","raw":"app.raw"};
 const addableTypes: NodeType[] = ['symbol', 'frac', 'sqrt', 'script', 'matrix', 'cases', 'text', 'raw'];
 
 function AddControl({ onAdd }: { onAdd: (type: NodeType) => void }) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [type, setType] = useState<NodeType>('symbol');
   return (
     <div className="ast-add">
       <select value={type} onChange={(event) => setType(event.target.value as NodeType)}>
-        {addableTypes.map((item) => <option key={item} value={item}>{t(item)}</option>)}
+        {addableTypes.map((item) => <option key={item} value={item}>{msg(nodeTypeMessages[item])}</option>)}
       </select>
-      <button onClick={() => onAdd(type)} title={t('Add node')}>
+      <button onClick={() => onAdd(type)} title={msg("app.add.node")}>
         <Plus size={11} />
       </button>
     </div>
@@ -48,7 +49,7 @@ function NodeView({
   slot?: string;
   onRemove?: () => void;
 }) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const update = (patch: Partial<AstNode>) => {
     onChange(updateNode(root, node.id, (current) => ({ ...current, ...patch } as AstNode)));
   };
@@ -81,7 +82,7 @@ function NodeView({
     const value = node.type === 'symbol' ? node.latex : node.type === 'text' ? node.value : node.latex;
     return (
       <div className={`ast-leaf ast-${node.type}`}>
-        <span className="ast-leaf-tag">{t(node.type)}</span>
+        <span className="ast-leaf-tag">{msg(nodeTypeMessages[node.type])}</span>
         {node.type === 'raw' ? (
           <textarea
             className="ast-raw-input"
@@ -101,25 +102,25 @@ function NodeView({
             spellCheck={false}
           />
         )}
-        {onRemove && <button className="ast-remove" onClick={onRemove} title={t('Delete')}><Minus size={10} /></button>}
+        {onRemove && <button className="ast-remove" onClick={onRemove} title={msg("app.delete")}><Minus size={10} /></button>}
       </div>
     );
   }
 
   const removeButton = onRemove ? (
-    <button className="ast-remove" onClick={onRemove} title={t('Delete')}><Trash2 size={10} /></button>
+    <button className="ast-remove" onClick={onRemove} title={msg("app.delete")}><Trash2 size={10} /></button>
   ) : null;
 
   if (node.type === 'frac') {
     return (
       <div className="ast-container">
         <div className="ast-container-head">
-          <span><ChevronDown size={10} /> {t('Fraction')}</span>
+          <span><ChevronDown size={10} /> {msg("app.fraction.variant2")}</span>
           {removeButton}
         </div>
         <div className="ast-slots">
-          <div className="ast-slot"><NodeView node={node.numerator} root={root} onChange={onChange} depth={depth + 1} slot={t('numerator')} /></div>
-          <div className="ast-slot"><NodeView node={node.denominator} root={root} onChange={onChange} depth={depth + 1} slot={t('denominator')} /></div>
+          <div className="ast-slot"><NodeView node={node.numerator} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.numerator")} /></div>
+          <div className="ast-slot"><NodeView node={node.denominator} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.denominator")} /></div>
         </div>
       </div>
     );
@@ -129,18 +130,18 @@ function NodeView({
     return (
       <div className="ast-container">
         <div className="ast-container-head">
-          <span><ChevronDown size={10} /> {t('Root')}</span>
+          <span><ChevronDown size={10} /> {msg("app.root")}</span>
           {removeButton}
         </div>
         <div className="ast-slots">
-          <div className="ast-slot"><NodeView node={node.body} root={root} onChange={onChange} depth={depth + 1} slot={t('body')} /></div>
+          <div className="ast-slot"><NodeView node={node.body} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.body")} /></div>
           <button
             className="ast-subadd"
             onClick={() => update({ index: node.index ? null : makeNode('symbol') } as Partial<AstNode>)}
           >
-            {node.index ? t('remove index') : t('add index')}
+            {node.index ? msg("app.remove.index") : msg("app.add.index")}
           </button>
-          {node.index && <div className="ast-slot"><NodeView node={node.index} root={root} onChange={onChange} depth={depth + 1} slot={t('index')} /></div>}
+          {node.index && <div className="ast-slot"><NodeView node={node.index} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.index")} /></div>}
         </div>
       </div>
     );
@@ -150,27 +151,27 @@ function NodeView({
     return (
       <div className="ast-container">
         <div className="ast-container-head">
-          <span><ChevronDown size={10} /> {t('Script')}</span>
+          <span><ChevronDown size={10} /> {msg("app.script.variant2")}</span>
           {removeButton}
         </div>
         <div className="ast-slots">
-          <div className="ast-slot"><NodeView node={node.base} root={root} onChange={onChange} depth={depth + 1} slot={t('base')} /></div>
+          <div className="ast-slot"><NodeView node={node.base} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.base")} /></div>
           <div className="ast-slot">
-            <NodeView node={node.sup || row()} root={root} onChange={onChange} depth={depth + 1} slot={t('superscript')} />
+            <NodeView node={node.sup || row()} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.superscript")} />
             <button
               className="ast-subadd"
               onClick={() => update({ sup: node.sup ? null : makeNode('symbol') } as Partial<AstNode>)}
             >
-              {node.sup ? t('remove superscript') : t('add superscript')}
+              {node.sup ? msg("app.remove.superscript") : msg("app.add.superscript")}
             </button>
           </div>
           <div className="ast-slot">
-            <NodeView node={node.sub || row()} root={root} onChange={onChange} depth={depth + 1} slot={t('subscript')} />
+            <NodeView node={node.sub || row()} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.subscript")} />
             <button
               className="ast-subadd"
               onClick={() => update({ sub: node.sub ? null : makeNode('symbol') } as Partial<AstNode>)}
             >
-              {node.sub ? t('remove subscript') : t('add subscript')}
+              {node.sub ? msg("app.remove.subscript") : msg("app.add.subscript")}
             </button>
           </div>
         </div>
@@ -182,7 +183,7 @@ function NodeView({
     return (
       <div className="ast-container">
         <div className="ast-container-head">
-          <span><ChevronDown size={10} /> {t('Matrix')}</span>
+          <span><ChevronDown size={10} /> {msg("app.matrix")}</span>
           <select
             className="ast-env-select"
             value={node.env}
@@ -212,7 +213,7 @@ function NodeView({
               update({ rows: next } as Partial<AstNode>);
             }}
           >
-            <Plus size={10} /> {t('add column')}
+            <Plus size={10} /> {msg("app.add.column")}
           </button>
           <button
             onClick={() => {
@@ -220,7 +221,7 @@ function NodeView({
               update({ rows: next } as Partial<AstNode>);
             }}
           >
-            <Plus size={10} /> {t('add row')}
+            <Plus size={10} /> {msg("app.add.row")}
           </button>
         </div>
       </div>
@@ -231,14 +232,14 @@ function NodeView({
     return (
       <div className="ast-container">
         <div className="ast-container-head">
-          <span><ChevronDown size={10} /> {t('Cases')}</span>
+          <span><ChevronDown size={10} /> {msg("app.cases")}</span>
           {removeButton}
         </div>
         <div className="ast-cases">
           {node.rows.map((entry, index) => (
             <div className="ast-case-row" key={`case-${index}`}>
-              <NodeView node={entry.expression} root={root} onChange={onChange} depth={depth + 1} slot={t('expression')} />
-              <NodeView node={entry.condition} root={root} onChange={onChange} depth={depth + 1} slot={t('condition')} />
+              <NodeView node={entry.expression} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.expression")} />
+              <NodeView node={entry.condition} root={root} onChange={onChange} depth={depth + 1} slot={msg("app.condition")} />
             </div>
           ))}
         </div>
@@ -246,7 +247,7 @@ function NodeView({
           <button
             onClick={() => update({ rows: [...node.rows, { expression: row(), condition: row() }] } as Partial<AstNode>)}
           >
-            <Plus size={10} /> {t('add case')}
+            <Plus size={10} /> {msg("app.add.case")}
           </button>
         </div>
       </div>
@@ -261,10 +262,10 @@ function row(): AstNode {
 }
 
 export function FormulaTree({ root, onChange }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   return (
     <div className="formula-tree">
-      <div className="formula-tree-hint">{t('Build the formula as a tree; the generated LaTeX updates live.')}</div>
+      <div className="formula-tree-hint">{msg("app.build.the.formula.as.a.tree.the.generated.latex")}</div>
       <NodeView node={root} root={root} onChange={onChange} depth={0} />
     </div>
   );

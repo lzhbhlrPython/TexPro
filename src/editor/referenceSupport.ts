@@ -4,7 +4,7 @@ import { renderInlineTex } from '../lib/texInline';
 import { hoverTooltip, showTooltip, keymap, type Tooltip, type EditorView } from '@codemirror/view';
 import type { ProjectSymbols } from '../types';
 import { assetUrl, dirname, joinPath } from '../lib/latex';
-import { t } from '../i18n';
+import { msg } from '../i18n';
 
 export function referenceInfo(key: string, symbols: ProjectSymbols, citation = false, readSource?: (file: string) => Promise<string>): HTMLElement {
   const dom = document.createElement('div'); dom.className = 'cm-reference-info';
@@ -13,18 +13,18 @@ export function referenceInfo(key: string, symbols: ProjectSymbols, citation = f
   dom.appendChild(title);
   if (target && 'author' in target) { const detail = document.createElement('span'); detail.textContent = `${target.author} ${target.year}`.trim(); dom.appendChild(detail); }
   if (target) {
-    const button = document.createElement('button'); button.type = 'button'; button.textContent = `${t('Go to source')} · ${target.file.split(/[\\/]/).pop()}:${target.line}`;
+    const button = document.createElement('button'); button.type = 'button'; button.textContent = `${msg("app.go.to.source")} · ${target.file.split(/[\\/]/).pop()}:${target.line}`;
     button.addEventListener('mousedown', event => event.preventDefault());
     button.addEventListener('click', () => window.dispatchEvent(new CustomEvent('texpro:writing-jump', { detail: { file: target.file, line: target.line } })));
     if (!citation && readSource) {
-      const excerpt = document.createElement('div'); excerpt.className = 'cm-reference-excerpt'; excerpt.textContent = t('Loading…'); dom.appendChild(excerpt);
-      void readSource(target.file).then(source => { excerpt.innerHTML = renderInlineTex(sourceExcerpt(source, target.line)); }).catch(() => { excerpt.textContent = t('Could not read reference source'); });
-      const rename = document.createElement('button'); rename.type = 'button'; rename.textContent = t('Rename label and references');
+      const excerpt = document.createElement('div'); excerpt.className = 'cm-reference-excerpt'; excerpt.textContent = msg("app.loading"); dom.appendChild(excerpt);
+      void readSource(target.file).then(source => { excerpt.innerHTML = renderInlineTex(sourceExcerpt(source, target.line)); }).catch(() => { excerpt.textContent = msg("app.could.not.read.reference.source"); });
+      const rename = document.createElement('button'); rename.type = 'button'; rename.textContent = msg("app.rename.label.and.references");
       rename.addEventListener('mousedown', event => event.preventDefault());
       rename.addEventListener('click', () => window.dispatchEvent(new CustomEvent('texpro:rename-label', { detail: key }))); dom.appendChild(rename);
     }
     dom.appendChild(button);
-  } else { const missing = document.createElement('span'); missing.textContent = t('No indexed source found'); dom.appendChild(missing); }
+  } else { const missing = document.createElement('span'); missing.textContent = msg("app.no.indexed.source.found"); dom.appendChild(missing); }
   return dom;
 }
 
@@ -42,7 +42,7 @@ function lookup(view: EditorView, position: number, symbols: ProjectSymbols, fil
   const source = view.state.doc.toString(), note = footnoteAt(source, position);
   if (note) return { pos: note.from, end: note.to, above: true, create: () => {
     const dom = document.createElement('div'); dom.className = 'cm-reference-info';
-    const title = document.createElement('strong'); title.textContent = t('Footnote'); dom.appendChild(title);
+    const title = document.createElement('strong'); title.textContent = msg("app.footnote"); dom.appendChild(title);
     const content = document.createElement('div'); content.innerHTML = renderInlineTex(note.text); dom.appendChild(content);
     return { dom };
   } };

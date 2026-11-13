@@ -11,7 +11,7 @@ summary: Start without arguments to create, build, check or pack; choose toolcha
 **@texpro/qwertysay 0.4.1** is an independent Node tool by Baolin Liu (gardenialiu), with MIT original code. It needs Node.js 20+, not Electron or TeX; some compilers need newer versions. The SDK remains 0.3.0 / API 1: see the [SDK guide](/docs/extension-development). For AI workflows, see the [development Skill](/docs/extension-skill).
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 Alternatively install globally and run `qwertysay`. npm/npx may download tools, but qwertysay create/check/pack never installs dependencies for you. Windows PowerShell, macOS and Linux use the same numbered choices and Enter; no shell-specific syntax, color control or external menu tool is required.

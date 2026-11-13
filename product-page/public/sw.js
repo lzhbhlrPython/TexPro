@@ -1,6 +1,6 @@
 /* TeXPro 产品页 Service Worker：首次访问后整站可离线打开。
    只用运行时缓存，不预生成资产清单——发版换了 hash 也不会命中旧文件。 */
-const CACHE = 'texpro-site-v1';
+const CACHE = 'texpro-site-v2';
 const SHELL = ['./', './index.html'];
 
 async function precache() {
@@ -56,16 +56,24 @@ self.addEventListener('fetch', (event) => {
   // 其余同源资源：缓存优先，命中后顺带更新
   event.respondWith(
     caches.match(request).then((cached) => {
+      const validContent = response => {
+        const type = response?.headers.get('content-type') || '';
+        if (request.destination === 'image') return type.startsWith('image/');
+        if (/\.json(?:$|\?)/.test(request.url)) return type.includes('json');
+        return true;
+      };
+      const usable = cached && cached.ok && validContent(cached) ? cached : undefined;
+      if (cached && !usable) caches.open(CACHE).then(cache => cache.delete(request));
       const network = fetch(request)
         .then((response) => {
-          if (response.ok) {
+          if (response.ok && validContent(response)) {
             const copy = response.clone();
             caches.open(CACHE).then((cache) => cache.put(request, copy));
           }
           return response;
         })
-        .catch(() => cached || Response.error());
-      return cached || network;
+        .catch(() => usable || Response.error());
+      return usable || network;
     }),
   );
 });

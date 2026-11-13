@@ -14,9 +14,9 @@ interface Props {
 }
 
 const themes: Array<{ id: ThemeName; label: string; color: string }> = [
-  { id: 'studio', label: 'Studio', color: '#1b1b1e' },
-  { id: 'night', label: 'Night', color: '#111214' },
-  { id: 'paper', label: 'Paper', color: '#f4efe5' },
+  { id: 'studio', label: "app.studio", color: '#1b1b1e' },
+  { id: 'night', label: "app.night", color: '#111214' },
+  { id: 'paper', label: "app.paper", color: '#f4efe5' },
 ];
 
 export function SettingsPanel({
@@ -28,7 +28,7 @@ export function SettingsPanel({
   onOpenChart,
   onOpenTikz,
 }: Props) {
-  const { t, language } = useI18n();
+  const { msg, language } = useI18n();
   const languages = availableLanguages();
   const target = languages.find(item => item.id !== language);
   if (!open) return null;
@@ -66,25 +66,25 @@ export function SettingsPanel({
       <aside className="settings-panel" onMouseDown={(event) => event.stopPropagation()}>
         <header className="settings-header">
           <div>
-            <span className="settings-eyebrow">{t('Preferences')}</span>
-            <h2>{t('Make it yours')}</h2>
+            <span className="settings-eyebrow">{msg("app.preferences")}</span>
+            <h2>{msg("app.make.it.yours")}</h2>
           </div>
-          <button className="icon-btn" onClick={onClose} title={t('Close')}>
+          <button className="icon-btn" onClick={onClose} title={msg("app.close")}>
             <X size={16} />
           </button>
         </header>
 
         <div className="settings-body">
           <div className="settings-section">
-            <div className="settings-section-title">{t('Language')}</div>
+            <div className="settings-section-title">{msg("app.language")}</div>
             <div className="select-row">
-              <span>{t('Interface language')}</span>
-              {languages.length <= 2 ? <button className="secondary-btn" data-testid="language-switch" disabled={!target} onClick={() => target && onChange({ language: target.id })}>{target?.title || 'English'}</button> : <select aria-label={t('Interface language')} value={language} onChange={event => onChange({ language: event.target.value })}>{languages.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select>}
+              <span>{msg("app.interface.language")}</span>
+              {languages.length <= 2 ? <button className="secondary-btn" data-testid="language-switch" disabled={!target} onClick={() => target && onChange({ language: target.id })}>{target?.title || 'English'}</button> : <select aria-label={msg("app.interface.language")} value={language} onChange={event => onChange({ language: event.target.value })}>{languages.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select>}
             </div>
           </div>
 
           <div className="settings-section">
-            <div className="settings-section-title">{t('Appearance')}</div>
+            <div className="settings-section-title">{msg("app.appearance")}</div>
             <div className="theme-grid">
               {themes.map((theme) => (
                 <button
@@ -93,24 +93,24 @@ export function SettingsPanel({
                   onClick={() => onChange({ theme: theme.id })}
                 >
                   <span className="theme-swatch" style={{ background: theme.color }} />
-                  <span>{t(theme.label)}</span>
+                  <span>{msg.text(theme.label)}</span>
                 </button>
               ))}
             </div>
             <div className="setting-row compact-row">
               <span className="setting-copy">
-                <strong>{t('Toggle light / dark')}</strong>
-                <small>{t('Toggle light / dark theme')} · {formatShortcut('⌘⇧L')}</small>
+                <strong>{msg("app.toggle.light.dark")}</strong>
+                <small>{msg("app.toggle.light.dark.theme")} · {formatShortcut('⌘⇧L')}</small>
               </span>
               <button
                 className="secondary-btn"
                 onClick={() => onChange({ theme: settings.theme === 'paper' ? 'night' : 'paper' })}
               >
-                {settings.theme === 'paper' ? t('Night') : t('Day')}
+                {settings.theme === 'paper' ? msg("app.night") : msg("app.day")}
               </button>
             </div>
             <label className="range-row">
-              <span>{t('Editor font size')} <em>{settings.fontSize}px</em></span>
+              <span>{msg("app.editor.font.size")} <em>{settings.fontSize}px</em></span>
               <input
                 type="range"
                 min={13}
@@ -121,7 +121,7 @@ export function SettingsPanel({
               />
             </label>
             <label className="range-row">
-              <span>{t('Reading width')} <em>{settings.editorWidth}px</em></span>
+              <span>{msg("app.reading.width")} <em>{settings.editorWidth}px</em></span>
               <input
                 type="range"
                 min={620}
@@ -134,61 +134,61 @@ export function SettingsPanel({
           </div>
 
           <div className="settings-section">
-            <div className="settings-section-title">{t('Writing')}</div>
+            <div className="settings-section-title">{msg("app.writing")}</div>
             <Toggle
-              label={t('Visual editing')}
-              detail={t('Render math, headings, tables and images inline')}
+              label={msg("app.visual.editing")}
+              detail={msg("app.render.math.headings.tables.and.images.inline")}
               checked={settings.visual}
               onChange={(value) => onChange({ visual: value })}
             />
             <Toggle
-              label={t('Collapse preamble')}
-              detail={t('Fold documentclass and package setup into one card')}
+              label={msg("app.collapse.preamble")}
+              detail={msg("app.fold.documentclass.and.package.setup.into.one.card")}
               checked={settings.collapsePreamble}
               onChange={(value) => onChange({ collapsePreamble: value })}
             />
             <Toggle
-              label={t('Focus mode')}
-              detail={t('Dim every paragraph except the one you are writing')}
+              label={msg("app.focus.mode")}
+              detail={msg("app.dim.every.paragraph.except.the.one.you.are.writing")}
               checked={settings.focus}
               onChange={(value) => onChange({ focus: value })}
             />
             <Toggle
-              label={t('Typewriter scrolling')}
-              detail={t('Keep the caret at a fixed vertical position')}
+              label={msg("app.typewriter.scrolling")}
+              detail={msg("app.keep.the.caret.at.a.fixed.vertical.position")}
               checked={settings.typewriter}
               onChange={(value) => onChange({ typewriter: value })}
             />
             <Toggle
-              label={t('Smart paste')}
-              detail={t('Convert web content, Markdown and spreadsheet tables to TeX. Paste as plain text with the alternate paste shortcut.')}
+              label={msg("app.smart.paste")}
+              detail={msg("app.convert.web.content.markdown.and.spreadsheet.tables.to.tex")}
               checked={settings.smartPaste}
               onChange={(value) => onChange({ smartPaste: value })}
             />
             <Toggle
-              label={t('Markdown input shortcuts')}
-              detail={t('Convert headings, lists and inline formatting while typing. Undo restores the original syntax.')}
+              label={msg("app.markdown.input.shortcuts")}
+              detail={msg("app.convert.headings.lists.and.inline.formatting.while.typing.undo")}
               checked={settings.smartInput}
               onChange={(value) => onChange({ smartInput: value })}
             />
             <Toggle
-              label={t('Spell check')}
-              detail={t('Underline likely misspellings in prose, ignoring commands and math')}
+              label={msg("app.spell.check")}
+              detail={msg("app.underline.likely.misspellings.in.prose.ignoring.commands.and.math")}
               checked={settings.spellcheck}
               onChange={(value) => onChange({ spellcheck: value })}
             />
             <Toggle
-              label={t('Show line numbers')}
-              detail={t('Display a gutter with source line numbers')}
+              label={msg("app.show.line.numbers")}
+              detail={msg("app.display.a.gutter.with.source.line.numbers")}
               checked={settings.showLineNumbers}
               onChange={(value) => onChange({ showLineNumbers: value })}
             />
           </div>
 
           <div className="settings-section">
-            <div className="settings-section-title">{t('Build')}</div>
+            <div className="settings-section-title">{msg("app.build")}</div>
             <label className="select-row">
-              <span>{t('Default engine')}</span>
+              <span>{msg("app.default.engine")}</span>
               <select
                 value={settings.engine}
                 onChange={(event) => onChange({ engine: event.target.value as Settings['engine'] })}
@@ -199,60 +199,60 @@ export function SettingsPanel({
               </select>
             </label>
             <label className="select-row">
-              <span>{t('Compile strategy')}</span>
+              <span>{msg("app.compile.strategy")}</span>
               <select
                 value={settings.compileMode}
                 onChange={(event) => onChange({ compileMode: event.target.value as Settings['compileMode'] })}
               >
-                <option value="idle">{t('After idle')}</option>
-                <option value="pdfOpen">{t('Only when PDF is open')}</option>
-                <option value="manual">{t('Manual only')}</option>
+                <option value="idle">{msg("app.after.idle")}</option>
+                <option value="pdfOpen">{msg("app.only.when.pdf.is.open")}</option>
+                <option value="manual">{msg("app.manual.only")}</option>
               </select>
             </label>
             <Toggle
-              label={t('Auto save')}
-              detail={t('Write changes to disk shortly after editing')}
+              label={msg("app.auto.save")}
+              detail={msg("app.write.changes.to.disk.shortly.after.editing")}
               checked={settings.autoSave}
               onChange={(value) => onChange({ autoSave: value })}
             />
             <Toggle
-              label={t('PDF follows cursor')}
-              detail={t('Forward-search after the cursor settles')}
+              label={msg("app.pdf.follows.cursor")}
+              detail={msg("app.forward.search.after.the.cursor.settles")}
               checked={settings.followCursor}
               onChange={(value) => onChange({ followCursor: value })}
             />
-            <div className="settings-subhead">{t('Optional AI')}</div>
+            <div className="settings-subhead">{msg("app.optional.ai")}</div>
             <Toggle
-              label={t('Enable AI assistant')}
-              detail={t('Off by default; requests are sent only when you press Run')}
+              label={msg("app.enable.ai.assistant")}
+              detail={msg("app.off.by.default.requests.are.sent.only.when.you")}
               checked={settings.aiEnabled}
               onChange={(value) => onChange({ aiEnabled: value })}
             />
             <label className="settings-text-row">
-              <span>{t('API key')}</span>
+              <span>{msg("app.api.key")}</span>
               <input type="password" value={settings.aiApiKey} onChange={(event) => onChange({ aiApiKey: event.target.value })} placeholder="sk-…" />
             </label>
-            <p className="settings-hint">{t('The API key is encrypted with the OS keychain, never written to localStorage.')}</p>
+            <p className="settings-hint">{msg("app.the.api.key.is.encrypted.with.the.os.keychain")}</p>
             <label className="settings-text-row">
-              <span>{t('Model')}</span>
+              <span>{msg("app.model")}</span>
               <input value={settings.aiModel} onChange={(event) => onChange({ aiModel: event.target.value })} placeholder="gpt-4o-mini" />
             </label>
             <label className="settings-text-row">
-              <span>{t('Base URL')}</span>
+              <span>{msg("app.base.url")}</span>
               <input value={settings.aiBaseUrl} onChange={(event) => onChange({ aiBaseUrl: event.target.value })} placeholder="https://api.openai.com/v1" />
             </label>
           </div>
 
           <div className="settings-section">
-            <div className="settings-section-title">{t('Tools')}</div>
+            <div className="settings-section-title">{msg("app.tools")}</div>
             <div className="settings-tool-grid">
               <button onClick={onOpenTemplates}>
                 <LayoutTemplate size={15} />
-                <span>{t('Templates')}</span>
+                <span>{msg("app.templates")}</span>
               </button>
               <button onClick={onOpenChart}>
                 <BarChart3 size={15} />
-                <span>{t('Chart studio')}</span>
+                <span>{msg("app.chart.studio")}</span>
               </button>
               <button onClick={onOpenTikz}>
                 <PenTool size={15} />
@@ -262,23 +262,23 @@ export function SettingsPanel({
           </div>
 
           <div className="settings-section">
-            <div className="settings-section-title">{t('Shortcuts')}</div>
+            <div className="settings-section-title">{msg("app.shortcuts")}</div>
             <div className="shortcut-grid">
-              <span>{t('Compile')}</span><kbd>{formatShortcut('⌘ ↩')}</kbd>
-              <span>{t('Save')}</span><kbd>{formatShortcut('⌘ S')}</kbd>
-              <span>{t('Command palette')}</span><kbd>{formatShortcut('⌘ K')}</kbd>
-              <span>{t('Toggle light / dark')}</span><kbd>{formatShortcut('⌘ ⇧ L')}</kbd>
-              <span>{t('Visual mode')}</span><kbd>{formatShortcut('⌘ ⇧ M')}</kbd>
-              <span>{t('Focus mode')}</span><kbd>{formatShortcut('⌘ ⇧ F')}</kbd>
-              <span>{t('Typewriter scrolling')}</span><kbd>{formatShortcut('⌘ ⇧ T')}</kbd>
-              <span>{t('Toggle PDF preview')}</span><kbd>{formatShortcut('⌘ ⌥ P')}</kbd>
-              <span>{t('Toggle sidebar')}</span><kbd>{formatShortcut('⌘ \\')}</kbd>
-              <span>{t('Forward search PDF')}</span><kbd>{formatShortcut('⌘ ⇧ J')}</kbd>
-              <span>{t('Insert placeholder')}</span><kbd>{formatShortcut('⌘ ⇧ H')}</kbd>
-              <span>{t('Next / previous placeholder')}</span><kbd>F4 / ⇧F4</kbd>
-              <span>{t('Leave a revision memo')}</span><kbd>{formatShortcut('⌘ ⇧ N')}</kbd>
-              <span>{t('Revision memos')}</span><kbd>{formatShortcut('⌘ ⇧ U')}</kbd>
-              <span>{t('Apply Chinese writing typography')}</span><kbd>{formatShortcut('⌘ ⌥ ⇧ C')}</kbd>
+              <span>{msg("app.compile")}</span><kbd>{formatShortcut('⌘ ↩')}</kbd>
+              <span>{msg("app.save")}</span><kbd>{formatShortcut('⌘ S')}</kbd>
+              <span>{msg("app.command.palette")}</span><kbd>{formatShortcut('⌘ K')}</kbd>
+              <span>{msg("app.toggle.light.dark")}</span><kbd>{formatShortcut('⌘ ⇧ L')}</kbd>
+              <span>{msg("app.visual.mode")}</span><kbd>{formatShortcut('⌘ ⇧ M')}</kbd>
+              <span>{msg("app.focus.mode")}</span><kbd>{formatShortcut('⌘ ⇧ F')}</kbd>
+              <span>{msg("app.typewriter.scrolling")}</span><kbd>{formatShortcut('⌘ ⇧ T')}</kbd>
+              <span>{msg("app.toggle.pdf.preview")}</span><kbd>{formatShortcut('⌘ ⌥ P')}</kbd>
+              <span>{msg("app.toggle.sidebar.variant2")}</span><kbd>{formatShortcut('⌘ \\')}</kbd>
+              <span>{msg("app.forward.search.pdf")}</span><kbd>{formatShortcut('⌘ ⇧ J')}</kbd>
+              <span>{msg("app.insert.placeholder")}</span><kbd>{formatShortcut('⌘ ⇧ H')}</kbd>
+              <span>{msg("app.next.previous.placeholder")}</span><kbd>F4 / ⇧F4</kbd>
+              <span>{msg("app.leave.a.revision.memo")}</span><kbd>{formatShortcut('⌘ ⇧ N')}</kbd>
+              <span>{msg("app.revision.memos")}</span><kbd>{formatShortcut('⌘ ⇧ U')}</kbd>
+              <span>{msg("app.apply.chinese.writing.typography")}</span><kbd>{formatShortcut('⌘ ⌥ ⇧ C')}</kbd>
             </div>
           </div>
         </div>

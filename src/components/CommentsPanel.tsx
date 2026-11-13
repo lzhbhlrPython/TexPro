@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function CommentsPanel({ open, comments, activeFile, currentLine, currentSnippet, onClose, onAdd, onResolve, onDelete, onOpen }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [text, setText] = useState('');
   const [showResolved, setShowResolved] = useState(false);
 
@@ -52,20 +52,20 @@ export function CommentsPanel({ open, comments, activeFile, currentLine, current
           <div className="studio-heading">
             <div className="studio-icon"><MessageSquare size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Review')}</span>
-              <h2>{t('Comments')}</h2>
+              <span className="modal-eyebrow">{msg("app.review")}</span>
+              <h2>{msg("app.comments")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{comments.filter((comment) => !comment.resolved).length} {t('open')}</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{comments.filter((comment) => !comment.resolved).length} {msg("app.open.variant2")}</span>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="comments-body">
           <aside className="comments-list">
             <label className="chart-check comments-filter">
-              <input type="checkbox" checked={showResolved} onChange={(event) => setShowResolved(event.target.checked)} /> {t('Show resolved')}
+              <input type="checkbox" checked={showResolved} onChange={(event) => setShowResolved(event.target.checked)} /> {msg("app.show.resolved")}
             </label>
             {visible.map((comment) => (
               <div className={`comment-item ${comment.resolved ? 'resolved' : ''}`} key={comment.id}>
@@ -75,26 +75,26 @@ export function CommentsPanel({ open, comments, activeFile, currentLine, current
                 </button>
                 <p>{comment.text}</p>
                 <div className="comment-actions">
-                  <button onClick={() => onResolve(comment.id, !comment.resolved)} title={comment.resolved ? t('Reopen') : t('Resolve')}>
-                    <Check size={11} /> {comment.resolved ? t('Reopen') : t('Resolve')}
+                  <button onClick={() => onResolve(comment.id, !comment.resolved)} title={comment.resolved ? msg("app.reopen") : msg("app.resolve")}>
+                    <Check size={11} /> {comment.resolved ? msg("app.reopen") : msg("app.resolve")}
                   </button>
-                  <button onClick={() => onDelete(comment.id)} title={t('Delete')}><Trash2 size={11} /></button>
+                  <button onClick={() => onDelete(comment.id)} title={msg("app.delete")}><Trash2 size={11} /></button>
                 </div>
               </div>
             ))}
-            {!visible.length && <div className="panel-empty">{t('No comments yet.')}</div>}
+            {!visible.length && <div className="panel-empty">{msg("app.no.comments.yet")}</div>}
           </aside>
 
           <div className="comment-compose">
-            <div className="pane-label"><MessageSquare size={12} /> {t('New comment')}</div>
+            <div className="pane-label"><MessageSquare size={12} /> {msg("app.new.comment")}</div>
             <div className="comment-context">
-              <strong>{activeFile ? basename(activeFile) : t('No file')}:{currentLine}</strong>
-              <span>{currentSnippet || t('Current line')}</span>
+              <strong>{activeFile ? basename(activeFile) : msg("app.no.file")}:{currentLine}</strong>
+              <span>{currentSnippet || msg("app.current.line")}</span>
             </div>
             <textarea
               value={text}
               onChange={(event) => setText(event.target.value)}
-              placeholder={t('Write a review comment…')}
+              placeholder={msg("app.write.a.review.comment")}
               spellCheck={false}
             />
             <button
@@ -105,16 +105,16 @@ export function CommentsPanel({ open, comments, activeFile, currentLine, current
                 setText('');
               }}
             >
-              <Plus size={12} /> {t('Add comment')}
+              <Plus size={12} /> {msg("app.add.comment")}
             </button>
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Comments are stored in .texpro/comments.json and never modify the document.')}</span>
+          <span className="studio-hint">{msg("app.comments.are.stored.in.texpro.comments.json.and.never")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={exportReport} disabled={!comments.length}><Download size={12} /> {t('Export report')}</button>
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="secondary-btn" onClick={exportReport} disabled={!comments.length}><Download size={12} /> {msg("app.export.report")}</button>
+          <button className="primary-btn" onClick={onClose}>{msg("app.done")}</button>
         </footer>
       </section>
     </div>

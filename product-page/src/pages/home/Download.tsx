@@ -8,7 +8,7 @@ import { useRelease } from '@/hooks/useRelease';
 import { usePlatform } from '@/lib/platform';
 import { findAsset, formatSize } from '@/lib/release';
 import { DOWNLOADS } from '@/data/site';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 const { Text, Title } = Typography;
 
@@ -16,8 +16,8 @@ const PLATFORM_LABEL = { mac: 'macOS', windows: 'Windows', linux: 'Linux' } as c
 
 export function Download() {
   const { token } = theme.useToken();
-  const t = useT();
-  const localize = useLocalize();
+  const msg = useMessages();
+  const localize = useLocalizedFields();
   const { message } = App.useApp();
   const navigate = useNavigate();
   const release = useRelease();
@@ -29,9 +29,9 @@ export function Download() {
     const value = digest.replace(/^sha256:/i, '');
     try {
       await navigator.clipboard.writeText(value);
-      message.success(t('SHA256 已复制'));
+      message.success(msg("site.sha256.copied"));
     } catch {
-      message.error(t('浏览器不允许写剪贴板，请到 Releases 页手动复制'));
+      message.error(msg("site.the.browser.blocked.clipboard.access.copy.it.from.the"));
     }
   };
 
@@ -39,9 +39,9 @@ export function Download() {
     <section className="section section-download" id="download">
       <div className="shell">
         <SectionHeading
-          eyebrow="下载"
-          title="装到本机，十分钟开始写"
-          description={t('当前构建 v{version}。Nightly 每日检查新提交，安装包托管在 GitHub Releases。').replace(
+          eyebrow="site.download"
+          title="site.install.locally.writing.in.ten.minutes"
+          description={msg("site.build.v.version.nightly.checks.for.new.commits.daily").replace(
             '{version}',
             release.version,
           )}
@@ -49,13 +49,13 @@ export function Download() {
 
         {platform && (
           <p className="download-detect" style={{ color: token.colorTextSecondary }}>
-            {t('检测到你在')} <strong style={{ color: token.colorText }}>{PLATFORM_LABEL[platform]}</strong>
-            {t('，已标出对应的安装包。')}
+            {msg("site.detected")} <strong style={{ color: token.colorText }}>{PLATFORM_LABEL[platform]}</strong>
+            {msg("site.the.matching.installer.is.highlighted")}
           </p>
         )}
 
         <div className="download-list">
-          {localize(DOWNLOADS).map((target, index) => {
+          {localize(DOWNLOADS, ["detail","variants"]).map((target, index) => {
             const asset = findAsset(release.assets, release.version, new RegExp(target.assetPattern));
             const size = formatSize(asset?.size);
             const current = platform === target.key;
@@ -87,7 +87,7 @@ export function Download() {
                         fontSize: 11,
                       }}
                     >
-                      {t('当前系统')}
+                      {msg("site.this.machine")}
                     </Tag>
                   )}
                 </div>
@@ -113,7 +113,7 @@ export function Download() {
                   onClick={() => navigate(`/download?platform=${target.key}`)}
                   style={current ? { justifySelf: 'end' } : { paddingInline: 0, justifySelf: 'end' }}
                 >
-                  {asset ? t('下载') : t('前往 Releases')}
+                  {asset ? msg("site.download") : msg("site.open.releases")}
                 </Button>
               </Reveal>
             );
@@ -123,10 +123,10 @@ export function Download() {
         <div className="download-note">
           <div>
             <Title level={4} style={{ margin: '0 0 6px', fontSize: 15 }}>
-              {t('运行前提')}
+              {msg("site.requirements")}
             </Title>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              {t('需要本机已安装 TeX Live 或 MacTeX（pdflatex / xelatex / lualatex 任一即可）；TeXPro 会自动探测发行版与可执行文件。安装包未签名，每行右侧的复制按钮给出该安装包的 SHA256。')}
+              {msg("site.tex.live.or.mactex.must.be.installed.any.of")}
             </Text>
           </div>
           <Space wrap>
@@ -137,9 +137,9 @@ export function Download() {
               target="_blank"
               rel="noreferrer"
             >
-              {t('查看全部构建')}
+              {msg("site.all.builds")}
             </Button>
-            <Button onClick={() => navigate('/docs/dev-setup')}>{t('从源码运行')}</Button>
+            <Button onClick={() => navigate('/docs/dev-setup')}>{msg("site.run.from.source")}</Button>
           </Space>
         </div>
       </div>

@@ -41,18 +41,18 @@ interface Props {
 }
 
 const FIELD_LABELS: Array<[string, string]> = [
-  ['author', 'Author'],
-  ['title', 'Title'],
-  ['year', 'Year'],
-  ['journal', 'Journal'],
-  ['booktitle', 'Book title'],
-  ['publisher', 'Publisher'],
-  ['volume', 'Volume'],
-  ['number', 'Number'],
-  ['pages', 'Pages'],
-  ['doi', 'DOI'],
-  ['url', 'URL'],
-  ['note', 'Note'],
+  ['author', "app.author"],
+  ['title', "app.title"],
+  ['year', "app.year"],
+  ['journal', "app.journal"],
+  ['booktitle', "app.book.title"],
+  ['publisher', "app.publisher"],
+  ['volume', "app.volume"],
+  ['number', "app.number"],
+  ["app.pages.variant2", "app.pages"],
+  ['doi', "app.doi"],
+  ['url', "app.url"],
+  ['note', "app.note"],
 ];
 
 export function BibManager({
@@ -66,7 +66,7 @@ export function BibManager({
   onAddBibliography,
   onChanged,
 }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const dialogRef = useRef<HTMLElement>(null);
   useDialogFocus(open, dialogRef, () => void close());
   const [files, setFiles] = useState<string[]>(bibFiles);
@@ -135,7 +135,7 @@ export function BibManager({
 
   const close = async () => {
     if (!dirty) { onClose(); return; }
-    if (!window.confirm(t('Save changes before closing?'))) return;
+    if (!window.confirm(msg("app.save.changes.before.closing"))) return;
     try {
       for (const file of files) await window.texpro.writeFile(file, serializeBib(entries.filter(entry => entry.file === file)));
       setDirty(false); onChanged(); onClose();
@@ -177,7 +177,7 @@ export function BibManager({
     if (!file) {
       if (!projectRoot) return;
       file = `${projectRoot}/references.bib`;
-      if (await window.texpro.fileExists(file)) { setNotice(t('A file with this name already exists.')); return; }
+      if (await window.texpro.fileExists(file)) { setNotice(msg("app.a.file.with.this.name.already.exists")); return; }
       try { await window.texpro.createProjectFile(projectRoot, projectRoot, 'references.bib', ''); } catch (error) { setNotice(String(error)); return; }
       setFiles((current) => [...current, file]);
       setSelectedFile(file);
@@ -191,7 +191,7 @@ export function BibManager({
 
   const removeEntry = async () => {
     if (!selected) return;
-    if (!window.confirm(`${t('Delete entry?')}\n${selected.key}`)) return;
+    if (!window.confirm(`${msg("app.delete.entry")}\n${selected.key}`)) return;
     const next = entries.filter((entry) => !(entry.key === selected.key && entry.file === selected.file));
     setEntries(next);
     const fileEntries = next.filter((entry) => entry.file === selected.file);
@@ -206,7 +206,7 @@ export function BibManager({
     if (!projectRoot) return null;
     const file = `${projectRoot}/references.bib`;
     if (!files.includes(file)) {
-      if (await window.texpro.fileExists(file)) { setNotice(t('A file with this name already exists.')); return null; }
+      if (await window.texpro.fileExists(file)) { setNotice(msg("app.a.file.with.this.name.already.exists")); return null; }
     try { await window.texpro.createProjectFile(projectRoot, projectRoot, 'references.bib', ''); } catch (error) { setNotice(String(error)); return null; }
       setFiles((current) => [...current, file]);
     }
@@ -230,12 +230,12 @@ export function BibManager({
     setSelectedKey(adjusted[0].key);
     await window.texpro.writeFile(file, serializeBib(next.filter((entry) => entry.file === file)));
     setDirty(false);
-    setNotice(`${t('Imported from {source}', { source })}: ${adjusted.length}`);
+    setNotice(`${msg("app.imported.from.source", { source })}: ${adjusted.length}`);
     onChanged();
   };
 
   const importOnline = async () => {
-    const identifier = await requestText(t('DOI or arXiv ID'), '');
+    const identifier = await requestText(msg("app.doi.or.arxiv.id"), '');
     if (!identifier) return;
     try {
       const result = await window.texpro.lookupBibtex(identifier);
@@ -250,12 +250,12 @@ export function BibManager({
       const library = await window.texpro.zoteroLibrary();
       const imported = parseBib(library.content);
       if (!imported.length) {
-        setNotice(t('No entries found in this file.'));
+        setNotice(msg("app.no.entries.found.in.this.file"));
         return;
       }
       await appendImported(imported, 'Zotero');
     } catch (failure) {
-      setNotice(t('Zotero is not reachable. Start Zotero with Better BibTeX, then try again.'));
+      setNotice(msg("app.zotero.is.not.reachable.start.zotero.with.better.bibtex"));
     }
   };
 
@@ -267,9 +267,9 @@ export function BibManager({
       const result = await window.texpro.zoteroSearch(zoteroQuery.trim());
       setZoteroResults(result.results);
       setZoteroSelected([]);
-      if (!result.results.length) setZoteroError(t('No Zotero results.'));
+      if (!result.results.length) setZoteroError(msg("app.no.zotero.results"));
     } catch (failure) {
-      setZoteroError(t('Zotero is not reachable. Start Zotero with Better BibTeX, then try again.'));
+      setZoteroError(msg("app.zotero.is.not.reachable.start.zotero.with.better.bibtex"));
     } finally {
       setZoteroBusy(false);
     }
@@ -314,7 +314,7 @@ export function BibManager({
         ? parseEnw(chosen.content)
         : parseBib(chosen.content);
     if (!imported.length) {
-      setNotice(t('No entries found in this file.'));
+      setNotice(msg("app.no.entries.found.in.this.file"));
       return;
     }
     await appendImported(imported, chosen.name);
@@ -322,11 +322,11 @@ export function BibManager({
 
   const createBibFile = async () => {
     if (!projectRoot) return;
-    const name = await requestText(t('New .bib file name'), 'references');
+    const name = await requestText(msg("app.new.bib.file.name"), 'references');
     if (!name) return;
     const safe = name.replace(/[\\/:*?"<>|]/g, '-').replace(/\.bib$/i, '');
     const file = `${projectRoot}/${safe}.bib`;
-    if (await window.texpro.fileExists(file)) { setNotice(t('A file with this name already exists.')); return; }
+    if (await window.texpro.fileExists(file)) { setNotice(msg("app.a.file.with.this.name.already.exists")); return; }
     try { await window.texpro.createProjectFile(projectRoot, projectRoot, safe + '.bib', ''); } catch (error) { setNotice(String(error)); return; }
     setFiles((current) => (current.includes(file) ? current : [...current, file]));
     setSelectedFile(file);
@@ -343,13 +343,13 @@ export function BibManager({
           <div className="studio-heading">
             <div className="studio-icon"><BookMarked size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Bibliography')}</span>
-              <h2 id="bib-manager-title">{t('Bibliography manager')}</h2>
+              <span className="modal-eyebrow">{msg("app.bibliography.variant2")}</span>
+              <h2 id="bib-manager-title">{msg("app.bibliography.manager")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok"><BookMarked size={11} /> BibTeX</span>
-            <button className="icon-btn" onClick={() => void close()} aria-label={t('Close')} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={() => void close()} aria-label={msg("app.close")} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -357,19 +357,19 @@ export function BibManager({
           <aside className="bib-sidebar">
             <div className="bib-toolbar">
               <select value={selectedFile} onChange={(event) => { setSelectedFile(event.target.value); setSelectedKey(''); }}>
-                <option value="">{t('All .bib files')}</option>
+                <option value="">{msg("app.all.bib.files")}</option>
                 {files.map((file) => <option key={file} value={file}>{basename(file)}</option>)}
               </select>
-              <button className="mini-btn" onClick={() => void createBibFile()} title={t('New .bib file')}><FilePlus2 size={12} /></button>
-              <button className="mini-btn" onClick={() => void importOnline()} title={t('Import by DOI / arXiv')}><Globe2 size={12} /></button>
-              <button className="mini-btn" onClick={() => setZoteroOpen(true)} title={t('Search Zotero')}><Search size={12} /></button>
-              <button className="mini-btn" onClick={() => void importZotero()} title={t('Import from Zotero (Better BibTeX)')}><BookMarked size={12} /></button>
-              <button className="mini-btn" onClick={() => void importBibFile()} title={t('Import Zotero / RIS / EndNote / BibTeX')}><FileInput size={12} /></button>
+              <button className="mini-btn" onClick={() => void createBibFile()} title={msg("app.new.bib.file")}><FilePlus2 size={12} /></button>
+              <button className="mini-btn" onClick={() => void importOnline()} title={msg("app.import.by.doi.arxiv")}><Globe2 size={12} /></button>
+              <button className="mini-btn" onClick={() => setZoteroOpen(true)} title={msg("app.search.zotero")}><Search size={12} /></button>
+              <button className="mini-btn" onClick={() => void importZotero()} title={msg("app.import.from.zotero.better.bibtex")}><BookMarked size={12} /></button>
+              <button className="mini-btn" onClick={() => void importBibFile()} title={msg("app.import.zotero.ris.endnote.bibtex")}><FileInput size={12} /></button>
             </div>
             {notice && <div className="bib-notice">{notice}</div>}
             <div className="sidebar-search bib-search">
               <Search size={12} />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('Search entries…')} />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={msg("app.search.entries")} />
             </div>
             <div className="bib-list">
               {visible.map((entry) => (
@@ -384,9 +384,9 @@ export function BibManager({
                   <small>{bibAuthors(entry)} {entry.fields.year ? `· ${entry.fields.year}` : ''}</small>
                 </button>
               ))}
-              {!loading && visible.length === 0 && <div className="panel-empty">{t('No bibliography entries yet.')}</div>}
+              {!loading && visible.length === 0 && <div className="panel-empty">{msg("app.no.bibliography.entries.yet")}</div>}
             </div>
-            <button className="bib-add" onClick={() => void addEntry()}><Plus size={12} /> {t('Add entry')}</button>
+            <button className="bib-add" onClick={() => void addEntry()}><Plus size={12} /> {msg("app.add.entry")}</button>
           </aside>
 
           <div className="bib-detail">
@@ -394,24 +394,24 @@ export function BibManager({
               <>
                 <div className="bib-form-head">
                   <div className="bib-form-row">
-                    <label><span>{t('Type')}</span>
+                    <label><span>{msg("app.type")}</span>
                       <select value={selected.type} onChange={(event) => updateSelected({ type: event.target.value })}>
                         {[...new Set([selected.type, ...bibEntryTypes])].map((type) => <option key={type} value={type}>{type}</option>)}
                       </select>
                     </label>
-                    <label><span>{t('Citation key')}</span>
+                    <label><span>{msg("app.citation.key")}</span>
                       <input value={selected.key} onChange={(event) => { updateSelected({ key: event.target.value }); setSelectedKey(event.target.value); }} />
                     </label>
                   </div>
                   <div className="bib-form-actions">
-                    <button className="secondary-btn" onClick={() => void saveFile()} disabled={!dirty}><Check size={12} /> {t('Save')}</button>
-                    <button className="danger-btn" onClick={() => void removeEntry()}><Trash2 size={12} /> {t('Delete')}</button>
+                    <button className="secondary-btn" onClick={() => void saveFile()} disabled={!dirty}><Check size={12} /> {msg("app.save")}</button>
+                    <button className="danger-btn" onClick={() => void removeEntry()}><Trash2 size={12} /> {msg("app.delete")}</button>
                   </div>
                 </div>
                 <div className="bib-fields">
                   {FIELD_LABELS.map(([name, label]) => (
                     <label key={name} className={name === 'title' || name === 'author' ? 'wide' : ''}>
-                      <span>{t(label)}</span>
+                      <span>{msg.text(label)}</span>
                       <input value={selected.fields[name] || ''} onChange={(event) => updateField(name, event.target.value)} />
                     </label>
                   ))}
@@ -432,19 +432,19 @@ export function BibManager({
                     {(bibMode === 'bibtex' ? ['plain', 'unsrt', 'alpha', 'abbrv'] : ['numeric', 'authoryear', 'apa']).map((style) => <option key={style} value={style}>{style}</option>)}
                   </select>
                   <button className="secondary-btn" onClick={() => onInsertCite(selected.key)} disabled={!activeFile}>
-                    <Link2 size={12} /> {t('Insert citation')}
+                    <Link2 size={12} /> {msg("app.insert.citation")}
                   </button>
                   <button className="primary-btn" onClick={() => onAddBibliography(selected.file, bibMode, bibStyle)} disabled={!activeFile}>
-                    <BookMarked size={12} /> {t('Add bibliography block')}
+                    <BookMarked size={12} /> {msg("app.add.bibliography.block")}
                   </button>
                 </div>
               </>
             ) : (
               <div className="bib-empty">
                 <BookMarked size={26} />
-                <h3>{t('Select or create an entry')}</h3>
-                <p>{t('Bib entries live in .bib files inside the project.')}</p>
-                <button className="primary-btn" onClick={() => void addEntry()}><Plus size={13} /> {t('Add entry')}</button>
+                <h3>{msg("app.select.or.create.an.entry")}</h3>
+                <p>{msg("app.bib.entries.live.in.bib.files.inside.the.project")}</p>
+                <button className="primary-btn" onClick={() => void addEntry()}><Plus size={13} /> {msg("app.add.entry")}</button>
               </div>
             )}
           </div>
@@ -452,19 +452,19 @@ export function BibManager({
 
         <footer className="studio-footer">
           <span className="studio-hint">
-            {bibPathForDocument ? `${t('Bibliography path')}: ${bibPathForDocument}` : t('Create or select a .bib file to add a bibliography block.')}
+            {bibPathForDocument ? `${msg("app.bibliography.path")}: ${bibPathForDocument}` : msg("app.create.or.select.a.bib.file.to.add.a")}
           </span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={() => void saveFile()} disabled={!selectedFile || !dirty}><Check size={12} /> {t('Save .bib')}</button>
-          <button className="primary-btn" onClick={() => void close()}>{t('Done')}</button>
+          <button className="secondary-btn" onClick={() => void saveFile()} disabled={!selectedFile || !dirty}><Check size={12} /> {msg("app.save.bib")}</button>
+          <button className="primary-btn" onClick={() => void close()}>{msg("app.done")}</button>
         </footer>
         {zoteroOpen && (
           <div className="zotero-search-scrim" onMouseDown={() => setZoteroOpen(false)}>
             <div className="zotero-search" onMouseDown={(event) => event.stopPropagation()}>
-              <div className="zotero-search-head"><BookMarked size={15} /><strong>{t('Search Zotero')}</strong><button className="icon-btn" onClick={() => setZoteroOpen(false)}><X size={14} /></button></div>
+              <div className="zotero-search-head"><BookMarked size={15} /><strong>{msg("app.search.zotero")}</strong><button className="icon-btn" onClick={() => setZoteroOpen(false)}><X size={14} /></button></div>
               <div className="zotero-search-row">
-                <input autoFocus value={zoteroQuery} onChange={(event) => setZoteroQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void searchZotero(); }} placeholder={t('Title, author or DOI')} />
-                <button className="primary-btn" onClick={() => void searchZotero()} disabled={zoteroBusy}>{zoteroBusy ? <Loader2 size={12} className="spin" /> : <Search size={12} />} {t('Search')}</button>
+                <input autoFocus value={zoteroQuery} onChange={(event) => setZoteroQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void searchZotero(); }} placeholder={msg("app.title.author.or.doi")} />
+                <button className="primary-btn" onClick={() => void searchZotero()} disabled={zoteroBusy}>{zoteroBusy ? <Loader2 size={12} className="spin" /> : <Search size={12} />} {msg("app.search")}</button>
               </div>
               {zoteroError && <div className="zotero-error">{zoteroError}</div>}
               <div className="zotero-results">
@@ -482,11 +482,11 @@ export function BibManager({
                     </button>
                   </div>
                 ))}
-                {!zoteroResults.length && !zoteroError && <div className="bib-empty-inline">{t('Search your running Zotero library with Better BibTeX.')}</div>}
+                {!zoteroResults.length && !zoteroError && <div className="bib-empty-inline">{msg("app.search.your.running.zotero.library.with.better.bibtex")}</div>}
               </div>
               <div className="zotero-search-footer">
-                <span>{zoteroSelected.length} {t('selected')}</span>
-                <button className="primary-btn" onClick={() => void importZoteroSelected()} disabled={!zoteroSelected.length}>{t('Import selected')}</button>
+                <span>{zoteroSelected.length} {msg("app.selected")}</span>
+                <button className="primary-btn" onClick={() => void importZoteroSelected()} disabled={!zoteroSelected.length}>{msg("app.import.selected")}</button>
               </div>
             </div>
           </div>

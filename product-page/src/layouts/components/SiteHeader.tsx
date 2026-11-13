@@ -16,7 +16,7 @@ import { PAGE_LINKS, SECTION_LINKS } from '@/data/site';
 import { AppLogo } from '@/layouts/components/AppLogo';
 import { SearchDialog } from '@/components/SearchDialog';
 import { ShortcutsDialog } from '@/components/ShortcutsDialog';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { findTopic } from '@/content/docs';
 import { documentationHome } from '@/content/docs/sections.mjs';
@@ -26,7 +26,7 @@ const { Text } = Typography;
 
 export function SiteHeader() {
   const { token } = theme.useToken();
-  const t = useT();
+  const msg = useMessages();
   const { mode, toggle: toggleTheme } = useThemeMode();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -93,18 +93,18 @@ export function SiteHeader() {
       }}
     >
       <div className="shell site-head-inner">
-        <Link className="brand-link" to="/" aria-label={t('TeXPro 首页')}>
+        <Link className="brand-link" to="/" aria-label={msg("site.texpro.home")}>
           <AppLogo />
         </Link>
 
-        <nav className="site-nav" aria-label={t('主导航')}>
+        <nav className="site-nav" aria-label={msg("site.main.navigation")}>
           {PAGE_LINKS.map((item) => (
             <Link
               key={item.label}
               to={item.to ?? '/'}
               className={isActive(item.to ?? '') ? 'is-active' : undefined}
             >
-              {t(item.label)}
+              {msg.text(item.label)}
             </Link>
           ))}
         </nav>
@@ -116,20 +116,20 @@ export function SiteHeader() {
             <Button
               type="text"
               icon={<SearchOutlined />}
-              aria-label={t('搜索文档与博客（⌘K）')}
+              aria-label={msg("site.search.docs.and.blog.k")}
               onClick={() => setSearchOpen(true)}
             />
             <Button
               type="text"
               icon={<KeyOutlined />}
-              aria-label={t('键盘快捷键')}
+              aria-label={msg("site.keyboard.shortcuts")}
               onClick={() => setShortcutsOpen(true)}
             />
             <Button
               type="text"
               icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
               onClick={toggleTheme}
-              aria-label={t(mode === 'dark' ? '切换到日间模式' : '切换到夜间模式')}
+              aria-label={msg(mode === 'dark' ? "site.switch.to.light.mode" : "site.switch.to.dark.mode")}
             />
           </Space>
           <LanguageSwitch />
@@ -140,7 +140,7 @@ export function SiteHeader() {
               href={SITE_LINKS.repo}
               target="_blank"
               rel="noreferrer"
-              aria-label={t('在 GitHub 查看源码')}
+              aria-label={msg("site.view.source.on.github")}
             />
             <Button
               type="primary"
@@ -148,7 +148,7 @@ export function SiteHeader() {
               icon={<DownloadOutlined />}
               onClick={() => goSection('download')}
             >
-              {t('下载')}
+              {msg("site.download")}
             </Button>
           </Space>
 
@@ -156,7 +156,7 @@ export function SiteHeader() {
             className="site-menu-trigger"
             type="text"
             icon={<MenuOutlined />}
-            aria-label={t('打开导航菜单')}
+            aria-label={msg("site.open.menu")}
             onClick={() => setMenuOpen(true)}
           />
         </Flex>
@@ -173,7 +173,7 @@ export function SiteHeader() {
         title={<AppLogo />}
       >
         <Text type="secondary" className="drawer-group-label">
-          {t('页面')}
+          {msg("site.pages")}
         </Text>
         <Flex vertical gap={4}>
           <Link
@@ -182,7 +182,7 @@ export function SiteHeader() {
             style={{ color: token.colorText }}
             onClick={() => setMenuOpen(false)}
           >
-            {t('首页')}
+            {msg("site.home")}
           </Link>
           {PAGE_LINKS.map((item) => (
             <Link
@@ -192,7 +192,7 @@ export function SiteHeader() {
               style={{ color: token.colorText }}
               onClick={() => setMenuOpen(false)}
             >
-              {t(item.label)}
+              {msg.text(item.label)}
             </Link>
           ))}
         </Flex>
@@ -200,7 +200,7 @@ export function SiteHeader() {
         {location.pathname === '/' ? (
           <>
             <Text type="secondary" className="drawer-group-label">
-              {t('本页')}
+              {msg("site.on.this.page")}
             </Text>
             <Flex vertical gap={4}>
               {SECTION_LINKS.map((item) => (
@@ -214,7 +214,7 @@ export function SiteHeader() {
                     goSection(item.id);
                   }}
                 >
-                  {t(item.label)}
+                  {msg.text(item.label)}
                 </a>
               ))}
             </Flex>
@@ -231,7 +231,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
           >
-            {t('GitHub 源码')}
+            {msg("site.github")}
           </Button>
           <Button
             block
@@ -243,12 +243,12 @@ export function SiteHeader() {
               goSection('download');
             }}
           >
-            {t('下载 TeXPro')}
+            {msg("site.download.texpro")}
           </Button>
         </Flex>
 
         <Text type="secondary" style={{ display: 'block', marginTop: 20, fontSize: 12 }}>
-          {t('本地优先 · 不建账号 · 不上传文件')}
+          {msg("site.local.first.no.account.nothing.uploaded")}
         </Text>
       </Drawer>
     </header>

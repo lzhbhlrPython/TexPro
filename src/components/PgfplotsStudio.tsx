@@ -145,7 +145,7 @@ interface Props {
 }
 
 export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [csv, setCsv] = useState(starterCsv);
   const [options, setOptions] = useState<PlotOptions>({
     kind: 'line',
@@ -235,11 +235,11 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
   const patch = (value: Partial<PlotOptions>) => setOptions((current) => ({ ...current, ...value }));
 
   const kinds: Array<{ id: PlotKind; label: string }> = [
-    { id: 'line', label: t('Line') },
-    { id: 'scatter', label: t('Scatter') },
-    { id: 'bar', label: t('Bar') },
-    { id: 'area', label: t('Area') },
-    { id: 'step', label: t('Step') },
+    { id: 'line', label: msg("app.line") },
+    { id: 'scatter', label: msg("app.scatter") },
+    { id: 'bar', label: msg("app.bar") },
+    { id: 'area', label: msg("app.area") },
+    { id: 'step', label: msg("app.step") },
   ];
 
   return (
@@ -249,23 +249,23 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
           <div className="studio-heading">
             <div className="studio-icon"><BarChart3 size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Chart studio')}</span>
+              <span className="modal-eyebrow">{msg("app.chart.studio")}</span>
               <h2>pgfplots Studio</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className={`studio-engine ${previewError ? 'failed' : previewPath ? 'ok' : ''}`}>
               {busy ? <Loader2 size={11} className="spin" /> : previewError ? null : previewPath ? <Check size={11} /> : null}
-              {previewError ? t('Error') : 'pgfplots'}
+              {previewError ? msg("app.error") : 'pgfplots'}
             </span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="chart-studio-body pgf-body">
           <div className="chart-data-pane">
             <div className="pane-label">
-              <Clipboard size={12} /> {t('Chart data')}
+              <Clipboard size={12} /> {msg("app.chart.data")}
               <span className="pane-hint">CSV</span>
             </div>
             <textarea
@@ -275,7 +275,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
               spellCheck={false}
             />
             {parsedResult.error ? (
-              <div className="chart-parse-error">{t('Invalid CSV data')}: {parsedResult.error}</div>
+              <div className="chart-parse-error">{msg("app.invalid.csv.data")}: {parsedResult.error}</div>
             ) : (
               <div className="chart-data-table pgf-data-table">
                 <div className="chart-data-head" style={{ gridTemplateColumns: `44px repeat(${parsed?.headers.length ? parsed.headers.length - 1 : 1}, minmax(0, 1fr))` }}>
@@ -291,7 +291,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
               </div>
             )}
             <div className="pgf-options">
-              <div className="pgf-option-title">{t('Plot options')}</div>
+              <div className="pgf-option-title">{msg("app.plot.options")}</div>
               <div className="pgf-kind-row">
                 {kinds.map((item) => (
                   <button
@@ -303,24 +303,24 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
                   </button>
                 ))}
               </div>
-              <label><span>{t('Title')}</span><input value={options.title} onChange={(event) => patch({ title: event.target.value })} /></label>
+              <label><span>{msg("app.title")}</span><input value={options.title} onChange={(event) => patch({ title: event.target.value })} /></label>
               <div className="pgf-two">
-                <label><span>{t('X axis')}</span><input value={options.xLabel} onChange={(event) => patch({ xLabel: event.target.value })} /></label>
-                <label><span>{t('Y axis')}</span><input value={options.yLabel} onChange={(event) => patch({ yLabel: event.target.value })} /></label>
+                <label><span>{msg("app.x.axis")}</span><input value={options.xLabel} onChange={(event) => patch({ xLabel: event.target.value })} /></label>
+                <label><span>{msg("app.y.axis")}</span><input value={options.yLabel} onChange={(event) => patch({ yLabel: event.target.value })} /></label>
               </div>
               <div className="pgf-two">
-                <label><span>{t('Width (cm)')}</span><input type="number" min={4} max={16} step={0.5} value={options.width} onChange={(event) => patch({ width: Number(event.target.value) })} /></label>
-                <label><span>{t('Height (cm)')}</span><input type="number" min={3} max={12} step={0.5} value={options.height} onChange={(event) => patch({ height: Number(event.target.value) })} /></label>
+                <label><span>{msg("app.width.cm")}</span><input type="number" min={4} max={16} step={0.5} value={options.width} onChange={(event) => patch({ width: Number(event.target.value) })} /></label>
+                <label><span>{msg("app.height.cm")}</span><input type="number" min={3} max={12} step={0.5} value={options.height} onChange={(event) => patch({ height: Number(event.target.value) })} /></label>
               </div>
               <div className="pgf-check-grid">
-                <label className="chart-check"><input type="checkbox" checked={options.grid} onChange={(event) => patch({ grid: event.target.checked })} /> {t('Show grid')}</label>
-                <label className="chart-check"><input type="checkbox" checked={options.legend} onChange={(event) => patch({ legend: event.target.checked })} /> {t('Show legend')}</label>
-                <label className="chart-check"><input type="checkbox" checked={options.smooth} onChange={(event) => patch({ smooth: event.target.checked })} /> {t('Smooth lines')}</label>
-                <label className="chart-check"><input type="checkbox" checked={options.markers} onChange={(event) => patch({ markers: event.target.checked })} /> {t('Markers')}</label>
-                <label className="chart-check"><input type="checkbox" checked={options.xLog} onChange={(event) => patch({ xLog: event.target.checked })} /> {t('Log X')}</label>
-                <label className="chart-check"><input type="checkbox" checked={options.yLog} onChange={(event) => patch({ yLog: event.target.checked })} /> {t('Log Y')}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.grid} onChange={(event) => patch({ grid: event.target.checked })} /> {msg("app.show.grid")}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.legend} onChange={(event) => patch({ legend: event.target.checked })} /> {msg("app.show.legend")}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.smooth} onChange={(event) => patch({ smooth: event.target.checked })} /> {msg("app.smooth.lines")}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.markers} onChange={(event) => patch({ markers: event.target.checked })} /> {msg("app.markers")}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.xLog} onChange={(event) => patch({ xLog: event.target.checked })} /> {msg("app.log.x")}</label>
+                <label className="chart-check"><input type="checkbox" checked={options.yLog} onChange={(event) => patch({ yLog: event.target.checked })} /> {msg("app.log.y")}</label>
               </div>
-              <label><span>{t('Legend position')}</span>
+              <label><span>{msg("app.legend.position")}</span>
                 <select value={options.legendPos} onChange={(event) => patch({ legendPos: event.target.value as LegendPosition })}>
                   <option value="north west">north west</option>
                   <option value="north east">north east</option>
@@ -329,7 +329,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
                   <option value="outer north east">outer north east</option>
                 </select>
               </label>
-              <label><span>{t('Extra axis options')}</span>
+              <label><span>{msg("app.extra.axis.options")}</span>
                 <textarea className="pgf-extra" value={options.extra} onChange={(event) => patch({ extra: event.target.value })} placeholder="ymin=0, ymax=6, ..." />
               </label>
             </div>
@@ -337,37 +337,37 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
 
           <div className="chart-preview-pane">
             <div className="pane-label">
-              <Play size={12} /> {t('Native pgfplots preview')}
-              <button className="mini-refresh" onClick={() => setRefreshTick((value) => value + 1)} title={t('Refresh')}>
+              <Play size={12} /> {msg("app.native.pgfplots.preview")}
+              <button className="mini-refresh" onClick={() => setRefreshTick((value) => value + 1)} title={msg("app.refresh")}>
                 <RefreshCw size={11} />
               </button>
             </div>
             <div className="chart-canvas-wrap pgf-preview">
-              {busy && !previewUrl && <div className="tikz-placeholder"><Loader2 size={18} className="spin" /> {t('Typesetting diagram…')}</div>}
-              {!busy && !previewUrl && !previewError && <div className="tikz-placeholder">{t('Preview will appear here.')}</div>}
+              {busy && !previewUrl && <div className="tikz-placeholder"><Loader2 size={18} className="spin" /> {msg("app.typesetting.diagram")}</div>}
+              {!busy && !previewUrl && !previewError && <div className="tikz-placeholder">{msg("app.preview.will.appear.here")}</div>}
               {previewUrl && <TexArtwork src={previewUrl} alt="pgfplots preview" />}
               {previewError && (
                 <div className="tikz-error-box">
-                  <strong>{t('Could not render this diagram')}</strong>
+                  <strong>{msg("app.could.not.render.this.diagram")}</strong>
                   <p>{previewError}</p>
                 </div>
               )}
             </div>
             {log && (
               <details className="tikz-studio-log">
-                <summary>{t('Show log')}</summary>
+                <summary>{msg("app.show.log")}</summary>
                 <pre>{log}</pre>
               </details>
             )}
             <div className="pgf-note">
               <Sparkles size={12} />
-              {t('The preview is compiled by the same TeX toolchain as your document.')}
+              {msg("app.the.preview.is.compiled.by.the.same.tex.toolchain")}
             </div>
           </div>
 
           <div className="chart-code-pane">
             <div className="pane-label">
-              <Code2 size={12} /> {t('Generated LaTeX')}
+              <Code2 size={12} /> {msg("app.generated.latex")}
               <span className="pane-hint">pgfplots</span>
             </div>
             <pre className="chart-code">{generated?.figure || ''}</pre>
@@ -375,7 +375,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Data, code and the typeset preview stay in sync.')}</span>
+          <span className="studio-hint">{msg("app.data.code.and.the.typeset.preview.stay.in.sync")}</span>
           <div className="spacer" />
           <button className="secondary-btn" onClick={async () => {
             try {
@@ -387,7 +387,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
             }
           }} disabled={!generated}>
             {copied ? <Check size={13} /> : <Clipboard size={13} />}
-            {copied ? t('Copied') : t('Copy LaTeX')}
+            {copied ? msg("app.copied") : msg("app.copy.latex")}
           </button>
           <button
             className="primary-btn"
@@ -397,7 +397,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
               onClose();
             }}
           >
-            <BarChart3 size={13} /> {t('Insert chart')}
+            <BarChart3 size={13} /> {msg("app.insert.chart")}
           </button>
         </footer>
       </section>

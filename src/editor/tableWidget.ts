@@ -2,7 +2,7 @@ import { EditorView, WidgetType, runScopeHandlers } from '@codemirror/view';
 import { Transaction } from '@codemirror/state';
 import { isolateHistory, redo, undo } from '@codemirror/commands';
 import { appendWritingRow, texEnvironments, writingTable, type WritingTable } from '../lib/texDocument';
-import { t } from '../i18n';
+import { msg, type MessageId } from '../i18n';
 import { renderInlineTex } from '../lib/texInline';
 import { continueWriting, focusWriting, tableWritingField, writeTableCell } from './writing';
 
@@ -74,16 +74,16 @@ export class WritingTableWidget extends WidgetType {
     const inner = document.createElement('div'); inner.className = 'cm-table-widget-inner';
     inner.appendChild(document.createElement('table')); dom.appendChild(inner);
     const tools = document.createElement('div'); tools.className = 'cm-writing-tools';
-    const source = document.createElement('button'); source.type = 'button'; source.textContent = t('Edit TeX source');
+    const source = document.createElement('button'); source.type = 'button'; source.textContent = msg("app.edit.tex.source");
     source.addEventListener('mousedown', e => e.preventDefault());
     source.addEventListener('click', () => {
       const { table, view } = bindings.get(dom)!;
       view.dispatch({ effects: writeTableCell.of(null) }); focusWriting(view, table.rows[0][0].from);
     });
     tools.appendChild(source); dom.appendChild(tools);
-    const tool = (label: string, action: (binding: Binding, row: number, col: number) => void) => {
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = t(label);
-      button.dataset.tableAction = label.toLowerCase().replaceAll(' ', '-');
+    const tool = (label: { id: string; message: MessageId }, action: (binding: Binding, row: number, col: number) => void) => {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = msg(label.message);
+      button.dataset.tableAction = label.id;
       button.addEventListener('mousedown', e => e.preventDefault());
       button.addEventListener('click', () => {
         const binding = bindings.get(dom)!, active = binding.view.state.field(tableWritingField, false);
@@ -92,8 +92,8 @@ export class WritingTableWidget extends WidgetType {
       tools.appendChild(button);
       return button;
     };
-    for (const [label, align] of [['Left', 'l'], ['Center', 'c'], ['Right', 'r']]) {
-      const button = tool(label, ({ table, view }, _row, col) => {
+    for (const [label, align] of [['app.left.variant2', 'l'], ['app.center.variant2', 'c'], ['app.right.variant2', 'r']] as const) {
+      const button = tool({ id: align === 'l' ? 'left' : align === 'c' ? 'center' : 'right', message: label }, ({ table, view }, _row, col) => {
       const range = table.columns[col];
       // Width-bearing columns keep their original specification; use source for advanced formatting.
       if (range.to - range.from !== 1) return;
@@ -101,20 +101,20 @@ export class WritingTableWidget extends WidgetType {
       });
       button.dataset.alignment = align;
     }
-    tool('Add row', ({ table, view }) => view.dispatch({ changes: appendWritingRow(table), annotations: [Transaction.userEvent.of('input.table'), isolateHistory.of('full')], effects: view.scrollSnapshot() }));
-    tool('Add column', ({ table, view }) => {
+    tool({ id: 'add-row', message: 'app.add.row.variant2' }, ({ table, view }) => view.dispatch({ changes: appendWritingRow(table), annotations: [Transaction.userEvent.of('input.table'), isolateHistory.of('full')], effects: view.scrollSnapshot() }));
+    tool({ id: 'add-column', message: 'app.add.column.variant2' }, ({ table, view }) => {
       if (table.aligns.length >= 24) return;
       view.dispatch({ changes: [
         { from: table.columns.at(-1)!.to, insert: 'l' },
         ...table.rows.map(row => ({ from: row.at(-1)!.to, insert: ' & ' })),
       ], annotations: [Transaction.userEvent.of('input.table'), isolateHistory.of('full')], effects: view.scrollSnapshot() });
     });
-    tool('Remove row', ({ table, view }, row) => {
+    tool({ id: 'remove-row', message: 'app.remove.row' }, ({ table, view }, row) => {
       if (table.rows.length <= 1) return;
       view.dispatch({ changes: { from: table.rows[row][0].from, to: table.rowEnds[row] }, effects: view.scrollSnapshot(), annotations: [Transaction.userEvent.of('input.table'), isolateHistory.of('full')] });
       queueMicrotask(() => { const target = cellAt(dom, Math.max(0, row - 1), 0); if (target?.isConnected) placeCaret(target, 0); });
     });
-    tool('Remove column', ({ table, view }, _row, col) => {
+    tool({ id: 'remove-column', message: 'app.remove.column' }, ({ table, view }, _row, col) => {
       if (table.aligns.length <= 1) return;
       view.dispatch({ changes: [
         { ...table.columns[col], insert: '' },
@@ -183,7 +183,7 @@ export class WritingTableWidget extends WidgetType {
           cell.contentEditable = 'plaintext-only'; cell.spellcheck = false; cell.className = 'cm-table-cell';
           cell.tabIndex = 0;
           cell.dataset.row = String(r); cell.dataset.col = String(c); cell.setAttribute('role', 'textbox');
-          cell.setAttribute('aria-label', t('Table cell {row}, {column}', { row: r + 1, column: c + 1 }));
+          cell.setAttribute('aria-label', msg("app.table.cell.row.column", { row: r + 1, column: c + 1 }));
           td.style.textAlign = this.table.aligns[c] === 'r' ? 'right' : this.table.aligns[c] === 'c' ? 'center' : 'left';
           td.appendChild(cell); tr.appendChild(td);
         });

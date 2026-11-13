@@ -1,58 +1,58 @@
 import { CheckCircleFilled, SyncOutlined } from '@ant-design/icons';
 import { Col, Grid, Row, Steps, Typography, theme } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 
 const STEPS = [
   {
-    title: '打开工程',
-    description: '目录树、主文件自动识别，符号索引与 CWL 补全在打开时就绪。',
+    title: "site.open.the.project",
+    description: "site.the.tree.the.main.file.the.symbol.index.and",
   },
   {
-    title: '直接写',
-    description: '可视层负责版面，源码层保留真 LaTeX；光标落到哪里，哪里就回到源码。',
+    title: "site.write.directly",
+    description: "site.the.visual.layer.handles.layout.the.source.layer.keeps",
   },
   {
-    title: '一键编译',
-    description: 'latexmk 增量构建，耗时、警告与完整日志就在底部状态栏，不用另开终端。',
+    title: "site.compile.once",
+    description: "site.incremental.latexmk.builds.duration.warnings.and.the.full.log",
   },
   {
-    title: '点 PDF 回到源码',
-    description: 'SyncTeX 双向定位：在 PDF 上单击一处，编辑器滚动并高亮到那一行。',
+    title: "site.click.the.pdf.land.in.source",
+    description: "site.two.way.synctex.click.in.the.pdf.and.the",
   },
 ];
 
 const STATUS_ITEMS = [
-  { icon: <CheckCircleFilled />, label: 'PDF 就绪 · 2.0 s', tone: 'success' as const },
+  { icon: <CheckCircleFilled />, label: "site.pdf.ready.2.0.s", tone: 'success' as const },
   { icon: <SyncOutlined />, label: 'xelatex', tone: 'default' as const },
-  { icon: <CheckCircleFilled />, label: 'SyncTeX 已启用', tone: 'success' as const },
-  { icon: <CheckCircleFilled />, label: '没有错误', tone: 'success' as const },
+  { icon: <CheckCircleFilled />, label: "site.synctex.on", tone: 'success' as const },
+  { icon: <CheckCircleFilled />, label: "site.no.errors", tone: 'success' as const },
 ];
 
 const NOTES = [
   {
-    title: '编译不阻塞写作',
-    desc: '编译在后台进行，你可以继续输入；结果回来时只更新预览与诊断。',
+    title: "site.compiling.never.blocks.writing",
+    desc: "site.builds.run.in.the.background.while.you.keep.typing",
   },
   {
-    title: '旧结果不会写回新工程',
-    desc: '切换工程或重新编译时，迟到的异步结果会被丢弃，不会覆盖当前文件。',
+    title: "site.stale.results.never.land.in.a.new.project",
+    desc: "site.switch.projects.or.recompile.and.late.async.results.are",
   },
   {
-    title: '一切操作可逆',
-    desc: '改写、移动、删除都留下内容寻址快照，随手可以翻回上一版。',
+    title: "site.everything.is.reversible",
+    desc: "site.edits.moves.and.deletes.leave.content.addressed.snapshots.roll",
   },
 ];
 
 export function Workflow() {
-  const localize = useLocalize();
-  const t = useT();
-  const steps = localize(STEPS);
-  const statusItems = localize(STATUS_ITEMS);
-  const notes = localize(NOTES);
+  const localize = useLocalizedFields();
+  const msg = useMessages();
+  const steps = localize(STEPS, ["title","description"]);
+  const statusItems = localize(STATUS_ITEMS, ["label"]);
+  const notes = localize(NOTES, ["title","desc"]);
   const { token } = theme.useToken();
   const screens = useBreakpoint();
   const horizontal = Boolean(screens.lg);
@@ -61,9 +61,9 @@ export function Workflow() {
     <section className="section" id="workflow">
       <div className="shell">
         <SectionHeading
-          eyebrow="工作流"
-          title="从打开工程到定位到那一行，四步"
-          description="TeXPro 不用你改变既有习惯：仍然是 main.tex，仍然是 latexmk，只是每一步都能看见结果。"
+          eyebrow="site.workflow"
+          title="site.from.opening.a.project.to.that.one.line.in"
+          description="site.no.habits.to.relearn.still.main.tex.still.latexmk"
         />
 
         <div style={{ marginTop: 40 }}>
@@ -101,7 +101,7 @@ export function Workflow() {
           </div>
           <div className="status-right">
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {t('第 1 行，第 1 列 · 420 词')}
+              {msg("site.line.1.col.1.420.words")}
             </Text>
           </div>
         </div>

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function BackupPanel({ open, projectRoot, onClose, onReveal }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const dialogRef = useRef<HTMLElement>(null);
   useDialogFocus(open, dialogRef, onClose);
   const [type, setType] = useState<BackupType>('icloud');
@@ -65,13 +65,13 @@ export function BackupPanel({ open, projectRoot, onClose, onReveal }: Props) {
           <div className="studio-heading">
             <div className="studio-icon"><CloudUpload size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Safety')}</span>
-              <h2 id="backup-studio-title">{t('Project backup')}</h2>
+              <span className="modal-eyebrow">{msg("app.safety")}</span>
+              <h2 id="backup-studio-title">{msg("app.project.backup")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{t('Source + assets')}</span>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{msg("app.source.assets")}</span>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -90,55 +90,55 @@ export function BackupPanel({ open, projectRoot, onClose, onReveal }: Props) {
           </div>
           <div className="backup-form">
             {type === 'icloud' && (
-              <label className="workshop-field"><span>{t('Destination folder')}</span><input value={destination} onChange={(event) => setDestination(event.target.value)} placeholder="~/Library/Mobile Documents/com~apple~CloudDocs/TeXPro Backups" /></label>
+              <label className="workshop-field"><span>{msg("app.destination.folder")}</span><input value={destination} onChange={(event) => setDestination(event.target.value)} placeholder="~/Library/Mobile Documents/com~apple~CloudDocs/TeXPro Backups" /></label>
             )}
             {type === 'webdav' && (
               <>
-                <label className="workshop-field"><span>{t('WebDAV URL')}</span><input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/remote.php/dav/files/me/paper.zip" /></label>
+                <label className="workshop-field"><span>{msg("app.webdav.url")}</span><input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/remote.php/dav/files/me/paper.zip" /></label>
                 <div className="workshop-grid">
-                  <label className="workshop-field"><span>{t('Username')}</span><input value={username} onChange={(event) => setUsername(event.target.value)} /></label>
-                  <label className="workshop-field"><span>{t('Password')}</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+                  <label className="workshop-field"><span>{msg("app.username")}</span><input value={username} onChange={(event) => setUsername(event.target.value)} /></label>
+                  <label className="workshop-field"><span>{msg("app.password")}</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
                 </div>
               </>
             )}
             {type === 'ssh' && (
               <>
                 <div className="workshop-grid">
-                  <label className="workshop-field"><span>{t('Host')}</span><input value={host} onChange={(event) => setHost(event.target.value)} placeholder="mac-mini.local" /></label>
-                  <label className="workshop-field"><span>{t('User')}</span><input value={user} onChange={(event) => setUser(event.target.value)} placeholder="me" /></label>
-                  <label className="workshop-field"><span>{t('Port')}</span><input value={port} onChange={(event) => setPort(event.target.value)} /></label>
-                  <label className="workshop-field"><span>{t('Remote path')}</span><input value={remotePath} onChange={(event) => setRemotePath(event.target.value)} /></label>
+                  <label className="workshop-field"><span>{msg("app.host")}</span><input value={host} onChange={(event) => setHost(event.target.value)} placeholder="mac-mini.local" /></label>
+                  <label className="workshop-field"><span>{msg("app.user")}</span><input value={user} onChange={(event) => setUser(event.target.value)} placeholder="me" /></label>
+                  <label className="workshop-field"><span>{msg("app.port")}</span><input value={port} onChange={(event) => setPort(event.target.value)} /></label>
+                  <label className="workshop-field"><span>{msg("app.remote.path")}</span><input value={remotePath} onChange={(event) => setRemotePath(event.target.value)} /></label>
                 </div>
-                <label className="workshop-field"><span>{t('SSH key path (optional)')}</span><input value={keyPath} onChange={(event) => setKeyPath(event.target.value)} placeholder="~/.ssh/id_ed25519" /></label>
+                <label className="workshop-field"><span>{msg("app.ssh.key.path.optional")}</span><input value={keyPath} onChange={(event) => setKeyPath(event.target.value)} placeholder="~/.ssh/id_ed25519" /></label>
               </>
             )}
-            <p className="backup-hint"><KeyRound size={11} /> {t('WebDAV passwords and SSH keys are used for this request only. Prefer SSH keys over passwords.')}</p>
+            <p className="backup-hint"><KeyRound size={11} /> {msg("app.webdav.passwords.and.ssh.keys.are.used.for.this")}</p>
             <div className="backup-included">
-              <div><FileCode2 size={13} /><span>{t('Sources, .bib and project config')}</span></div>
-              <div><Image size={13} /><span>{t('Assets and figures')}</span></div>
-              <div><MessageSquare size={13} /><span>{t('Review comments')}</span></div>
+              <div><FileCode2 size={13} /><span>{msg("app.sources.bib.and.project.config")}</span></div>
+              <div><Image size={13} /><span>{msg("app.assets.and.figures")}</span></div>
+              <div><MessageSquare size={13} /><span>{msg("app.review.comments")}</span></div>
             </div>
             <div className="backup-steps">
-              <div><b>1</b><span>{t('Pack sources and assets into a timestamped zip')}</span></div>
-              <div><b>2</b><span>{t('Upload to the selected destination')}</span></div>
-              <div><b>3</b><span>{t('Keep build and history caches out of the archive')}</span></div>
+              <div><b>1</b><span>{msg("app.pack.sources.and.assets.into.a.timestamped.zip")}</span></div>
+              <div><b>2</b><span>{msg("app.upload.to.the.selected.destination")}</span></div>
+              <div><b>3</b><span>{msg("app.keep.build.and.history.caches.out.of.the.archive")}</span></div>
             </div>
             {error && <div className="ai-error">{error}</div>}
             {result && (
               <div className="backup-result">
-                <strong>{t('Backup complete')}</strong>
+                <strong>{msg("app.backup.complete")}</strong>
                 <code>{result}</code>
-                {type === 'icloud' && <button className="secondary-btn" onClick={() => onReveal(result)}>{t('Reveal')}</button>}
+                {type === 'icloud' && <button className="secondary-btn" onClick={() => onReveal(result)}>{msg("app.reveal")}</button>}
               </div>
             )}
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Backups include sources, assets, .bib files, project config and comments; build/history caches are excluded.')}</span>
+          <span className="studio-hint">{msg("app.backups.include.sources.assets.bib.files.project.config.and")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
-          <button className="primary-btn" onClick={() => void run()} disabled={!projectRoot || busy}><CloudUpload size={12} /> {busy ? t('Uploading…') : t('Back up now')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
+          <button className="primary-btn" onClick={() => void run()} disabled={!projectRoot || busy}><CloudUpload size={12} /> {busy ? msg("app.uploading") : msg("app.back.up.now")}</button>
         </footer>
       </section>
     </div>

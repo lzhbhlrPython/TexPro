@@ -75,3 +75,16 @@
 | user-guide-en-dark-390.png | 2cfc0a28269f4cb07f2c82c73c75d211812bac0e11f59bf85048374cdab8ffcf |
 | developer-docs-zh-light-1440.png | 8077056495a2a2274a333016a50bed4fdcc87731c8fa97c9ea0d13ff65a70383 |
 | developer-docs-en-dark-390.png | 479db62db0d004c644f8fa8fcc4f9b356e333bbb8717a4d7d1612063dd4032f0 |
+
+2026-11-13（语义词典与对称目录）：短界面文案改为独立 JSON，彩蛋长信使用整篇分语言 Markdown，文档迁至平级 zh/en 目录。以下截图来自实际生产预览。核查八个路由的中英、明暗与 1440/390px 组合；文档另验目录、旧文章链接、减少动态效果、打印及 /TexStudioPro 子路径。首页所有图片实际解码；模拟缓存返回 HTML，验证自动重试、可见错误与手动恢复。另验语言 JSON 失败、快速切换竞态、独立英文恢复和 Markdown 失败回退／重试。CDN 字体等待有时限，超时使用系统字体。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| home-zh-light-1440.png | 9d6f973b12d29f97e7ae37e61de8c2c5a94adff59b103b2e63f54956f3b1f0ab |
+| home-en-dark-390.png | cf551337d5be655cf9b6e26d4d5ac13e88753288c079cc0f8c0271c339578f49 |
+| qwerty-zh-light-1440.png | fb47618f960ddefa875459e29ece29860d60ecb6b37dfff8f1faa9d3e5ed2ca9 |
+| qwerty-en-dark-390.png | bb03260b23a9c5921d39ed5d645539186c33dfca7d726e8c5dda6d2b9fee5d0a |
+| user-guide-zh-light-1440.png | bc814c50a7de2dbdc6dd343b1961c374d11b496543996dc94839567f73eb4dd2 |
+| user-guide-en-dark-390.png | 833f5e6dcce0a4cece7cc1c46bac02ce61d1d62f782e6255ad9ee7047fe98873 |
+| developer-docs-zh-light-1440.png | 8e865046f97f33d020df5740cfa9c22a9cb9b6bdfa5a71a74d17aa97a32dcdb2 |
+| developer-docs-en-dark-390.png | 479db62db0d004c644f8fa8fcc4f9b356e333bbb8717a4d7d1612063dd4032f0 |

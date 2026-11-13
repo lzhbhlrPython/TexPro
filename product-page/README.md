@@ -12,8 +12,8 @@
 
 | 位置 | 内容 |
 | --- | --- |
-| src/content/docs/*.md | 中文使用与开发文档 |
-| src/content/docs/en/*.md | 同名同 slug 的英文版本 |
+| src/content/docs/zh/*.md | 中文使用与开发文档，与 en 平级 |
+| src/content/docs/en/*.md | 英文使用与开发文档，与 zh 同名同 slug |
 | src/content/blog/*.md | 简体中文的应用开发历史 |
 | src/content/docs/index.ts | 文档 glob 加载、分组与英文回退 |
 | src/content/blog/index.ts | 博客加载、排序与 slug |
@@ -110,3 +110,9 @@ CodeHighlight 以 React 文本节点渲染 Shiki token，不注入高亮 HTML。
 `/docs` 直接阅读使用区首篇 start，`/developers` 直接阅读开发区首篇 dev-setup；复用文章阅读器，不设独立导览首页。文章沿用 `/docs/:slug`。`src/content/docs/sections.mjs` 是运行期目录和静态生成器共用的归属规则：中文 group 为开发／AI 协作时进入开发区，其余既有分组进入使用区。英文继承中文归属，不能通过翻译 group 改变信息架构。安装与管理扩展属于使用区；编写 SDK 插件、qwertysay、MCP 与应用架构属于开发区。
 
 目录、文章侧栏、前后篇使用同一过滤规则，搜索显示分区标签；顶栏、页脚、llms 与 sitemap 同轮维护。两区以同一阅读布局组织：侧栏目录、正文栏标题与内容、页内目录；不使用 Hero、宣传口号或推荐卡片。切篇只淡入正文，目录稳定，字体、token 和动效变量共用，reduced motion 关闭动画。开发 Skill 归 AI 协作。`pnpm test:docs` 验证分区完整性、中英对应、前后篇边界、搜索与生成入口；浏览器另验两区明暗／宽窄屏、语言菜单、直接访问和 Pages 子路径。站点改版不新增应用开发博客。
+
+## UI 词典与长文本
+
+`src/i18n/messages/{zh,en}.json` 是两种界面的唯一短文案来源，使用稳定语义键。`catalog.ts` 按需请求 JSON 并缓存成功结果，`useMessages` 提供类型检查；`useLocalizedFields` 只处理明确列出的显示字段，禁止递归翻译 id、href、资源路径和 React 节点。切换等待资源、隔离过期请求，失败保留当前语言并提示。完整文档统一位于 `src/content/docs/{locale}/{slug}.md`，当前为平级的 `zh/` 与 `en/`；文档根目录只保留共享模块，不为中文设置特例。彩蛋长信移到 `src/content/letters/{zh,en}/qwerty.md`，由 `LocalizedMarkdown` 复用现有解析器、渲染器和 Shiki，按需加载、缺译提示及重试。长正文不逐句进入词典。其他语种由第三方按 [翻译交接](../docs/website-translation.md) 接入。
+
+首页截图共用 `PreviewImage`，兼容部署子路径，失败后尝试绕过旧缓存，再提供原位重试。Service Worker 缓存版本 v2 拒绝把 HTML 当作图片缓存。核查实际图片解码与主题切换，不把 HTTP 200 当作图片可显示的唯一证据。

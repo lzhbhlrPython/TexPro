@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CodeOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Segmented, theme } from 'antd';
 import { DEMO_MATH } from '@/components/latexMarkHtml';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 import { CodeHighlight } from '@/components/CodeHighlight';
 import { SectionHeading } from '@/components/SectionHeading';
 
@@ -30,7 +30,7 @@ const TABLE_SOURCE = [
  * 所有排版结果都是构建期预渲染的静态 HTML，页面不加载 KaTeX 运行时。
  */
 export function VisualDemo() {
-  const t = useT();
+  const msg = useMessages();
   const { token } = theme.useToken();
   const [blocks, setBlocks] = useState<Record<BlockKey, boolean>>({
     heading: false,
@@ -67,9 +67,9 @@ export function VisualDemo() {
     <section className="section section-demo" id="demo">
       <div className="shell">
         <SectionHeading
-          eyebrow="演示"
-          title="点一下，视面就变回源码"
-          description="下面是同一份 LaTeX 的三块内容。点标题、公式或表格，它会当场翻成对应的源码；再点一次翻回来。渲染结果由构建期预生成，页面不加载数学库。"
+          eyebrow="site.demo"
+          title="site.click.once.and.the.page.turns.back.into.source"
+          description="site.three.pieces.of.one.latex.document.click.the.heading"
         />
 
         <div className="demo-grid">
@@ -88,7 +88,7 @@ export function VisualDemo() {
             </button>
 
             <p className="demo-p" style={{ color: token.colorText }}>
-              {t('光标离开公式，它显示成排版后的数学；点一下又回到源码。行内数学、行间公式和表格都走同一条规则。')}
+              {msg("site.when.the.caret.leaves.a.formula.it.shows.as")}
             </p>
 
             <button type="button" className="demo-block" onClick={() => toggle('math')}>
@@ -134,12 +134,12 @@ export function VisualDemo() {
               value={showAll}
               onChange={(value) => setShowAll(value as 'render' | 'source')}
               options={[
-                { value: 'render', label: t('视面'), icon: <EyeOutlined /> },
-                { value: 'source', label: t('源码'), icon: <CodeOutlined /> },
+                { value: 'render', label: msg("site.preview"), icon: <EyeOutlined /> },
+                { value: 'source', label: msg("site.source"), icon: <CodeOutlined /> },
               ]}
             />
             <p className="demo-hint" style={{ color: token.colorTextSecondary }}>
-              {t('也可以直接点左边的元素。表格的每一行、公式的每一处，都只是同一份 .tex 的不同呈现。')}
+              {msg("site.you.can.also.click.the.blocks.on.the.left")}
             </p>
             <Button
               onClick={() => {
@@ -147,7 +147,7 @@ export function VisualDemo() {
                 setBlocks({ heading: false, math: false, table: false });
               }}
             >
-              {t('全部还原')}
+              {msg("site.reset")}
             </Button>
           </div>
         </div>

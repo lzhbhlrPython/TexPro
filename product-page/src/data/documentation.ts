@@ -1,5 +1,5 @@
 // Object.keys(import.meta.glob(...)) is compiled to filenames by Vite: no Markdown body imports.
-const chinese = Object.keys(import.meta.glob('../content/docs/*.md'));
+const chinese = Object.keys(import.meta.glob('../content/docs/zh/*.md'));
 const english = new Set(
   Object.keys(import.meta.glob('../content/docs/en/*.md')).map((file) => file.split('/').pop()),
 );
@@ -12,8 +12,8 @@ export const DOC_COUNTS = {
 const paired = DOC_COUNTS.zh === DOC_COUNTS.en;
 export const DOC_METRIC = {
   value: paired ? `${DOC_COUNTS.zh} × 2` : `${DOC_COUNTS.zh} / ${DOC_COUNTS.en}`,
-  label: paired ? '篇文档，中英各一版' : '篇文档（中文 / 英文）',
+  label: paired ? "site.docs.chinese.and.english.editions" : "site.docs.chinese.english",
   description: paired
-    ? '篇文档，中英各一版；缺译文时回落中文并在页头注明。'
-    : '篇文档（中文 / 英文）；缺译文时回落中文并在页头注明。',
+    ? "site.documents.chinese.and.english.editions.missing.translations.fall.back"
+    : "site.documents.chinese.english.missing.translations.fall.back.to.chinese",
 };

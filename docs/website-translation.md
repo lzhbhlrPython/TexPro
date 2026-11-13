@@ -12,17 +12,17 @@
 
 | 范围 | 入口 | 交接规则 |
 | --- | --- | --- |
-| 官网界面 | `product-page/src/i18n/locales.ts`、`index.tsx`、`en.ts` | 使用 `useT`／`useLocalize`，中文原文是现有键；新增译文放独立词典，不散布到业务逻辑 |
-| 官网任务文档 | `product-page/src/content/docs/index.ts`、根目录 Markdown 与 `en/` | 保留同 slug、顺序和分组身份，语言内容独立加载，缺译有明确提示 |
+| 官网界面 | `product-page/src/i18n/locales.ts`、`catalog.ts`、`index.tsx`、`messages/{zh,en}.json` | 使用 `useMessages` 与稳定语义 ID；中英都是独立 JSON。`useLocalizedFields` 明确列出文本字段，不递归翻译业务对象 |
+| 官网任务文档 | `product-page/src/content/docs/index.ts`、`zh/` 与 `en/` | 各语种目录平级，保留同 slug、顺序和分组身份，各语言使用独立正文文件，缺译有明确提示 |
 | 博客 | `product-page/src/content/blog/index.ts`、根目录 Markdown | 保留简体中文原文及历史日期；只翻译周围界面和语言提示 |
 | 页面路由与资源 | `product-page/src/router/`、`vite.config.ts` | 保留现有路由与基路径约定，不以翻译标题替换稳定链接 |
 | 机器可读内容 | `product-page/scripts/gen-llms.mjs`、`gen-feed.mjs`、Vite `contentFiles` | 修改源生成逻辑并重新构建，不手改生成文件 |
 
-当前官网 `Locale`、文档 `topicsFor`／`navFor`、语言切换与自动检测只支持 `zh`／`en`；中文文档在根目录，英文在 `en/`，不自动发现其他语言。日期、数字及部分中英文条件分支也需要逐处核对。以上是接入边界，不是任意语种已经接入的声明。
+当前官网 `Locale`、文档 `topicsFor`／`navFor`、语言切换与自动检测只支持 `zh`／`en`；中英文文档分别在平级的 `zh/` 与 `en/`，不自动发现其他语言。新增语种同样使用 `{locale}/`，不能在文档根目录放正文。日期、数字及部分中英文条件分支也需要逐处核对。以上是接入边界，不是任意语种已经接入的声明。
 
 官网导航已通过 LanguageSwitch 图标菜单读取 locales.ts 的注册项，显示 ISO 639-1 代码和自称，当前仅列 zh 与 en；HTML lang 区分 zh-CN 与 en。第三方新增语种时，先在该入口核对 ISO 语言代码、自称、HTML `lang` 与词典注册，再让现有翻译接口和文档加载入口读取该注册信息。复用页面与数据，不复制每种语言的业务状态、路由组件和解析器。选择器、持久化、浏览器语言匹配、文档回退、分组名称、日期／数字、Ant Design locale 与文字方向须一起验证；现有两语种切换不能直接用于第三种语言。
 
-`gen-llms.mjs` 当前只聚合根目录的简体中文正文；博客 feed 也来自简体中文文章。新增语种须明确哪些产物保持中文、哪些新增语言入口，并验证 sitemap、摘要、语言提示和 URL，不能将中文内容标为目标语种。正文与目录引用继续使用稳定 slug。
+`gen-llms.mjs` 当前只聚合 `docs/zh/` 的简体中文正文；博客 feed 也来自简体中文文章。新增语种须明确哪些产物保持中文、哪些新增语言入口，并验证 sitemap、摘要、语言提示和 URL，不能将中文内容标为目标语种。正文与目录引用继续使用稳定 slug。
 
 ## 翻译内容要求
 
@@ -54,3 +54,9 @@ pnpm check:layout
 ## 文档分区翻译
 
 官网 `/docs`（使用文档）与 `/developers`（开发文档）分别提供任务入口，文章仍为 `/docs/:slug`。两个入口直接显示首篇文章，不维护独立首页文案；翻译文章标题、摘要、分组名称、搜索分区标签与跨区链接；保持文章 slug 和中文规范 group。开发／AI 协作归开发区，其余既有分组归使用区，英文与以后语种继承相同归属。不要把分区键翻译成新的路由或另建正文副本。验证两区的宽窄屏、明暗主题、前后篇与语言切换不改变当前文章地址。
+
+## 短文案与整篇译文
+
+改短文案的 JSON 值，不因措辞变动修改已有语义键；新增键在中英词典同轮补齐。新增语种在 locales.ts 注册自称与 HTML 标签，并在 catalog.ts 注册独立 JSON 资源，通过现有加载器按需请求，验证缓存、失败重试与过期切换。不要把中文值留在组件充当隐式回退。新长文本采用按需加载；现有文档索引仍使用构建时的 glob 聚合，不应误称整站文档正文已全部按需请求。
+
+彩蛋长信位于 `src/content/letters/{语言}/qwerty.md`，文档仍为同 slug 整篇 Markdown。第三方维护完整译文，沿用 `LocalizedMarkdown`／`MarkdownBlocks` 与 Shiki；不为每段另建 UI 键，不运行 Markdown 中的脚本或 HTML。加载失败、缺译与实际正文语言必须准确提示。博客继续只维护简体中文。桌面语言包采用第 2 版语义键，旧正文键包必须重新制作，不能为迁就旧包恢复正文查词。

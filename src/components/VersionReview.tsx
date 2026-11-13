@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function VersionReview({ open, projectRoot, activeFile, activeContent, onClose, onRestored, gitManaged = false, onOpenGit }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [versions, setVersions] = useState<Version[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [file, setFile] = useState('');
@@ -84,7 +84,7 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
     setBusy(true);
     try {
       const result = await window.texpro.historyCommit(projectRoot, 'manual');
-      setNotice(result.skipped ? t('No changes since the last snapshot') : t('Snapshot created'));
+      setNotice(result.skipped ? msg("app.no.changes.since.the.last.snapshot") : msg("app.snapshot.created"));
       await loadVersions();
       if (result.version?.id) setSelectedId(result.version.id);
     } finally {
@@ -94,30 +94,30 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
 
   const removeVersion = async (version: Version) => {
     if (!projectRoot) return;
-    if (!window.confirm(`${t('Delete this snapshot?')}\n${new Date(version.time).toLocaleString()}`)) return;
+    if (!window.confirm(`${msg("app.delete.this.snapshot")}\n${new Date(version.time).toLocaleString()}`)) return;
     await window.texpro.historyDelete(projectRoot, version.id);
     if (selectedId === version.id) setSelectedId('');
     await loadVersions();
-    setNotice(t('Snapshot deleted'));
+    setNotice(msg("app.snapshot.deleted"));
   };
 
   const clearAll = async () => {
     if (!projectRoot) return;
-    if (!window.confirm(t('Delete all version history for this project?'))) return;
+    if (!window.confirm(msg("app.delete.all.version.history.for.this.project"))) return;
     await window.texpro.historyClear(projectRoot);
     setVersions([]);
     setSelectedId('');
     setSnapshot('');
     setCurrent('');
-    setNotice(t('Version history cleared'));
+    setNotice(msg("app.version.history.cleared"));
   };
 
   const restore = async () => {
     if (!projectRoot || !selected || !file) return;
-    if (!window.confirm(`${t('Restore this file from the selected snapshot?')}\n${file}`)) return;
+    if (!window.confirm(`${msg("app.restore.this.file.from.the.selected.snapshot")}\n${file}`)) return;
     await window.texpro.historyRestore(projectRoot, selected.id, file);
     onRestored(`${projectRoot}/${file}`);
-    setNotice(t('Snapshot restored'));
+    setNotice(msg("app.snapshot.restored"));
   };
 
   return (
@@ -127,29 +127,29 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
           <div className="studio-heading">
             <div className="studio-icon"><History size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Review')}</span>
-              <h2>{t('Version review')}</h2>
+              <span className="modal-eyebrow">{msg("app.review")}</span>
+              <h2>{msg("app.version.review")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{gitManaged ? 'Git' : `${versions.length} ${t('snapshots')}`}</span>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{gitManaged ? 'Git' : `${versions.length} ${msg("app.snapshots")}`}</span>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         {gitManaged ? (
           <div className="version-git-only">
             <span className="version-git-icon"><GitBranch size={28} /></span>
-            <strong>{t('Version history is managed by Git')}</strong>
-            <p>{t('TeXPro internal snapshots are disabled while this project has a Git repository. Use branches, commits and tags from the version control panel.')}</p>
-            <button className="primary-btn" onClick={onOpenGit}><GitBranch size={12} /> {t('Open version control')}</button>
+            <strong>{msg("app.version.history.is.managed.by.git")}</strong>
+            <p>{msg("app.texpro.internal.snapshots.are.disabled.while.this.project.has")}</p>
+            <button className="primary-btn" onClick={onOpenGit}><GitBranch size={12} /> {msg("app.open.version.control")}</button>
           </div>
         ) : (
         <div className="version-body">
           <aside className="version-list">
-            <button className="secondary-btn" onClick={onOpenGit}>{t('Use Git version control')}</button>
+            <button className="secondary-btn" onClick={onOpenGit}>{msg("app.use.git.version.control")}</button>
             <button className="primary-btn version-snapshot" onClick={() => void snapshotNow()} disabled={busy}>
-              <Check size={12} /> {t('Create snapshot')}
+              <Check size={12} /> {msg("app.create.snapshot")}
             </button>
             {versions.map((version) => (
               <div key={version.id} className={`version-row ${selected?.id === version.id ? 'active' : ''}`}>
@@ -157,22 +157,22 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
                   <Clock3 size={11} />
                   <span>
                     <strong>{new Date(version.time).toLocaleString()}</strong>
-                    <small>{version.reason} · {version.files.length} {t('files')} · {(version.size / 1024).toFixed(1)} KB</small>
+                    <small>{version.reason} · {version.files.length} {msg("app.files")} · {(version.size / 1024).toFixed(1)} KB</small>
                   </span>
                 </button>
-                <button className="version-delete" onClick={() => void removeVersion(version)} title={t('Delete snapshot')}><Trash2 size={11} /></button>
+                <button className="version-delete" onClick={() => void removeVersion(version)} title={msg("app.delete.snapshot")}><Trash2 size={11} /></button>
               </div>
             ))}
-            {!versions.length && <div className="panel-empty">{t('Create the first snapshot to start reviewing changes.')}</div>}
+            {!versions.length && <div className="panel-empty">{msg("app.create.the.first.snapshot.to.start.reviewing.changes")}</div>}
           </aside>
 
           <div className="version-main">
             {!selected ? (
               <div className="version-empty">
                 <History size={26} />
-                <strong>{t('No snapshots yet')}</strong>
-                <span>{t('Create a snapshot to compare and restore files without storing duplicate copies.')}</span>
-                <button className="primary-btn" onClick={() => void snapshotNow()} disabled={busy}><Check size={12} /> {t('Create snapshot')}</button>
+                <strong>{msg("app.no.snapshots.yet")}</strong>
+                <span>{msg("app.create.a.snapshot.to.compare.and.restore.files.without")}</span>
+                <button className="primary-btn" onClick={() => void snapshotNow()} disabled={busy}><Check size={12} /> {msg("app.create.snapshot")}</button>
               </div>
             ) : (
             <>
@@ -184,7 +184,7 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
               <span className="version-stat add">+{added}</span>
               <span className="version-stat remove">−{removed}</span>
               <div className="spacer" />
-              <button className="secondary-btn" onClick={() => void restore()} disabled={!file}><RotateCcw size={12} /> {t('Restore file')}</button>
+              <button className="secondary-btn" onClick={() => void restore()} disabled={!file}><RotateCcw size={12} /> {msg("app.restore.file")}</button>
             </div>
             {notice && <div className="version-notice">{notice}</div>}
             <div className="version-diff">
@@ -204,10 +204,10 @@ export function VersionReview({ open, projectRoot, activeFile, activeContent, on
         )}
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Snapshots use content-addressed chunks; unchanged text is stored once.')}</span>
+          <span className="studio-hint">{msg("app.snapshots.use.content.addressed.chunks.unchanged.text.is.stored")}</span>
           <div className="spacer" />
-          <button className="danger-btn" onClick={() => void clearAll()} disabled={!versions.length || gitManaged}><Eraser size={12} /> {t('Clear history')}</button>
-          <button className="primary-btn" onClick={onClose}>{t('Done')}</button>
+          <button className="danger-btn" onClick={() => void clearAll()} disabled={!versions.length || gitManaged}><Eraser size={12} /> {msg("app.clear.history")}</button>
+          <button className="primary-btn" onClick={onClose}>{msg("app.done")}</button>
         </footer>
       </section>
     </div>

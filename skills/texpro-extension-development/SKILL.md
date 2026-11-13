@@ -49,3 +49,9 @@ npm/yarn dependency operations change a dedicated environment, not the running h
 The application release workflow attaches this complete directory as a versioned `.skill` ZIP. Keep relative references self-contained; do not add private notes, generated caches or symlinks. Inspect the exact archive against tested source before publication. SDK and CLI versions remain independent of the Skill asset's application version.
 
 For direct npm source distribution, follow the source/prepare contract in [languages and distribution](references/languages-and-distribution.md). Explain install, local compilation and runtime trust separately before commands. Do not silently execute npm scripts, compiler configuration or source generators during inspection/synchronization. Keep SDK, qwertysay, host and read-only MCP aligned and verify the actual published file list with a real tarball.
+
+## 国际化与长篇内容
+
+宿主语言包使用 `catalogVersion: 2`、语义消息 ID 与独立 JSON。旧正文键包破坏性迁移，不增加别名适配。SDK 参考目录、qwertysay 引导、简中包与 MCP 只读声明同轮对齐。功能插件自己管理词典，每次调用读取语言，不能把宿主私有词典作为依赖。按钮与状态是短文案；文档、教程、彩蛋长信按语言维护完整 Markdown，交给共用受控渲染器，不逐句建立翻译键。明确区分界面标签、技术枚举与作者数据，保留变量、英文恢复、过期结果隔离和失败重试。
+
+官网文档目录统一为 `product-page/src/content/docs/{locale}/{slug}.md`，当前 `zh/` 与 `en/` 平级；不把中文正文放在根目录作为特殊默认语言。新增／移动文件同步加载、搜索、生成与测试，保留公开 `/docs/:slug` 链接。

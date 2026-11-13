@@ -16,7 +16,7 @@ interface Props {
 
 const symbolGroups: Array<{ name: string; symbols: Array<[string, string]> }> = [
   {
-    name: 'Greek',
+    name: "app.greek",
     symbols: [
       ['\\alpha', 'α'], ['\\beta', 'β'], ['\\gamma', 'γ'], ['\\delta', 'δ'], ['\\epsilon', 'ϵ'],
       ['\\theta', 'θ'], ['\\lambda', 'λ'], ['\\mu', 'μ'], ['\\pi', 'π'], ['\\sigma', 'σ'],
@@ -24,7 +24,7 @@ const symbolGroups: Array<{ name: string; symbols: Array<[string, string]> }> = 
     ],
   },
   {
-    name: 'Operators',
+    name: "app.operators",
     symbols: [
       ['\\sum_{i=1}^{n}', '∑'], ['\\prod_{i=1}^{n}', '∏'], ['\\int_{a}^{b}', '∫'], ['\\oint', '∮'],
       ['\\partial', '∂'], ['\\nabla', '∇'], ['\\infty', '∞'], ['\\pm', '±'], ['\\times', '×'], ['\\cdot', '·'],
@@ -32,7 +32,7 @@ const symbolGroups: Array<{ name: string; symbols: Array<[string, string]> }> = 
     ],
   },
   {
-    name: 'Relations',
+    name: "app.relations",
     symbols: [
       ['\\leq', '≤'], ['\\geq', '≥'], ['\\neq', '≠'], ['\\approx', '≈'], ['\\equiv', '≡'],
       ['\\in', '∈'], ['\\notin', '∉'], ['\\subset', '⊂'], ['\\subseteq', '⊆'], ['\\cup', '∪'],
@@ -40,7 +40,7 @@ const symbolGroups: Array<{ name: string; symbols: Array<[string, string]> }> = 
     ],
   },
   {
-    name: 'Structures',
+    name: "app.structures",
     symbols: [
       ['\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', 'matrix'],
       ['\\begin{cases} a & x > 0 \\\\ b & x \\leq 0 \\end{cases}', 'cases'],
@@ -53,25 +53,25 @@ const symbolGroups: Array<{ name: string; symbols: Array<[string, string]> }> = 
 ];
 
 const variantStyles = [
-  { id: 'mathbb', label: 'Blackboard', command: '\\mathbb' },
-  { id: 'mathcal', label: 'Calligraphic', command: '\\mathcal' },
-  { id: 'mathfrak', label: 'Fraktur', command: '\\mathfrak' },
-  { id: 'mathscr', label: 'Script', command: '\\mathscr' },
-  { id: 'mathbf', label: 'Bold', command: '\\mathbf' },
-  { id: 'mathsf', label: 'Sans', command: '\\mathsf' },
-  { id: 'mathtt', label: 'Mono', command: '\\mathtt' },
-  { id: 'boldsymbol', label: 'Bold italic', command: '\\boldsymbol' },
+  { id: 'mathbb', label: "app.blackboard", command: '\\mathbb' },
+  { id: 'mathcal', label: "app.calligraphic.variant2", command: '\\mathcal' },
+  { id: 'mathfrak', label: "app.fraktur", command: '\\mathfrak' },
+  { id: 'mathscr', label: "app.script.variant2", command: '\\mathscr' },
+  { id: 'mathbf', label: "app.bold.variant2", command: '\\mathbf' },
+  { id: 'mathsf', label: "app.sans", command: '\\mathsf' },
+  { id: 'mathtt', label: "app.mono", command: '\\mathtt' },
+  { id: 'boldsymbol', label: "app.bold.italic", command: '\\boldsymbol' },
 ];
 
 const templates: Array<{ label: string; latex: string }> = [
-  { label: 'Quadratic', latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}' },
-  { label: 'Sum', latex: '\\sum_{i=1}^{n} a_i = \\frac{n(n+1)}{2}' },
-  { label: 'Integral', latex: '\\int_{a}^{b} f(x)\\,dx = F(b) - F(a)' },
-  { label: 'Limit', latex: '\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1' },
-  { label: 'Matrix', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
-  { label: 'Cases', latex: 'f(x) = \\begin{cases} 1 & x > 0 \\\\ 0 & x \\leq 0 \\end{cases}' },
-  { label: 'Maxwell', latex: '\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}' },
-  { label: 'Bayes', latex: 'P(A \\mid B) = \\frac{P(B \\mid A) P(A)}{P(B)}' },
+  { label: "app.quadratic", latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}' },
+  { label: "app.sum.variant2", latex: '\\sum_{i=1}^{n} a_i = \\frac{n(n+1)}{2}' },
+  { label: "app.integral.variant2", latex: '\\int_{a}^{b} f(x)\\,dx = F(b) - F(a)' },
+  { label: "app.limit.variant2", latex: '\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1' },
+  { label: "app.matrix", latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
+  { label: "app.cases", latex: 'f(x) = \\begin{cases} 1 & x > 0 \\\\ 0 & x \\leq 0 \\end{cases}' },
+  { label: "app.maxwell", latex: '\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}' },
+  { label: "app.bayes", latex: 'P(A \\mid B) = \\frac{P(B \\mid A) P(A)}{P(B)}' },
 ];
 
 function wrapFormula(latex: string, mode: FormulaMode, label: string) {
@@ -84,7 +84,7 @@ function wrapFormula(latex: string, mode: FormulaMode, label: string) {
 }
 
 export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [latex, setLatex] = useState('');
   const [mode, setMode] = useState<FormulaMode>('inline');
   const [label, setLabel] = useState('');
@@ -187,15 +187,15 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
           <div className="studio-heading">
             <div className="studio-icon"><Sigma size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Formula editor')}</span>
-              <h2>{t('Compose mathematics')}</h2>
+              <span className="modal-eyebrow">{msg("app.formula.editor")}</span>
+              <h2>{msg("app.compose.mathematics")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
             <span className={`studio-engine ${preview.error ? 'failed' : preview.html ? 'ok' : ''}`}>
-              {preview.error ? t('Syntax error') : 'KaTeX'}
+              {preview.error ? msg("app.syntax.error") : 'KaTeX'}
             </span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -203,7 +203,7 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
           <div className="formula-compose">
             <div className="formula-editor-switch">
               <button className={editorMode === 'text' ? 'active' : ''} onClick={() => setEditorMode('text')}>
-                <Type size={11} /> {t('Code')}
+                <Type size={11} /> {msg("app.code")}
               </button>
               <button
                 className={editorMode === 'ast' ? 'active' : ''}
@@ -217,10 +217,10 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
             </div>
             <div className="formula-mode-row">
               {([
-                ['inline', t('Inline')],
-                ['display', t('Display')],
-                ['equation', t('Equation')],
-                ['align', t('Align')],
+                ['inline', msg("app.inline")],
+                ['display', msg("app.display")],
+                ['equation', msg("app.equation")],
+                ['align', msg("app.align")],
               ] as Array<[FormulaMode, string]>).map(([value, text]) => (
                 <button key={value} className={mode === value ? 'active' : ''} onClick={() => setMode(value)}>
                   {text}
@@ -241,18 +241,18 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
                 className="formula-input"
                 value={latex}
                 onChange={(event) => setLatex(event.target.value)}
-                placeholder={t('Type LaTeX math here…')}
+                placeholder={msg("app.type.latex.math.here")}
                 spellCheck={false}
               />
             )}
             {mode === 'equation' && (
               <label className="formula-label-row">
-                <span>{t('Label (optional)')}</span>
+                <span>{msg("app.label.optional")}</span>
                 <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="eq:energy" />
               </label>
             )}
             <div className="formula-output">
-              <div className="formula-output-label">{t('Generated source')}</div>
+              <div className="formula-output-label">{msg("app.generated.source")}</div>
               <pre>{wrapFormula(latex, mode, label)}</pre>
             </div>
           </div>
@@ -261,24 +261,24 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
             <div className="formula-preview">
               {preview.error ? (
                 <div className="formula-error">
-                  <strong>{t('Syntax error')}</strong>
+                  <strong>{msg("app.syntax.error")}</strong>
                   <span>{preview.error}</span>
                 </div>
               ) : preview.html ? (
                 <div className="formula-render" dangerouslySetInnerHTML={{ __html: preview.html }} />
               ) : (
-                <div className="formula-placeholder"><Sparkles size={18} /> {t('Your formula preview appears here.')}</div>
+                <div className="formula-placeholder"><Sparkles size={18} /> {msg("app.your.formula.preview.appears.here")}</div>
               )}
             </div>
             <div className="formula-template-row">
-              <span>{t('Templates')}</span>
+              <span>{msg("app.templates")}</span>
               {templates.map((item) => (
-                <button key={item.label} onClick={() => setLatex(item.latex)} title={item.latex}>{t(item.label)}</button>
+                <button key={item.label} onClick={() => setLatex(item.latex)} title={item.latex}>{msg.text(item.label)}</button>
               ))}
             </div>
             {recent.length > 0 && (
               <div className="formula-recent">
-                <span>{t('Recent')}</span>
+                <span>{msg("app.recent")}</span>
                 {recent.map((item) => (
                   <button key={item} onClick={() => setLatex(item)} title={item}>{item.slice(0, 34)}</button>
                 ))}
@@ -287,13 +287,13 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
           </div>
 
           <aside className="formula-symbols">
-            <div className="pane-label"><Sigma size={12} /> {t('Symbols')}</div>
+            <div className="pane-label"><Sigma size={12} /> {msg("app.symbols")}</div>
             <div className="formula-symbol-scroll">
               <div className="formula-symbol-group variant-group">
                 <div className="variant-head">
-                  <span>{t('Letter variants')}</span>
+                  <span>{msg("app.letter.variants")}</span>
                   <select value={variantStyle.id} onChange={(event) => setVariantStyle(variantStyles.find((item) => item.id === event.target.value) || variantStyles[0])}>
-                    {variantStyles.map((style) => <option key={style.id} value={style.id}>{t(style.label)}</option>)}
+                    {variantStyles.map((style) => <option key={style.id} value={style.id}>{msg.text(style.label)}</option>)}
                   </select>
                 </div>
                 <div className="formula-variant-grid">
@@ -304,7 +304,7 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
               </div>
               {symbolGroups.map((group) => (
                 <div className="formula-symbol-group" key={group.name}>
-                  <div>{t(group.name)}</div>
+                  <div>{msg.text(group.name)}</div>
                   <div className="formula-symbol-grid">
                     {group.symbols.map(([command, glyph]) => (
                       <button key={command} onClick={() => insertAtCursor(command)} title={command}>
@@ -319,7 +319,7 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Click a symbol to insert it at the caret.')}</span>
+          <span className="studio-hint">{msg("app.click.a.symbol.to.insert.it.at.the.caret")}</span>
           <div className="spacer" />
           <button
             className="secondary-btn"
@@ -328,10 +328,10 @@ export function FormulaStudio({ open, initialLatex, onClose, onInsert }: Props) 
             }}
             disabled={!latex.trim()}
           >
-            <Copy size={13} /> {t('Copy source')}
+            <Copy size={13} /> {msg("app.copy.source")}
           </button>
           <button className="primary-btn" onClick={insertIntoDocument} disabled={!latex.trim() || Boolean(preview.error)}>
-            <Check size={13} /> {t('Insert formula')}
+            <Check size={13} /> {msg("app.insert.formula")}
           </button>
         </footer>
       </section>

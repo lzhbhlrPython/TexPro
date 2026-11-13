@@ -1,5 +1,5 @@
 import type { SupportLevel } from '@/types';
-export const MCP_METRIC = { value: '21', label: '个 MCP 工具', description: '个 MCP 工具，供 AI 客户端读写工程、编译与定位。' } as const;
+export const MCP_METRIC = { value: '21', label: "site.mcp.tools", description: "site.mcp.tools.for.ai.clients.to.read.and.edit" } as const;
 
 export interface NavItem {
   label: string;
@@ -11,9 +11,9 @@ export interface NavItem {
 
 /** Header 只放跨页面入口，页内段落交给侧边栏（SectionRail）。 */
 export const PAGE_LINKS: NavItem[] = [
-  { to: '/blog', label: '博客' },
-  { to: '/docs', label: '使用文档' },
-  { to: '/developers', label: '开发文档' },
+  { to: '/blog', label: "site.blog" },
+  { to: '/docs', label: "site.user.guide" },
+  { to: '/developers', label: "site.developer.docs" },
 ];
 
 export interface SectionLink {
@@ -23,30 +23,30 @@ export interface SectionLink {
 
 /** 首页各段落的顺序，与 pages/home/index.tsx 的排布一致。 */
 export const SECTION_LINKS: SectionLink[] = [
-  { id: 'top', label: '首屏' },
-  { id: 'capabilities', label: '能力' },
-  { id: 'demo', label: '演示' },
-  { id: 'showcase', label: '场景' },
-  { id: 'workflow', label: '工作流' },
-  { id: 'failure', label: '出错' },
-  { id: 'details', label: '小巧思' },
-  { id: 'compare', label: '对比' },
-  { id: 'limits', label: '边界' },
-  { id: 'local', label: '隐私' },
-  { id: 'themes', label: '写作' },
-  { id: 'migrate', label: '迁移' },
-  { id: 'proof', label: '证据' },
-  { id: 'download', label: '下载' },
+  { id: 'top', label: "site.top" },
+  { id: 'capabilities', label: "site.capabilities" },
+  { id: 'demo', label: "site.demo" },
+  { id: 'showcase', label: "site.in.use" },
+  { id: 'workflow', label: "site.workflow" },
+  { id: 'failure', label: "site.errors" },
+  { id: 'details', label: "site.small.touches" },
+  { id: 'compare', label: "site.comparison" },
+  { id: 'limits', label: "site.limits" },
+  { id: 'local', label: "site.privacy" },
+  { id: 'themes', label: "site.writing" },
+  { id: 'migrate', label: "site.switching" },
+  { id: 'proof', label: "site.evidence" },
+  { id: 'download', label: "site.download" },
 ];
 
 export const HERO_METRICS = [
-  { value: '137', label: '条回归用例', source: 'tests' },
-  { value: '106', label: '个 IPC 通道', source: 'ipc' },
-  { value: '8', label: '个安装包 / 次夜构', source: 'releases' },
+  { value: '158', label: "site.metrics.regression.label", source: 'tests' },
+  { value: '106', label: "site.ipc.channels.one.to.one.with.the.preload.bridge", source: 'ipc' },
+  { value: '8', label: "site.installers.per.nightly.build.three.platforms", source: 'releases' },
   { value: MCP_METRIC.value, label: MCP_METRIC.label, source: 'mcp' },
 ] as const;
 
-export const HERO_POINTS = ['免登录使用', '离线可编译', '文件留在本机磁盘'] as const;
+export const HERO_POINTS = ["site.no.sign.in.variant2", "site.compiles.offline", "site.files.stay.on.your.disk"] as const;
 
 export interface CompareRow {
   key: string;
@@ -61,8 +61,8 @@ export interface CompareRow {
 export const COMPARE_ROWS: CompareRow[] = [
   {
     key: 'render',
-    capability: '正文里直接出版面效果',
-    detail: '公式、表格、TikZ、插图与乐谱原地渲染',
+    capability: "site.typeset.result.inside.the.text",
+    detail: "site.formulas.tables.tikz.figures.and.scores.render.in.place.variant2",
     texpro: 'yes',
     markdown: 'no',
     classic: 'no',
@@ -70,8 +70,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'source',
-    capability: '所见即所得，同时是真 LaTeX',
-    detail: '每个可视元素背后仍是可编译的源码',
+    capability: "site.wysiwyg.that.is.still.real.latex",
+    detail: "site.every.visual.element.is.still.compilable.source",
     texpro: 'yes',
     markdown: 'no',
     classic: 'partial',
@@ -79,8 +79,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'project',
-    capability: '本地工程与多文件',
-    detail: '主文件识别、子文件、.bib、图片与目录树',
+    capability: "site.local.project.multiple.files",
+    detail: "site.main.file.detection.sub.files.bib.images.tree",
     texpro: 'yes',
     markdown: 'partial',
     classic: 'yes',
@@ -88,8 +88,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'synctex',
-    capability: 'PDF 与源码双向定位',
-    detail: 'PDF 上点一下回到出处的源码行',
+    capability: "site.two.way.pdf.and.source.navigation",
+    detail: "site.click.the.pdf.to.jump.to.the.originating.line",
     texpro: 'yes',
     markdown: 'no',
     classic: 'partial',
@@ -97,8 +97,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'graphics',
-    capability: '乐谱、曲线与电路图可视化',
-    detail: 'MusiXTeX、pgfplots、TikZ 都有可视化面板',
+    capability: "site.scores.curves.and.circuits.variant2",
+    detail: "site.visual.panels.for.musixtex.pgfplots.and.tikz",
     texpro: 'yes',
     markdown: 'no',
     classic: 'no',
@@ -106,8 +106,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'writing',
-    capability: '写作模式（聚焦 / 打字机 / 纸面主题）',
-    detail: '长文写作时只留下当前段落',
+    capability: "site.writing.modes.focus.typewriter.paper.themes",
+    detail: "site.only.the.current.paragraph.stays.lit",
     texpro: 'yes',
     markdown: 'partial',
     classic: 'no',
@@ -115,8 +115,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'chinese',
-    capability: '中文写作排版',
-    detail: 'CTeX 两字缩进、全角标点与中文行距',
+    capability: "site.chinese.typesetting",
+    detail: "site.ctex.indent.full.width.punctuation.and.cjk.line.spacing",
     texpro: 'yes',
     markdown: 'partial',
     classic: 'partial',
@@ -124,8 +124,8 @@ export const COMPARE_ROWS: CompareRow[] = [
   },
   {
     key: 'offline',
-    capability: '本地优先，联网能力按需启用',
-    detail: '不建账号、不上传、不收集使用数据',
+    capability: "site.local.first.optional.network.features",
+    detail: "site.no.account.no.upload.no.usage.data",
     texpro: 'yes',
     markdown: 'yes',
     classic: 'yes',
@@ -135,9 +135,9 @@ export const COMPARE_ROWS: CompareRow[] = [
 
 export const COMPARE_COLUMNS = [
   { key: 'texpro', label: 'TeXPro', highlight: true },
-  { key: 'markdown', label: 'Markdown 编辑器', highlight: false },
-  { key: 'classic', label: '传统 LaTeX IDE', highlight: false },
-  { key: 'cloud', label: '在线 LaTeX 服务', highlight: false },
+  { key: 'markdown', label: "site.markdown.editors", highlight: false },
+  { key: 'classic', label: "site.classic.latex.ides", highlight: false },
+  { key: 'cloud', label: "site.online.latex.services", highlight: false },
 ] as const;
 
 export interface DownloadVariant {
@@ -164,63 +164,63 @@ export const DOWNLOADS: DownloadTarget[] = [
   {
     key: 'mac',
     platform: 'macOS',
-    detail: 'Universal · Apple 芯片与 Intel · 13 以上',
+    detail: "site.universal.apple.silicon.and.intel.13",
     format: 'DMG',
     assetPattern: 'mac-universal\\.dmg$',
     variants: [
       { label: 'DMG', assetPattern: 'mac-universal\\.dmg$' },
-      { label: 'ZIP', assetPattern: 'mac-universal\\.zip$', note: '免安装' },
+      { label: 'ZIP', assetPattern: 'mac-universal\\.zip$', note: "site.portable" },
     ],
   },
   {
     key: 'windows',
     platform: 'Windows',
-    detail: 'x64 · 10 以上 · NSIS 安装包',
+    detail: "site.x64.10.nsis.installer",
     format: 'EXE',
     assetPattern: 'windows-x64-setup\\.exe$',
     variants: [
-      { label: 'EXE', assetPattern: 'windows-x64-setup\\.exe$', note: 'NSIS 安装包' },
-      { label: 'Portable', assetPattern: 'windows-x64-portable\\.exe$', note: '免安装' },
-      { label: 'ZIP', assetPattern: 'windows-x64\\.zip$', note: '解压即用' },
+      { label: 'EXE', assetPattern: 'windows-x64-setup\\.exe$', note: "site.nsis.installer" },
+      { label: 'Portable', assetPattern: 'windows-x64-portable\\.exe$', note: "site.portable" },
+      { label: 'ZIP', assetPattern: 'windows-x64\\.zip$', note: "site.unzip.and.run" },
     ],
   },
   {
     key: 'linux',
     platform: 'Linux',
-    detail: 'x64 · AppImage，另有 deb / rpm',
+    detail: "site.x64.appimage.plus.deb.rpm",
     format: 'AppImage',
     assetPattern: 'linux-x86_64\\.AppImage$',
     variants: [
-      { label: 'AppImage', assetPattern: 'linux-x86_64\\.AppImage$', note: '免安装' },
-      { label: 'deb', assetPattern: 'linux-amd64\\.deb$', note: 'Debian / Ubuntu' },
-      { label: 'rpm', assetPattern: 'linux-x86_64\\.rpm$', note: 'Fedora / RHEL' },
+      { label: 'AppImage', assetPattern: 'linux-x86_64\\.AppImage$', note: "site.portable" },
+      { label: 'deb', assetPattern: 'linux-amd64\\.deb$', note: "site.debian.ubuntu" },
+      { label: 'rpm', assetPattern: 'linux-x86_64\\.rpm$', note: "site.fedora.rhel" },
     ],
   },
 ];
 
 export const FOOTER_GROUPS = [
   {
-    title: '产品',
+    title: "site.product",
     links: [
-      { label: '能力', href: '#capabilities' },
-      { label: '使用场景', href: '#showcase' },
-      { label: '工作流', href: '#workflow' },
-      { label: '版本对比', href: '#compare' },
-      { label: '它不做什么', href: '#limits' },
-      { label: '迁移路径', href: '#migrate' },
+      { label: "site.capabilities", href: '#capabilities' },
+      { label: "site.use.cases", href: '#showcase' },
+      { label: "site.workflow", href: '#workflow' },
+      { label: "site.comparison.variant2", href: '#compare' },
+      { label: "site.what.it.does.not.do", href: '#limits' },
+      { label: "site.switching.paths", href: '#migrate' },
     ],
   },
   {
-    title: '资源',
+    title: "site.resources",
     links: [
-      { label: '使用文档', to: '/docs' },
-      { label: '开发文档', to: '/developers' },
-      { label: 'MCP 教程', to: '/docs/mcp' },
-      { label: '常见问题', to: '/docs/faq' },
-      { label: '更新日志', to: '/changelog' },
-      { label: '正式版本列表', to: '/releases' },
-      { label: 'RSS 订阅', href: `${import.meta.env.BASE_URL}feed.xml`, external: true },
-      { label: '给 AI 的入口', to: '/ai' },
+      { label: "site.user.guide", to: '/docs' },
+      { label: "site.developer.docs", to: '/developers' },
+      { label: "site.mcp.guide", to: '/docs/mcp' },
+      { label: "site.faq", to: '/docs/faq' },
+      { label: "site.changelog", to: '/changelog' },
+      { label: "site.stable.releases", to: '/releases' },
+      { label: "site.rss.feed", href: `${import.meta.env.BASE_URL}feed.xml`, external: true },
+      { label: "site.for.ai", to: '/ai' },
     ],
   },
 ] as const;

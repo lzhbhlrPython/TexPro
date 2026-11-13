@@ -19,7 +19,7 @@ class RecoveryBoundary extends Component<{ children: ReactNode; open: boolean; f
 /** Load tools on first use, retain their state when closed, isolate render errors. */
 function deferredTool<P extends ToolProps>(load: () => Promise<{ default: ComponentType<P> }>) {
   return function DeferredTool(props: P) {
-    const { t } = useI18n();
+    const { msg } = useI18n();
     const loaded = useRef(false);
     const [generation, setGeneration] = useState(0);
     const [Tool, setTool] = useState(() => lazy(load));
@@ -27,11 +27,11 @@ function deferredTool<P extends ToolProps>(load: () => Promise<{ default: Compon
     if (!loaded.current) return null;
     const recovery = (retry?: () => void) => (
       <div className="modal-scrim">
-        <section className="tool-recovery" role="dialog" aria-modal="true" aria-label={t('Tool status')}>
-          <button className="icon-btn tool-recovery-close" onClick={props.onClose} aria-label={t('Close')}><X size={18} /></button>
+        <section className="tool-recovery" role="dialog" aria-modal="true" aria-label={msg("app.tool.status")}>
+          <button className="icon-btn tool-recovery-close" onClick={props.onClose} aria-label={msg("app.close")}><X size={18} /></button>
           {retry ? <AlertTriangle size={24} /> : <Loader2 size={24} className="spin" />}
-          <h2>{t(retry ? 'This tool stopped unexpectedly.' : 'Opening tool…')}</h2>
-          {retry && <><p>{t('Your document is still open. Reopen the tool or return to writing.')}</p><div><button className="secondary-btn" onClick={props.onClose}>{t('Return to writing')}</button><button className="primary-btn" onClick={() => { setTool(() => lazy(load)); setGeneration((value) => value + 1); retry(); }}><RotateCcw size={14} />{t('Reopen tool')}</button></div></>}
+          <h2>{msg(retry ? "app.this.tool.stopped.unexpectedly" : "app.opening.tool")}</h2>
+          {retry && <><p>{msg("app.your.document.is.still.open.reopen.the.tool.or")}</p><div><button className="secondary-btn" onClick={props.onClose}>{msg("app.return.to.writing")}</button><button className="primary-btn" onClick={() => { setTool(() => lazy(load)); setGeneration((value) => value + 1); retry(); }}><RotateCcw size={14} />{msg("app.reopen.tool")}</button></div></>}
         </section>
       </div>
     );

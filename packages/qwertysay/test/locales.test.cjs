@@ -13,7 +13,7 @@ test('guided language pack selects yarn, reports missing translations and packs 
   scaffoldLocale(plan.directory, plan.options);
   assert.equal(fs.readFileSync(path.join(directory, '.yarnrc.yml'), 'utf8'), 'nodeLinker: node-modules\n');
   assert.ok(reportCoverage(directory)[0].missing.length > 1000);
-  fs.writeFileSync(path.join(directory, 'locales/fr.json'), JSON.stringify({ Save: 'Enregistrer' }));
+  fs.writeFileSync(path.join(directory, 'locales/fr.json'), JSON.stringify({ 'app.save': 'Enregistrer' }));
   await main(['check', directory]); const file = path.join(root, 'fr.tpp'); await main(['pack', directory, file]);
   assert.equal(readPackage(file).manifest.entry, undefined);
   assert.equal(fs.existsSync(path.join(directory, 'node_modules')), false);
@@ -23,6 +23,6 @@ test('npm language scaffold refuses English replacement, overwrites and invalid 
   const root = fixture(t), directory = path.join(root, 'locale');
   assert.throws(() => scaffoldLocale(directory, { locale: 'en' }));
   scaffoldLocale(directory); assert.throws(() => scaffoldLocale(directory));
-  fs.writeFileSync(path.join(directory, 'locales/fr.json'), JSON.stringify({ 'Hello {name}': 'Bonjour' }));
+  fs.writeFileSync(path.join(directory, 'locales/fr.json'), JSON.stringify({ "app.build.name": 'Bonjour' }));
   assert.throws(() => readPackage(directory), /placeholder/);
 });

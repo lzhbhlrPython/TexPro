@@ -2,7 +2,7 @@ import { StateEffect, StateField } from '@codemirror/state';
 import { Decoration, EditorView, WidgetType } from '@codemirror/view';
 import type { Diagnostic } from '../types';
 import { composingWriting, writingComposition } from './writing';
-import { t } from '../i18n';
+import { msg } from '../i18n';
 
 export const writingDiagnostics = StateEffect.define<{ items: Diagnostic[]; stale: boolean }>();
 const feedbackData = StateField.define<{ items: Array<Diagnostic & { pos: number }>; stale: boolean }>({
@@ -15,11 +15,11 @@ const feedbackData = StateField.define<{ items: Array<Diagnostic & { pos: number
 });
 
 function explanation(message: string) {
-  if (/Missing \$ inserted/i.test(message)) return t('Put mathematical commands inside $...$ or a math environment.');
-  if (/Undefined control sequence/i.test(message)) return t('Check the command spelling and the packages in the main file.');
-  if (/Runaway argument|File ended while scanning/i.test(message)) return t('Check for an unclosed brace or environment before this line.');
-  if (/not found|cannot find/i.test(message)) return t('Check the referenced path and whether the file exists.');
-  if (/alignment tab|Extra alignment/i.test(message)) return t('Check the table column count; use \\& for a literal ampersand.');
+  if (/Missing \$ inserted/i.test(message)) return msg("app.put.mathematical.commands.inside.or.a.math.environment");
+  if (/Undefined control sequence/i.test(message)) return msg("app.check.the.command.spelling.and.the.packages.in.the");
+  if (/Runaway argument|File ended while scanning/i.test(message)) return msg("app.check.for.an.unclosed.brace.or.environment.before.this");
+  if (/not found|cannot find/i.test(message)) return msg("app.check.the.referenced.path.and.whether.the.file.exists");
+  if (/alignment tab|Extra alignment/i.test(message)) return msg("app.check.the.table.column.count.use.for.a.literal");
   return '';
 }
 
@@ -32,7 +32,7 @@ class FeedbackWidget extends WidgetType {
       const message = document.createElement('span'); message.textContent = item.message; dom.appendChild(message);
       const help = explanation(item.message); if (help) { const hint = document.createElement('small'); hint.textContent = help; dom.appendChild(hint); }
     }
-    if (this.stale) { const stale = document.createElement('small'); stale.textContent = t('Source changed. Compile again to refresh this message.'); dom.appendChild(stale); }
+    if (this.stale) { const stale = document.createElement('small'); stale.textContent = msg("app.source.changed.compile.again.to.refresh.this.message"); dom.appendChild(stale); }
     return dom;
   }
   ignoreEvent() { return true; }

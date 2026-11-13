@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FileTextOutlined, SearchOutlined } from '@ant-design/icons';
 import { Input, Modal, Typography, theme } from 'antd';
 import { searchAll } from '@/lib/search';
-import { useLocale, useT } from '@/i18n';
+import { useLocale, useMessages } from '@/i18n';
 
 const { Text } = Typography;
 
@@ -15,14 +15,14 @@ interface Props {
 /** ⌘K / Ctrl+K 打开的站内搜索：文档 + 博客。 */
 export function SearchDialog({ open, onClose }: Props) {
   const navigate = useNavigate();
-  const t = useT();
+  const msg = useMessages();
   const { locale } = useLocale();
   const { token } = theme.useToken();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const hits = useMemo(() => searchAll(query, 8, locale), [query, locale]);
+  const hits = useMemo(() => searchAll(query, 8, locale, msg), [query, locale, msg]);
 
   useEffect(() => {
     if (!open) return;
@@ -55,7 +55,7 @@ export function SearchDialog({ open, onClose }: Props) {
         variant="borderless"
         size="large"
         prefix={<SearchOutlined style={{ color: token.colorTextTertiary }} />}
-        placeholder={t('搜文档和博客，回车打开…')}
+        placeholder={msg("site.search.docs.and.blog.press.enter.to.open")}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={(event) => {
@@ -76,7 +76,7 @@ export function SearchDialog({ open, onClose }: Props) {
       <div className="search-results" ref={listRef}>
         {query && hits.length === 0 ? (
           <p className="search-empty" style={{ color: token.colorTextTertiary }}>
-            {t('没有匹配的条目。换个词试试，或者按 Esc 关掉。')}
+            {msg("site.nothing.matched.try.another.word.or.press.esc")}
           </p>
         ) : null}
 
@@ -111,7 +111,7 @@ export function SearchDialog({ open, onClose }: Props) {
 
       <div className="search-foot" style={{ borderColor: token.colorBorderSecondary }}>
         <Text type="secondary" style={{ fontSize: 12 }}>
-          {t('↑↓ 选择 · ⏎ 打开 · Esc 关闭')}
+          {msg("site.select.open.esc.close")}
         </Text>
       </div>
     </Modal>

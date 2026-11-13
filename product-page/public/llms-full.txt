@@ -1913,7 +1913,7 @@ TeXPro 的第一次提交在 2026 年 10 月 21 日，提交信息是「Initial 
 
 ### 改进文档
 
-产品页文档在 `product-page/src/content/docs/`，每个文件是一个页面，front matter 决定标题、分组与顺序。写作时请：
+产品页文档在 `product-page/src/content/docs/{locale}/`，当前 `zh/` 与 `en/` 平级、同名同 slug；每个文件是一篇完整译文，front matter 决定标题、分组与顺序。写作时请：
 
 - 事实以源码与仓库文档为准，不写未实现的功能
 - 用 `##` 与 `###` 组织内容，表格与提示按现有页面的写法
@@ -2279,7 +2279,7 @@ CSS 清单项为 `stylesheet`，需声明 `theme.styles`。普通规则位于主
 这篇说明 `@texpro/extension-sdk` **0.3.0 / API 1**，作者 Baolin Liu（gardenialiu），自有代码为 MIT。SDK 提供类型、作者辅助函数、JSON 桥接和共用校验核心，不依赖 Electron、React 或 TeX。创建工程和选择语言见 [qwertysay 引导式工具](/docs/qwertysay)；让 AI 协助开发见[开发 Skill](/docs/extension-skill)。
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.4.0
+npm install --save-dev @texpro/extension-sdk@0.5.0
 ```
 
 SDK 安装不等于向 TeXPro 安装插件。宿主只加载完成的自包含入口和包资源，不在作者机器以外安装 npm 依赖，也不编译源码。SDK 辅助函数若被运行时使用，必须随作者代码打包；直接导出 `activate(ctx)` 则不要求运行时引用 SDK。
@@ -2389,7 +2389,7 @@ exports.activate = ctx => {
 在普通交互终端执行一次：
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 也可以全局安装后直接运行 `qwertysay`。npx／npm 可能下载工具，但 qwertysay 创建、校验和打包不会替你安装依赖。Windows PowerShell、macOS 和 Linux 终端使用相同的数字选择与回车，不依赖 shell 特有语法、彩色控制或外部菜单程序。
@@ -2565,58 +2565,52 @@ Node 插件与构建工具具有用户权限；进程隔离不是沙箱。主题
 
 > 使用预装简体中文包，创建声明式语言插件，并验证缺译回退、占位符与安全恢复。
 
-> 需要包含语言插件与包管理同步能力的桌面构建；此前公开的 v0.1.0 安装包不包含本次能力。
+## 选择与恢复
 
-## 语言从哪里来
+简体中文由预制插件 `@texpro/extension-translate-zh-cn` 提供。进入「扩展」查看、停用或启用，再到「偏好设置」选择语言。英文始终内置；停用或卸载当前语言更新后回退英文。预制资源不能删除，安装更新可以卸载。原生恢复命令 `Reset Appearance and Disable Extensions` 固定英文，必要时使用 `--safe-mode`。
 
-TeXPro 内置英文作为恢复语言，简体中文通过预装的声明式 `.tpp` 插件提供，并独立分发为 `@texpro/extension-translate-zh-cn`。预装与 npm 归档来自同一翻译源，不会自动联网下载语言。官网的文档语言独立于桌面语言插件。
+翻译可能伪装可信操作，纯数据不等于可信来源；只启用已核对作者及内容的语言包。功能插件维护自己的 i18n，不能通过宿主语言包替换插件业务逻辑。
 
-安装作者提供的 `.tpp`：打开「扩展」，选择「安装插件包…」，核对包名、作者与文案风险后点「安装并保持停用」，再点「启用」。在「偏好设置」的「界面语言」中选择语言自称。两种语言时只显示切换到另一语言的单个按钮；有更多语言时才显示语言选择。
+## 制作第 2 版语言包
 
-预装简体中文可以停用；停用、坏包或卸载当前语言时回退英文。预装资源不能直接卸载；安装的中文更新可以卸载，随后恢复停用的预装副本。缺译条目逐项回退英文，不把整页空白当作正常结果。
-
-## 创建语言包
-
-需要 Node.js 20+。启动 [qwertysay](/docs/qwertysay) 的中英引导，选择「创建插件或主题」后选「语言包（仅数据）」，填写目录、包标识、作者、BCP 47 语言标识（例如 fr）、语言自称（例如 Français）和 npm／yarn。没有编译器或构建步骤。
+在仓库开发环境运行 qwertysay 的引导入口，选择「语言包（仅数据）」、语言代码、自称和 npm／yarn：
 
 ```sh
-npx --package @texpro/qwertysay@0.4.1 qwertysay
+npm ci
+node packages/qwertysay/bin/qwertysay.cjs
 ```
 
-工程中的 `reference/en.json` 是英文参考，编辑 `locales/fr.json`：
+在生成的 `reference/en.json` 查找用途对应的语义键，在 `locales/fr.json` 填写译文。不要翻译键名或 `{name}` 等变量。
 
 ```json
 {
-  "Save": "Enregistrer",
-  "Hello {name}": "Bonjour {name}"
+  "app.save": "Enregistrer",
+  "app.cancel": "Annuler"
 }
 ```
 
-键须与 `reference/en.json` 一致，其中保留部分历史中文键；翻译对应的英文显示文本作为目标语言值，不翻译键。保留所有 `{name}`、`{count}` 等占位符，不更改变量名。通过引导选择「校验目录或安装包」会报告缺译和未知键；未知键可用于版本兼容，缺译回退英文。参考快照对应所用 SDK 版本，宿主新增文案后要升级并核对源目录。
-
-语言声明：
+清单中的语言贡献必须声明目录版本：
 
 ```json
 {
-  "locales": [
-    { "id": "fr", "title": "Français", "messages": "locales/fr.json" }
-  ]
+  "catalogVersion": 2,
+  "id": "fr",
+  "title": "Français",
+  "messages": "locales/fr.json"
 }
 ```
 
-这段位于清单的 `contributes`。清单还需要合法插件 ID、版本、API 1、作者、许可证及空 capabilities；生成模板已经包含它们。包必须附 LICENSE，不能添加入口、权限、脚本、样式或其他贡献。英文恢复语言不能被覆盖。简中标识沿用 zh 以兼容既有偏好。
+这段对象放在 `contributes.locales` 数组中。扩展的 `apiVersion` 仍为 1；清单、消息文件和 LICENSE 必需，无入口、权限或样式。无需编译，选择「校验」「打包」生成 `.tpp`，然后在「扩展」审核安装、启用并选择语言。缺失项回退英文；未知语义键会报告，覆盖率取决于 SDK 参考版本。
 
-完成后选择「打包分发」生成 `.tpp`，在临时 TeXPro 用户目录测试启停、缺译、变量、菜单和恢复。npm 分发与安装／卸载联动见[包管理器管理扩展](/docs/extension-package-management)；API 见[插件 SDK](/docs/extension-development)。
+## 破坏性迁移与长文本
 
-## 风险与恢复
+SDK 0.5.0、qwertysay 0.6.0、中文包 2.0.0 与支持目录第 2 版的宿主配套。旧正文键语言包明确拒绝，不提供兼容层。重新生成参考目录、按语义键迁移译文、递增包版本并校验；只改清单版本不够。源码、npm 发布和应用 Release 的状态分别核实，已有 v0.1.0 安装包不会自动获得新契约。
 
-语言包只提供字符串，不执行代码或 HTML，但仍可能把按钮翻译成误导性指令。确认作者与内容，不能把数据包或校验通过当作安全保证。主题也可能隐藏控件，Node 插件可能访问用户文件、网络和进程。
+按钮、菜单与状态使用 JSON。彩蛋、文档、教程及长说明按语言维护完整 Markdown，交给统一渲染器；不要给每段每句另建翻译键。官网与桌面词典独立，桌面语言插件不会翻译官网。
 
-恢复时使用原生「视图」菜单中的 `Reset Appearance and Disable Extensions`；这个命令刻意固定为英文，以免被语言插件替换。找不到菜单时，以 `--safe-mode` 启动，回到英文并停用扩展。在英文界面中，「偏好设置」「界面语言」「扩展」分别显示 Preferences、Interface language、Extensions。
+官网文档源码统一放在 `product-page/src/content/docs/{locale}/{slug}.md`。`zh/` 和 `en/` 平级、同名同 slug，中文也不放在根目录；新增语种沿用同一目录约定。移动源码文件不改变公开的 `/docs/:slug` 链接。
 
-## 源码发布 npm 与构建安全
-
-源码可直接发布 npm，texpro.source 指向目录（省略为包根），不必先内嵌 .tpp／.tpt。SDK 0.4.0、qwertysay 0.5.0 和对应宿主支持此路径；旧归档分发继续兼容。可运行 JS／静态文件安装后直接同步；需要编译的包在 qwertysay 选择「构建已安装的源码扩展」，单独确认信任后再同步到 TeXPro 审核。构建配置和编译器拥有用户权限；禁用安装脚本和临时目录都不是沙箱。完整的作者发布、用户安装／升级／卸载、工具链限制与风险见 [npm／yarn 管理扩展](/docs/extension-package-management)。
+作者还应阅读 [SDK](/docs/extension-development)、[qwertysay](/docs/qwertysay)、[AI 开发 Skill](/docs/extension-skill) 与 [npm／yarn 扩展管理](/docs/extension-package-management)。
 
 ---
 
@@ -2646,7 +2640,7 @@ npx --package @texpro/qwertysay@0.4.1 qwertysay
 找一个保存扩展的父目录，在那里打开终端。不要在 LaTeX 工程、TeXPro 源码或插件源码目录里执行以下步骤。
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 第一次运行 npx 可能询问是否下载 qwertysay，确认后进入引导。按顺序填写：

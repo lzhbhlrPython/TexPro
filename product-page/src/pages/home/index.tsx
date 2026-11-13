@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { APP_NAME } from '@/config/constants';
+import { useMessages } from '@/i18n';
 import { Reveal } from '@/components/Reveal';
 import { VisualDemo } from './VisualDemo';
 import { Capabilities } from './Capabilities';
@@ -17,9 +17,10 @@ import { Limits } from './Limits';
 import { Workflow } from './Workflow';
 
 export default function HomePage() {
+  const msg = useMessages();
   useEffect(() => {
-    document.title = `${APP_NAME} · 本地优先的 LaTeX 工作台`;
-  }, []);
+    document.title = msg('site.page.home.title');
+  }, [msg]);
 
   return (
     <>

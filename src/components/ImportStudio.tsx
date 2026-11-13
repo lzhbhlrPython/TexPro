@@ -30,7 +30,7 @@ interface Props {
 }
 
 export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [format, setFormat] = useState<ImportFormat>('markdown');
   const [source, setSource] = useState('');
   const [filePath, setFilePath] = useState('');
@@ -83,13 +83,13 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
           <div className="studio-heading">
             <div className="studio-icon"><FileInput size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Import')}</span>
-              <h2>{t('Markdown / Typst → LaTeX')}</h2>
+              <span className="modal-eyebrow">{msg("app.import")}</span>
+              <h2>{msg("app.markdown.typst.latex")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok"><FileCode2 size={11} /> {t('Portable .tex')}</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok"><FileCode2 size={11} /> {msg("app.portable.tex")}</span>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
@@ -101,8 +101,8 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
             </div>
 
             <div className="import-file-row">
-              <button className="secondary-btn" onClick={() => void chooseFile()}><Upload size={12} /> {t('Choose file')}</button>
-              <span className="import-file-name" title={filePath || fileName}>{fileName || t('Paste text below')}</span>
+              <button className="secondary-btn" onClick={() => void chooseFile()}><Upload size={12} /> {msg("app.choose.file")}</button>
+              <span className="import-file-name" title={filePath || fileName}>{fileName || msg("app.paste.text.below")}</span>
             </div>
 
             <textarea
@@ -114,15 +114,15 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
             />
 
             <div className="import-options">
-              <label><span>{t('Title')}</span><input value={options.title} onChange={(event) => setOptions({ ...options, title: event.target.value })} /></label>
-              <label><span>{t('Author')}</span><input value={options.author} onChange={(event) => setOptions({ ...options, author: event.target.value })} /></label>
-              <label><span>{t('Document class')}</span>
+              <label><span>{msg("app.title")}</span><input value={options.title} onChange={(event) => setOptions({ ...options, title: event.target.value })} /></label>
+              <label><span>{msg("app.author")}</span><input value={options.author} onChange={(event) => setOptions({ ...options, author: event.target.value })} /></label>
+              <label><span>{msg("app.document.class")}</span>
                 <select value={options.documentClass} onChange={(event) => setOptions({ ...options, documentClass: event.target.value as ImportOptions['documentClass'] })}>
                   <option value="article">article</option>
                   <option value="ctexart">ctexart</option>
                 </select>
               </label>
-              <label><span>{t('File name')}</span><input value={name} onChange={(event) => setName(event.target.value)} /></label>
+              <label><span>{msg("app.file.name")}</span><input value={name} onChange={(event) => setName(event.target.value)} /></label>
             </div>
 
             {result && result.warnings.length > 0 && (
@@ -134,10 +134,10 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
 
           <div className="import-right">
             <div className="import-preview-head">
-              <span>{t('Generated LaTeX')}</span>
+              <span>{msg("app.generated.latex")}</span>
               <div className="spacer" />
               {result && <span className="studio-engine">{result.engine}</span>}
-              <button className="mini-btn" onClick={() => void copy()} disabled={!result} title={t('Copy')}>
+              <button className="mini-btn" onClick={() => void copy()} disabled={!result} title={msg("app.copy")}>
                 {copied ? <Check size={12} /> : <Clipboard size={12} />}
               </button>
             </div>
@@ -146,8 +146,8 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
             ) : (
               <div className="import-empty">
                 <FileCode2 size={28} />
-                <strong>{t('Import a Markdown or Typst file')}</strong>
-                <p>{t('Headings, lists, tables, code, links, images and math are converted to ordinary LaTeX.')}</p>
+                <strong>{msg("app.import.a.markdown.or.typst.file")}</strong>
+                <p>{msg("app.headings.lists.tables.code.links.images.and.math.are")}</p>
               </div>
             )}
           </div>
@@ -155,15 +155,15 @@ export function ImportStudio({ open, hasProject, onClose, onInsert, onCreate }: 
 
         <footer className="studio-footer">
           <span className="studio-hint">
-            {hasProject ? t('Create a .tex file in the current project, or insert the body into the open document.') : t('Open a project to create a file; inserting still works in the current document.')}
+            {hasProject ? msg("app.create.a.tex.file.in.the.current.project.or") : msg("app.open.a.project.to.create.a.file.inserting.still")}
           </span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
           <button className="secondary-btn" disabled={!result} onClick={() => result && onInsert(result.body, format)}>
-            <ArrowRight size={12} /> {t('Insert body')}
+            <ArrowRight size={12} /> {msg("app.insert.body")}
           </button>
           <button className="primary-btn" disabled={!result || !hasProject} onClick={() => void create()}>
-            {busy ? <Loader2 size={13} className="spin" /> : <FilePlus2 size={13} />} {t('Create .tex file')}
+            {busy ? <Loader2 size={13} className="spin" /> : <FilePlus2 size={13} />} {msg("app.create.tex.file")}
           </button>
         </footer>
       </section>

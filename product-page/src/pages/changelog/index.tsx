@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/SectionHeading';
 import { SITE_LINKS } from '@/config/constants';
 import { useRelease } from '@/hooks/useRelease';
 import { formatSize } from '@/lib/release';
-import { useLocale, useT } from '@/i18n';
+import { useLocale, useMessages } from '@/i18n';
 
 const { Text } = Typography;
 
@@ -28,7 +28,7 @@ function assetUrl(name: string, tag?: string) {
 
 export default function ChangelogPage() {
   const { token } = theme.useToken();
-  const t = useT();
+  const msg = useMessages();
   const { locale } = useLocale();
   const { message } = App.useApp();
   const release = useRelease();
@@ -38,9 +38,9 @@ export default function ChangelogPage() {
     if (!digest) return;
     try {
       await navigator.clipboard.writeText(digest.replace(/^sha256:/i, ''));
-      message.success(t('SHA256 已复制'));
+      message.success(msg("site.sha256.copied"));
     } catch {
-      message.error(t('浏览器不允许写剪贴板'));
+      message.error(msg("site.the.browser.blocked.clipboard.access"));
     }
   };
 
@@ -48,9 +48,9 @@ export default function ChangelogPage() {
     <div className="changelog">
       <div className="shell">
         <SectionHeading
-          eyebrow="更新日志"
-          title="每个夜间构建，都是一次可追溯的提交"
-          description="版本号来自发布的 tag：nightly 的 tag 带日期（v0.1.0-20261109-Nightly），同一天重跑会覆盖当天产物。下面是当前这一版和它的全部安装包。"
+          eyebrow="site.changelog"
+          title="site.every.nightly.build.is.a.traceable.commit"
+          description="site.versions.come.from.the.release.tag.nightly.tags.carry"
         />
 
         <div
@@ -61,13 +61,13 @@ export default function ChangelogPage() {
             <div className="release-version">
               <span style={{ color: token.colorTextHeading }}>v{release.version}</span>
               <Tag variant="filled" color={release.channel === 'nightly' ? 'default' : 'success'}>
-                {t(release.channel === 'nightly' ? '夜间构建' : '正式版')}
+                {msg(release.channel === 'nightly' ? "site.nightly" : "site.stable")}
               </Tag>
             </div>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              {t('发布于')} {formatDate(locale, release.publishedAt)}
+              {msg("site.published")} {formatDate(locale, release.publishedAt)}
               {release.releaseTag ? ` · tag ${release.releaseTag}` : ''}
-              {release.source === 'snapshot' ? t(' · 构建期快照') : ''}
+              {release.source === 'snapshot' ? msg("site.build.time.snapshot") : ''}
             </Text>
           </div>
           <Space wrap>
@@ -75,7 +75,7 @@ export default function ChangelogPage() {
               GitHub Releases
             </Button>
             <Link to="/docs/dev-release">
-              <Button type="primary">{t('看发布流程')}</Button>
+              <Button type="primary">{msg("site.release.process")}</Button>
             </Link>
           </Space>
         </div>
@@ -87,10 +87,10 @@ export default function ChangelogPage() {
           pagination={false}
           dataSource={assets}
           scroll={{ x: 720 }}
-          locale={{ emptyText: '这次发布没有取到资产清单（GitHub 可能限流了），可以直接去 Releases 页看。' }}
+          locale={{ emptyText: "site.no.asset.list.this.time.github.may.be.rate" }}
           columns={[
             {
-              title: t('安装包'),
+              title: msg("site.installer"),
               dataIndex: 'name',
               render: (name: string) => (
                 <a href={assetUrl(name, release.releaseTag)} target="_blank" rel="noreferrer">
@@ -99,7 +99,7 @@ export default function ChangelogPage() {
               ),
             },
             {
-              title: t('体积'),
+              title: msg("site.size"),
               dataIndex: 'size',
               width: 110,
               align: 'right',
@@ -111,7 +111,7 @@ export default function ChangelogPage() {
               width: 200,
               render: (digest?: string | null) =>
                 digest ? (
-                  <Tooltip title="复制完整校验值">
+                  <Tooltip title={msg("site.copy.complete.checksum")}>
                     <Button
                       type="text"
                       size="small"
@@ -132,8 +132,8 @@ export default function ChangelogPage() {
         />
 
         <Text type="secondary" style={{ display: 'block', marginTop: 16, fontSize: 12.5 }}>
-          {t(
-            '安装包未签名。校验下载文件：shasum -a 256 <file>，与本表对比。更早的构建在 Releases 页按 tag 分组保留。',
+          {msg(
+            "site.installers.are.unsigned.verify.a.download.with.shasum.a",
           )}
         </Text>
       </div>

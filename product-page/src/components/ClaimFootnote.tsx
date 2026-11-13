@@ -1,11 +1,11 @@
 import { theme } from 'antd';
 import { CLAIM_BY_ID } from '@/data/claims';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 
 /** 挂在说法后面的上标脚注，点开就是对应的源码文件。 */
 export function ClaimRef({ id }: { id: string }) {
   const claim = CLAIM_BY_ID.get(id);
-  const t = useT();
+  const msg = useMessages();
   if (!claim) return null;
   return (
     <sup className="claim-ref">
@@ -13,8 +13,8 @@ export function ClaimRef({ id }: { id: string }) {
         href={claim.href}
         target="_blank"
         rel="noreferrer"
-        title={`${claim.file} — ${t(claim.note)}`}
-        aria-label={`${t('来源')} ${claim.file}`}
+        title={`${claim.file} — ${msg.text(claim.note)}`}
+        aria-label={`${msg("site.source.variant3")} ${claim.file}`}
       >
         {claim.number}
       </a>
@@ -25,7 +25,7 @@ export function ClaimRef({ id }: { id: string }) {
 /** 章节末尾的注释表；编号与正文里的上标一致。 */
 export function ClaimNotes({ ids }: { ids: string[] }) {
   const { token } = theme.useToken();
-  const t = useT();
+  const msg = useMessages();
 
   return (
     <ol className="claim-notes" style={{ color: token.colorTextTertiary }}>
@@ -38,7 +38,7 @@ export function ClaimNotes({ ids }: { ids: string[] }) {
             <a href={claim.href} target="_blank" rel="noreferrer" style={{ color: token.colorTextSecondary }}>
               {claim.file}
             </a>
-            <span> — {t(claim.note)}</span>
+            <span> — {msg.text(claim.note)}</span>
           </li>
         );
       })}

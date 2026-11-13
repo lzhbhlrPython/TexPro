@@ -1,5 +1,6 @@
 import type { PackageManifest, ThemeContribution } from './index';
 export declare const API_VERSION: 1;
+export declare const LOCALE_CATALOG_VERSION: 2;
 export declare const CAPABILITIES: readonly string[];
 export declare const PROVIDERS: readonly string[];
 export declare const BASES: readonly string[];
@@ -9,7 +10,7 @@ export declare const languages: Readonly<Record<'ts' | 'js' | 'coffee' | 'purs' 
 export declare const styles: Readonly<Record<'css' | 'scss' | 'sass' | 'less' | 'stylus' | 'css-in-js' | 'tcss', AuthoringFormat>>;
 export declare function authoringCapabilities(): {
   apiVersion: 1; bridgeVersion: 1; languages: typeof languages; styles: typeof styles;
-  locales: { contribution: string; format: string; code: false; fallback: 'en'; preinstalled: string };
+  locales: { catalogVersion: 2; keys: 'semantic message IDs'; longText: 'localized Markdown documents'; contribution: string; format: string; code: false; fallback: 'en'; preinstalled: string };
   distribution: { registry: string; field: string; sourceField: string; sourceDefault: '.'; trustedLocalBuild: true; compilerInstallScripts: string; reviewRequired: true; executesInstallScripts: false };
   artifacts: { plugin: '.tpp'; theme: '.tpt' }; runtime: { plugin: string; theme: string }; security: string[];
   mcp: { inspectOnly: true; executesCompilers: false; invokesPlugins: false; readsUnsavedBuffers: false };

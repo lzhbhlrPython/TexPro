@@ -13,7 +13,7 @@ summary: 直接启动后选择创建、构建、校验或打包；语言与样�
 在普通交互终端执行一次：
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 也可以全局安装后直接运行 `qwertysay`。npx／npm 可能下载工具，但 qwertysay 创建、校验和打包不会替你安装依赖。Windows PowerShell、macOS 和 Linux 终端使用相同的数字选择与回车，不依赖 shell 特有语法、彩色控制或外部菜单程序。

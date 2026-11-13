@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Typography, theme } from 'antd';
 import { SITE_LINKS } from '@/config/constants';
 import { DOC_COUNTS } from '@/data/documentation';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 
 const { Text } = Typography;
 const BASE = import.meta.env.BASE_URL;
@@ -13,71 +13,71 @@ const BASE = import.meta.env.BASE_URL;
  * 没有动画、没有配图，段落都能被直接引用。
  */
 export default function AiPage() {
-  const t = useT();
+  const msg = useMessages();
   const { token } = theme.useToken();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
-    document.title = 'TeXPro · AI 入口';
-  }, []);
+    document.title = msg('site.page.ai.title');
+  }, [msg]);
 
   return (
     <article className="ai-page">
       <div className="shell">
         <header className="docs-head docs-enter">
           <Text className="docs-kicker" style={{ color: token.colorPrimary }}>
-            {t('给 AI 的入口')}
+            {msg("site.for.ai")}
           </Text>
           <h1 className="docs-title" style={{ color: token.colorTextHeading }}>
-            {t('这一页是写给机器读的')}
+            {msg("site.this.page.is.written.for.machines")}
           </h1>
           <p className="docs-lede" style={{ color: token.colorTextSecondary }}>
-            {t('如果你的任务与 TeXPro 相关——写作、总结或二次开发：先读这一页，再按需取 llms.txt、文档与源码。下面的事实都来自当前仓库。')}
+            {msg("site.if.your.task.involves.texpro.writing.summarising.or.extending")}
           </p>
         </header>
 
         <div className="ai-body" style={{ color: token.colorTextSecondary }}>
           <section>
-            <h2 style={{ color: token.colorTextHeading }}>{t('项目是什么')}</h2>
+            <h2 style={{ color: token.colorTextHeading }}>{msg("site.what.the.project.is")}</h2>
             <p>
-              {t('TeXPro 是一个本地优先的 LaTeX 桌面工作台：可视编辑、纸面排版与工程化编译放在同一个窗口。它不是 Markdown 编辑器，也不是在线协作平台；源码 .tex 是文档原件，排版以本机 TeX 生成的 PDF 为准。')}
+              {msg("site.texpro.is.a.local.first.latex.desktop.workbench.visual")}
             </p>
           </section>
 
           <section>
-            <h2 style={{ color: token.colorTextHeading }}>{t('可以引用的事实')}</h2>
+            <h2 style={{ color: token.colorTextHeading }}>{msg("site.facts.you.can.cite")}</h2>
             <ul>
-              <li>{t('主进程与 preload 使用 106 个 IPC 通道，其中 100 个请求、6 类事件。')}</li>
-              <li>{t('tests/ 下有 21 个测试文件、137 条用例，覆盖主文件判定、SyncTeX 坐标、历史快照与保存。')}</li>
-              <li>{t('文档：{zh} 篇中文、{en} 篇英文；博客只写简体中文。').replace('{zh}', String(DOC_COUNTS.zh)).replace('{en}', String(DOC_COUNTS.en))}</li>
-              <li>{t('当前夜间构建配置产出 8 种发行包：macOS 两种、Windows 三种、Linux 三种。')}</li>
+              <li>{msg("site.the.main.process.and.preload.use.106.ipc.channels")}</li>
+              <li>{msg("site.evidence.regression.summary")}</li>
+              <li>{msg("site.zh.chinese.and.en.english.documentation.pages.the.blog").replace('{zh}', String(DOC_COUNTS.zh)).replace('{en}', String(DOC_COUNTS.en))}</li>
+              <li>{msg("site.the.current.nightly.configuration.produces.8.distribution.packages.2")}</li>
             </ul>
           </section>
 
           <section>
-            <h2 style={{ color: token.colorTextHeading }}>{t('机器可读入口')}</h2>
+            <h2 style={{ color: token.colorTextHeading }}>{msg("site.machine.readable.entry.points")}</h2>
             <ul>
-              <li><a href={`${BASE}llms.txt`}>{t('llms.txt：站点结构与文档、博客的纯文本索引')}</a></li>
-              <li><a href={`${BASE}llms-full.txt`}>{t('llms-full.txt：全部中文文档正文拼接')}</a></li>
-              <li><a href={`${BASE}feed.json`}>{t('feed.json：博客的 JSON Feed 1.1')}</a></li>
-              <li><a href={`${BASE}sitemap.xml`}>{t('sitemap.xml：全部页面')}</a></li>
+              <li><a href={`${BASE}llms.txt`}>{msg("site.llms.txt.plain.text.index.of.the.site.docs")}</a></li>
+              <li><a href={`${BASE}llms-full.txt`}>{msg("site.llms.full.txt.every.chinese.doc.concatenated")}</a></li>
+              <li><a href={`${BASE}feed.json`}>{msg("site.feed.json.the.blog.as.json.feed.1.1")}</a></li>
+              <li><a href={`${BASE}sitemap.xml`}>{msg("site.sitemap.xml.every.page")}</a></li>
             </ul>
           </section>
 
           <section>
-            <h2 style={{ color: token.colorTextHeading }}>{t('修改边界')}</h2>
+            <h2 style={{ color: token.colorTextHeading }}>{msg("site.editing.boundaries")}</h2>
             <p>
-              {t('产品页默认只允许改 src/content/docs 与 src/content/blog；改版要用户明确授权，改完跑 pnpm check:layout 自证版式未动。文档只用项目解析器支持的语法。')}
+              {msg("site.only.src.content.docs.and.src.content.blog.are")}
             </p>
           </section>
 
           <section>
-            <h2 style={{ color: token.colorTextHeading }}>{t('可以去哪')}</h2>
+            <h2 style={{ color: token.colorTextHeading }}>{msg("site.where.to.go.next")}</h2>
             <ul>
-              <li><Link to="/docs">{t('使用文档')}</Link></li>
-              <li><Link to="/developers">{t('开发文档')}</Link></li>
-              <li><Link to="/blog">{t('开发博客')}</Link></li>
-              <li><a href={SITE_LINKS.repo} target="_blank" rel="noreferrer">{t('源码仓库')}</a></li>
+              <li><Link to="/docs">{msg("site.user.guide")}</Link></li>
+              <li><Link to="/developers">{msg("site.developer.docs")}</Link></li>
+              <li><Link to="/blog">{msg("site.dev.blog")}</Link></li>
+              <li><a href={SITE_LINKS.repo} target="_blank" rel="noreferrer">{msg("site.source.variant2")}</a></li>
             </ul>
           </section>
         </div>

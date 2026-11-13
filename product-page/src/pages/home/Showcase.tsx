@@ -2,7 +2,7 @@ import { CheckOutlined } from '@ant-design/icons';
 import { Typography, theme } from 'antd';
 import { ScreenshotFrame } from '@/components/ScreenshotFrame';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize } from '@/i18n';
+import { useLocalizedFields } from '@/i18n';
 
 const { Title } = Typography;
 
@@ -22,49 +22,49 @@ interface ShowcaseItem {
 const ITEMS: ShowcaseItem[] = [
   {
     id: 'table',
-    kicker: '编辑',
-    title: '表格和公式，就在段落中间',
-    desc: '光标离开时，tabular 显示成真正的表格，行间公式显示成排版后的数学；点一下又回到源码。加一行、改对齐、删一列都在原位完成，不用在源码和预览之间来回跳。',
-    bullets: ['表格原位增删行列、切换对齐', '渲染后的公式点击即回退源码', '导言区折叠成一张「导言卡」'],
+    kicker: "site.editing",
+    title: "site.tables.and.formulas.right.inside.the.paragraph",
+    desc: "site.when.the.caret.leaves.tabular.becomes.a.real.table",
+    bullets: ["site.add.or.remove.rows.and.columns.in.place", "site.click.rendered.math.to.get.the.source.back", "site.the.preamble.collapses.into.one.card"],
     src: '/shots/table.jpg',
-    alt: '可视编辑器中的表格：表头、对齐工具条与嵌套公式',
-    caption: 'tabular 在正文里直接呈现，工具条就在表格下方',
+    alt: "site.a.table.in.the.visual.editor.header.alignment.toolbar",
+    caption: "site.tabular.renders.in.place.with.its.toolbar.right.below",
     width: 1600,
-    height: 976,
+    height: 1119,
   },
   {
     id: 'diagram',
-    kicker: '绘图',
-    title: '正文原位预览，复杂绘图进入工作台',
-    desc: '乐谱、曲线和图示仍在正文中预览。需要多区域操作时，电路、逻辑门和结构式使用完整画布，完成后返回此前的写作位置。',
-    bullets: ['MusiXTeX 乐谱预览', 'pgfplots 曲线在正文里成形', 'TikZ 电路 / 逻辑图可视化编辑'],
+    kicker: "site.drawing",
+    title: "site.inline.previews.a.workspace.for.complex.diagrams",
+    desc: "site.music.plots.and.diagrams.still.preview.in.the.document",
+    bullets: ["site.musixtex.score.preview", "site.pgfplots.curves.take.shape.in.the.page", "site.visual.editing.for.tikz.circuits.and.logic.gates"],
     src: '/shots/diagram.jpg',
-    alt: '电路工作台：元件栏、完整画布、检查器与实际 TeX 预览',
-    caption: '独立绘图任务使用共享工作台，返回正文继续写作',
+    alt: "site.circuit.workspace.components.full.canvas.inspector.and.actual.tex",
+    caption: "site.dedicated.drawing.tasks.share.a.workspace.and.return.to",
     width: 1600,
     height: 976,
   },
   {
-    id: 'extensions', kicker: '扩展', title: '按需扩展，保留自己的写作方式',
-    desc: '从可信作者安装本地插件包和主题包。命令、补全、检查和工具接入既有流程；主题可定制字体、布局和样式，启用前明确查看能力与风险。',
-    bullets: ['自行分发和手动更新，无公开市场', '修改提案经确认后应用，保留撤销', '原生菜单重置与安全模式恢复'],
-    src: '/shots/extensions.jpg', alt: '本地扩展管理：已安装包、能力、配置与代码及主题风险提示',
-    caption: '真实应用中的本地插件与主题管理；仅启用可信来源', width: 1600, height: 1003,
+    id: 'extensions', kicker: "site.extensions", title: "site.extend.on.demand.keep.your.writing.flow",
+    desc: "site.install.local.extensions.and.themes.from.trusted.authors.commands",
+    bullets: ["site.manual.distribution.and.updates.with.no.public.market", "site.accept.proposed.edits.with.undo.preserved", "site.native.reset.command.and.safe.mode.recovery"],
+    src: '/shots/extensions.jpg', alt: "site.local.extension.manager.installed.packages.capabilities.configuration.and.code",
+    caption: "site.local.packages.and.themes.in.the.real.application.enable", width: 1600, height: 1003,
   },
 ];
 
 export function Showcase() {
-  const localize = useLocalize();
-  const items = localize(ITEMS);
+  const localize = useLocalizedFields();
+  const items = localize(ITEMS, ["kicker","title","desc","bullets","alt","caption"]);
   const { token } = theme.useToken();
 
   return (
     <section className="section section-alt" id="showcase" style={{ background: token.colorFillQuaternary }}>
       <div className="shell">
         <SectionHeading
-          eyebrow="场景"
-          title="它看起来像编辑器，用起来像排版系统"
-          description="以下均为真实应用截图，展示正文编辑、专业画布与本地扩展。"
+          eyebrow="site.in.use"
+          title="site.it.looks.like.an.editor.it.works.like.a"
+          description="site.real.application.screenshots.showing.writing.professional.canvases.and.local"
         />
 
         <div className="showcase-list">

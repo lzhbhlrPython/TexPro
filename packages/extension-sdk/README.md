@@ -1,6 +1,6 @@
 # @texpro/extension-sdk
 
-By **Baolin Liu (gardenialiu)**, with MIT original code. Current source **0.4.0 / API 1** requires Node.js 20+, without Electron, React or TeX.
+By **Baolin Liu (gardenialiu)**, with MIT original code. Current source **0.5.0 / API 1** requires Node.js 20+, without Electron, React or TeX.
 
 [简体中文](README.zh-CN.md)
 
@@ -9,7 +9,7 @@ By **Baolin Liu (gardenialiu)**, with MIT original code. Current source **0.4.0 
 API 1 TypeScript types, defineExtension, defineTextTransform, defineJsonExtension and public package-tools validation/archive/read-only inspection are independent of the host. The SDK never installs plugins, invokes compilers or provides a permissions sandbox.
 
 ```sh
-npm install --save-dev @texpro/extension-sdk@0.4.0
+npm install --save-dev @texpro/extension-sdk@0.5.0
 ```
 
 ## Separate guides
@@ -50,7 +50,7 @@ Maintenance requires package tests and the full zero-skip baseline, plus actual 
 
 ## Language packs and npm/yarn / 语言包与包管理
 
-SDK 0.4.0 / API 1 and qwertysay 0.5.0 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
+SDK 0.5.0 / API 1 and qwertysay 0.5.0 use the @texpro scope. Historical @gardenialiu packages remain immutable; install the new package names and update imports. / 使用新作用域并更新依赖与 import，旧版本不覆盖。
 
 - [Language packs / 语言包](https://texpro.pyliubaolin.top/docs/language-packs): declarative .tpp, placeholder checks, missing-key fallback and preinstalled @texpro/extension-translate-zh-cn. / 声明式语言插件、变量校验、英文回退及预装简中。
 - [npm/yarn management / 包管理](https://texpro.pyliubaolin.top/docs/extension-package-management): one lockfile, node_modules, texpro.source directories or texpro.package archives, reviewed synchronization and removal with plugin data retained. / 单锁文件、分发包、逐项审核与卸载保留数据。
@@ -76,3 +76,9 @@ In an extension environment, install with lifecycle scripts disabled. Ready-to-r
 扩展环境中禁用安装脚本。可运行源码安装后直接同步；需编译时在引导选择「构建已安装的源码扩展」，核对作者与版本、确认风险后再构建，随后同步到 TeXPro，选择「安装并保持停用」。check／sync／MCP 不隐式编译；缺失或依赖安装脚本的工具链须另行审核安装，运行时依赖需打包，不复制 node_modules。
 
 Security: compilation executes compilers, project configuration and source generators with user file/network/process permissions. Temporary directories, hashes and a later enable prompt do not undo those effects or certify safety. Themes can hide controls; language packs can impersonate instructions. Trust install, build and enable separately. / 安全：构建执行编译器、工程配置和源码生成器，拥有用户权限；临时目录、摘要及后续启用确认不是安全隔离，无法撤销构建的外部影响。主题可隐藏界面，语言包可误导操作；分别判断安装、构建与启用的信任。
+
+## Catalogue v2 and prose resources
+
+Host language contributions require `catalogVersion: 2`, semantic message IDs such as `app.save`, and JSON string values. SDK 0.5.0, qwertysay 0.6.0 and Chinese pack 2.0.0 require a matching host. Old phrase-key catalogues are rejected without a compatibility layer. Regenerate `reference/en.json`, translate values without changing IDs or placeholders, bump your pack version, then check and pack. Changing the manifest version alone is insufficient. Missing keys use built-in English; unknown semantic IDs are reported relative to the SDK version.
+
+Long documentation, letters and tutorials use complete Markdown resources per language and a shared renderer, not one UI key per paragraph. Functional plugins keep their own catalogues and per-invocation language selection. Technical IDs, paths and author content are not translation keys. The fixed-English recovery command cannot be overridden. Source versions, registry publication and desktop releases must be verified separately. See the [migration guide](https://texpro.pyliubaolin.top/docs/language-packs).

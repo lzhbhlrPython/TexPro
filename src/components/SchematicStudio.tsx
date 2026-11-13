@@ -41,7 +41,7 @@ function NodeIcon({ kind }: { kind: string }) {
 }
 
 export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, onInsert }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const config = configs[mode];
   const [nodes, setNodes] = useState<SchematicNode[]>([]);
   const [edges, setEdges] = useState<SchematicEdge[]>([]);
@@ -255,7 +255,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
     commit(nodes.map((node) => node.id === selectedNode ? { ...node, ...patch } : node), edges);
   };
 
-  const title = mode === 'circuit' ? t('Circuit studio') : mode === 'logic' ? t('Logic studio') : t('Structure studio');
+  const title = mode === 'circuit' ? msg("app.circuit.studio") : mode === 'logic' ? msg("app.logic.studio") : msg("app.structure.studio");
   const Icon = mode === 'circuit' ? CircuitBoard : mode === 'logic' ? GitBranch : FlaskConical;
 
   return (
@@ -263,46 +263,46 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><Icon size={18} /></div>
-            <div><h2 id="schematic-title">{title}</h2><p className="studio-subtitle">{t('Build a diagram, insert editable LaTeX.')}</p></div>
+            <div><h2 id="schematic-title">{title}</h2><p className="studio-subtitle">{msg("app.build.a.diagram.insert.editable.latex")}</p></div>
           </div>
           <div className="studio-header-actions">
             <span className="studio-engine ok">{config.package}</span>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="schematic-toolbar">
-          <select aria-label={t('Template')} value={template} onChange={(event) => { setTemplate(Number(event.target.value)); loadTemplate(Number(event.target.value)); }}>
-            {config.templates.map((item, index) => <option key={item.name} value={index}>{t(item.name)}</option>)}
+          <select aria-label={msg("app.template")} value={template} onChange={(event) => { setTemplate(Number(event.target.value)); loadTemplate(Number(event.target.value)); }}>
+            {config.templates.map((item, index) => <option key={item.name} value={index}>{msg.text(item.name)}</option>)}
           </select>
           <span className="toolbar-sep" />
-          <button className="icon-btn" onClick={undo} disabled={!history.length} title={t('Undo')}><Undo2 size={13} /></button>
-          <button className="icon-btn" onClick={redo} disabled={!future.length} title={t('Redo')}><Redo2 size={13} /></button>
-          <button className="icon-btn" onClick={() => loadTemplate(template)} title={t('Reset')}><RotateCcw size={13} /></button>
+          <button className="icon-btn" onClick={undo} disabled={!history.length} title={msg("app.undo")}><Undo2 size={13} /></button>
+          <button className="icon-btn" onClick={redo} disabled={!future.length} title={msg("app.redo")}><Redo2 size={13} /></button>
+          <button className="icon-btn" onClick={() => loadTemplate(template)} title={msg("app.reset")}><RotateCcw size={13} /></button>
           <span className="toolbar-sep" />
-          <button className="icon-btn" onClick={() => setZoom((value) => Math.max(0.5, value - 0.1))} title={t('Zoom out')}><Minus size={13} /></button>
+          <button className="icon-btn" onClick={() => setZoom((value) => Math.max(0.5, value - 0.1))} title={msg("app.zoom.out")}><Minus size={13} /></button>
           <span className="zoom-label">{Math.round(zoom * 100)}%</span>
-          <button className="icon-btn" onClick={() => setZoom((value) => Math.min(1.6, value + 0.1))} title={t('Zoom in')}><Plus size={13} /></button>
+          <button className="icon-btn" onClick={() => setZoom((value) => Math.min(1.6, value + 0.1))} title={msg("app.zoom.in")}><Plus size={13} /></button>
           <span className="spacer" />
-          <button className="danger-btn" onClick={removeSelected} disabled={!selectedNode && !selectedEdge}><Trash2 size={12} /> {t('Delete')}</button>
+          <button className="danger-btn" onClick={removeSelected} disabled={!selectedNode && !selectedEdge}><Trash2 size={12} /> {msg("app.delete")}</button>
         </div>
 
         <div className={`schematic-context ${pending ? 'connecting' : ''}`} role="status">
-          {pending ? <><span>{t('Choose a second port to finish the connection.')}</span><button onClick={() => setPending(null)}>{t('Cancel connection')}</button></> : <span>{nodes.length} {t('nodes')} · {edges.length} {t('wires')} · {t('Select to inspect; drag to move.')}</span>}
-          {storageError && <span role="alert">{t('Draft could not be saved. Copy the LaTeX before closing.')}</span>}
+          {pending ? <><span>{msg("app.choose.a.second.port.to.finish.the.connection")}</span><button onClick={() => setPending(null)}>{msg("app.cancel.connection")}</button></> : <span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")} · {msg("app.select.to.inspect.drag.to.move")}</span>}
+          {storageError && <span role="alert">{msg("app.draft.could.not.be.saved.copy.the.latex.before")}</span>}
         </div>
         <div className="schematic-body">
           <aside className="schematic-palette">
-            <div className="pane-label"><Plus size={12} /> {t('Components')}</div>
-            <label className="schematic-search"><Search size={14} /><input aria-label={t('Search components')} placeholder={t('Search components')} value={paletteQuery} onChange={(event) => setPaletteQuery(event.target.value)} /></label>
+            <div className="pane-label"><Plus size={12} /> {msg("app.components")}</div>
+            <label className="schematic-search"><Search size={14} /><input aria-label={msg("app.search.components")} placeholder={msg("app.search.components")} value={paletteQuery} onChange={(event) => setPaletteQuery(event.target.value)} /></label>
             <div className="schematic-palette-list">
-              {config.palette.filter(([kind, label]) => `${kind} ${t(label)}`.toLowerCase().includes(paletteQuery.trim().toLowerCase())).map(([kind, label]) => (
+              {config.palette.filter(([kind, label]) => `${kind} ${msg.text(label)}`.toLowerCase().includes(paletteQuery.trim().toLowerCase())).map(([kind, label]) => (
                 <button key={kind} draggable onDragStart={(event) => event.dataTransfer.setData('text/plain', kind)} onClick={() => addNode(kind)}>
-                  <span className="palette-label"><NodeIcon kind={kind} /> {t(label)}</span><small>{kind}</small>
+                  <span className="palette-label"><NodeIcon kind={kind} /> {msg.text(label)}</span><small>{kind}</small>
                 </button>
               ))}
             </div>
-            <p className="schematic-hint">{t('Drag components to place them. Click two ports to connect.')}</p>
+            <p className="schematic-hint">{msg("app.drag.components.to.place.them.click.two.ports.to")}</p>
           </aside>
 
           <div ref={canvasRef} className="schematic-canvas" onDrop={onDrop} onDragOver={(event) => event.preventDefault()} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
@@ -339,7 +339,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
                   key={node.id}
                   tabIndex={0}
                   role="group"
-                  aria-label={`${t('Element')}: ${node.label}`}
+                  aria-label={`${msg("app.element")}: ${node.label}`}
                   onFocus={() => { setSelectedNode(node.id); setSelectedEdge(null); }}
                   onKeyDown={(event) => {
                     if (event.target !== event.currentTarget) return;
@@ -356,64 +356,64 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
                   onPointerDown={(event) => startDrag(event, node)}
                   onDoubleClick={() => connect(node.id)}
                 >
-                  <button className="schematic-port left" aria-label={t('Connect input of {name}', { name: node.label })} onPointerDown={(event) => event.stopPropagation()} onClick={() => connect(node.id)} />
-                  {mode === 'logic' && !['input', 'output', 'not', 'buffer'].includes(node.kind) && <button className="schematic-port left in-two" aria-label={t('Connect second input of {name}', { name: node.label })} onPointerDown={(event) => event.stopPropagation()} onClick={() => connect(node.id)} />}
+                  <button className="schematic-port left" aria-label={msg("app.connect.input.of.name", { name: node.label })} onPointerDown={(event) => event.stopPropagation()} onClick={() => connect(node.id)} />
+                  {mode === 'logic' && !['input', 'output', 'not', 'buffer'].includes(node.kind) && <button className="schematic-port left in-two" aria-label={msg("app.connect.second.input.of.name", { name: node.label })} onPointerDown={(event) => event.stopPropagation()} onClick={() => connect(node.id)} />}
                   <span className="schematic-node-icon"><NodeIcon kind={node.kind} /></span>
                   <span className="schematic-node-copy"><strong>{node.label}</strong><small>{node.kind}</small></span>
-                  <button aria-label={t('Connect output of {name}', { name: node.label })} className="schematic-port right" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); connect(node.id); }} />
+                  <button aria-label={msg("app.connect.output.of.name", { name: node.label })} className="schematic-port right" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); connect(node.id); }} />
                 </div>
               ))}
             </div>
           </div>
 
           <aside className="schematic-preview">
-            <div className="pane-label">{t('Inspector')}</div>
+            <div className="pane-label">{msg("app.inspector")}</div>
             {selected ? (
               <div className="schematic-inspector">
-                <label className="workshop-field"><span>{t('Label')}</span><input value={selected.label} onChange={(event) => updateSelected({ label: event.target.value })} /></label>
-                <label className="workshop-field"><span>{t('Element')}</span><input value={selected.kind} readOnly /></label>
-                {mode === 'circuit' && <label className="workshop-field"><span>{t('Value')}</span><input value={selected.value} onChange={(event) => updateSelected({ value: event.target.value })} placeholder="10 kΩ" /></label>}
-                <p className="schematic-hint">{t('Drag the node on canvas. Connect by clicking ports.')}</p>
+                <label className="workshop-field"><span>{msg("app.label")}</span><input value={selected.label} onChange={(event) => updateSelected({ label: event.target.value })} /></label>
+                <label className="workshop-field"><span>{msg("app.element")}</span><input value={selected.kind} readOnly /></label>
+                {mode === 'circuit' && <label className="workshop-field"><span>{msg("app.value")}</span><input value={selected.value} onChange={(event) => updateSelected({ value: event.target.value })} placeholder="10 kΩ" /></label>}
+                <p className="schematic-hint">{msg("app.drag.the.node.on.canvas.connect.by.clicking.ports")}</p>
                 <button className="secondary-btn" onClick={() => {
                   const id = nextId('n');
                   commit([...nodes, { ...selected, id, x: selected.x + 30, y: selected.y + 30 }], edges);
                   setSelectedNode(id);
-                }}>{t('Duplicate')}</button>
+                }}>{msg("app.duplicate")}</button>
               </div>
             ) : selectedConnection ? (
               <div className="schematic-inspector">
-                <label className="workshop-field"><span>{t('Bond order')}</span>
+                <label className="workshop-field"><span>{msg("app.bond.order")}</span>
                   <select value={selectedConnection.order} onChange={(event) => {
                     const order = Number(event.target.value) as 1 | 2 | 3;
                     commit(nodes, edges.map((edge) => edge.id === selectedConnection.id ? { ...edge, order } : edge));
                   }}>
-                    <option value={1}>{t('Single')}</option><option value={2}>{t('Double')}</option><option value={3}>{t('Triple')}</option>
+                    <option value={1}>{msg("app.single")}</option><option value={2}>{msg("app.double")}</option><option value={3}>{msg("app.triple")}</option>
                   </select>
                 </label>
               </div>
-            ) : <div className="schematic-empty"><CircuitBoard size={20} /><strong>{t('Select a node or wire')}</strong><span>{nodes.length} {t('nodes')} · {edges.length} {t('wires')}</span></div>}
-            <div className="pane-label">{t('Preview')}</div>
+            ) : <div className="schematic-empty"><CircuitBoard size={20} /><strong>{msg("app.select.a.node.or.wire")}</strong><span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")}</span></div>}
+            <div className="pane-label">{msg("app.preview")}</div>
             <div className="schematic-preview-canvas">
-              {previewBusy && <div className="schematic-loading"><Loader2 size={16} className="spin" /><span>{t('Typesetting preview…')}</span></div>}
-              {!previewBusy && preview && <TexArtwork src={preview} alt={t('Diagram preview')} />}
-              {!previewBusy && !preview && (previewError ? <div className="schematic-preview-error" role="alert"><strong>{t('Preview unavailable')}</strong><p>{previewError}</p><button className="secondary-btn" onClick={retry}>{t('Retry preview')}</button></div> : <span>{t('Preview will appear here.')}</span>)}
+              {previewBusy && <div className="schematic-loading"><Loader2 size={16} className="spin" /><span>{msg("app.typesetting.preview")}</span></div>}
+              {!previewBusy && preview && <TexArtwork src={preview} alt={msg("app.diagram.preview")} />}
+              {!previewBusy && !preview && (previewError ? <div className="schematic-preview-error" role="alert"><strong>{msg("app.preview.unavailable")}</strong><p>{previewError}</p><button className="secondary-btn" onClick={retry}>{msg("app.retry.preview")}</button></div> : <span>{msg("app.preview.will.appear.here")}</span>)}
             </div>
             <details className="schematic-source" open>
-              <summary>{t('Generated LaTeX')}</summary>
+              <summary>{msg("app.generated.latex")}</summary>
               <button className="mini-btn schematic-copy" onClick={async () => {
                 try { await navigator.clipboard.writeText(code); setCopied(true); }
                 catch { setCopied(false); }
-              }}>{copied ? <Check size={12} /> : <Copy size={12} />}{t(copied ? 'Copied' : 'Copy LaTeX')}</button>
+              }}>{copied ? <Check size={12} /> : <Copy size={12} />}{msg(copied ? "app.copied" : "app.copy.latex")}</button>
               <pre className="schematic-code">{code}</pre>
             </details>
           </aside>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Visual structure, editable LaTeX output.')}</span>
+          <span className="studio-hint">{msg("app.visual.structure.editable.latex.output")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
-          <button className="primary-btn" disabled={!nodes.length} onClick={() => { onInsert(code, config.package); onClose(); }}>{t('Insert diagram')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
+          <button className="primary-btn" disabled={!nodes.length} onClick={() => { onInsert(code, config.package); onClose(); }}>{msg("app.insert.diagram")}</button>
         </footer>
     </WorkspaceFrame>
   );

@@ -93,3 +93,7 @@ Test the real inspection protocol and non-execution/path boundaries with `node -
 ### Language packs and npm distribution
 
 Extension capabilities now describe `contributes.locales`, data-only JSON messages, English fallback, the preinstalled `@texpro/extension-translate-zh-cn` package, the `texpro.package` archive field, and `texpro.source` directories (default package root). Unbuilt npm source inspection returns requiresBuild, source digest and build risks without executing the toolchain. Ready-to-run source and archives use the same SDK validation as the host, including language placeholders and package suffix rules. These tools remain read-only: they never download registry packages, run npm/yarn, compile, sync, install, uninstall, enable or execute extensions. A language contribution is not an MCP tool. See the [language guide](../docs/language-packs.md) and [package-management contract](../docs/extension-package-management.md).
+
+### 语言目录检查边界
+
+`texpro_extension_formats` 的只读作者能力声明包含 `locales.catalogVersion: 2`、语义消息 ID 和整篇本地化 Markdown 的长文本约定。`texpro_inspect_extension` 复用 SDK 校验第 2 版语言包，旧正文键包返回迁移错误；检查不安装、启用、渲染 Markdown 或执行作者代码。扩展 API 仍为 1；目录版本不等于扩展 API 或应用 Release。

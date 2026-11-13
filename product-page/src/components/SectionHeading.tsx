@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Typography, theme } from 'antd';
 import { Reveal } from '@/components/Reveal';
-import { useT } from '@/i18n';
+import { useMessages } from '@/i18n';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -17,12 +17,12 @@ interface SectionHeadingProps {
  */
 export function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   const { token } = theme.useToken();
-  const t = useT();
+  const msg = useMessages();
 
   return (
     <Reveal className="section-head">
       <Text className="eyebrow" style={{ color: token.colorPrimary }}>
-        {t(eyebrow)}
+        {msg.text(eyebrow)}
       </Text>
       <Title
         level={2}
@@ -34,11 +34,11 @@ export function SectionHeading({ eyebrow, title, description }: SectionHeadingPr
           lineHeight: 1.3,
         }}
       >
-        {typeof title === 'string' ? t(title) : title}
+        {typeof title === 'string' ? msg.text(title) : title}
       </Title>
       {description ? (
         <Paragraph className="section-desc" style={{ color: token.colorTextSecondary, margin: 0 }}>
-          {typeof description === 'string' ? t(description) : description}
+          {typeof description === 'string' ? msg.text(description) : description}
         </Paragraph>
       ) : null}
     </Reveal>

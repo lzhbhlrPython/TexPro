@@ -7,7 +7,7 @@
 - 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。
 - 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。
 - 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。
-- 中文文档 31 篇，英文版位于同 slug 的 en 目录；博客只写简体中文，只记录应用本体开发。
+- 中文文档 31 篇，中英文分别位于 zh 与 en 目录，使用相同 slug；博客只写简体中文，只记录应用本体开发。
 - 许可：MIT。
 
 ## 使用文档
@@ -52,6 +52,7 @@
 
 ## 博客
 
+- [从正文查词到稳定消息键：语言资源的一次重整](https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents): 桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。
 - [扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断](https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions): 保留 tpp／tpt 分发，同时让 npm／yarn 管理源码包；需要编译时明确确认，并与宿主和 MCP 共享只读校验。
 - [让语言成为插件，让 npm／yarn 管理扩展版本](https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments): 简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。
 - [Nightly 的成功基线与正式版发布入口](https://lzhbhlrpython.github.io/TexStudioPro/blog/nightly-evening-schedule): 每日上海时间 21:23 检查相对上次成功 Nightly 的新提交，正式版复用三平台打包并在成功后同步基础版本。

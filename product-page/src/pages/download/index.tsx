@@ -7,29 +7,29 @@ import { DOWNLOADS } from '@/data/site';
 import { useRelease } from '@/hooks/useRelease';
 import { usePlatform } from '@/lib/platform';
 import { findAsset, formatSize } from '@/lib/release';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 const { Text } = Typography;
 
 type Phase = 'checking' | 'packing' | 'ready';
 
-const STEPS = ['正在核对版本', '正在准备安装包', '准备完成'];
+const STEPS = ["site.checking.the.version", "site.preparing.the.installer", "site.ready"];
 
 const INSTALL_FIRST_STEP = {
-  mac: '打开安装包，把 TeXPro 拖进「应用程序」；首次打开请在系统设置里允许。',
-  windows: '双击 EXE 按向导安装，或直接解压便携版运行。',
-  linux: 'AppImage 赋可执行权限后直接运行；deb / rpm 用包管理器安装。',
+  mac: "site.open.the.installer.drag.texpro.into.applications.then.allow",
+  windows: "site.run.the.exe.wizard.or.unzip.the.portable.build",
+  linux: "site.make.the.appimage.executable.and.run.it.or.install",
 } as const;
 
 export default function DownloadPage() {
   const { token } = theme.useToken();
-  const t = useT();
-  const localize = useLocalize();
+  const msg = useMessages();
+  const localize = useLocalizedFields();
   const [params] = useSearchParams();
   const release = useRelease();
   const detected = usePlatform();
 
-  const targets = localize(DOWNLOADS);
+  const targets = localize(DOWNLOADS, ["detail","variants"]);
   const requested = params.get('platform');
   const target = targets.find((item) => item.key === requested) ?? targets.find((item) => item.key === detected) ?? targets[0];
 
@@ -51,8 +51,8 @@ export default function DownloadPage() {
   }, [target.key, release.version]);
 
   useEffect(() => {
-    document.title = `${t('下载')} · TeXPro`;
-  }, [t]);
+    document.title = `${msg("site.download")} · TeXPro`;
+  }, [msg]);
 
   const variants = target.variants
     .map((variant) => ({
@@ -66,19 +66,19 @@ export default function DownloadPage() {
     <div className="dl-page">
       <div className="shell">
         <Link to="/#download" className="dl-page-back">
-          <ArrowLeftOutlined /> {t('回到下载区')}
+          <ArrowLeftOutlined /> {msg("site.back.to.downloads")}
         </Link>
 
         <header className="dl-page-hero">
           <Text className="eyebrow" style={{ color: token.colorPrimary }}>
-            {t('下载')}
+            {msg("site.download")}
           </Text>
           <h1 className="dl-page-title">
-          <span>{t('你的 LaTeX 编辑器')}</span>
-          <span className="dl-page-title-tail">{t('正在路上')}</span>
+          <span>{msg("site.your.latex.editor")}</span>
+          <span className="dl-page-title-tail">{msg("site.is.on.its.way")}</span>
         </h1>
           <p className="dl-page-lede">
-            {t('安装包已经准备好。接下来只是把它装进本机，再让 TeXPro 认识你本机上的 TeX。')}
+            {msg("site.the.installer.is.ready.next.install.it.then.let")}
           </p>
           <div className="dl-page-meta">
             <span>{release.version}</span>
@@ -101,7 +101,7 @@ export default function DownloadPage() {
                 <span className="dl-route-mark">
                   {done ? <CheckCircleFilled /> : active ? <LoadingOutlined /> : null}
                 </span>
-                <span className="dl-route-label">{t(label)}</span>
+                <span className="dl-route-label">{msg.text(label)}</span>
               </li>
             );
           })}
@@ -122,24 +122,24 @@ export default function DownloadPage() {
               target="_blank"
               rel="noreferrer"
             >
-              {t('立即下载')}
+              {msg("site.download.now")}
             </Button>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {t('按下去会打开 GitHub Releases 上的安装包；也可以先核对上面的体积。')}
+              {msg("site.the.button.opens.the.installer.on.github.releases.check")}
             </Text>
           </Flex>
         </section>
 
         <section className="dl-page-block">
-          <h2 className="dl-page-h2">{t('同一个平台的其它格式')}</h2>
+          <h2 className="dl-page-h2">{msg("site.other.formats.for.this.platform")}</h2>
           <ul className="dl-variant-list">
             {variants.map((variant) => (
-              <li key={variant.label} className="dl-variant-row">
-                <span className="dl-variant-label">{variant.label}</span>
-                {variant.note ? <span className="dl-variant-note">{t(variant.note)}</span> : null}
+              <li key={msg.text(variant.label)} className="dl-variant-row">
+                <span className="dl-variant-label">{msg.text(variant.label)}</span>
+                {variant.note ? <span className="dl-variant-note">{msg.text(variant.note)}</span> : null}
                 <span className="dl-variant-size">{variant.asset ? formatSize(variant.asset.size) ?? '—' : '—'}</span>
                 <a href={variant.asset?.url ?? SITE_LINKS.releases} target="_blank" rel="noreferrer">
-                  {t('下载')}
+                  {msg("site.download")}
                 </a>
               </li>
             ))}
@@ -147,30 +147,30 @@ export default function DownloadPage() {
         </section>
 
         <section className="dl-page-block">
-          <h2 className="dl-page-h2">{t('装好之后的四步')}</h2>
+          <h2 className="dl-page-h2">{msg("site.four.steps.after.install")}</h2>
           <ol className="dl-page-steps">
             <li>
               <div>
-                <strong>{t('装进本机')}</strong>
-                <span>{t(INSTALL_FIRST_STEP[target.key])}</span>
+                <strong>{msg("site.install.it")}</strong>
+                <span>{msg.text(INSTALL_FIRST_STEP[target.key])}</span>
               </div>
             </li>
             <li>
               <div>
-                <strong>{t('确认 TeX 发行版')}</strong>
-                <span>{t('需要 TeX Live 或 MacTeX；在终端跑一次 latexmk -v 就能确认。')}</span>
+                <strong>{msg("site.check.your.tex.distribution")}</strong>
+                <span>{msg("site.tex.live.or.mactex.is.required.latexmk.v.in")}</span>
               </div>
             </li>
             <li>
               <div>
-                <strong>{t('打开演示工程')}</strong>
-                <span>{t('首次启动带有 demo 工程，按 ⌘↩ 编译一次，看 PDF 是否出现。')}</span>
+                <strong>{msg("site.open.the.demo.project")}</strong>
+                <span>{msg("site.the.first.launch.ships.a.demo.project.press.once")}</span>
               </div>
             </li>
             <li>
               <div>
-                <strong>{t('换成你自己的稿子')}</strong>
-                <span>{t('「文件 → 打开文件夹」指向论文目录，TeXPro 会自己认主文件。')}</span>
+                <strong>{msg("site.switch.to.your.own.manuscript")}</strong>
+                <span>{msg("site.point.file.open.folder.at.your.paper.texpro.detects")}</span>
               </div>
             </li>
           </ol>
@@ -178,10 +178,10 @@ export default function DownloadPage() {
 
         <Space wrap className="dl-page-actions">
           <Button href={SITE_LINKS.releases} target="_blank" rel="noreferrer">
-            {t('查看全部构建')}
+            {msg("site.all.builds")}
           </Button>
           <Button type="text" href="/#download">
-            {t('回到下载区')}
+            {msg("site.back.to.downloads")}
           </Button>
         </Space>
       </div>

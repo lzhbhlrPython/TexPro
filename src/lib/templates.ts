@@ -10,9 +10,9 @@ export interface TemplateMeta {
 export const builtinTemplates: TemplateItem[] = [
   {
     id: 'article',
-    name: 'Article',
-    description: 'A clean single-column article.',
-    category: 'Basics',
+    name: "Article", nameKey: "app.article",
+    description: "app.a.clean.single.column.article",
+    category: "app.basics",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{article}
@@ -54,9 +54,9 @@ The source remains a normal, portable \LaTeX{} file.
   },
   {
     id: 'report',
-    name: 'Report',
-    description: 'A chaptered report with a table of contents.',
-    category: 'Academic',
+    name: "Report", nameKey: "app.report",
+    description: "app.a.chaptered.report.with.a.table.of.contents",
+    category: "app.academic",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[11pt,a4paper]{report}
@@ -101,9 +101,9 @@ Present the results and reference Equation~\eqref{eq:model}.
   },
   {
     id: 'beamer',
-    name: 'Beamer slides',
-    description: 'A presentation with a title slide and one content frame.',
-    category: 'Teaching',
+    name: "Beamer slides", nameKey: "app.beamer.slides",
+    description: "app.a.presentation.with.a.title.slide.and.one.content",
+    category: "app.teaching",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[aspectratio=169]{beamer}
@@ -137,9 +137,9 @@ Present the results and reference Equation~\eqref{eq:model}.
   },
   {
     id: 'letter',
-    name: 'Letter',
-    description: 'A formal letter with sender and recipient blocks.',
-    category: 'Basics',
+    name: "Letter", nameKey: "app.letter",
+    description: "app.a.formal.letter.with.sender.and.recipient.blocks",
+    category: "app.basics",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{letter}
@@ -163,9 +163,9 @@ visual editor show you the final shape.
   },
   {
     id: 'ctex-article',
-    name: 'Chinese article (ctex)',
-    description: 'A XeLaTeX article using ctex for Chinese typesetting.',
-    category: 'Academic',
+    name: "Chinese article (ctex)", nameKey: "app.chinese.article.ctex",
+    description: "app.a.xelatex.article.using.ctex.for.chinese.typesetting",
+    category: "app.academic",
     engine: 'xelatex',
     builtin: true,
     content: String.raw`\documentclass[UTF8,fontset=fandol,11pt]{ctexart}
@@ -210,9 +210,9 @@ ${ctexWritingSettings}
   },
   {
     id: 'problem-set',
-    name: 'Problem set',
-    description: 'A homework/problem set with numbered exercises.',
-    category: 'Teaching',
+    name: "Problem set", nameKey: "app.problem.set",
+    description: "app.a.homework.problem.set.with.numbered.exercises",
+    category: "app.teaching",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{article}
@@ -247,9 +247,9 @@ Show your work. You may use the visual editor to check formulas.
   },
   {
     id: 'two-column',
-    name: 'Two-column article',
-    description: 'A compact two-column layout for papers and reports.',
-    category: 'Academic',
+    name: "Two-column article", nameKey: "app.two.column.article",
+    description: "app.a.compact.two.column.layout.for.papers.and.reports",
+    category: "app.academic",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[10pt,twocolumn]{article}
@@ -289,9 +289,9 @@ Refer to Equation~\eqref{eq:model} and keep the prose compact.
   },
   {
     id: 'thesis',
-    name: 'Thesis',
-    description: 'A report-class thesis skeleton with chapters and a title page.',
-    category: 'Academic',
+    name: "Thesis", nameKey: "app.thesis",
+    description: "app.a.report.class.thesis.skeleton.with.chapters.and.a",
+    category: "app.academic",
     engine: 'pdflatex',
     builtin: true,
     content: String.raw`\documentclass[12pt,a4paper]{report}
@@ -345,9 +345,9 @@ Summarize the findings and future work.
   },
   {
     id: 'japanese-article',
-    name: 'Japanese article (luatexja)',
-    description: 'A LuaLaTeX article with Japanese line breaking and fonts.',
-    category: 'Languages',
+    name: "Japanese article (luatexja)", nameKey: "app.japanese.article.luatexja",
+    description: "app.a.lualatex.article.with.japanese.line.breaking.and.fonts",
+    category: "app.languages",
     engine: 'lualatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{ltjsarticle}
@@ -385,9 +385,9 @@ Summarize the findings and future work.
   },
   {
     id: 'arabic-article',
-    name: 'Arabic article (polyglossia)',
-    description: 'A XeLaTeX article with Arabic shaping and right-to-left text.',
-    category: 'Languages',
+    name: "Arabic article (polyglossia)", nameKey: "app.arabic.article.polyglossia",
+    description: "app.a.xelatex.article.with.arabic.shaping.and.right.to",
+    category: "app.languages",
     engine: 'xelatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{article}
@@ -430,9 +430,9 @@ Summarize the findings and future work.
   },
   {
     id: 'russian-article',
-    name: 'Russian article (polyglossia)',
-    description: 'A XeLaTeX article with Russian hyphenation and Cyrillic fonts.',
-    category: 'Languages',
+    name: "Russian article (polyglossia)", nameKey: "app.russian.article.polyglossia",
+    description: "app.a.xelatex.article.with.russian.hyphenation.and.cyrillic.fonts",
+    category: "app.languages",
     engine: 'xelatex',
     builtin: true,
     content: String.raw`\documentclass[11pt]{article}

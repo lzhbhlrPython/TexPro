@@ -43,13 +43,13 @@ function queueSyncFile(file) {
   if (!path.isAbsolute(file)) return;
   if (!extensionManager || !mainWindow) { pendingSyncFile = file; return; }
   try { extensionManager.queueSync(file); mainWindow.show(); mainWindow.focus(); }
-  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('Could not review extension sync'), detail: error.message }); }
+  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('app.could.not.review.extension.sync'), detail: error.message }); }
 }
 function queueExtensionFile(file) {
   if (typeof file !== 'string' || !path.isAbsolute(file) || !/\.(?:tpp|tpt)$/i.test(file)) return;
   if (!extensionManager || !mainWindow) { pendingExtensionFile = file; return; }
   try { extensionManager.queuePackage(file); mainWindow.show(); mainWindow.focus(); }
-  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('Could not inspect extension package'), detail: String(error.message) }); }
+  catch (error) { void dialog.showMessageBox(mainWindow, { type: 'error', message: nativeText('app.could.not.inspect.extension.package'), detail: String(error.message) }); }
 }
 app.on('open-file', (event, file) => { if (/\.(?:tpp|tpt)$/i.test(file)) { event.preventDefault(); queueExtensionFile(file); } });
 if (!isSmoke && !app.requestSingleInstanceLock()) app.quit();
@@ -96,8 +96,9 @@ function sendMenu(action) {
 }
 
 let menuLanguage = 'en';
+const nativeSourceMessages = require('../packages/extension-sdk/lib/locale-source.json');
 let nativeMessages = {};
-function nativeText(key) { return key === 'Reset Appearance and Disable Extensions' ? key : nativeMessages[key] || key; }
+function nativeText(key) { return key === 'app.reset.appearance.and.disable.extensions' ? nativeSourceMessages[key] : nativeMessages[key] || nativeSourceMessages[key] || key; }
 
 function localizeMenu(items) {
   return items.map((item) => {
@@ -134,25 +135,25 @@ function buildMenu() {
         }]
       : []),
     {
-      label: 'File',
+      label: "app.file.variant2",
       submenu: [
-        { label: 'Open Folder…', accelerator: 'CmdOrCtrl+O', click: () => sendMenu('open-folder') },
-        { label: 'Close Project', accelerator: 'CmdOrCtrl+Shift+W', click: () => sendMenu('close-project') },
-        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => sendMenu('save') },
+        { label: "app.open.folder.variant3", accelerator: 'CmdOrCtrl+O', click: () => sendMenu('open-folder') },
+        { label: "app.close.project", accelerator: 'CmdOrCtrl+Shift+W', click: () => sendMenu('close-project') },
+        { label: "app.save", accelerator: 'CmdOrCtrl+S', click: () => sendMenu('save') },
         { type: 'separator' },
-        tool('Import Markdown / Typst…', 'import'),
-        tool('Export Document…', 'export'),
-        tool('Create arXiv Package…', 'arxiv'),
-        tool('Project Backup…', 'backup'),
+        tool("app.import.markdown.typst.variant2", 'import'),
+        tool("app.export.document.variant2", 'export'),
+        tool("app.create.arxiv.package", 'arxiv'),
+        tool("app.project.backup.variant2", 'backup'),
         { type: 'separator' },
-        tool('Template Library…', 'templates'),
-        tool('Template Workshop…', 'workshop'),
+        tool("app.template.library.variant2", 'templates'),
+        tool("app.template.workshop.variant2", 'workshop'),
         { type: 'separator' },
         { role: isMac ? 'close' : 'quit' },
       ],
     },
     {
-      label: 'Edit',
+      label: "app.edit",
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -164,73 +165,73 @@ function buildMenu() {
       ],
     },
     {
-      label: 'Insert',
+      label: "app.insert",
       submenu: [
-        tool('Insert Music', 'music'),
-        tool('Display Equation', 'equation'),
+        tool("app.insert.music.variant2", 'music'),
+        tool("app.display.equation", 'equation'),
         { type: 'separator' },
-        tool('Table', 'table'),
-        tool('Figure', 'figure'),
-        tool('Code Block', 'code'),
+        tool("app.table.variant2", 'table'),
+        tool("app.figure.variant2", 'figure'),
+        tool("app.code.block", 'code'),
         { type: 'separator' },
-        tool('Circuit', 'circuit'), tool('Logic Gates', 'logic'),
-        tool('Chemical Structure', 'structure'), tool('Skeletal Formula', 'skeletal'),
-        tool('TikZ Diagram', 'tikz-writing'), tool('Chart', 'chart-writing'),
-        { label: 'Visual Assistance', submenu: [
-          tool('Formula Editor…', 'formula', 'CmdOrCtrl+Shift+E'), tool('Visual Table Editor…', 'table-editor'),
-          tool('Chart Studio…', 'chart'), tool('Circuit Studio…', 'circuit-studio'), tool('Logic Studio…', 'logic-studio'),
-          tool('Structure Studio…', 'structure-studio'), tool('Ink Studio…', 'ink'), tool('TikZ Studio…', 'tikz'),
+        tool("app.circuit", 'circuit'), tool("app.logic.gates", 'logic'),
+        tool("app.chemical.structure.variant2", 'structure'), tool("app.skeletal.formula", 'skeletal'),
+        tool("app.tikz.diagram", 'tikz-writing'), tool("app.chart", 'chart-writing'),
+        { label: "app.visual.assistance", submenu: [
+          tool("app.formula.editor.variant2", 'formula', 'CmdOrCtrl+Shift+E'), tool("app.visual.table.editor.variant2", 'table-editor'),
+          tool("app.chart.studio.variant2", 'chart'), tool("app.circuit.studio.variant2", 'circuit-studio'), tool("app.logic.studio.variant2", 'logic-studio'),
+          tool("app.structure.studio.variant2", 'structure-studio'), tool("app.ink.studio.variant2", 'ink'), tool("app.tikz.studio.variant2", 'tikz'),
         ] },
-        tool('Page Layout…', 'layout'),
-        tool('Packages & Document Class…', 'packages'),
-        tool('Commands & Completions…', 'commands'),
+        tool("app.page.layout.variant2", 'layout'),
+        tool("app.packages.document.class.variant2", 'packages'),
+        tool("app.commands.completions.variant2", 'commands'),
       ],
     },
     {
-      label: 'Project',
+      label: "app.project",
       submenu: [
-        tool('Project Structure…', 'project-structure'),
-        tool('Asset Library', 'assets'),
-        tool('Bibliography…', 'bibliography'),
+        tool("app.project.structure.variant2", 'project-structure'),
+        tool("app.asset.library.variant2", 'assets'),
+        tool("app.bibliography.variant3", 'bibliography'),
         { type: 'separator' },
-        tool('Citation & Label Graph…', 'graph'),
-        tool('Font Coverage…', 'font'),
-        tool('Project Doctor…', 'doctor'),
+        tool("app.citation.label.graph.variant2", 'graph'),
+        tool("app.font.coverage.variant2", 'font'),
+        tool("app.project.doctor.variant2", 'doctor'),
         { type: 'separator' },
-        tool('Version Review…', 'version'),
-        tool('LAN Collaboration…', 'collab'),
-        tool('Version Control…', 'git'),
-        tool('Convert SVG Assets…', 'convert-svgs'),
-        tool('Comments…', 'comments'),
-        tool('AI Assistant…', 'ai'),
-        tool('MCP Server…', 'mcp'),
+        tool("app.version.review.variant2", 'version'),
+        tool("app.lan.collaboration.variant2", 'collab'),
+        tool("app.version.control.variant2", 'git'),
+        tool("app.convert.svg.assets", 'convert-svgs'),
+        tool("app.comments.variant2", 'comments'),
+        tool("app.ai.assistant.variant2", 'ai'),
+        tool("app.mcp.server.variant2", 'mcp'),
       ],
     },
     {
-      label: 'Build',
+      label: "app.build",
       submenu: [
-        { label: 'Compile', accelerator: 'CmdOrCtrl+Enter', click: () => sendMenu('compile') },
-        { label: 'Cancel Compile', click: () => sendMenu('cancel-compile') },
-        { label: 'Forward Search', accelerator: 'CmdOrCtrl+Shift+J', click: () => sendMenu('forward-sync') },
+        { label: "app.compile", accelerator: 'CmdOrCtrl+Enter', click: () => sendMenu('compile') },
+        { label: "app.cancel.compile", click: () => sendMenu('cancel-compile') },
+        { label: "app.forward.search", accelerator: 'CmdOrCtrl+Shift+J', click: () => sendMenu('forward-sync') },
       ],
     },
     {
-      label: 'Navigate',
+      label: "app.navigate.variant2",
       submenu: [
-        { label: 'Command Palette…', accelerator: 'CmdOrCtrl+K', click: () => sendMenu('command-palette') },
-        { label: 'Toggle PDF Preview', accelerator: 'CmdOrCtrl+Alt+P', click: () => sendMenu('toggle-pdf') },
-        { label: 'Toggle Sidebar', accelerator: 'CmdOrCtrl+\\', click: () => sendMenu('toggle-sidebar') },
+        { label: "app.command.palette.variant2", accelerator: 'CmdOrCtrl+K', click: () => sendMenu('command-palette') },
+        { label: "app.toggle.pdf.preview.variant2", accelerator: 'CmdOrCtrl+Alt+P', click: () => sendMenu('toggle-pdf') },
+        { label: "app.toggle.sidebar.variant3", accelerator: 'CmdOrCtrl+\\', click: () => sendMenu('toggle-sidebar') },
       ],
     },
     {
-      label: 'View',
+      label: "app.view",
       submenu: [
-        { label: 'Toggle Visual Mode', accelerator: 'CmdOrCtrl+Shift+M', click: () => sendMenu('toggle-visual') },
-        { label: 'Toggle Focus Mode', accelerator: 'CmdOrCtrl+Shift+F', click: () => sendMenu('toggle-focus') },
-        { label: 'Typewriter Mode', accelerator: 'CmdOrCtrl+Shift+T', click: () => sendMenu('toggle-typewriter') },
+        { label: "app.toggle.visual.mode", accelerator: 'CmdOrCtrl+Shift+M', click: () => sendMenu('toggle-visual') },
+        { label: "app.toggle.focus.mode", accelerator: 'CmdOrCtrl+Shift+F', click: () => sendMenu('toggle-focus') },
+        { label: "app.typewriter.mode", accelerator: 'CmdOrCtrl+Shift+T', click: () => sendMenu('toggle-typewriter') },
         { type: 'separator' },
-        { label: 'Toggle Day / Night', accelerator: 'CmdOrCtrl+Shift+L', click: () => sendMenu('tool:day-night') },
-        { label: 'Reset Appearance and Disable Extensions', click: async () => {
+        { label: "app.toggle.day.night.variant2", accelerator: 'CmdOrCtrl+Shift+L', click: () => sendMenu('tool:day-night') },
+        { label: "app.reset.appearance.and.disable.extensions", click: async () => {
           try { await extensionManager?.disableAll(); sendMenu('reset-appearance'); }
           catch (error) { dialog.showErrorBox('TeXPro', String(error)); }
         } },
@@ -365,9 +366,9 @@ function createWindow() {
       quitting = false;
       const result = await dialog.showMessageBox(guardedWindow, {
         type: 'warning',
-        message: nativeText('Your changes could not be confirmed as saved'),
-        detail: nativeText('Your document will stay open. Check the save error, or retry saving before closing.'),
-        buttons: ['Keep writing', 'Retry saving and close'].map(nativeText),
+        message: nativeText('app.your.changes.could.not.be.confirmed.as.saved'),
+        detail: nativeText('app.your.document.will.stay.open.check.the.save.error'),
+        buttons: ['app.keep.writing', 'app.retry.saving.and.close'].map(nativeText),
         defaultId: 0, cancelId: 0,
       });
       if (result.response === 1) quitting = wasQuitting;

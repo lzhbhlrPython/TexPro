@@ -8,8 +8,8 @@ export interface CompletionContribution { label: string; template: string; detai
 export interface TemplateContribution { id: string; title: Localized; source: string; engine: 'pdflatex' | 'xelatex' | 'lualatex' }
 export interface SettingContribution { key: string; title: Localized; type: 'string' | 'boolean' | 'number'; default: string | boolean | number }
 export interface PanelContribution { id: string; title: Localized; level: 'L2' | 'L3'; actions: string[] }
-export interface LocaleContribution { id: string; title: string; messages: string }
-export interface LanguagePack { id: string; title: string; messages: Record<string, string> }
+export interface LocaleContribution { catalogVersion: 2; id: string; title: string; messages: string }
+export interface LanguagePack { catalogVersion: 2; id: string; title: string; messages: Record<string, string> }
 export interface PackageManifest {
   id: string; name: Localized; version: string; apiVersion: 1; author: string; license: string;
   description?: Localized; entry?: string; capabilities: Capability[];

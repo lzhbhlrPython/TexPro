@@ -3,54 +3,54 @@ import { Segmented, theme } from 'antd';
 import { CompareSlider } from '@/components/CompareSlider';
 import { ScreenshotFrame } from '@/components/ScreenshotFrame';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 type ThemeKey = 'studio' | 'night' | 'paper';
 
 const THEMES: { key: ThemeKey; label: string; src: string; desc: string }[] = [
   {
     key: 'studio',
-    label: 'Studio',
+    label: "site.studio",
     src: '/shots/theme-studio.jpg',
-    desc: '暖白纸面，白天写长文默认的光线；侧栏压暗，正文永远是主角。',
+    desc: "site.warm.white.paper.the.default.daylight.for.long.writing",
   },
   {
     key: 'night',
-    label: 'Night',
+    label: "site.night",
     src: '/shots/theme-night.jpg',
-    desc: '整窗暗色，深夜改稿不刺眼；公式与图表保持原有对比度。',
+    desc: "site.a.dark.window.for.late.edits.formulas.and.figures",
   },
   {
     key: 'paper',
-    label: 'Paper',
+    label: "site.paper",
     src: '/shots/theme-paper.jpg',
-    desc: '米黄纸色，像摊开的一页旧稿，长时间阅读更松弛。',
+    desc: "site.a.cream.paper.tone.like.an.old.page.left",
   },
 ];
 
 const MODES = [
   {
-    title: '聚焦模式',
+    title: "site.focus.mode",
     src: '/shots/focus.jpg',
-    desc: '除当前段落外全部淡出，只留下一段正在写的字；状态栏会亮起「专注」。',
+    desc: "site.everything.but.the.current.paragraph.fades.out.the.status",
   },
   {
-    title: '打字机模式',
+    title: "site.typewriter.mode",
     src: '/shots/typewriter.jpg',
-    desc: '光标固定在视线中央，页面随输入滚动，而不是视线跟着光标跑。',
+    desc: "site.the.caret.stays.at.eye.level.and.the.page",
   },
   {
-    title: '纸面留白',
+    title: "site.paper.margins",
     src: '/shots/theme-paper.jpg',
-    desc: '正文按版心宽度排版，两侧留白，接近印刷后的阅读比例。',
+    desc: "site.text.sits.in.a.measured.column.with.real.margins",
   },
 ];
 
 export function Themes() {
-  const localize = useLocalize();
-  const t = useT();
-  const themes = localize(THEMES);
-  const modes = localize(MODES);
+  const localize = useLocalizedFields();
+  const msg = useMessages();
+  const themes = localize(THEMES, ["label","desc"]);
+  const modes = localize(MODES, ["title","desc"]);
   const { token } = theme.useToken();
   const [active, setActive] = useState<ThemeKey>('studio');
   const current = themes.find((item) => item.key === active) ?? themes[0];
@@ -59,9 +59,9 @@ export function Themes() {
     <section className="section" id="themes">
       <div className="shell">
         <SectionHeading
-          eyebrow="写作"
-          title="同一份文档，三种光线"
-          description="主题只改变界面与纸面底色，不改动 LaTeX 内容；切换后重新编译即可。"
+          eyebrow="site.writing"
+          title="site.one.document.three.kinds.of.light"
+          description="site.themes.only.change.the.interface.and.paper.colour.never"
         />
 
         <div className="theme-switch">
@@ -106,13 +106,13 @@ export function Themes() {
         </ul>
 
         <figure className="theme-compare">
-          <figcaption className="theme-compare-label">{t('拖动分割线，对比 Studio 与 Night')}</figcaption>
+          <figcaption className="theme-compare-label">{msg("site.drag.the.divider.to.compare.studio.and.night")}</figcaption>
           <CompareSlider
             leftSrc="/shots/theme-studio.jpg"
             rightSrc="/shots/theme-night.jpg"
-            leftLabel="Studio"
-            rightLabel="Night"
-            alt="同一份文档的两种主题"
+            leftLabel={msg("site.studio")}
+            rightLabel={msg("site.night")}
+            alt={msg("site.the.same.document.in.two.themes")}
             width={1600}
             height={1003}
           />

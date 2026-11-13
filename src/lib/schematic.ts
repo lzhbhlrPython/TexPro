@@ -26,39 +26,39 @@ export const configs = {
   circuit: {
     package: 'circuitikz',
     palette: [
-      ['battery', 'Battery'], ['resistor', 'Resistor'], ['capacitor', 'Capacitor'],
-      ['inductor', 'Inductor'], ['diode', 'Diode'], ['led', 'LED'],
-      ['switch', 'Switch'], ['lamp', 'Lamp'], ['vsource', 'Voltage source'],
-      ['isource', 'Current source'], ['ammeter', 'Ammeter'], ['voltmeter', 'Voltmeter'],
-      ['potentiometer', 'Potentiometer'], ['ground', 'Ground'],
+      ['battery', "app.battery"], ['resistor', "app.resistor"], ['capacitor', "app.capacitor"],
+      ['inductor', "app.inductor"], ['diode', "app.diode"], ['led', "app.led"],
+      ['switch', "app.switch"], ['lamp', "app.lamp"], ['vsource', "app.voltage.source"],
+      ['isource', "app.current.source"], ['ammeter', "app.ammeter"], ['voltmeter', "app.voltmeter"],
+      ['potentiometer', "app.potentiometer"], ['ground', "app.ground"],
     ],
     templates: [
-      { name: 'Series loop', nodes: [['battery', 80, 170, 'V'], ['resistor', 310, 170, 'R1'], ['resistor', 500, 170, 'R2']], edges: [[0, 1, 1], [1, 2, 1], [2, 0, 1]] },
-      { name: 'RC circuit', nodes: [['vsource', 80, 170, 'V'], ['resistor', 320, 170, 'R'], ['capacitor', 500, 170, 'C']], edges: [[0, 1, 1], [1, 2, 1], [2, 0, 1]] },
-      { name: 'Parallel pair', nodes: [['battery', 80, 180, 'V'], ['resistor', 330, 100, 'R1'], ['resistor', 330, 260, 'R2']], edges: [[0, 1, 1], [0, 2, 1], [1, 0, 1], [2, 0, 1]] },
+      { name: "app.series.loop", nodes: [['battery', 80, 170, 'V'], ['resistor', 310, 170, 'R1'], ['resistor', 500, 170, 'R2']], edges: [[0, 1, 1], [1, 2, 1], [2, 0, 1]] },
+      { name: "app.rc.circuit", nodes: [['vsource', 80, 170, 'V'], ['resistor', 320, 170, 'R'], ['capacitor', 500, 170, 'C']], edges: [[0, 1, 1], [1, 2, 1], [2, 0, 1]] },
+      { name: "app.parallel.pair", nodes: [['battery', 80, 180, 'V'], ['resistor', 330, 100, 'R1'], ['resistor', 330, 260, 'R2']], edges: [[0, 1, 1], [0, 2, 1], [1, 0, 1], [2, 0, 1]] },
     ] as Template[],
   },
   logic: {
     package: 'circuitikz',
     palette: [
-      ['input', 'Input'], ['and', 'AND'], ['or', 'OR'], ['not', 'NOT'],
-      ['xor', 'XOR'], ['nand', 'NAND'], ['nor', 'NOR'], ['xnor', 'XNOR'],
-      ['output', 'Output'],
+      ['input', "app.input"], ['and', "app.and"], ['or', "app.or"], ['not', "app.not"],
+      ['xor', "app.xor"], ['nand', "app.nand"], ['nor', "app.nor"], ['xnor', "app.xnor"],
+      ['output', "app.output"],
     ],
     templates: [
-      { name: 'AND gate', nodes: [['input', 70, 110, 'A'], ['input', 70, 250, 'B'], ['and', 350, 180, 'AND'], ['output', 560, 180, 'Y']], edges: [[0, 2, 1], [1, 2, 1], [2, 3, 1]] },
-      { name: 'Half adder', nodes: [['input', 50, 80, 'A'], ['input', 50, 170, 'B'], ['xor', 300, 80, 'XOR'], ['and', 300, 220, 'AND'], ['output', 520, 80, 'S'], ['output', 520, 220, 'C']], edges: [[0, 2, 1], [1, 2, 1], [0, 3, 1], [1, 3, 1], [2, 4, 1], [3, 5, 1]] },
+      { name: "app.and.gate", nodes: [['input', 70, 110, 'A'], ['input', 70, 250, 'B'], ['and', 350, 180, 'AND'], ['output', 560, 180, 'Y']], edges: [[0, 2, 1], [1, 2, 1], [2, 3, 1]] },
+      { name: "app.half.adder", nodes: [['input', 50, 80, 'A'], ['input', 50, 170, 'B'], ['xor', 300, 80, 'XOR'], ['and', 300, 220, 'AND'], ['output', 520, 80, 'S'], ['output', 520, 220, 'C']], edges: [[0, 2, 1], [1, 2, 1], [0, 3, 1], [1, 3, 1], [2, 4, 1], [3, 5, 1]] },
     ] as Template[],
   },
   structure: {
     package: 'chemfig',
     palette: [
       ['CH3', 'CH₃'], ['CH2', 'CH₂'], ['CH', 'CH'], ['C', 'C'], ['O', 'O'], ['OH', 'OH'],
-      ['N', 'N'], ['NH2', 'NH₂'], ['H', 'H'], ['Cl', 'Cl'], ['Br', 'Br'], ['benzene', 'Benzene'],
+      ['N', 'N'], ['NH2', 'NH₂'], ['H', 'H'], ['Cl', 'Cl'], ['Br', 'Br'], ['benzene', "app.benzene"],
     ],
     templates: [
-      { name: 'Ethanol', nodes: [['CH3', 100, 180, 'CH3'], ['CH2', 340, 180, 'CH2'], ['OH', 500, 180, 'OH']], edges: [[0, 1, 1], [1, 2, 1]] },
-      { name: 'Acetic acid', nodes: [['CH3', 80, 180, 'CH3'], ['C', 300, 180, 'C'], ['O', 480, 110, 'O'], ['OH', 480, 250, 'OH']], edges: [[0, 1, 1], [1, 2, 2], [1, 3, 1]] },
+      { name: "app.ethanol", nodes: [['CH3', 100, 180, 'CH3'], ['CH2', 340, 180, 'CH2'], ['OH', 500, 180, 'OH']], edges: [[0, 1, 1], [1, 2, 1]] },
+      { name: "app.acetic.acid", nodes: [['CH3', 80, 180, 'CH3'], ['C', 300, 180, 'C'], ['O', 480, 110, 'O'], ['OH', 480, 250, 'OH']], edges: [[0, 1, 1], [1, 2, 2], [1, 3, 1]] },
     ] as Template[],
   },
 } as const;

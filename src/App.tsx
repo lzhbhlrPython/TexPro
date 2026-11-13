@@ -97,7 +97,7 @@ import type {
   ReviewComment,
   TemplateItem,
 } from './types';
-import { getLanguage, setLanguage, t as tr, useI18n } from './i18n';
+import { getLanguage, setLanguage, msg as tr, useI18n } from './i18n';
 import { basename, collectLocalSymbols, computeStats, dirname, emptySymbols, formatDuration, parseOutline, relativePath, stem } from './lib/latex';
 import { EditorPane, type EditorHandle } from './editor/EditorPane';
 import { snippetLibrary } from './editor/completions';
@@ -131,7 +131,7 @@ const SMOKE = PAGE_PARAMS.get('smoke') === '1';
 const WELCOME_ONLY = PAGE_PARAMS.get('welcome') === '1';
 
 export default function App() {
-  const { t, language } = useI18n();
+  const { msg, language } = useI18n();
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const extensions = useExtensions(settings);
   const [project, setProject] = useState<Project | null>(null);
@@ -329,7 +329,7 @@ export default function App() {
         void window.texpro.setSecret('aiApiKey', settings.aiApiKey.trim()).then((result) => {
           if (!result.ok && !keychainErrorShown.current) {
             keychainErrorShown.current = true;
-            pushToast(tr('Could not store API key in the OS keychain'), 'error', result.error || '');
+            pushToast(tr("app.could.not.store.api.key.in.the.os.keychain"), 'error', result.error || '');
           }
         }).catch(() => undefined);
       } else {
@@ -461,7 +461,7 @@ export default function App() {
       const currentProject = projectRef.current;
       if (!currentProject) return;
       if (!isTextPath(path)) {
-        pushToast(tr('This file is not editable text'), 'info', path.split('/').pop());
+        pushToast(tr("app.this.file.is.not.editable.text"), 'info', path.split('/').pop());
         return;
       }
       if (path !== activePathRef.current) setSyncTarget(null);
@@ -484,7 +484,7 @@ export default function App() {
                 },
           );
         } catch (error) {
-          pushToast(tr('Could not open file'), 'error', String(error));
+          pushToast(tr("app.could.not.open.file"), 'error', String(error));
           setActivePath(null);
         } finally {
           if (requestId === openRequest.current) setOpeningFile(null);
@@ -523,45 +523,45 @@ export default function App() {
   }, [applyProjectTexts]);
   const renameProjectLabel = useCallback(async (before: string, after: string) => {
     const current = projectRef.current, generation = projectGeneration.current;
-    if (!current) throw new Error(tr('Open a project first'));
+    if (!current) throw new Error(tr("app.open.a.project.first"));
     const files = flattenFiles(current.tree).filter(file => /\.(tex|ltx)$/i.test(file.path));
     const entries = await Promise.all(files.map(async file => [file.path, docsRef.current[file.path]?.content ?? await window.texpro.readFile(file.path)] as const));
-    if (generation !== projectGeneration.current) throw new Error(tr('Project changed. Try again.'));
+    if (generation !== projectGeneration.current) throw new Error(tr("app.project.changed.try.again"));
     // Any typing while reading invalidates the proposal, rather than overwriting that typing.
     const sources = Object.fromEntries(entries);
-    if (entries.some(([file, text]) => docsRef.current[file] && docsRef.current[file].content !== text)) throw new Error(tr('Document changed. Try again.'));
+    if (entries.some(([file, text]) => docsRef.current[file] && docsRef.current[file].content !== text)) throw new Error(tr("app.document.changed.try.again"));
     const result = renameLabels(sources, before, after);
     const originals = Object.fromEntries(Object.keys(result.texts).map(file => [file, sources[file]]));
     const edits = Object.fromEntries(Object.entries(result.edits).map(([file, changes]) => [file, ChangeSet.of(changes, sources[file].length)]));
     applyProjectTexts(result.texts, edits, originals);
     const history = renameHistory.current;
     history.items = [...history.items.slice(0, history.cursor), { before: originals, after: result.texts, edits, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
-    pushToast(tr('Label and references updated'), 'success', tr('{count} occurrences in {files} files', { count: result.count, files: Object.keys(result.texts).length }));
+    pushToast(tr("app.label.and.references.updated"), 'success', tr("app.count.occurrences.in.files.files", { count: result.count, files: Object.keys(result.texts).length }));
     return result.count;
   }, [applyProjectTexts, pushToast]);
 
   const insertPlaceholder = useCallback(async (kind: PlaceholderKind = 'text') => {
     const current = projectRef.current, editor = editorRef.current, file = activePathRef.current, generation = projectGeneration.current;
-    if (!current?.rootFile || !editor || !file || !/\.(tex|ltx)$/i.test(file)) { pushToast(tr('Choose main file'), 'info'); return; }
+    if (!current?.rootFile || !editor || !file || !/\.(tex|ltx)$/i.test(file)) { pushToast(tr("app.choose.main.file"), 'info'); return; }
     const source = editor.getContent(), selection = editor.getSelectionRange(), main = current.rootFile;
     try {
       const mainSource = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
-      if (generation !== projectGeneration.current || editorRef.current !== editor || editor.getContent() !== source || JSON.stringify(editor.getSelectionRange()) !== JSON.stringify(selection) || docsRef.current[main] && docsRef.current[main].content !== mainSource) throw new Error(tr('Document changed. Try again.'));
+      if (generation !== projectGeneration.current || editorRef.current !== editor || editor.getContent() !== source || JSON.stringify(editor.getSelectionRange()) !== JSON.stringify(selection) || docsRef.current[main] && docsRef.current[main].content !== mainSource) throw new Error(tr("app.document.changed.try.again"));
       const sources = { [main]: mainSource, [file]: source };
       const plan = planPlaceholder(sources, main, file, selection, kind, editor.getSelection() || 'TODO');
       applyProjectTexts(plan.after, plan.changes, plan.before);
       const history = renameHistory.current;
       history.items = [...history.items.slice(0, history.cursor), { before: plan.before, after: plan.after, edits: plan.changes, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
       editor.selectRange(plan.from, plan.to);
-    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
+    } catch (error) { pushToast(tr.text(error instanceof Error ? error.message : String(error)), 'error'); }
   }, [applyProjectTexts, pushToast]);
 
   const applyChineseTypography = useCallback(async () => {
     const current = projectRef.current, main = current?.rootFile, generation = projectGeneration.current;
-    if (!current || !main) { pushToast(tr('Choose main file'), 'info'); return; }
+    if (!current || !main) { pushToast(tr("app.choose.main.file"), 'info'); return; }
     try {
       const before = docsRef.current[main]?.content ?? await window.texpro.readFile(main);
-      if (generation !== projectGeneration.current || docsRef.current[main] && docsRef.current[main].content !== before) throw new Error(tr('Document changed. Try again.'));
+      if (generation !== projectGeneration.current || docsRef.current[main] && docsRef.current[main].content !== before) throw new Error(tr("app.document.changed.try.again"));
       const after = applyCtexTypography(before);
       if (after !== before) {
         const edits = { [main]: ChangeSet.of(textChange(before, after), before.length) };
@@ -570,8 +570,8 @@ export default function App() {
         history.items = [...history.items.slice(0, history.cursor), { before: { [main]: before }, after: { [main]: after }, edits, context: Object.fromEntries(Object.values(docsRef.current).map(doc => [doc.path, doc.content])) }].slice(-30); history.cursor = history.items.length;
       }
       setSettings(value => ({ ...value, engine: value.engine === 'lualatex' ? 'lualatex' : 'xelatex' }));
-      editorRef.current?.focus(); pushToast(tr('Chinese writing typography applied to the main file'), 'success');
-    } catch (error) { pushToast(tr(error instanceof Error ? error.message : String(error)), 'error'); }
+      editorRef.current?.focus(); pushToast(tr("app.chinese.writing.typography.applied.to.the.main.file"), 'success');
+    } catch (error) { pushToast(tr.text(error instanceof Error ? error.message : String(error)), 'error'); }
   }, [applyProjectTexts, pushToast]);
 
   const saveDoc = useCallback(
@@ -581,7 +581,7 @@ export default function App() {
       return saveQueue.current.run(async () => {
         const doc = docsRef.current[path];
         if (!doc || !doc.dirty) {
-          if (notify) pushToast(tr('No changes to save'), 'info');
+          if (notify) pushToast(tr("app.no.changes.to.save"), 'info');
           return true;
         }
         const snapshot = doc.content;
@@ -601,13 +601,13 @@ export default function App() {
             docsRef.current = next; setDocs(next);
           }
           if (notify) {
-            pushToast(tr('Saved'), 'success', path.split('/').pop());
+            pushToast(tr("app.saved"), 'success', path.split('/').pop());
             const currentProject = projectRef.current;
             if (currentProject && !gitManagedRef.current) void window.texpro.historyCommit(currentProject.root, 'save');
           }
           return true;
         } catch (error) {
-          pushToast(tr('Save failed'), 'error', String(error));
+          pushToast(tr("app.save.failed"), 'error', String(error));
           return false;
         }
       });
@@ -648,7 +648,7 @@ export default function App() {
     const path = activePathRef.current;
     const dirty = Object.values(docsRef.current).some(doc => doc.dirty);
     if (!(await saveAll())) return;
-    pushToast(tr(dirty ? 'Saved' : 'No changes to save'), dirty ? 'success' : 'info', path?.split('/').pop());
+    pushToast(tr(dirty ? "app.saved" : "app.no.changes.to.save"), dirty ? 'success' : 'info', path?.split('/').pop());
     const current = projectRef.current;
     if (dirty && current && !gitManagedRef.current) void window.texpro.historyCommit(current.root, 'save');
   }, [saveAll, pushToast]);
@@ -739,7 +739,7 @@ export default function App() {
       const remembered = resumeFile(next.root);
       const target = remembered && flattenFiles(next.tree).some(file => file.path === remembered && isTextPath(file.path)) ? remembered : next.rootFile || findFirstTex(next.tree);
       if (!target) {
-        pushToast(tr('No .tex file found'), 'info', tr('Create a file with \\documentclass to begin.'));
+        pushToast(tr("app.no.tex.file.found"), 'info', tr("app.create.a.file.with.documentclass.to.begin"));
         return;
       }
       await openFile(target);
@@ -777,7 +777,7 @@ export default function App() {
           const demo = await window.texpro.createDemoProject();
           if (!cancelled) await loadProject(demo);
         } catch (error) {
-          pushToast(tr('Demo project failed to open'), 'error', String(error));
+          pushToast(tr("app.demo.project.failed.to.open"), 'error', String(error));
         }
         return;
       }
@@ -918,7 +918,7 @@ export default function App() {
       projectRef.current = compileProject; setProject(compileProject);
       if (!compileProject.rootFile) {
         setSidebarOpen(true); setSidebarTab('files'); setStatus('Ready');
-        pushToast(tr('Choose main file'), 'error', compileProject.rootError || undefined);
+        pushToast(tr("app.choose.main.file"), 'error', compileProject.rootError || undefined);
         return;
       }
       const publication = currentSources.current;
@@ -936,8 +936,8 @@ export default function App() {
       compiledSources.current = sourceSnapshot;
       setDiagnostics(result.diagnostics || []);
       if (result.cancelled) {
-        setStatus(tr('Compilation cancelled'));
-        pushToast(tr('Compilation cancelled'), 'info');
+        setStatus(tr("app.compilation.cancelled"));
+        pushToast(tr("app.compilation.cancelled"), 'info');
       } else if (result.ok && result.pdfPath) {
         const bytes = await window.texpro.readPdf(result.pdfPath);
         if (generation !== projectGeneration.current || compileRunId.current !== runId) return;
@@ -947,21 +947,21 @@ export default function App() {
         setPdfBytes(bytes);
         setPdfPath(result.pdfPath);
         pdfPathRef.current = result.pdfPath;
-        setStatus(t('Compiled in {duration}', { duration: formatDuration(result.duration) }));
-        pushToast(t('Compiled'), 'success', `${result.engine} · ${formatDuration(result.duration)}`);
+        setStatus(msg("app.compiled.in.duration", { duration: formatDuration(result.duration) }));
+        pushToast(msg("app.compiled"), 'success', `${result.engine} · ${formatDuration(result.duration)}`);
       } else {
         setProblemsOpen(true);
-        setStatus(t('Compile failed'));
+        setStatus(msg("app.compile.failed"));
         pushToast(
-          t('Compile failed'),
+          msg("app.compile.failed"),
           'error',
-          result.error || tr('{errors} errors · {warnings} warnings', { errors: result.errorCount || 0, warnings: result.warningCount || 0 }),
+          result.error || tr("app.errors.errors.warnings.warnings", { errors: result.errorCount || 0, warnings: result.warningCount || 0 }),
         );
       }
     } catch (error) {
       if (generation !== projectGeneration.current) return;
       setStatus('Compile failed');
-      pushToast(tr('Compiler error'), 'error', String(error));
+      pushToast(tr("app.compiler.error"), 'error', String(error));
     } finally {
       if (compileRunId.current === runId) {
         compilingRef.current = false;
@@ -1006,7 +1006,7 @@ export default function App() {
       setArxivOpen(false); setGraphOpen(false); setFontOpen(false); setVersionOpen(false); setBackupOpen(false);
       setInkOpen(false); setGitOpen(false); setPackageOpen(false); setCommandOpen(false); setPaperApiOpen(false);
       setCrewOpen(false); setPaperOpen(false); setPluginOpen(false); setPaletteOpen(false); setZeroMode(false);
-    } catch (error) { pushToast(tr('Could not close project'), 'error', String(error)); }
+    } catch (error) { pushToast(tr("app.could.not.close.project"), 'error', String(error)); }
     finally { closingProject.current = false; setClosing(false); }
   }, [saveAll, pushToast]);
 
@@ -1019,13 +1019,13 @@ export default function App() {
     try {
       const result = await window.texpro.cancelCompile(runId);
       if (result.ok) {
-        setStatus(tr('Cancelling…'));
-        pushToast(tr('Cancelling…'), 'info');
+        setStatus(tr("app.cancelling"));
+        pushToast(tr("app.cancelling"), 'info');
       } else {
-        pushToast(tr('Could not cancel compilation'), 'error', result.error);
+        pushToast(tr("app.could.not.cancel.compilation"), 'error', result.error);
       }
     } catch (error) {
-      pushToast(tr('Could not cancel compilation'), 'error', String(error));
+      pushToast(tr("app.could.not.cancel.compilation"), 'error', String(error));
     }
   }, [pushToast]);
 
@@ -1041,7 +1041,7 @@ export default function App() {
       const texFile = activePathRef.current;
       const currentPdf = pdfPathRef.current;
       if (!currentProject || !texFile || !currentPdf) {
-        if (!quiet) pushToast(tr('Compile first to enable SyncTeX'), 'info');
+        if (!quiet) pushToast(tr("app.compile.first.to.enable.synctex"), 'info');
         return;
       }
       if (quiet && Date.now() < syncPauseUntil.current) return;
@@ -1069,10 +1069,10 @@ export default function App() {
           }));
           if (!quiet) setPdfOpen(true);
         } else if (!quiet) {
-          pushToast(tr('No SyncTeX result'), 'error', result.error);
+          pushToast(tr("app.no.synctex.result"), 'error', result.error);
         }
       } catch (error) {
-        if (!quiet && request === syncGeneration.current) pushToast(tr('Forward search failed'), 'error', String(error));
+        if (!quiet && request === syncGeneration.current) pushToast(tr("app.forward.search.failed"), 'error', String(error));
       }
     },
     [pushToast],
@@ -1203,7 +1203,7 @@ export default function App() {
     await gotoLocation(note.file, note.line);
     for (let frame = 0; frame < 30 && editorRef.current?.getPath() !== note.file; frame++) await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
     if (generation !== projectGeneration.current || editorRef.current?.getPath() !== note.file) return;
-    if (!editorRef.current.toggleNote(note)) { pushToast(tr('Note moved. Refreshing its location.'), 'info'); void refreshProjectData(); }
+    if (!editorRef.current.toggleNote(note)) { pushToast(tr("app.note.moved.refreshing.its.location"), 'info'); void refreshProjectData(); }
   }, [gotoLocation, pushToast, refreshProjectData]);
 
   const openPlaceholder = useCallback(async (item: WritingPlaceholder) => {
@@ -1214,7 +1214,7 @@ export default function App() {
     if (generation !== projectGeneration.current || editor?.getPath() !== item.file) return;
     const found = parseWritingAids(editor.getContent(), item.file).placeholders.find(value => value.from === item.from && value.source === item.source);
     if (found) editor.selectRange(found.from, found.to);
-    else { pushToast(tr('Placeholder moved. Select it again.'), 'info'); void refreshProjectData(); }
+    else { pushToast(tr("app.placeholder.moved.select.it.again"), 'info'); void refreshProjectData(); }
   }, [gotoLocation, pushToast, refreshProjectData]);
 
   const handleDiagnosticClick = useCallback(
@@ -1257,12 +1257,12 @@ export default function App() {
           const lines = locations.map((result) => result.line!);
           syncPauseUntil.current = Date.now() + 1800;
           await gotoLocation(file, Math.min(...lines), locations[0].column, true, Math.max(...lines), true);
-          if (groups.size > 1) pushToast(tr('Region crosses source files. Showing the largest matching range.'), 'info');
+          if (groups.size > 1) pushToast(tr("app.region.crosses.source.files.showing.the.largest.matching.range"), 'info');
         } else {
-          pushToast(tr('No source location at this point'), 'info', results[0]?.error);
+          pushToast(tr("app.no.source.location.at.this.point"), 'info', results[0]?.error);
         }
       } catch (error) {
-        if (request === inverseGeneration.current) pushToast(tr('Inverse search failed'), 'error', String(error));
+        if (request === inverseGeneration.current) pushToast(tr("app.inverse.search.failed"), 'error', String(error));
       }
     },
     [gotoLocation, pushToast],
@@ -1273,7 +1273,7 @@ export default function App() {
       const next = await window.texpro.openProjectDialog();
       if (next) await loadProject(next);
     } catch (error) {
-      pushToast(tr('Could not open project'), 'error', String(error));
+      pushToast(tr("app.could.not.open.project"), 'error', String(error));
     }
   }, [loadProject, pushToast]);
 
@@ -1282,7 +1282,7 @@ export default function App() {
       const next = await window.texpro.createDemoProject();
       await loadProject(next);
     } catch (error) {
-      pushToast(tr('Could not create demo project'), 'error', String(error));
+      pushToast(tr("app.could.not.create.demo.project"), 'error', String(error));
     }
   }, [loadProject, pushToast]);
 
@@ -1323,11 +1323,11 @@ export default function App() {
       await window.texpro.importAssets(currentProject.root, projectConfigRef.current.directories.assets);
       if (projectRef.current?.root !== currentProject.root) return;
       await refreshProjectData();
-      pushToast(t('Asset imported'), 'success', t('Asset library'));
+      pushToast(msg("app.asset.imported"), 'success', msg("app.asset.library"));
     } catch (error) {
-      pushToast(t('Could not import assets'), 'error', String(error));
+      pushToast(msg("app.could.not.import.assets"), 'error', String(error));
     }
-  }, [pushToast, refreshProjectData, t]);
+  }, [pushToast, refreshProjectData, msg]);
 
   const handleDeleteAsset = useCallback(
     async (asset: AssetItem) => {
@@ -1337,12 +1337,12 @@ export default function App() {
         await window.texpro.deleteAsset(currentProject.root, asset.path);
         if (projectRef.current?.root !== currentProject.root) return;
         await refreshProjectData();
-        pushToast(t('Asset deleted'), 'success', asset.name);
+        pushToast(msg("app.asset.deleted"), 'success', asset.name);
       } catch (error) {
-        pushToast(t('Could not delete asset'), 'error', String(error));
+        pushToast(msg("app.could.not.delete.asset"), 'error', String(error));
       }
     },
-    [pushToast, refreshProjectData, t],
+    [pushToast, refreshProjectData, msg],
   );
 
 
@@ -1358,14 +1358,14 @@ export default function App() {
         if (!next) return false;
         setSettings((current) => ({ ...current, engine: template.engine }));
         await loadProject(next);
-        pushToast(t('Project created'), 'success', next.name);
+        pushToast(msg("app.project.created"), 'success', next.name);
         return true;
       } catch (error) {
-        pushToast(t('Could not create project'), 'error', String(error));
+        pushToast(msg("app.could.not.create.project"), 'error', String(error));
         return false;
       }
     },
-    [loadProject, pushToast, t],
+    [loadProject, pushToast, msg],
   );
 
   const handleSaveTemplate = useCallback(
@@ -1373,12 +1373,12 @@ export default function App() {
       try {
         const item = await window.texpro.saveUserTemplate({ name, description, engine, content });
         setUserTemplates((current) => [...current, item].sort((a, b) => a.name.localeCompare(b.name)));
-        pushToast(t('Template saved'), 'success', item.name);
+        pushToast(msg("app.template.saved"), 'success', item.name);
       } catch (error) {
-        pushToast(t('Could not save template'), 'error', String(error));
+        pushToast(msg("app.could.not.save.template"), 'error', String(error));
       }
     },
-    [pushToast, t],
+    [pushToast, msg],
   );
 
   const handleDeleteTemplate = useCallback(
@@ -1386,12 +1386,12 @@ export default function App() {
       try {
         const next = await window.texpro.deleteUserTemplate(id);
         setUserTemplates(next);
-        pushToast(t('Template deleted'), 'success');
+        pushToast(msg("app.template.deleted"), 'success');
       } catch (error) {
-        pushToast(t('Could not delete template'), 'error', String(error));
+        pushToast(msg("app.could.not.delete.template"), 'error', String(error));
       }
     },
-    [pushToast, t],
+    [pushToast, msg],
   );
 
 
@@ -1402,7 +1402,7 @@ export default function App() {
         await loadProject(next);
       } catch (error) {
         setRecent((current) => current.filter((item) => item.root !== entry.root));
-        pushToast(tr('Project is no longer available'), 'error', String(error));
+        pushToast(tr("app.project.is.no.longer.available"), 'error', String(error));
       }
     },
     [loadProject, pushToast],
@@ -1432,9 +1432,9 @@ export default function App() {
   }, [comments, saveComments]);
 
   const performFileOperation = useCallback(async (run: () => Promise<ProjectFileOperation>) => {
-    if (fileOperation.current) throw new Error(tr('A file operation is already in progress'));
+    if (fileOperation.current) throw new Error(tr("app.a.file.operation.is.already.in.progress"));
     if (!(await saveAll())) return null;
-    if (fileOperation.current) throw new Error(tr('A file operation is already in progress'));
+    if (fileOperation.current) throw new Error(tr("app.a.file.operation.is.already.in.progress"));
     // Install the gate before IPC: saves requested while disk references change wait for rebasing.
     let release!: (result: ProjectFileOperation | null) => void;
     const gate = new Promise<ProjectFileOperation | null>(resolve => { release = resolve; });
@@ -1467,7 +1467,7 @@ export default function App() {
       // The old editor's unmount may cache its old key once more.
       const oldPath = result.oldPath;
       setTimeout(() => { for (const file of writingSessions.current.keys()) if (movedPath(file, { oldPath, path: '' }) !== file) writingSessions.current.delete(file); }, 0);
-      if (reconciled.conflicts) pushToast(tr('References updated; overlapping edits kept for review'), 'info');
+      if (reconciled.conflicts) pushToast(tr("app.references.updated.overlapping.edits.kept.for.review"), 'info');
       return result;
     } finally {
       fileOperation.current = null; release(result);
@@ -1478,15 +1478,15 @@ export default function App() {
     async (path: string) => {
       const currentProject = projectRef.current;
       if (!currentProject) return;
-      const nextName = await requestText(tr('Rename file'), basename(path));
+      const nextName = await requestText(tr("app.rename.file"), basename(path));
       if (!nextName || nextName === basename(path)) return;
       try {
         const result = await performFileOperation(() => window.texpro.renameProjectFile(currentProject.root, path, nextName));
         if (!result) return;
         await refreshProjectData();
-        pushToast(tr('File renamed'), 'success', tr('{count} references updated', { count: result.updated }));
+        pushToast(tr("app.file.renamed"), 'success', tr("app.count.references.updated", { count: result.updated }));
       } catch (failure) {
-        pushToast(tr('Could not rename file'), 'error', String(failure));
+        pushToast(tr("app.could.not.rename.file"), 'error', String(failure));
       }
     },
     [pushToast, refreshProjectData, performFileOperation],
@@ -1496,19 +1496,19 @@ export default function App() {
     async (dir: string) => {
       const currentProject = projectRef.current;
       if (!currentProject) return;
-      const nextName = await requestText(tr('Rename folder'), basename(dir));
+      const nextName = await requestText(tr("app.rename.folder"), basename(dir));
       if (!nextName || nextName === basename(dir)) return;
       try {
         const impact = await window.texpro.projectImpact(currentProject.root, dir);
         if (impact.references > 0 || impact.assets > 0) {
-          if (!window.confirm(`${t('Rename this folder?')}\n${basename(dir)} → ${nextName}\n\n${impact.files} ${t('files')} · ${impact.assets} ${t('assets')} · ${impact.references} ${t('references will be updated')}.`)) return;
+          if (!window.confirm(`${msg("app.rename.this.folder")}\n${basename(dir)} → ${nextName}\n\n${impact.files} ${msg("app.files")} · ${impact.assets} ${msg("app.assets.variant2")} · ${impact.references} ${msg("app.references.will.be.updated")}.`)) return;
         }
         const result = await performFileOperation(() => window.texpro.moveProjectDirectory(currentProject.root, dir, nextName));
         if (!result) return;
         await refreshProjectData();
-        pushToast(tr('Directory moved'), 'success', tr('{count} references updated', { count: result.updated }));
+        pushToast(tr("app.directory.moved"), 'success', tr("app.count.references.updated", { count: result.updated }));
       } catch (failure) {
-        pushToast(tr('Could not move directory'), 'error', String(failure));
+        pushToast(tr("app.could.not.move.directory"), 'error', String(failure));
       }
     },
     [pushToast, refreshProjectData, performFileOperation],
@@ -1524,7 +1524,7 @@ export default function App() {
     await openFile(created.path);
     if (generation !== projectGeneration.current) return;
     setGotoRequest({ file: created.path, line: 1, column: 1, key: ++navigationGeneration.current });
-    pushToast(tr('File created'), 'success', created.relative);
+    pushToast(tr("app.file.created"), 'success', created.relative);
   }, [openFile, pushToast, refreshProjectData]);
 
   const handleCreateFolder = useCallback(async (parent: string, name: string) => {
@@ -1533,34 +1533,34 @@ export default function App() {
     const created = await window.texpro.createProjectFolder(currentProject.root, parent, name);
     if (generation !== projectGeneration.current) return;
     await refreshProjectData();
-    pushToast(tr('Folder created'), 'success', created.relative);
+    pushToast(tr("app.folder.created"), 'success', created.relative);
   }, [pushToast, refreshProjectData]);
 
   const handleMoveFile = useCallback(async (file: string) => {
     const currentProject = projectRef.current;
     if (!currentProject) return;
     const currentDir = relativePath(currentProject.root, dirname(file));
-    const target = await requestText(tr('Target folder (relative to project)'), currentDir, true);
+    const target = await requestText(tr("app.target.folder.relative.to.project"), currentDir, true);
     if (target === null) return;
     const targetDir = `${currentProject.root}/${target}`.replace(/\/+$/, '');
     try {
       const impact = await window.texpro.projectImpact(currentProject.root, file);
-      if (!window.confirm(`${t('Move this file?')}\n${basename(file)} → ${target || '/'}\n\n${impact.references} ${t('references will be updated')}.`)) return;
+      if (!window.confirm(`${msg("app.move.this.file")}\n${basename(file)} → ${target || '/'}\n\n${impact.references} ${msg("app.references.will.be.updated")}.`)) return;
       const result = await performFileOperation(() => window.texpro.moveProjectFile(currentProject.root, file, targetDir));
       if (!result) return;
       await refreshProjectData();
-      pushToast(tr('File moved'), 'success', `${result.updated} ${t('references updated')}`);
+      pushToast(tr("app.file.moved"), 'success', `${result.updated} ${msg("app.references.updated")}`);
     } catch (failure) {
-      pushToast(tr('Could not move file'), 'error', String(failure));
+      pushToast(tr("app.could.not.move.file"), 'error', String(failure));
     }
-  }, [pushToast, refreshProjectData, performFileOperation, t]);
+  }, [pushToast, refreshProjectData, performFileOperation, msg]);
 
   const handleDeleteFile = useCallback(async (file: string) => {
     const currentProject = projectRef.current;
     if (!currentProject) return;
     try {
       const impact = await window.texpro.projectImpact(currentProject.root, file);
-      if (!window.confirm(`${t('Delete this file?')}\n${basename(file)}\n\n${impact.assets} ${t('assets')} · ${impact.references} ${t('references will break')}.\n${t('The file is moved to .texpro/trash.')}`)) return;
+      if (!window.confirm(`${msg("app.delete.this.file")}\n${basename(file)}\n\n${impact.assets} ${msg("app.assets.variant2")} · ${impact.references} ${msg("app.references.will.break")}.\n${msg("app.the.file.is.moved.to.texpro.trash")}`)) return;
       if (!(await saveAll())) return;
       await window.texpro.deleteProjectFile(currentProject.root, file);
       setDocs((current) => {
@@ -1576,9 +1576,9 @@ export default function App() {
         if (fallback) await openFile(fallback);
       }
       await refreshProjectData();
-      pushToast(tr('File moved to trash'), 'success', basename(file));
+      pushToast(tr("app.file.moved.to.trash"), 'success', basename(file));
     } catch (failure) {
-      pushToast(tr('Could not delete file'), 'error', String(failure));
+      pushToast(tr("app.could.not.delete.file"), 'error', String(failure));
     }
   }, [openFile, pushToast, refreshProjectData, saveAll]);
 
@@ -1587,7 +1587,7 @@ export default function App() {
     if (!currentProject) return;
     try {
       const impact = await window.texpro.projectImpact(currentProject.root, dir);
-      if (!window.confirm(`${t('Delete this folder?')}\n${basename(dir)}\n\n${impact.files} ${t('files')} · ${impact.assets} ${t('assets')} · ${impact.references} ${t('references will break')}.\n${t('The folder is moved to .texpro/trash.')}`)) return;
+      if (!window.confirm(`${msg("app.delete.this.folder")}\n${basename(dir)}\n\n${impact.files} ${msg("app.files")} · ${impact.assets} ${msg("app.assets.variant2")} · ${impact.references} ${msg("app.references.will.break")}.\n${msg("app.the.folder.is.moved.to.texpro.trash")}`)) return;
       if (!(await saveAll())) return;
       await window.texpro.deleteProjectFolder(currentProject.root, dir);
       setDocs((current) => {
@@ -1605,9 +1605,9 @@ export default function App() {
         if (fallback) await openFile(fallback);
       }
       await refreshProjectData();
-      pushToast(tr('Folder moved to trash'), 'success', basename(dir));
+      pushToast(tr("app.folder.moved.to.trash"), 'success', basename(dir));
     } catch (failure) {
-      pushToast(tr('Could not delete folder'), 'error', String(failure));
+      pushToast(tr("app.could.not.delete.folder"), 'error', String(failure));
     }
   }, [openFile, pushToast, refreshProjectData, saveAll]);
 
@@ -1638,7 +1638,7 @@ export default function App() {
   const ensureWritingPackages = useCallback(async (packages: string[]) => {
     if (!packages.length) return true;
     const current = projectRef.current, generation = projectGeneration.current;
-    if (!current?.rootFile) { pushToast(tr('Choose main file'), 'error'); return false; }
+    if (!current?.rootFile) { pushToast(tr("app.choose.main.file"), 'error'); return false; }
     if (editorRef.current?.getPath() === current.rootFile) { editorRef.current.ensurePackages(packages); return true; }
     try {
       const saved = docsRef.current[current.rootFile]?.savedContent ?? await window.texpro.readFile(current.rootFile);
@@ -1651,12 +1651,12 @@ export default function App() {
         return next;
       });
       return true;
-    } catch (error) { pushToast(tr('Could not open file'), 'error', String(error)); return false; }
+    } catch (error) { pushToast(tr("app.could.not.open.file"), 'error', String(error)); return false; }
   }, [pushToast]);
 
   const writeAtCaret = useCallback(async (text: string, packages: string[] = writingPackages(text), cursor = text.length) => {
     const editor = editorRef.current;
-    if (!editor) { pushToast(tr('Open a document first'), 'info'); return; }
+    if (!editor) { pushToast(tr("app.open.a.document.first"), 'info'); return; }
     const generation = projectGeneration.current;
     let range = editor.getSelectionRange();
     if (editor.getPath() === projectRef.current?.rootFile) {
@@ -1666,12 +1666,12 @@ export default function App() {
     const target = editor.captureWriting(range);
     if (!target || !(await ensureWritingPackages(packages))) return;
     if (generation !== projectGeneration.current || editorRef.current !== editor) return;
-    if (!editor.applyWriting(target, text, cursor)) pushToast(tr('Writing target changed. Reopen the helper at the intended location.'), 'info');
+    if (!editor.applyWriting(target, text, cursor)) pushToast(tr("app.writing.target.changed.reopen.the.helper.at.the.intended"), 'info');
   }, [ensureWritingPackages, pushToast]);
 
   const insertImageFiles = useCallback(async (input: Array<File | AssetItem>) => {
     const editor = editorRef.current, current = projectRef.current;
-    if (!editor || !current) { pushToast(tr('Open a document first'), 'info'); return; }
+    if (!editor || !current) { pushToast(tr("app.open.a.document.first"), 'info'); return; }
     const generation = projectGeneration.current;
     const range = figureWritingRange(editor.getContent(), editor.getSelectionRange(), editor.getPath() === current.rootFile);
     const target = editor.captureWriting(range);
@@ -1688,21 +1688,21 @@ export default function App() {
         if (asset.ext === '.svg') asset = await window.texpro.rasterizeSvg(current.root, asset.path);
         const figure = writingFigure(relativePath(dirname(target.file), asset.path), asset.name, labels);
         labels.add(figure.label); figures.push(figure);
-      } catch (error) { pushToast(tr('Could not save image'), 'error', String(error)); }
+      } catch (error) { pushToast(tr("app.could.not.save.image"), 'error', String(error)); }
     }
     if (generation !== projectGeneration.current || editorRef.current !== editor) return;
     await refreshProjectData();
     if (!figures.length || generation !== projectGeneration.current || editorRef.current !== editor) return;
     if (!editor.applyWriting(target, figures.map(figure => figure.source).join(''), figures[0].cursor)) {
-      pushToast(tr('Image saved to the asset library. Choose a new insertion point.'), 'info'); return;
+      pushToast(tr("app.image.saved.to.the.asset.library.choose.a.new"), 'info'); return;
     }
-    pushToast(tr('Image added to assets'), 'success');
+    pushToast(tr("app.image.added.to.assets"), 'success');
   }, [effectiveSymbols.labels, ensureWritingPackages, pushToast, refreshProjectData]);
 
   const handleInsertAsset = useCallback(async (asset: AssetItem) => { await insertImageFiles([asset]); }, [insertImageFiles]);
   const handleImageFiles = useCallback(async (files: File[]) => {
     const images = files.filter(file => file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(file.name));
-    if (!images.length) { pushToast(tr('Only image files can be dropped here'), 'info'); return; }
+    if (!images.length) { pushToast(tr("app.only.image.files.can.be.dropped.here"), 'info'); return; }
     await insertImageFiles(images);
   }, [insertImageFiles, pushToast]);
   const handleInsertImagePath = useCallback((path: string) => {
@@ -1720,7 +1720,7 @@ export default function App() {
   const helperTargets = useRef<Record<string, { editor: EditorHandle; target: WritingTarget; generation: number }>>({});
   const beginWritingHelper = useCallback((kind: string, range?: { from: number; to: number }) => {
     const editor = editorRef.current, target = editor?.captureWriting(range);
-    if (!editor || !target) { pushToast(tr('Open a document first'), 'info'); return false; }
+    if (!editor || !target) { pushToast(tr("app.open.a.document.first"), 'info'); return false; }
     helperTargets.current[kind] = { editor, target, generation: projectGeneration.current };
     return true;
   }, [pushToast]);
@@ -1731,11 +1731,11 @@ export default function App() {
   const applyWritingHelper = useCallback(async (kind: string, code: string, packages = writingPackages(code)) => {
     const session = helperTargets.current[kind]; delete helperTargets.current[kind];
     if (!session || session.generation !== projectGeneration.current || editorRef.current !== session.editor) {
-      pushToast(tr('Writing target changed. Reopen the helper at the intended location.'), 'info'); return;
+      pushToast(tr("app.writing.target.changed.reopen.the.helper.at.the.intended"), 'info'); return;
     }
     if (!(await ensureWritingPackages(packages))) return;
     if (session.generation !== projectGeneration.current || editorRef.current !== session.editor || !session.editor.applyWriting(session.target, code)) {
-      pushToast(tr('Writing target changed. Reopen the helper at the intended location.'), 'info');
+      pushToast(tr("app.writing.target.changed.reopen.the.helper.at.the.intended"), 'info');
     }
   }, [ensureWritingPackages, pushToast]);
   const openFormula = useCallback(() => {
@@ -1748,11 +1748,11 @@ export default function App() {
   const handleInsertCite = useCallback(
     (key: string) => {
       if (!activePathRef.current) {
-        pushToast(tr('Open a document first'), 'info');
+        pushToast(tr("app.open.a.document.first"), 'info');
         return;
       }
       editorRef.current?.insert(`\\cite{${key}}`);
-      pushToast(tr('Citation inserted'), 'success', key);
+      pushToast(tr("app.citation.inserted"), 'success', key);
     },
     [pushToast],
   );
@@ -1761,7 +1761,7 @@ export default function App() {
     (bibPath: string, mode: 'bibtex' | 'biblatex', style: string) => {
       const file = activePathRef.current;
       if (!file) {
-        pushToast(tr('Open a document first'), 'info');
+        pushToast(tr("app.open.a.document.first"), 'info');
         return;
       }
       const relative = relativePath(dirname(file), bibPath);
@@ -1770,7 +1770,7 @@ export default function App() {
         bibPath: mode === 'biblatex' ? relative : relative.replace(/\.bib$/i, ''),
         style,
       });
-      pushToast(tr('Bibliography block inserted'), 'success', mode);
+      pushToast(tr("app.bibliography.block.inserted"), 'success', mode);
     },
     [pushToast],
   );
@@ -1779,14 +1779,14 @@ export default function App() {
     (body: string, format: ImportFormat) => {
       if (!body.trim()) return;
       if (!activePathRef.current) {
-        pushToast(tr('Open a document first'), 'info');
+        pushToast(tr("app.open.a.document.first"), 'info');
         return;
       }
       if (/\\includegraphics/.test(body)) editorRef.current?.ensurePackage('graphicx');
       if (/\\begin\{(?:equation|align|gather|multline|eqnarray)\*?\}/.test(body)) editorRef.current?.ensurePackage('amsmath');
       editorRef.current?.insert(body);
       setImportOpen(false);
-      pushToast(tr('Imported into document'), 'success', format.toUpperCase());
+      pushToast(tr("app.imported.into.document"), 'success', format.toUpperCase());
     },
     [pushToast],
   );
@@ -1795,7 +1795,7 @@ export default function App() {
     async (document: string, name: string, engine: 'pdflatex' | 'xelatex') => {
       const currentProject = projectRef.current;
       if (!currentProject) {
-        pushToast(tr('Open a project first'), 'info');
+        pushToast(tr("app.open.a.project.first"), 'info');
         return false;
       }
       const base = slugify(name) || 'imported-document';
@@ -1810,7 +1810,7 @@ export default function App() {
       setPreviewFile(null);
       await openFile(file);
       setImportOpen(false);
-      pushToast(tr('Imported document created'), 'success', file.split('/').pop());
+      pushToast(tr("app.imported.document.created"), 'success', file.split('/').pop());
       return true;
     },
     [openFile, pushToast, refreshProjectData],
@@ -1846,8 +1846,8 @@ export default function App() {
       setSyncTarget(null); setPdfBytes(null); setPreviousPdfBytes(null);
       pdfPathRef.current = null; setPdfPath(null); setCompileResult(null); setDiagnostics([]); setCompileLog('');
       setBoxHotspots([]); setPage(1);
-      pushToast(tr('Main file saved'), 'success', config.rootFile);
-    } catch (error) { pushToast(tr('Could not set main file'), 'error', String(error)); }
+      pushToast(tr("app.main.file.saved"), 'success', config.rootFile);
+    } catch (error) { pushToast(tr("app.could.not.set.main.file"), 'error', String(error)); }
   }, [saveAll, pushToast]);
 
   const openMainFile = useCallback(() => {
@@ -1858,7 +1858,7 @@ export default function App() {
 
   const editMainFile = useCallback(async (edit: (editor: EditorHandle) => void) => {
     const current = projectRef.current;
-    if (!current?.rootFile) { pushToast(tr('Choose main file'), 'error'); return false; }
+    if (!current?.rootFile) { pushToast(tr("app.choose.main.file"), 'error'); return false; }
     const generation = projectGeneration.current;
     await openFile(current.rootFile);
     for (let frame = 0; frame < 30; frame++) {
@@ -1866,7 +1866,7 @@ export default function App() {
       if (generation !== projectGeneration.current) return false;
       if (editorRef.current?.getPath() === current.rootFile) { edit(editorRef.current); return true; }
     }
-    pushToast(tr('Could not open file'), 'error', current.rootFile);
+    pushToast(tr("app.could.not.open.file"), 'error', current.rootFile);
     return false;
   }, [openFile, pushToast]);
 
@@ -1883,10 +1883,10 @@ export default function App() {
         if (projectRef.current?.root !== currentProject.root) return null;
         projectRef.current = refreshed;
         setProject(refreshed);
-        pushToast(tr('Module created'), 'success', safeFile);
+        pushToast(tr("app.module.created"), 'success', safeFile);
         return safeFile;
       } catch (error) {
-        pushToast(tr('Could not create module'), 'error', String(error));
+        pushToast(tr("app.could.not.create.module"), 'error', String(error));
         return null;
       }
     },
@@ -1896,7 +1896,7 @@ export default function App() {
   const handleApplyProjectConfig = useCallback(async (config: ProjectConfig) => {
     const modules = config.modules.filter(module => module.included).map(module => moduleInputPath(module.file));
     if (await editMainFile(editor => { editor.applyModules(modules); editor.applyToc(config.toc); })) {
-      pushToast(tr('Project structure applied'), 'success', `${modules.length} modules`);
+      pushToast(tr("app.project.structure.applied"), 'success', `${modules.length} modules`);
     }
   }, [editMainFile, pushToast]);
 
@@ -1908,9 +1908,9 @@ export default function App() {
   const handleApplyLayout = useCallback(async (layout: LayoutResult) => {
     if (await editMainFile(editor => editor.applyLayout(layout))) {
       setSettings(current => ({ ...current, engine: layout.engine }));
-      pushToast(t('Layout applied'), 'success', `geometry · ${layout.engine}`);
+      pushToast(msg("app.layout.applied"), 'success', `geometry · ${layout.engine}`);
     }
-  }, [editMainFile, pushToast, t]);
+  }, [editMainFile, pushToast, msg]);
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((current) => ({ ...current, ...('theme' in patch ? { themePackage: undefined } : {}), ...patch }));
@@ -1997,7 +1997,7 @@ export default function App() {
       } else if (key === 'f' && event.shiftKey) {
         event.preventDefault();
         toggleFocus();
-      } else if (key === 't' && event.shiftKey) {
+      } else if (key === 'msg' && event.shiftKey) {
         event.preventDefault();
         toggleTypewriter();
       } else if (key === 'j' && event.shiftKey) {
@@ -2073,8 +2073,8 @@ export default function App() {
     "return-writing": () => void returnToWriting(),
     "writing-note": () => { editorRef.current?.leaveNote(); },
     "writing-notes": () => { setSidebarOpen(true); setSidebarTab('notes'); },
-    "move-content-up": () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr('No complete neighboring content to move.'), 'info'); },
-    "move-content-down": () => { if (!editorRef.current?.moveContent(1)) pushToast(tr('No complete neighboring content to move.'), 'info'); },
+    "move-content-up": () => { if (!editorRef.current?.moveContent(-1)) pushToast(tr("app.no.complete.neighboring.content.to.move"), 'info'); },
+    "move-content-down": () => { if (!editorRef.current?.moveContent(1)) pushToast(tr("app.no.complete.neighboring.content.to.move"), 'info'); },
     "music": () => void handleInsertMusic(),
     "formula": openFormula,
     "import": () => setImportOpen(true),
@@ -2107,13 +2107,13 @@ export default function App() {
     "bibliography": () => setBibOpen(true),
     "project-structure": () => setProjectStudioOpen(true),
     "doctor": () => setDoctorOpen(true),
-    "convert-svgs": () => { const current = projectRef.current; if (!current) return; void window.texpro.convertSvgReferences(current.root).then((result) => { pushToast(tr('SVG assets converted'), 'success', `${result.converted} images`); void refreshProjectData(); }).catch((error) => pushToast(tr('Could not convert SVG assets'), 'error', String(error))); },
+    "convert-svgs": () => { const current = projectRef.current; if (!current) return; void window.texpro.convertSvgReferences(current.root).then((result) => { pushToast(tr("app.svg.assets.converted"), 'success', `${result.converted} images`); void refreshProjectData(); }).catch((error) => pushToast(tr("app.could.not.convert.svg.assets"), 'error', String(error))); },
     "export": () => setExportOpen(true),
     "arxiv": () => { void saveAll().then(saved => { if (saved) setArxivOpen(true); }); },
     "backup": () => setBackupOpen(true),
     "graph": () => setGraphOpen(true),
     "font": () => setFontOpen(true),
-    "version": () => { const root = projectRef.current?.root; if (!root) return; void window.texpro.gitStatus(root).then(status => { if (projectRef.current?.root !== root) return; if (status.initialized) setGitOpen(true); else setVersionOpen(true); }).catch(error => pushToast(t('Could not open version history'), 'error', String(error))); },
+    "version": () => { const root = projectRef.current?.root; if (!root) return; void window.texpro.gitStatus(root).then(status => { if (projectRef.current?.root !== root) return; if (status.initialized) setGitOpen(true); else setVersionOpen(true); }).catch(error => pushToast(msg("app.could.not.open.version.history"), 'error', String(error))); },
     "comments": () => setCommentsOpen(true),
     "ai": () => setAiOpen(true),
     "mcp": () => setMcpOpen(true),
@@ -2150,18 +2150,18 @@ export default function App() {
     "open-pdf": openPdf,
     ...Object.fromEntries(writingSnippets.map(item => [item.id, () => void writeAtCaret('\n' + item.text + '\n\n', item.packages, item.cursor + 1)])),
   };
-  const moreActions = commandRegistry(builtinCommands(commandHandlers, settings, project, t, sidebarOpen, pdfOpen), extensions.active.flatMap(extension => (extension.manifest.contributes.actions || []).map(action => ({ id: extension.manifest.id + '/' + action.id, label: localize(action.title, language), group: 'Extensions', icon: Plug, run: () => extensionRunner.open(extension, action) }))));
+  const moreActions = commandRegistry(builtinCommands(commandHandlers, settings, project, msg, sidebarOpen, pdfOpen), extensions.active.flatMap(extension => (extension.manifest.contributes.actions || []).map(action => ({ id: extension.manifest.id + '/' + action.id, label: localize(action.title, language), group: "app.extensions", icon: Plug, run: () => extensionRunner.open(extension, action) }))));
   const paletteActions = moreActions;
   moreActionsRef.current = moreActions;
 
   const activeDiagnostics = useMemo<Diagnostic[]>(() => [...diagnostics, ...extensionRunner.diagnostics, ...realtime.diagnostics.map(item => ({
     ...item, severity: (item.severity === 'error' || item.severity === 'warning' ? item.severity : 'info') as Diagnostic['severity'], source: 'rtex-ts',
-  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: t('References have not converged'), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${t('Preview acceleration unavailable; regular compilation remains available.')} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, extensionRunner.diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
+  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: msg("app.references.have.not.converged"), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${msg("app.preview.acceleration.unavailable.regular.compilation.remains.available")} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, extensionRunner.diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
   const errors = activeDiagnostics.filter((item) => item.severity === 'error').length;
 
   return (
     <div className={`app ${settings.focus ? 'focus-mode' : ''} ${zeroMode ? 'zero-mode' : ''}`}>
-      {zeroMode && <button className="zero-exit" onClick={() => setZeroMode(false)} title={t('Exit zero-interface mode')}>{t('Exit focus')}</button>}
+      {zeroMode && <button className="zero-exit" onClick={() => setZeroMode(false)} title={msg("app.exit.zero.interface.mode")}>{msg("app.exit.focus")}</button>}
       <TitleBar
         project={project}
         doc={activeDoc || null}
@@ -2293,7 +2293,7 @@ export default function App() {
                 />
               ) : (
                 <div className="editor-loading">
-                  {openingFile ? t('Opening {name}…', { name: basename(openingFile) }) : t('Select a file to start editing.')}
+                  {openingFile ? msg("app.opening.name", { name: basename(openingFile) }) : msg("app.select.a.file.to.start.editing")}
                 </div>
               )}
             </div>
@@ -2310,7 +2310,7 @@ export default function App() {
           </main>
 
           {pdfOpen && (
-            <Suspense fallback={<aside className="editor-loading" role="status">{t('Opening PDF preview…')}</aside>}>
+            <Suspense fallback={<aside className="editor-loading" role="status">{msg("app.opening.pdf.preview")}</aside>}>
             <PdfPane
               realtime={realtime}
               formalCurrent={pdfCurrent}
@@ -2397,7 +2397,7 @@ export default function App() {
         themePackage={settings.themePackage} onPreviewTheme={extensions.preview}
         onApplyTheme={(themePackage, theme) => { updateSettings({ theme, themePackage }); extensions.preview(undefined); }}
         onRun={extensionRunner.open} onRunPanel={extensionRunner.openPanel}
-        onTemplate={payload => { void (async () => { try { const next = await window.texpro.createProject(payload); if (next) { setPluginOpen(false); await loadProject(next); } } catch (error) { pushToast(t('Could not create project'), 'error', String(error)); } })(); }}
+        onTemplate={payload => { void (async () => { try { const next = await window.texpro.createProject(payload); if (next) { setPluginOpen(false); await loadProject(next); } } catch (error) { pushToast(msg("app.could.not.create.project"), 'error', String(error)); } })(); }}
         projectRoot={project?.root || null}
         completions={customCompletions}
         onClose={() => setPluginOpen(false)}
@@ -2438,7 +2438,7 @@ export default function App() {
           void editMainFile(editor => editor.replaceAll(text));
           if (engine) setSettings((current) => ({ ...current, engine }));
           setPackageOpen(false);
-          pushToast(tr('Document setup applied'), 'success');
+          pushToast(tr("app.document.setup.applied"), 'success');
         }}
       />
       <McpElicitation
@@ -2452,7 +2452,7 @@ export default function App() {
         open={gitOpen}
         projectRoot={project?.root || null}
         onClose={() => setGitOpen(false)}
-        onOpenProject={(path) => { void window.texpro.openProject(path).then((next) => loadProject(next)).catch((error) => pushToast(tr('Could not open project'), 'error', String(error))); }}
+        onOpenProject={(path) => { void window.texpro.openProject(path).then((next) => loadProject(next)).catch((error) => pushToast(tr("app.could.not.open.project"), 'error', String(error))); }}
         onGitChange={setGitManaged}
       />
       <CollabPanel
@@ -2532,11 +2532,11 @@ export default function App() {
         onClose={() => setAiOpen(false)}
         onInsert={(text) => {
           if (!activePathRef.current) {
-            pushToast(tr('Open a document first'), 'info');
+            pushToast(tr("app.open.a.document.first"), 'info');
             return;
           }
           editorRef.current?.insert(text);
-          pushToast(tr('AI result inserted'), 'success');
+          pushToast(tr("app.ai.result.inserted"), 'success');
         }}
         onOpenSettings={() => setSettingsOpen(true)}
         onApplyAction={(action) => {
@@ -2544,11 +2544,11 @@ export default function App() {
           if (action.type === 'insert') editorRef.current?.insert(action.text);
           else if (action.type === 'replace-selection') editorRef.current?.replaceSelection(action.text);
           else if (action.type === 'replace-document') {
-            if (!window.confirm(tr('Replace the entire document with this AI action?'))) return;
+            if (!window.confirm(tr("app.replace.the.entire.document.with.this.ai.action"))) return;
             const length = docsRef.current[activePathRef.current]?.content.length || 0;
             editorRef.current?.replaceRange(0, length, action.text);
           }
-          pushToast(tr('AI action applied'), 'success', action.type);
+          pushToast(tr("app.ai.action.applied"), 'success', action.type);
         }}
       />
       <CommentsPanel
@@ -2582,7 +2582,7 @@ export default function App() {
           await window.texpro.cleanBuild(currentProject.root, projectConfigRef.current.directories.build);
           setPdfPath(null);
           setPdfBytes(null);
-          pushToast(tr('Build artifacts removed'), 'success');
+          pushToast(tr("app.build.artifacts.removed"), 'success');
         }}
       />
       <TableStudio
@@ -2608,10 +2608,10 @@ export default function App() {
         onApply={(content) => {
           const doc = activePathRef.current;
           if (!doc) {
-            pushToast(tr('Open a document first'), 'info');
+            pushToast(tr("app.open.a.document.first"), 'info');
             return;
           }
-          if (!window.confirm(tr('Replace the current document with this template?'))) return;
+          if (!window.confirm(tr("app.replace.the.current.document.with.this.template"))) return;
           const filled = fillTemplate(content, {
             title: basename(doc).replace(/\.(tex|ltx)$/i, ''),
             author: '',
@@ -2619,7 +2619,7 @@ export default function App() {
           });
           const length = docsRef.current[doc]?.content.length || 0;
           editorRef.current?.replaceRange(0, length, filled);
-          pushToast(tr('Template applied'), 'success', 'LaTeX');
+          pushToast(tr("app.template.applied"), 'success', 'LaTeX');
         }}
       />
       <ProjectStudio
@@ -2663,8 +2663,8 @@ export default function App() {
         onInsert={(source) => void applyWritingHelper('tikz', source)}
       />
       {collabExtension && !collabOpen && (
-        <button className="collab-live-pill" onClick={() => setCollabOpen(true)} title={t('Open writing room')}>
-          <Users size={13} /> {t('Writing room live')}
+        <button className="collab-live-pill" onClick={() => setCollabOpen(true)} title={msg("app.open.writing.room")}>
+          <Users size={13} /> {msg("app.writing.room.live")}
         </button>
       )}
       <Toasts

@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function CommandPalette({ open, actions, onClose }: Props) {
-  const { t, language } = useI18n();
+  const { msg, language } = useI18n();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -35,7 +35,7 @@ export function CommandPalette({ open, actions, onClose }: Props) {
     const needle = query.trim().toLowerCase();
     if (!needle) return actions;
     return actions.filter((action) => {
-      const text = [action.label, t(action.label), action.detail, t(action.detail || ''), action.group, t(action.group || ''), action.keywords].filter(Boolean).join(' ').toLowerCase();
+      const text = [action.label, msg.text(action.label), action.detail, msg.text(action.detail || ''), action.group, msg.text(action.group || ''), action.keywords].filter(Boolean).join(' ').toLowerCase();
       return needle.split(/\s+/).every((part) => text.includes(part));
     });
   }, [actions, query, language]);
@@ -81,7 +81,7 @@ export function CommandPalette({ open, actions, onClose }: Props) {
 
   const palette = (
     <div className="palette-scrim" onMouseDown={onClose}>
-      <div ref={dialogRef} className="palette" role="dialog" aria-modal="true" aria-label={t('Command palette')} onMouseDown={(event) => event.stopPropagation()}>
+      <div ref={dialogRef} className="palette" role="dialog" aria-modal="true" aria-label={msg("app.command.palette")} onMouseDown={(event) => event.stopPropagation()}>
         <div className="palette-input-row">
           <Search size={16} />
           <input
@@ -89,19 +89,19 @@ export function CommandPalette({ open, actions, onClose }: Props) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKey}
-            placeholder={t('Search actions, files, commands…')}
-            aria-label={t('Command palette')}
+            placeholder={msg("app.search.actions.files.commands")}
+            aria-label={msg("app.command.palette")}
           />
           <kbd>esc</kbd>
         </div>
         <div className="palette-list" ref={listRef}>
-          {filtered.length === 0 && <div className="palette-empty">{t('No matching action.')}</div>}
+          {filtered.length === 0 && <div className="palette-empty">{msg("app.no.matching.action")}</div>}
           {filtered.map((action, index) => {
             const Icon = action.icon;
             const groupChanged = index === 0 || filtered[index - 1]?.group !== action.group;
             return (
               <div key={action.id}>
-                {groupChanged && action.group && <div className="palette-group">{t(action.group)}</div>}
+                {groupChanged && action.group && <div className="palette-group">{msg.text(action.group)}</div>}
                 <button
                   data-index={index}
                   className={`palette-row ${index === active ? 'active' : ''}`}
@@ -110,8 +110,8 @@ export function CommandPalette({ open, actions, onClose }: Props) {
                 >
                   <span className="palette-icon"><Icon size={15} /></span>
                   <span className="palette-text">
-                    <strong>{t(action.label)}</strong>
-                    {action.detail && <small>{t(action.detail)}</small>}
+                    <strong>{msg.text(action.label)}</strong>
+                    {action.detail && <small>{msg.text(action.detail)}</small>}
                   </span>
                   {action.shortcut && <kbd>{formatShortcut(action.shortcut)}</kbd>}
                   {index === active && <CornerDownLeft size={12} className="palette-enter" />}
@@ -121,9 +121,9 @@ export function CommandPalette({ open, actions, onClose }: Props) {
           })}
         </div>
         <div className="palette-footer">
-          <span><kbd>↑</kbd><kbd>↓</kbd> {t('navigate')}</span>
-          <span><kbd>↵</kbd> {t('run')}</span>
-          <span><kbd>esc</kbd> {t('close')}</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> {msg("app.navigate")}</span>
+          <span><kbd>↵</kbd> {msg("app.run")}</span>
+          <span><kbd>esc</kbd> {msg("app.close.variant2")}</span>
         </div>
       </div>
     </div>

@@ -15,6 +15,6 @@ export async function reviewProject(api: InspectionApi, root: string): Promise<I
   const issues: InspectionIssue[] = diagnosis.issues.map(issue => ({ severity: issue.severity, title: issue.kind || 'Project issue', detail: issue.message, file: issue.file, line: issue.line }));
   for (const node of graph.nodes.filter(node => node.orphan)) issues.push({ severity: 'warning', title: node.type === 'label' ? 'Orphan label' : 'Orphan citation', detail: node.label, file: node.file, line: node.line });
   for (const todo of todos) issues.push({ severity: 'info', title: 'TODO', detail: todo.text.trim(), file: todo.file, line: todo.line });
-  if (!symbols.labels.length) issues.push({ severity: 'warning', title: 'No labels', detail: 'No labels were found; cross-references may be fragile.', file: '', line: 0 });
+  if (!symbols.labels.length) issues.push({ severity: 'warning', title: "app.no.labels", detail: "app.no.labels.were.found.cross.references.may.be.fragile", file: '', line: 0 });
   return issues;
 }

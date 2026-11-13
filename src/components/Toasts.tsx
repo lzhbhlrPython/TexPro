@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function Toasts({ toasts, onDismiss }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   return (
     <div className="toast-stack">
       {toasts.map((toast) => (
@@ -30,7 +30,7 @@ export function Toasts({ toasts, onDismiss }: Props) {
             <strong>{toast.message}</strong>
             {toast.detail && <small>{toast.detail}</small>}
           </div>
-          <button onClick={() => onDismiss(toast.id)} aria-label={t('Dismiss')}>
+          <button onClick={() => onDismiss(toast.id)} aria-label={msg("app.dismiss")}>
             <X size={12} />
           </button>
         </div>

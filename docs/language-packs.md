@@ -1,36 +1,70 @@
 # 声明式语言包与翻译维护
 
-## 源码与发行边界
+## 两种文本、两条资源路径
 
-英文源消息位于 `packages/extension-sdk/lib/locale-source.json`，英文始终内置。`src/i18n.ts` 负责订阅、选择、插值与回退，不再承载中文词典。简体中文唯一源码位于 `packages/extension-translate-zh-cn/language/`，原生菜单也读取该包。应用预装该目录；独立 npm 包 `@texpro/extension-translate-zh-cn` 的 `texpro.package` 指向同源生成的 `.tpp`。官网的中英内容和 i18n 保持独立。
+按钮、菜单、状态和短提示使用稳定语义键，例如 `app.save`。键标识用途，不是英文或中文正文；修改措辞不改键。桌面英文唯一来源是 `packages/extension-sdk/lib/locale-source.json`，简中唯一来源是 `packages/extension-translate-zh-cn/language/locales/zh.json`。`src/i18n.ts` 只负责加载、订阅、选择、插值与回退；英文 JSON 在首次渲染前动态加载，保持离线可用。英文是不可替换的恢复语言。
+
+彩蛋、文档、教程和长篇说明按语言保存完整 Markdown 文件，复用同一解析器与渲染器。不要给每段、每句甚至每个强调片段单独建立翻译键，也不要把 Markdown 正文塞进 UI JSON。官网彩蛋信件位于 `product-page/src/content/letters/{zh,en}/qwerty.md`，仅进入该内容时加载；文档位于 `product-page/src/content/docs/{zh,en}/{slug}.md`，两种语言目录平级、同名同 slug，中文也不在文档根目录放正文。源代码、文件名、作者标题、插件返回值、URL 和技术枚举是数据，不能递归“翻译全部字符串”。
+
+官网 UI 独立使用 `product-page/src/i18n/messages/{zh,en}.json`、`catalog.ts` 与 `useMessages()`。中文也必须有独立 JSON，不能靠组件里的中文正文隐式回退。`useLocalizedFields()` 只处理调用方明确列出的文本字段；不会递归修改 href、id、资源路径或 React 节点。文档内容与 UI 词典分开维护。
+
+## 语义键的维护规则
+
+- 按功能与用途命名，如 `app.save`；不含语言、版本和整句正文，不以译文或措辞变化重建键。
+- 相同文字处于不同任务时可以有不同键；不要因为英文恰好相同就合并不相关语义。
+- 新增键同轮补齐中英、占位符与调用；删除或更名先核对静态引用、动态标签表、原生菜单及 SDK 参考。静态键保留词典推导类型，不用宽泛字符串类型或断言压掉缺键错误。
+- 动态显示先明确来源：宿主标签经语义键解析，作者／插件数据保持原文；不得递归翻译整个对象，也不得把显示键写入生成内容。
+- 根 AGENTS.md 与包内 AGENTS.md 是强制维护约束；本指南解释契约与操作。只更新说明、没有同步消费者及实际验证，不视为迁移完成。
+
+## 第 2 版清单与消息
 
 ```json
 {
   "id": "author.language-fr",
   "name": "Français",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "apiVersion": 1,
   "author": "Your name",
   "license": "MIT",
   "capabilities": [],
   "contributes": {
-    "locales": [{ "id": "fr", "title": "Français", "messages": "locales/fr.json" }]
+    "locales": [{
+      "catalogVersion": 2,
+      "id": "fr",
+      "title": "Français",
+      "messages": "locales/fr.json"
+    }]
   }
 }
 ```
 
-JSON 是英文源目录中的稳定消息键到翻译字符串的映射；部分键沿用历史中文标识，保留原键并翻译对应的英文显示文本。语言标识遵守 BCP 47，`title` 使用语言自称。`en` 是不可替换的恢复语言；预装简中沿用 `zh`，兼容现有偏好，HTML 文档根语言标签为 `zh-CN`。消息路径为包内 JSON，LICENSE 必需。语言包没有入口、权限、样式或其他贡献，安装后不启动插件进程。
+对应的 `locales/fr.json`：
 
-## 校验、缺译和恢复
+```json
+{
+  "app.save": "Enregistrer",
+  "app.cancel": "Annuler"
+}
+```
 
-公共 SDK `localeContributions`、`validateMessages` 与 `messageCoverage` 同时供宿主、CLI 和只读检查使用。拒绝危险对象键、非字符串、超限消息、路径逃逸及占位符不匹配。保留 `{name}`、`{count}` 等全部变量，不能翻译变量名。缺失键回退英文；未知键报告但允许留给不同版本宿主。检查基于所用 SDK 版本的源目录，新增宿主文案须同步升级目录，不能把旧目录的完整覆盖冒充新版本覆盖。
+`apiVersion: 1` 是扩展 API，`catalogVersion: 2` 是语言目录契约，二者独立。SDK 0.5.0、qwertysay 0.6.0 与预制中文包 2.0.0 对应新契约；它要求同时使用支持目录第 2 版的宿主。已有 v0.1.0 安装包不因此自动升级。源码版本、npm 注册表和应用 Release 是独立状态。
 
-启动在首次 React 渲染前获取语言数据，不需要下载或执行语言包代码。包损坏、停用、卸载或安全模式下回退英文；更新词典通知已有界面，不重建编辑器。简中预装副本可停用；安装同 ID 的合法语言更新保持停用，卸载更新恢复停用的预装副本。原生恢复命令 `Reset Appearance and Disable Extensions` 固定使用英文，避免翻译包篡改恢复入口；也可用 `--safe-mode`。
+这是破坏性迁移。旧正文键、历史中文键、没有 `catalogVersion` 或值非 2 的语言包明确拒绝，安装／只读检查提示迁移，不保留旧键适配层。作者用新 SDK 的 `reference/en.json` 重新对照语义键填写译文，升级包版本并重新检查／打包；不能只修改版本字段或重命名旧键文件冒充完成迁移。旧包无法提供有效词典时使用内置英文，不允许旧词典覆盖恢复入口。
 
-翻译是纯文本，不作为 HTML。数据包仍可把按钮翻成误导性指令，不能宣称“无代码等于安全”。扩展审核明确提示作者信任与文案伪装风险。恢复文案、主题和 Node 扩展的风险分别说明。
+语言 ID 遵守 BCP 47，`title` 使用语言自称。预制简中继续使用 `zh`，HTML 根标签为 `zh-CN`；这与文本键的破坏性迁移无关。语言包仅含声明式 JSON、清单和 LICENSE，不包含功能入口、权限或样式。功能插件维护自己的资源与语义键，不把业务文案混进宿主目录；每次调用读取 `context.language`。
 
-## 开发与验收
+## 校验、缺译与异步边界
 
-运行 qwertysay 的中英引导，选择「语言包（仅数据）」、目标语言、语言自称及 npm／yarn。生成的 `reference/en.json` 是参考快照，编辑 `locales/{语言}.json`；无需构建，直接校验与打包为 `.tpp`。npm 分发格式和受控同步见[包管理方案](extension-package-management.md)。
+公共 SDK 的 `validateMessages`、`localeContributions`、`messageCoverage` 是宿主、qwertysay 与只读 MCP 的共用边界。拒绝危险键、非字符串、超限 JSON、非法语义键和路径越界。已知键必须保留英文的全部 `{name}`、`{count}` 等占位符；变量名不翻译。符合格式的未来键允许保留，但报告为 unknown，其变量契约尚无法按旧源目录验证。缺译逐条回退英文；覆盖率只能代表当前 SDK 目录。
 
-验证源目录覆盖、占位符、坏 JSON、预装与更新、启停、重启、卸载回退、原生菜单、快捷键、完整基线与真实 UI。新增文案同时修改英文目录和简中包；其他语言保持英文回退。构建简中发行物使用 `node packages/extension-translate-zh-cn/build.cjs`，不要手改 dist 归档。
+`msg(id, variables)` 的静态 ID 由 TypeScript 对英文 JSON 推导。混合宿主标签与作者数据的显示边界明确使用 `msg.text(value)`：只解析已知语义 ID，其他字符串原样显示；它不是正文键兼容器。技术枚举、命令 ID、表格动作 ID 与展示标签分别存储。不得把语义键写入 `.tex`、文献字段、乐谱声部或新项目名称。
+
+启动先准备语言资源再渲染。若英文主目录本身无法加载，入口使用极小的独立 `bootstrap-en.json` 显示不可覆盖的英文恢复信息与重新加载按钮，不渲染满屏消息 ID；它不是普通可翻译词典。桌面扩展刷新以请求序号拒绝旧结果；官网缓存成功的语言加载请求，失败允许重试，切换只在词典完整加载后提交，失败保留当前语言并提示。长文本独立处理过期结果、英文回退和失败重试。切换不重建编辑器、不改文档、撤销、焦点或滚动。
+
+## 安全、恢复与作者流程
+
+JSON 翻译作为纯文本；Markdown 使用现有受控渲染器，不执行 HTML、脚本或作者代码。翻译仍可伪装可信指令，主题可隐藏控件，Node 功能插件拥有用户权限；这些风险不能混称为“无代码所以安全”。原生 `Reset Appearance and Disable Extensions` 固定使用英文源消息，即使语言包提供该键也不覆盖；`--safe-mode` 仍可恢复。
+
+qwertysay 无参数启动中英引导，选择「语言包（仅数据）」、语言自称与 npm／yarn。生成 `reference/en.json` 参考目录及 `locales/{id}.json`，无需构建。填写语义键译文后 check、pack 为 `.tpp`，在「扩展」审核并启用，再从「偏好设置」选择语言。普通 npm／yarn 分发与同步见[包管理方案](extension-package-management.md)。不得为了生成语言包执行未知入口或安装脚本。
+
+验证完整中英键集、占位符、旧包拒绝、未知键报告、坏 JSON、刷新竞态、缺译、启停与卸载、英文恢复及真实原生菜单。完整基线必须零失败、零跳过、零 TODO。简中发行物由 `node packages/extension-translate-zh-cn/build.cjs` 同源生成，不手改 dist 归档；官网构建重新生成机器可读内容，前端变化同步真实预览图。

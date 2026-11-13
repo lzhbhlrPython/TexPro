@@ -4,7 +4,7 @@ import type { RealtimePage } from '../lib/realtimeTypes';
 import { useI18n } from '../i18n';
 
 export function RealtimePageView({ page, pdf, scale, onPrepareSource, onError }: { page: RealtimePage; pdf: PDFDocumentProxy | null; scale: number; onPrepareSource: () => void; onError: (message: string) => void }) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const canvas = useRef<HTMLCanvasElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -34,12 +34,12 @@ export function RealtimePageView({ page, pdf, scale, onPrepareSource, onError }:
     return () => { cancelled = true; task?.cancel(); };
   }, [page.svg, page.page, pdf, visible, onError]);
   return <div className="pdf-page-shell" data-page={page.page}>
-    <div className="pdf-page-label">{t('Page {page}', { page: page.page })}</div>
+    <div className="pdf-page-label">{msg("app.page.page", { page: page.page })}</div>
     <div ref={container} className="pdf-page realtime-page" style={{ width: page.width * scale, height: page.height * scale }}
       onPointerDown={event => { if (event.metaKey || event.ctrlKey) { event.preventDefault(); onPrepareSource(); } }}>
 
-      {page.svg ? <img src={url || undefined} alt={t('Typeset page {page}', { page: page.page })} /> : <>
-        <canvas ref={canvas} aria-label={t('Typeset page {page}', { page: page.page })} />
+      {page.svg ? <img src={url || undefined} alt={msg("app.typeset.page.page", { page: page.page })} /> : <>
+        <canvas ref={canvas} aria-label={msg("app.typeset.page.page", { page: page.page })} />
       </>}
     </div>
   </div>;

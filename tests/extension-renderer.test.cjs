@@ -40,7 +40,7 @@ test('one command registry rejects conflicting IDs across built-in and external 
   const { builtinCommands } = load('src/app/commands/builtins.ts');
   const i18n = load('src/i18n.ts');
   global.document = { documentElement: {} };
-  i18n.updateLanguagePacks([{ id: 'zh', title: '简体中文', messages: {} }]);
+  i18n.updateLanguagePacks([{ catalogVersion: 2, id: 'zh', title: '简体中文', messages: {} }]);
   for (const [language, label, target] of [['zh','English','language-en'],['en','简体中文','language-zh']]) {
     i18n.setLanguage(language); let invoked=''; const handlers = new Proxy({}, { get: (_object, id) => value => { invoked = id === 'language-select' ? 'language-' + value : id; } });
     const commands = builtinCommands(handlers, {language}, null, value=>value, false, false);

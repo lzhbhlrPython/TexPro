@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -7,6 +7,10 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+const docsRoot = path.join(root, 'src/content/docs');
+assert.ok(!(await readdir(docsRoot)).some(file => file.endsWith('.md')), 'Every language must have its own documentation directory');
+const sourceFiles = await readdir(path.join(docsRoot, 'zh'));
+assert.deepEqual(sourceFiles.filter(file => file.endsWith('.md')).sort(), (await readdir(path.join(docsRoot, 'en'))).filter(file => file.endsWith('.md')).sort(), 'Chinese and English documents have matching filenames');
 const server = await createServer({ root, configFile: false, appType: 'custom', resolve: { alias: { '@': path.join(root, 'src') } }, optimizeDeps: { noDiscovery: true }, server: { middlewareMode: true, watch: null, ws: false } });
 try {
   const { topicsFor, navFor, neighbors } = await server.ssrLoadModule('/src/content/docs/index.ts');
@@ -15,6 +19,7 @@ try {
   assert.ok(BLOG_POSTS.every(post => post.tags.every(tag => !/[\[\]`]/.test(tag))), 'Blog labels contain no formatting marks');
   const { documentationEntry } = await server.ssrLoadModule('/src/content/docs/sections.mjs');
   const ownership = new Map();
+  const catalogues = Object.fromEntries(await Promise.all(['zh','en'].map(async locale => [locale, JSON.parse(await readFile(path.join(root, `src/i18n/messages/${locale}.json`), 'utf8'))])));
   for (const locale of ['zh', 'en']) {
     const all = topicsFor(locale);
     assert.equal(all.find(topic => topic.slug === 'extension-skill').group, 'AI 协作');
@@ -35,7 +40,7 @@ try {
         const { prev, next } = neighbors(topic.slug, locale);
         if (prev) assert.equal(prev.section, section);
         if (next) assert.equal(next.section, section);
-        const hit = searchIndex(locale).find(hit => hit.id === `doc-${topic.slug}`);
+        const hit = searchIndex(locale, id => catalogues[locale][id]).find(hit => hit.id === `doc-${topic.slug}`);
         assert.equal(hit.to, `/docs/${topic.slug}`, 'Existing article URLs stay stable');
         assert.ok(hit.meta.startsWith(locale === 'en' ? (section === 'develop' ? 'Developer docs' : 'User guide') : (section === 'develop' ? '开发文档' : '使用文档')));
         if (locale === 'zh') ownership.set(topic.slug, section);
@@ -52,10 +57,10 @@ try {
 // Exercise the real generator in an isolated fixture, including a GitHub Pages subpath.
 const fixture = await mkdtemp(path.join(tmpdir(), 'texpro-doc-sections-'));
 try {
-  for (const dir of ['scripts', 'src/content/docs', 'src/content/blog', 'public']) await mkdir(path.join(fixture, dir), { recursive: true });
+  for (const dir of ['scripts', 'src/content/docs/zh', 'src/content/docs/en', 'src/content/blog', 'public']) await mkdir(path.join(fixture, dir), { recursive: true });
   await copyFile(path.join(root, 'scripts/gen-llms.mjs'), path.join(fixture, 'scripts/gen-llms.mjs'));
   await copyFile(path.join(root, 'src/content/docs/sections.mjs'), path.join(fixture, 'src/content/docs/sections.mjs'));
-  for (const [slug, group] of [['start','开始'], ['sdk','开发'], ['mcp','AI 协作']]) await writeFile(path.join(fixture, `src/content/docs/${slug}.md`), `---\nslug: ${slug}\ntitle: ${slug}\ngroup: ${group}\norder: 1\nsummary: Example\n---\n\n## Body\n`);
+  for (const [slug, group] of [['start','开始'], ['sdk','开发'], ['mcp','AI 协作']]) await writeFile(path.join(fixture, `src/content/docs/zh/${slug}.md`), `---\nslug: ${slug}\ntitle: ${slug}\ngroup: ${group}\norder: 1\nsummary: Example\n---\n\n## Body\n`);
   execFileSync(process.execPath, [path.join(fixture, 'scripts/gen-llms.mjs')], { env: { ...process.env, SITE_URL: 'https://example.test/TeXPro' } });
   const llms = await readFile(path.join(fixture, 'public/llms.txt'), 'utf8');
   assert.match(llms, /## 使用文档[\s\S]*\/docs\/start[\s\S]*## 开发文档[\s\S]*\/docs\/(?:mcp|sdk)/);

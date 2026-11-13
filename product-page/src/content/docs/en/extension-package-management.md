@@ -28,7 +28,7 @@ These steps manage extensions you use. `@texpro/extension-sdk` and `@texpro/qwer
 Open a terminal in the parent folder where you want to keep your extensions. Do not use a LaTeX project, TeXPro source checkout or plugin source folder.
 
 ```sh
-npx --package @texpro/qwertysay@0.5.0 qwertysay
+npx --package @texpro/qwertysay@0.6.0 qwertysay
 ```
 
 The first npx run may ask to download qwertysay. Confirm, then answer the guide:

@@ -7,6 +7,20 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
+      "title": "从正文查词到稳定消息键：语言资源的一次重整",
+      "summary": "桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。",
+      "content_text": "桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。",
+      "date_published": "2026-11-12T16:00:00.000Z",
+      "tags": [
+        "i18n",
+        "扩展",
+        "SDK",
+        "qwertysay"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions",
       "title": "扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断",

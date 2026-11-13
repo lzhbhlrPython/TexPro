@@ -1,41 +1,41 @@
 import { theme } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 const DETAILS = [
   {
-    kicker: '占位符',
-    title: '缺的那一步，留在原位',
-    desc: '按 ⌘⇧H 就地插占位符（图 / 表 / 引用 / 数据），草稿 PDF 里留框、清单里可跳回；⌘⇧N 的修订备忘写进注释，读稿的人和 PDF 都不会被打断。',
+    kicker: "site.placeholder",
+    title: "site.leave.the.missing.step.in.place",
+    desc: "site.press.h.to.drop.a.placeholder.figure.table.citation",
   },
   {
     kicker: 'CTeX',
-    title: '中文排版，一条命令',
-    desc: '两字缩进、全角标点、1.3 倍行距写进主文件，字体与文档类保持作者原样；子文件位置不变，随时可撤销。',
+    title: "site.chinese.typesetting.in.one.command",
+    desc: "site.two.character.indent.full.width.punctuation.and.1.3",
   },
 ];
 
 /** 写作链路上的两件小事：不属于「能力」，单独用两行说明，与证据区同一套排版 */
 export function Details() {
-  const localize = useLocalize();
-  const items = localize(DETAILS);
-  const t = useT();
+  const localize = useLocalizedFields();
+  const items = localize(DETAILS, ["kicker","title","desc"]);
+  const msg = useMessages();
   const { token } = theme.useToken();
 
   return (
     <section className="section section-details" id="details">
       <div className="shell">
         <SectionHeading
-          eyebrow="小巧思"
-          title="把打断写作的地方，各挪开一次"
-          description="不是新面板，也不是新流程：缺的东西留在段落里，排版交给一条命令，然后接着往下写。"
+          eyebrow="site.small.touches"
+          title="site.move.each.interruption.out.of.the.way.once"
+          description="site.no.new.panel.no.new.workflow.what.is.missing"
         />
 
         <div className="details-grid">
           {items.map((item) => (
             <article className="details-note" key={item.title}>
               <span className="details-kicker" style={{ color: token.colorTextTertiary }}>
-                {t(item.kicker)}
+                {msg.text(item.kicker)}
               </span>
               <h3 className="details-title" style={{ color: token.colorTextHeading }}>
                 {item.title}

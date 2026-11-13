@@ -13,13 +13,13 @@ interface Props {
 }
 
 const formats: Array<{ id: ExportFormat; label: string; ext: string; icon: typeof FileText }> = [
-  { id: 'markdown', label: 'Markdown', ext: 'md', icon: FileText },
-  { id: 'typst', label: 'Typst', ext: 'typ', icon: FileCode2 },
-  { id: 'html', label: 'HTML', ext: 'html', icon: FileCode2 },
+  { id: 'markdown', label: "app.markdown", ext: 'md', icon: FileText },
+  { id: 'typst', label: "app.typst", ext: 'typ', icon: FileCode2 },
+  { id: 'html', label: "app.html", ext: 'html', icon: FileCode2 },
 ];
 
 export function ExportStudio({ open, source, name, onClose, onReviewPlaceholders }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [format, setFormat] = useState<ExportFormat>('markdown');
   const [copied, setCopied] = useState(false);
   const output = useMemo(() => exportLatex(source, format), [source, format]);
@@ -51,20 +51,20 @@ export function ExportStudio({ open, source, name, onClose, onReviewPlaceholders
           <div className="studio-heading">
             <div className="studio-icon"><Download size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{t('Export')}</span>
-              <h2>{t('Export document')}</h2>
+              <span className="modal-eyebrow">{msg("app.export")}</span>
+              <h2>{msg("app.export.document")}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok"><FileCode2 size={11} /> {t('Portable text')}</span>
-            <button className="icon-btn" onClick={onClose} title={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok"><FileCode2 size={11} /> {msg("app.portable.text")}</span>
+            <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
-        {pending > 0 && <div className="writing-aids-export-notice" role="status"><span>{t('Resolve {count} placeholders before submission.', { count: pending })}</span><button className="secondary-btn" onClick={onReviewPlaceholders}>{t('Review placeholders')}</button></div>}
+        {pending > 0 && <div className="writing-aids-export-notice" role="status"><span>{msg("app.resolve.count.placeholders.before.submission", { count: pending })}</span><button className="secondary-btn" onClick={onReviewPlaceholders}>{msg("app.review.placeholders")}</button></div>}
         <div className="export-body">
           <aside className="export-side">
-            <div className="pane-label">{t('Format')}</div>
+            <div className="pane-label">{msg("app.format")}</div>
             {formats.map((item) => {
               const Icon = item.icon;
               return (
@@ -75,19 +75,19 @@ export function ExportStudio({ open, source, name, onClose, onReviewPlaceholders
                 </button>
               );
             })}
-            <p className="export-hint">{t('The LaTeX source is converted directly; unsupported macros are kept as text where possible.')}</p>
+            <p className="export-hint">{msg("app.the.latex.source.is.converted.directly.unsupported.macros.are")}</p>
           </aside>
           <div className="export-preview-pane">
-            <div className="workshop-preview-head"><span>{t('Preview')}</span></div>
+            <div className="workshop-preview-head"><span>{msg("app.preview")}</span></div>
             <pre className="export-preview">{output}</pre>
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{t('Markdown, Typst and standalone HTML are generated from the current document.')}</span>
+          <span className="studio-hint">{msg("app.markdown.typst.and.standalone.html.are.generated.from.the")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={() => void copy()}>{copied ? <Check size={12} /> : <Clipboard size={12} />} {t('Copy')}</button>
-          <button className="primary-btn" onClick={download}><Download size={13} /> {t('Download')}</button>
+          <button className="secondary-btn" onClick={() => void copy()}>{copied ? <Check size={12} /> : <Clipboard size={12} />} {msg("app.copy")}</button>
+          <button className="primary-btn" onClick={download}><Download size={13} /> {msg("app.download")}</button>
         </footer>
       </section>
     </div>

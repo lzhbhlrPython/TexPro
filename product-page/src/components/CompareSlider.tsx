@@ -1,3 +1,4 @@
+import { PreviewImage } from './PreviewImage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { theme } from 'antd';
 
@@ -64,10 +65,10 @@ export function CompareSlider({
           updateFromClientX(event.clientX);
         }}
       >
-        <img className="compare-img" src={leftSrc.startsWith('/') && !leftSrc.startsWith('//') ? `${import.meta.env.BASE_URL}${leftSrc.slice(1)}` : leftSrc} alt={`${alt} · ${leftLabel}`} width={width} height={height} />
-        <img
+        <PreviewImage className="compare-img" src={leftSrc} alt={`${alt} · ${leftLabel}`} width={width} height={height} />
+        <PreviewImage
           className="compare-img compare-img-top"
-          src={rightSrc.startsWith('/') && !rightSrc.startsWith('//') ? `${import.meta.env.BASE_URL}${rightSrc.slice(1)}` : rightSrc}
+          src={rightSrc}
           alt={`${alt} · ${rightLabel}`}
           width={width}
           height={height}

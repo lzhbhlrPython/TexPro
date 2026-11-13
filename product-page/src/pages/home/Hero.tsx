@@ -5,15 +5,15 @@ import { ScreenshotFrame } from '@/components/ScreenshotFrame';
 import { useRelease } from '@/hooks/useRelease';
 import { Reveal } from '@/components/Reveal';
 import { HERO_METRICS, HERO_POINTS } from '@/data/site';
-import { useLocalize, useT } from '@/i18n';
+import { useLocalizedFields, useMessages } from '@/i18n';
 
 export function Hero() {
   const { token } = theme.useToken();
   const release = useRelease();
-  const t = useT();
-  const localize = useLocalize();
-  const points = localize([...HERO_POINTS]);
-  const metrics = localize([...HERO_METRICS]);
+  const msg = useMessages();
+  const localize = useLocalizedFields();
+  const points = localize([...HERO_POINTS], []);
+  const metrics = localize([...HERO_METRICS], ["label"]);
 
   return (
     <section className="hero" id="top">
@@ -31,18 +31,18 @@ export function Hero() {
               v<span className="badge-version-full">{release.version}</span>
               <span className="badge-version-short">{release.version.split('-')[0]}</span>
             </span>
-            <span>{t('本地优先')}</span>
-            <span>{t('免登录')}</span>
+            <span>{msg("site.local.first")}</span>
+            <span>{msg("site.no.sign.in")}</span>
           </p>
 
           <h1 className="hero-title">
-            {t('让')} <LatexMark />
+            {msg("site.make")} <LatexMark />
             <br />
-            {t('像纸面一样好写')}
+            {msg("site.as.natural.as.paper")}
           </h1>
 
           <p className="hero-lede">
-            {t('TeXPro 把可视编辑、纸面排版和真正的 LaTeX 工程放进同一个窗口：公式、表格、TikZ 与乐谱在正文里直接出版面效果，PDF 与源码双向跳转，工程默认保存在本机，联网能力由你选择。')}
+            {msg("site.texpro.puts.visual.editing.paper.like.typesetting.and.a")}
           </p>
 
           <Space size={12} wrap className="hero-actions">
@@ -53,10 +53,10 @@ export function Hero() {
               icon={<DownloadOutlined />}
               href="#download"
             >
-              {t('下载 TeXPro')}
+              {msg("site.download.texpro")}
             </Button>
             <Button size="large" href="#capabilities">
-              {t('看看能做什么')}
+              {msg("site.see.what.it.does")}
             </Button>
           </Space>
 
@@ -73,8 +73,8 @@ export function Hero() {
         <div className="hero-visual">
           <ScreenshotFrame
             src="/shots/hero.jpg"
-            alt={t('TeXPro 主界面：左侧项目树与主文件，中间可视编辑器，右侧 PDF 预览')}
-            caption={t('可视编辑器 · PDF 预览 · 双向 SyncTeX 同屏')}
+            alt={msg("site.texpro.main.window.project.tree.on.the.left.visual")}
+            caption={msg("site.visual.editor.pdf.preview.two.way.synctex")}
             width={1800}
             height={1259}
             eager
@@ -90,9 +90,9 @@ export function Hero() {
                 {metric.value}
               </dt>
               <dd className="hero-metric-label" style={{ color: token.colorTextTertiary }}>
-                {t(metric.label)}
+                {msg.text(metric.label)}
                 <sup className="claim-ref hero-metric-ref">
-                  <a href={`#ref-${index + 7}`} aria-label={t('第 7–10 条参考文献')}>
+                  <a href={`#ref-${index + 7}`} aria-label={msg('site.references.seven.to.ten')}>
                     {index + 7}
                   </a>
                 </sup>

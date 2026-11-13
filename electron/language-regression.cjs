@@ -35,8 +35,8 @@ module.exports = async function languageJourney({ key, wait, click, open, shot, 
   fs.writeFileSync(path.join(root, 'package-lock.json'), 'native test fixture lock');
   const directory = path.join(root, 'node_modules/@test/french'); fs.mkdirSync(directory, { recursive: true });
   fs.writeFileSync(path.join(directory, 'package.json'), JSON.stringify({ name: '@test/french', version: '1.0.0', texpro: { package: 'french.tpp' } }));
-  const manifest = { id: 'test.language-french', name: 'Français', version: '1.0.0', apiVersion: 1, author: 'Native test', license: 'MIT', capabilities: [], contributes: { locales: [{ id: 'fr', title: 'Français', messages: 'fr.json' }] } };
-  fs.writeFileSync(path.join(directory, 'french.tpp'), pack(new Map([['texpro.extension.json', JSON.stringify(manifest)], ['fr.json', '{"Save":"Enregistrer"}'], ['LICENSE', 'MIT']])));
+  const manifest = { id: 'test.language-french', name: 'Français', version: '1.0.0', apiVersion: 1, author: 'Native test', license: 'MIT', capabilities: [], contributes: { locales: [{ catalogVersion: 2, id: 'fr', title: 'Français', messages: 'fr.json' }] } };
+  fs.writeFileSync(path.join(directory, 'french.tpp'), pack(new Map([['texpro.extension.json', JSON.stringify(manifest)], ['fr.json', '{"app.save":"Enregistrer"}'], ['LICENSE', 'MIT']])));
   extensionManager.queueSync(writeEnvironmentPlan(root));
   await wait(`!!${el('.extension-sync')}`); await shot('extensions-sync-install');
   await click(button('Install disabled', '.extension-sync')); await wait(`(async()=>(await window.texpro.extensionsList()).some(p=>p.manifest.id==='test.language-french'&&!p.enabled))()`);

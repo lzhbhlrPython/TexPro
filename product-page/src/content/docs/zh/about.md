@@ -160,7 +160,7 @@ TeXPro 的第一次提交在 2026 年 10 月 21 日，提交信息是「Initial 
 
 ### 改进文档
 
-产品页文档在 `product-page/src/content/docs/`，每个文件是一个页面，front matter 决定标题、分组与顺序。写作时请：
+产品页文档在 `product-page/src/content/docs/{locale}/`，当前 `zh/` 与 `en/` 平级、同名同 slug；每个文件是一篇完整译文，front matter 决定标题、分组与顺序。写作时请：
 
 - 事实以源码与仓库文档为准，不写未实现的功能
 - 用 `##` 与 `###` 组织内容，表格与提示按现有页面的写法

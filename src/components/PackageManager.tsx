@@ -17,7 +17,7 @@ interface Props {
 const categories = ['All', ...Array.from(new Set(packageCatalog.map((item) => item.category)))];
 
 export function PackageManager({ open, documentText, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { msg } = useI18n();
   const [setup, setSetup] = useState<DocumentSetup>({ className: 'article', classOptions: '', packages: [] });
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
@@ -84,44 +84,44 @@ export function PackageManager({ open, documentText, onClose, onApply }: Props) 
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><Package size={18} /></div>
-            <div><span className="modal-eyebrow">{t('Document setup')}</span><h2>{t('Packages & document class')}</h2></div>
+            <div><span className="modal-eyebrow">{msg("app.document.setup")}</span><h2>{msg("app.packages.document.class")}</h2></div>
           </div>
           <div className="studio-header-actions">
-            <span className="studio-engine ok">{setup.packages.length} {t('packages')}</span>
-            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
+            <span className="studio-engine ok">{setup.packages.length} {msg("app.packages.variant2")}</span>
+            <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
         <div className="package-body">
           <aside className="package-current">
-            <div className="pane-label"><Package size={12} /> {t('Document class')}</div>
+            <div className="pane-label"><Package size={12} /> {msg("app.document.class")}</div>
             <input className="package-class" list="texpro-class-list" value={setup.className} onChange={(event) => setSetup((current) => ({ ...current, className: event.target.value.trim() }))} placeholder="article, ctexart, IEEEtran…" />
             <datalist id="texpro-class-list">
               {classCatalog.map((item) => <option key={item.name} value={item.name}>{item.description}</option>)}
             </datalist>
-            {selectedClass && <p className="package-class-description">{t(selectedClass.description)}</p>}
-            <label className="workshop-field"><span>{t('Class options')}</span><input value={setup.classOptions} onChange={(event) => setSetup((current) => ({ ...current, classOptions: event.target.value }))} placeholder="11pt,a4paper" /></label>
+            {selectedClass && <p className="package-class-description">{msg.text(selectedClass.description)}</p>}
+            <label className="workshop-field"><span>{msg("app.class.options")}</span><input value={setup.classOptions} onChange={(event) => setSetup((current) => ({ ...current, classOptions: event.target.value }))} placeholder="11pt,a4paper" /></label>
             <div className="package-options">
               {['10pt', '11pt', '12pt'].map((option) => <button key={option} className={hasOption(option) ? 'active' : ''} onClick={() => setExclusive(['10pt', '11pt', '12pt'], option)}>{option}</button>)}
               {['a4paper', 'letterpaper'].map((option) => <button key={option} className={hasOption(option) ? 'active' : ''} onClick={() => setExclusive(['a4paper', 'letterpaper'], option)}>{option}</button>)}
-              <button className={hasOption('twocolumn') ? 'active' : ''} onClick={() => toggleOption('twocolumn')}>{t('two-column')}</button>
+              <button className={hasOption('twocolumn') ? 'active' : ''} onClick={() => toggleOption('twocolumn')}>{msg("app.two.column")}</button>
             </div>
             <div className="package-availability">
               {available.classes[setup.className] === false
-                ? <><CircleAlert size={11} /> {t('Class file not found')}</>
+                ? <><CircleAlert size={11} /> {msg("app.class.file.not.found")}</>
                 : available.classes[setup.className] === true
-                  ? <><Check size={11} /> {t('Class available')}</>
-                  : <>{t('Class not checked')}</>}
+                  ? <><Check size={11} /> {msg("app.class.available")}</>
+                  : <>{msg("app.class.not.checked")}</>}
             </div>
 
-            <div className="pane-label package-list-label"><Package size={12} /> {t('Active packages')}<span className="pane-hint">{setup.packages.length}</span></div>
+            <div className="pane-label package-list-label"><Package size={12} /> {msg("app.active.packages")}<span className="pane-hint">{setup.packages.length}</span></div>
             <div className="package-list">
               {setup.packages.map((pkg, index) => (
                 <div key={pkg.name} className="package-row">
                   <div className="package-row-main">
                     <strong>{pkg.name}</strong>
-                    {available.packages[pkg.name] === false && <span className="package-missing">{t('missing')}</span>}
-                    <input value={pkg.options} onChange={(event) => updateOptions(pkg.name, event.target.value)} placeholder={t('options')} />
+                    {available.packages[pkg.name] === false && <span className="package-missing">{msg("app.missing")}</span>}
+                    <input value={pkg.options} onChange={(event) => updateOptions(pkg.name, event.target.value)} placeholder={msg("app.options")} />
                   </div>
                   <div className="package-row-actions">
                     <button onClick={() => move(pkg.name, -1)} disabled={index === 0}><ArrowUp size={11} /></button>
@@ -130,21 +130,21 @@ export function PackageManager({ open, documentText, onClose, onApply }: Props) 
                   </div>
                 </div>
               ))}
-              {!setup.packages.length && <div className="package-empty">{t('No packages yet. Add from the catalog.')}</div>}
+              {!setup.packages.length && <div className="package-empty">{msg("app.no.packages.yet.add.from.the.catalog")}</div>}
             </div>
             <div className="package-custom">
-              <input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder={t('Custom package name')} onKeyDown={(event) => { if (event.key === 'Enter' && custom.trim()) { add({ name: custom.trim(), description: '', category: 'Custom' }); setCustom(''); } }} />
-              <button className="secondary-btn" onClick={() => { if (custom.trim()) { add({ name: custom.trim(), description: '', category: 'Custom' }); setCustom(''); } }} disabled={!custom.trim()}><Plus size={12} /></button>
+              <input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder={msg("app.custom.package.name")} onKeyDown={(event) => { if (event.key === 'Enter' && custom.trim()) { add({ name: custom.trim(), description: '', category: "app.custom.variant2" }); setCustom(''); } }} />
+              <button className="secondary-btn" onClick={() => { if (custom.trim()) { add({ name: custom.trim(), description: '', category: "app.custom.variant2" }); setCustom(''); } }} disabled={!custom.trim()}><Plus size={12} /></button>
             </div>
           </aside>
 
           <main className="package-catalog">
             <div className="package-catalog-head">
-              <div className="sidebar-search package-search"><Search size={12} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search packages…')} /></div>
-              {checking && <span className="package-checking">{t('Checking TeX installation…')}</span>}
+              <div className="sidebar-search package-search"><Search size={12} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={msg("app.search.packages")} /></div>
+              {checking && <span className="package-checking">{msg("app.checking.tex.installation")}</span>}
             </div>
             <div className="package-categories">
-              {categories.map((item) => <button key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{t(item)}</button>)}
+              {categories.map((item) => <button key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{msg.text(item)}</button>)}
             </div>
             <div className="package-grid">
               {filtered.map((item) => {
@@ -153,8 +153,8 @@ export function PackageManager({ open, documentText, onClose, onApply }: Props) 
                 return (
                   <button key={item.name} className={`package-card ${active ? 'active' : ''}`} onClick={() => active ? remove(item.name) : add(item)}>
                     <div className="package-card-head"><strong>{item.name}</strong>{active ? <Check size={12} /> : installed === false ? <CircleAlert size={12} /> : <Plus size={12} />}</div>
-                    <span>{t(item.description)}</span>
-                    <small>{t(item.category)}{installed === false ? ` · ${t('not installed')}` : ''}</small>
+                    <span>{msg.text(item.description)}</span>
+                    <small>{msg.text(item.category)}{installed === false ? ` · ${msg("app.not.installed")}` : ''}</small>
                   </button>
                 );
               })}
@@ -163,10 +163,10 @@ export function PackageManager({ open, documentText, onClose, onApply }: Props) 
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{engine ? `${t('Suggested engine')}: ${engine}` : t('Class and packages are written back to the preamble.')}</span>
+          <span className="studio-hint">{engine ? `${msg("app.suggested.engine")}: ${engine}` : msg("app.class.and.packages.are.written.back.to.the.preamble")}</span>
           <div className="spacer" />
-          <button className="secondary-btn" onClick={onClose}>{t('Cancel')}</button>
-          <button className="primary-btn" onClick={() => onApply(buildDocumentSetup(documentText, setup), engine)} disabled={!documentText.trim()}><Check size={12} /> {t('Apply to preamble')}</button>
+          <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
+          <button className="primary-btn" onClick={() => onApply(buildDocumentSetup(documentText, setup), engine)} disabled={!documentText.trim()}><Check size={12} /> {msg("app.apply.to.preamble")}</button>
         </footer>
       </section>
     </div>

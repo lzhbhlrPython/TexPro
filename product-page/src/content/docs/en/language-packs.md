@@ -6,55 +6,49 @@ order: 68
 summary: Use preinstalled Simplified Chinese, create declarative language plugins and verify fallback, placeholders and recovery.
 ---
 
-> Requires a desktop build containing language plugins and package-manager synchronization. The previously published v0.1.0 installers do not contain this update.
+## Choose a language and recover
 
-## Where languages come from
+The preinstalled `@texpro/extension-translate-zh-cn` plugin provides Simplified Chinese. Review, disable or enable it in **Extensions**, then choose the language in **Preferences**. English is always built in. Disabling or removing an active language update falls back to English. Bundled resources can be disabled, but not deleted. The native **Reset Appearance and Disable Extensions** command always uses English; `--safe-mode` also provides recovery.
 
-English is TeXPro's built-in recovery language. Simplified Chinese is a preinstalled declarative `.tpp` plugin, independently distributed as `@texpro/extension-translate-zh-cn`. Both artifacts share one translation source. TeXPro does not automatically download languages. Website documentation languages are separate from desktop language plugins.
+Translations can imitate trusted instructions. Data-only packages still require trust in the author and content. Functional plugins own their i18n resources; host language packs do not replace plugin business logic.
 
-To install an author's `.tpp`, open Extensions, choose Install package…, review the identity, author and wording risks, then select Install disabled and Enable. Choose the language's own name under Preferences → Interface language. With two languages, a single button names the other language; additional languages use a selector.
+## Make a catalogue v2 language pack
 
-The bundled Chinese pack can be disabled. Disabling, corrupting or removing the current pack falls back to English. Bundled resources cannot be uninstalled; uninstalling an installed Chinese update restores the disabled bundled copy. Missing individual messages fall back to English.
-
-## Create a language pack
-
-Install Node.js 20+. Start [qwertysay](/docs/qwertysay) and select English, Create a plugin or theme, then Language pack (data only). Choose the directory, package ID, author, BCP 47 identifier such as fr, autonym such as Français, and npm or yarn. No compiler or build is needed.
+In a repository development environment, start the guided qwertysay tool and choose a data-only language pack, locale code, autonym, and npm or yarn:
 
 ```sh
-npx --package @texpro/qwertysay@0.4.1 qwertysay
+npm ci
+node packages/qwertysay/bin/qwertysay.cjs
 ```
 
-The generated `reference/en.json` is a reference snapshot. Edit `locales/fr.json`:
+Find semantic message IDs in the generated `reference/en.json`, then translate values in `locales/fr.json`. Keep IDs and variables such as `{name}` unchanged.
 
 ```json
 {
-  "Save": "Enregistrer",
-  "Hello {name}": "Bonjour {name}"
+  "app.save": "Enregistrer",
+  "app.cancel": "Annuler"
 }
 ```
 
-Keep the exact keys from `reference/en.json`, including historical Chinese keys. Translate the English display text into the target-language values; never translate the keys. Preserve every placeholder such as `{name}` and `{count}`. Check a directory or package reports missing and unknown keys. Unknown keys permit version compatibility; missing messages fall back to English. The reference reflects the SDK version used to create it; review an updated catalog when the host adds messages.
-
-Declare the contribution inside `contributes`:
+Each contribution in `contributes.locales` declares the catalogue version:
 
 ```json
 {
-  "locales": [
-    { "id": "fr", "title": "Français", "messages": "locales/fr.json" }
-  ]
+  "catalogVersion": 2,
+  "id": "fr",
+  "title": "Français",
+  "messages": "locales/fr.json"
 }
 ```
 
-The complete manifest also needs an extension ID, version, API 1, author, license and empty capabilities; the template includes these. Include LICENSE. Language packs cannot contain an entry, capabilities, scripts, styles or other contributions. English recovery cannot be replaced. The bundled Chinese identifier remains zh for existing preference compatibility.
+The extension `apiVersion` remains 1. Include the manifest, message JSON and LICENSE, without entries, capabilities or styles. No compilation is needed. Choose Check and Pack to create a `.tpp`, review it in **Extensions**, enable it, and select the language. Missing messages use English; unknown semantic IDs are reported. Coverage is relative to the SDK reference version.
 
-Use Pack for distribution to create a `.tpp`. Test enable/disable, missing messages, placeholders, native menus and recovery in a temporary TeXPro profile. See [package-manager extension management](/docs/extension-package-management) for npm distribution and install/remove synchronization, and the [SDK guide](/docs/extension-development) for APIs.
+## Breaking migration and long documents
 
-## Risks and recovery
+SDK 0.5.0, qwertysay 0.6.0 and Chinese pack 2.0.0 target a host with catalogue v2 support. Old phrase-key packs are rejected, with no compatibility layer. Regenerate the reference, migrate translations to semantic IDs, bump the pack version and validate it. Changing only the version field is insufficient. Source, npm publication and application Releases are separate states; existing v0.1.0 installations do not automatically gain this contract.
 
-Language packs supply strings without executing code or HTML, but can still mistranslate controls into misleading instructions. Check the author and contents; validation and data-only packaging do not certify safety. Themes can hide controls, and Node plugins can access user files, networks and processes.
+Buttons, menus and statuses use JSON. Easter eggs, documentation, tutorials and long explanations use complete Markdown documents per language and one shared renderer, rather than separate message keys per sentence or paragraph. Desktop language plugins do not translate the website.
 
-Use View → Reset Appearance and Disable Extensions in the native menu. This recovery command deliberately stays in English so language plugins cannot replace it. Alternatively start with `--safe-mode`, which disables extensions and returns to English.
+Website document sources live in `product-page/src/content/docs/{locale}/{slug}.md`. The `zh/` and `en/` directories are peers with matching filenames and slugs; Chinese is not stored at the documentation root. New languages follow the same structure. Moving source files does not change public `/docs/:slug` links.
 
-## npm source publishing and build safety
-
-Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.
+Continue with the [SDK](/docs/extension-development), [qwertysay](/docs/qwertysay), [AI development Skill](/docs/extension-skill) and [npm/yarn extension management](/docs/extension-package-management) guides.

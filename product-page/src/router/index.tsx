@@ -18,18 +18,18 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <SiteLayout />,
-    handle: { title: 'TeXPro · 本地优先的 LaTeX 工作台' },
+    handle: { title: 'site.page.home.title' },
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'docs', element: <DocsPage section="use" />, handle: { title: '使用文档 · TeXPro' } },
-      { path: 'developers', element: <DocsPage section="develop" />, handle: { title: '开发文档 · TeXPro' } },
-      { path: 'docs/:slug', element: <DocsPage />, handle: { title: '文档 · TeXPro' } },
-      { path: 'releases', element: <ReleasesPage />, handle: { title: '正式版本列表 · TeXPro' } },
-      { path: 'changelog', element: <ChangelogPage />, handle: { title: '更新日志 · TeXPro' } },
-      { path: 'blog', element: <BlogIndexPage />, handle: { title: '开发博客 · TeXPro' } },
-      { path: 'blog/:slug', element: <BlogPostPage />, handle: { title: '开发博客 · TeXPro' } },
-      { path: 'ai', element: <AiPage />, handle: { title: 'TeXPro · AI 入口' } },
-      { path: 'download', element: <DownloadPage />, handle: { title: '下载 · TeXPro' } },
+      { path: 'docs', element: <DocsPage section="use" />, handle: { title: "site.user.guide.texpro" } },
+      { path: 'developers', element: <DocsPage section="develop" />, handle: { title: "site.developer.docs.texpro" } },
+      { path: 'docs/:slug', element: <DocsPage />, handle: { title: 'site.page.docs.title' } },
+      { path: 'releases', element: <ReleasesPage />, handle: { title: "site.stable.releases.texpro" } },
+      { path: 'changelog', element: <ChangelogPage />, handle: { title: 'site.page.changelog.title' } },
+      { path: 'blog', element: <BlogIndexPage />, handle: { title: 'site.page.blog.title' } },
+      { path: 'blog/:slug', element: <BlogPostPage />, handle: { title: 'site.page.blog.title' } },
+      { path: 'ai', element: <AiPage />, handle: { title: 'site.page.ai.title' } },
+      { path: 'download', element: <DownloadPage />, handle: { title: 'site.page.download.title' } },
       {
         path: 'texpad',
         element: (
@@ -44,6 +44,6 @@ export const router = createBrowserRouter([
   {
     path: '*',
     element: <NotFoundPage />,
-    handle: { title: '页面不存在' },
+    handle: { title: 'site.page.missing.title' },
   },
 ], { basename: import.meta.env.BASE_URL });

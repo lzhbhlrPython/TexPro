@@ -7,7 +7,7 @@ const spec = process.argv[2], scaffoldSpec = process.argv[3], npm = process.env.
 if (!spec || !scaffoldSpec || !npm) throw new Error('Run through npm with SDK and qwertysay tarball paths or explicit npm versions');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-sdk-distribution-'));
 function run(args, cwd = root) { return execFileSync(process.execPath, args, { cwd, encoding: 'utf8', timeout: 120000, env: { ...process.env, NODE_PATH: '' } }); }
-function install(args, cwd) { return run([npm, 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--cache', path.join(root, 'cache'), ...args], cwd); }
+function install(args, cwd) { return run([npm, 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--cache', process.env.TEXPRO_PACKAGE_TEST_CACHE || path.join(root, 'cache'), ...args], cwd); }
 try {
   fs.writeFileSync(path.join(root, 'package.json'), '{"private":true}');
   install([spec, ...(scaffoldSpec ? [scaffoldSpec] : []), 'typescript@5.9.3']);
@@ -45,5 +45,19 @@ try {
     assert.throws(() => run([cli, 'pack', directory, output]), 'Must not overwrite');
     if (type === 'plugin') assert.throws(() => run([cli, 'pack', directory, path.join(root, type + language + '.tpt')]), 'Must not disguise executable plugins as themes');
   }
+  run(['-e', `
+    const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
+    const tools = require(${JSON.stringify(path.join(sdk, 'package-tools.cjs'))});
+    const { scaffoldLocale } = require(${JSON.stringify(path.join(root, 'node_modules/@texpro/qwertysay/lib/locales.cjs'))});
+    const directory = ${JSON.stringify(path.join(root, 'language-v2'))};
+    scaffoldLocale(directory, { locale: 'fr', title: 'Français' });
+    const info = tools.readPackage(directory);
+    assert.equal(info.manifest.contributes.locales[0].catalogVersion, 2);
+    assert.equal(tools.LOCALE_CATALOG_VERSION, 2);
+    assert.equal(tools.sourceMessages['app.save'], 'Save');
+    assert.throws(() => tools.validateMessages({ Save: 'Enregistrer' }));
+    fs.writeFileSync(path.join(directory, 'locales/fr.json'), JSON.stringify({ 'app.save': 'Enregistrer' }));
+    assert.equal(tools.readPackage(directory).manifest.entry, undefined);
+  `]);
   console.log('PASS independent npm distribution: actual install, public helper/types, TS/JS/theme scaffold, compile, validate, pack, archive check and rejection paths');
 } finally { fs.rmSync(root, { recursive: true, force: true }); }

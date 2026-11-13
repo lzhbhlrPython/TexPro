@@ -3,15 +3,15 @@ import { Table, Tag, Typography, theme, type TableProps } from 'antd';
 import { SectionHeading } from '@/components/SectionHeading';
 import { COMPARE_COLUMNS, COMPARE_ROWS, type CompareRow } from '@/data/site';
 import type { SupportLevel } from '@/types';
-import { useT, useLocalize } from '@/i18n';
+import { useMessages, useLocalizedFields } from '@/i18n';
 
 const { Text } = Typography;
 
 export function Comparison() {
-  const t = useT();
-  const localize = useLocalize();
-  const rows = localize(COMPARE_ROWS);
-  const columnsMeta = localize([...COMPARE_COLUMNS]);
+  const msg = useMessages();
+  const localize = useLocalizedFields();
+  const rows = localize(COMPARE_ROWS, ["capability","detail"]);
+  const columnsMeta = localize([...COMPARE_COLUMNS], ["label"]);
   const { token } = theme.useToken();
 
   const renderSupport = (level: SupportLevel) => {
@@ -19,7 +19,7 @@ export function Comparison() {
       return (
         <span className="compare-cell">
           <CheckCircleFilled style={{ color: token.colorSuccess }} />
-          <span className="visually-hidden">{t('支持')}</span>
+          <span className="visually-hidden">{msg("site.supported")}</span>
         </span>
       );
     }
@@ -27,7 +27,7 @@ export function Comparison() {
     if (level === 'partial') {
       return (
         <Tag color="warning" variant="filled" style={{ marginInlineEnd: 0 }}>
-          {t('部分')}
+          {msg("site.partial")}
         </Tag>
       );
     }
@@ -35,14 +35,14 @@ export function Comparison() {
     return (
       <span className="compare-cell">
         <MinusCircleOutlined style={{ color: token.colorTextQuaternary }} />
-        <span className="visually-hidden">{t('不支持')}</span>
+        <span className="visually-hidden">{msg("site.not.supported")}</span>
       </span>
     );
   };
 
   const columns: TableProps<CompareRow>['columns'] = [
     {
-      title: t('能力'),
+      title: msg("site.capabilities"),
       dataIndex: 'capability',
       key: 'capability',
       width: 320,
@@ -80,9 +80,9 @@ export function Comparison() {
     <section className="section section-alt" id="compare" style={{ background: token.colorFillQuaternary }}>
       <div className="shell">
         <SectionHeading
-          eyebrow="对比"
-          title="和三类常见方案比，差在哪"
-          description="不想夸大：TeXPro 不是 Markdown 编辑器，也不是在线协作平台，它解决的是「真 LaTeX + 好写」这一件事。"
+          eyebrow="site.comparison"
+          title="site.where.it.differs.from.three.common.approaches"
+          description="site.no.overselling.texpro.is.not.a.markdown.editor.and"
         />
 
         <div
@@ -105,7 +105,7 @@ export function Comparison() {
             rowClassName={(_, index) => (index % 2 === 1 ? 'compare-row-alt' : '')}
           />
           <p className="compare-hint" style={{ color: token.colorTextTertiary }}>
-            {t('左右滑动可查看完整对比')}
+            {msg("site.swipe.horizontally.for.the.full.comparison")}
           </p>
         </div>
       </div>

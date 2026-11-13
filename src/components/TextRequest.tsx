@@ -18,7 +18,7 @@ export function TextRequestHost({ projectKey }: { projectKey: string }) {
   return request ? <TextRequestDialog key={request.title + request.value} request={request} /> : null;
 }
 function TextRequestDialog({ request }: { request: Request }) {
-  const { t } = useI18n(), ref = useRef<HTMLElement | null>(null);
+  const { msg } = useI18n(), ref = useRef<HTMLElement | null>(null);
   const [value, setValue] = useState(request.value);
   useDialogFocus(true, ref, () => settle(null));
   return createPortal(<div className="modal-scrim text-request-scrim" onMouseDown={() => settle(null)}>
@@ -26,7 +26,7 @@ function TextRequestDialog({ request }: { request: Request }) {
       <form onSubmit={event => { event.preventDefault(); if (request.allowEmpty || value.trim()) settle(value.trim()); }}>
         <h2 id="text-request-title">{request.title}</h2>
         <input data-autofocus aria-label={request.title} value={value} onChange={event => setValue(event.target.value)} onFocus={event => event.currentTarget.select()} onKeyDown={event => { if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} />
-        <footer><button type="button" className="secondary-btn" onClick={() => settle(null)}>{t('Cancel')}</button><button className="primary-btn" type="submit" disabled={!request.allowEmpty && !value.trim()}>{t('Continue')}</button></footer>
+        <footer><button type="button" className="secondary-btn" onClick={() => settle(null)}>{msg("app.cancel")}</button><button className="primary-btn" type="submit" disabled={!request.allowEmpty && !value.trim()}>{msg("app.continue")}</button></footer>
       </form>
     </section>
   </div>, document.body);
