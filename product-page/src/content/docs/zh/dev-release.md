@@ -78,7 +78,7 @@ LuaLaTeX 中文还依赖 `texlive-lang-japanese` 中的 LuaTeX-ja；共享任务
 
 GitHub 按标签查询草稿时可能返回 404；发布器改用认证可见的分页列表定位准确标签，再检查已上传资产。不要因为这个 404 重复创建版本或改写标签。已有草稿只在资产完整时公开，同一次运行可以安全重试。
 
-`release-version.cjs` 计算三段正式版本并同步根 package 与 lock，SDK／qwertysay 的版本独立。之后 Nightly 自动读取新基础版本，生成 `v{基础版本}-YYYYMMDD-Nightly`；包内无 v，日期只计算一次传给平台。同日 Nightly 更新当天标签与资产，不同日期保留独立记录。
+`release-version.cjs` 计算三段正式版本并同步根 package 与 lock，SDK／qwertysay 的版本独立。之后 Nightly 从新基础版本计算下一补丁版本，生成 `v{下一补丁版本}-YYYYMMDD-Nightly`；包内无 v，日期只计算一次传给平台。同日 Nightly 更新当天标签与资产，不同日期保留独立记录。
 
 ```bash
 npm run nightly:version
@@ -151,3 +151,7 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 ## 语言贡献与构建渠道
 
 新增官网语言只需提交语言声明 JSON、消息 JSON 与对应 Markdown；详见仓库 docs/website-translation.md。缺译按键或整篇回退，并显示实际文章语言。首页分别展示正式版与 Nightly。Nightly 定时延迟时按最近一次上海时间 21:23 窗口处理，按小时补偿检查，同窗口已有公开构建时跳过。
+
+## Nightly 下一补丁版本规则
+
+正式版保持 main 的根 package／lock 为已发布版本。Nightly 从该版本计算下一补丁版本：正式版 0.1.1 对应 0.1.2-YYYYMMDD-Nightly，不预先递增 main，也不影响下一次正式 patch。正式发布公开成功后显式触发当天 Nightly；已有旧基础版本的同日 Nightly 不阻止新版本构建，旧公开记录保留。补偿检查只跳过当前目标版本与日期均匹配的 Nightly。构建 checkout 已带 Nightly 后缀时仅更新日期，避免重复递增。

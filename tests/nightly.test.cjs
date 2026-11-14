@@ -89,10 +89,10 @@ test('nightly stamps manifests and release metadata consistently without stackin
   run('20261108', '--dry-run');
   assert.deepEqual(JSON.parse(fs.readFileSync(pkgPath)), pkg);
   assert.deepEqual(JSON.parse(fs.readFileSync(lockPath)), lock);
-  assert.match(fs.readFileSync(output, 'utf8'), /tag=v0\.1\.0-20261108-Nightly\n/);
+  assert.match(fs.readFileSync(output, 'utf8'), /tag=v0\.1\.1-20261108-Nightly\n/);
   run('20261108'); run('20261108'); run('20261109');
   const stamped = JSON.parse(fs.readFileSync(pkgPath)), stampedLock = JSON.parse(fs.readFileSync(lockPath));
-  assert.equal(stamped.version, '0.1.0-20261109-Nightly');
+  assert.equal(stamped.version, '0.1.1-20261109-Nightly');
   assert.deepEqual(stamped.dependencies, pkg.dependencies);
   assert.equal(stampedLock.version, stamped.version);
   assert.equal(stampedLock.packages[''].version, stamped.version);
@@ -109,4 +109,12 @@ test('delayed schedules retain the most recent Shanghai 21:23 build date', () =>
   assert.equal(scheduledDay(new Date('2026-11-13T20:30:45Z')), '2026-11-13');
   assert.equal(scheduledDay(new Date('2026-11-14T13:22:59Z')), '2026-11-13');
   assert.equal(scheduledDay(new Date('2026-11-14T13:23:00Z')), '2026-11-14');
+});
+
+test('Nightly targets the next patch after each stable release without changing major/minor', async () => {
+  const { nightlyVersion } = await import('../scripts/set-nightly-version.mjs');
+  assert.equal(nightlyVersion('0.1.1', '20261114'), '0.1.2-20261114-Nightly');
+  assert.equal(nightlyVersion('1.2.9', '20261114'), '1.2.10-20261114-Nightly');
+  assert.equal(nightlyVersion('1.2.10-20261114-Nightly', '20261115'), '1.2.10-20261115-Nightly');
+  assert.throws(() => nightlyVersion('invalid', '20261114'), /Invalid base/);
 });

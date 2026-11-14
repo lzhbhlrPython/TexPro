@@ -151,3 +151,7 @@ The website groups stable releases by major.minor series, such as “V0.1 / Tajp
 ## Language contributions and build channels
 
 To add a website language, submit language metadata JSON, message JSON and translated Markdown; see docs/website-translation.md in the repository. Missing messages and articles fall back explicitly. The homepage separates stable and Nightly releases. Delayed Nightly schedules use the most recent 21:23 Asia/Shanghai window; hourly recovery checks skip windows with an already published build.
+
+## Next-patch Nightly versions
+
+The root package and lock on main retain the published stable version. Nightly targets the next patch: stable 0.1.1 produces 0.1.2-YYYYMMDD-Nightly without incrementing main or the next stable release twice. Successful stable publication explicitly dispatches the same-day Nightly. An older base version on that date does not suppress the new build; existing releases remain intact. Scheduled recovery skips only the exact target version and date. An already stamped Nightly only changes date, avoiding repeated increments.

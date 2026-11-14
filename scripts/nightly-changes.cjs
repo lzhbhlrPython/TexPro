@@ -53,7 +53,10 @@ if (require.main === module) (async () => {
   const day = scheduled ? scheduledDay(new Date()) : shanghaiDay(new Date()).date;
   const tag = await publishedNightly(process.env.GITHUB_REPOSITORY);
   const commits = commitsSinceNightly(process.cwd(), tag);
-  const alreadyPublished = scheduled && tag?.endsWith(`-${day.replaceAll('-', '')}-Nightly`);
+  const { nightlyVersion } = await import('./set-nightly-version.mjs');
+  const baseVersion = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+  const expectedTag = `v${nightlyVersion(baseVersion, day.replaceAll('-', ''))}`;
+  const alreadyPublished = scheduled && tag === expectedTag;
   const build = commits.length > 0 && !alreadyPublished;
   const message = `${day} (Asia/Shanghai): ${commits.length} new commit(s) since ${tag || 'the first commit'}; ${build ? 'build' : 'skip'}.`;
   console.log(message);

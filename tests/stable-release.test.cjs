@@ -89,8 +89,8 @@ test('stable keeps uploads draft on failure and retries publication and Pages wi
   assert.throws(()=>publish(work,env,gh),/upload interrupted/); assert.equal(release.draft,true);assert.equal(dispatches,0);
   failUpload=false; incompleteUpload=true;
   assert.throws(()=>publish(work,env,gh),/Uploaded assets incomplete/);assert.equal(release.draft,true);assert.equal(dispatches,0);
-  incompleteUpload=false; publish(work,env,gh); const commit=git(work,'rev-parse','HEAD'); assert.equal(release.draft,false);assert.equal(dispatches,1);assert.ok(draftLookups>=4);
-  publish(work,env,gh);assert.equal(git(work,'rev-parse','HEAD'),commit);assert.equal(dispatches,2);
+  incompleteUpload=false; publish(work,env,gh); const commit=git(work,'rev-parse','HEAD'); assert.equal(release.draft,false);assert.equal(dispatches,2);assert.ok(draftLookups>=4);
+  publish(work,env,gh);assert.equal(git(work,'rev-parse','HEAD'),commit);assert.equal(dispatches,4);
 });
 
 test('release workflows gate publishing on shared three-platform success and pin the built source', () => {

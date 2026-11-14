@@ -8,7 +8,11 @@ export function nightlyVersion(version, date) {
   const iso = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
   if (new Date(`${iso}T00:00:00Z`).toISOString().slice(0, 10) !== iso) throw new Error('Invalid NIGHTLY_DATE');
   const base = String(version).replace(/\+.*$/, '').replace(/(?:-nightly\.\d{8}|-\d{8}-Nightly)$/i, '');
-  return `${base}-${date}-Nightly`;
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(base);
+  if (!match) throw new Error('Invalid base version');
+  const alreadyNightly = /(?:-nightly\.\d{8}|-\d{8}-Nightly)(?:\+.*)?$/i.test(String(version));
+  const target = alreadyNightly ? base : `${match[1]}.${match[2]}.${BigInt(match[3]) + 1n}`;
+  return `${target}-${date}-Nightly`;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

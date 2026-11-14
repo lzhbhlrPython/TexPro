@@ -12,7 +12,7 @@ Nightly 每日上海时间 21:23 检查相对上一次成功公开、含资产�
 
 在 main 手动运行 Release major／minor／patch，分别递增 X、Y、Z 并清零较低位。三个入口共用 `_release-stable.yml`，Nightly 与正式版共用 `_release-build.yml`；固定源码 SHA 和包内版本，完整回归零跳过／TODO、类型与构建通过后才运行三平台打包。`beforePack`／`afterPack` 与外部 MCP 依赖核验保留。
 
-全部产物成功后，`publish-stable.cjs` 再检查 main 未前进，原子推送根 package／lock 的版本提交与不可覆盖的正式标签，再上传草稿并公开。并发 main 更新、权限或保护规则导致推送失败时不得强推。正式版不会递增 SDK／qwertysay；下一次 Nightly 自动读取新的基础版本。未签名状态不会因使用正式标签改变。
+全部产物成功后，`publish-stable.cjs` 再检查 main 未前进，原子推送根 package／lock 的版本提交与不可覆盖的正式标签，再上传草稿并公开。并发 main 更新、权限或保护规则导致推送失败时不得强推。正式版不会递增 SDK／qwertysay；下一次 Nightly 从新的正式基础版本计算下一补丁版本。未签名状态不会因使用正式标签改变。
 
 所有发布入口共用 `texpro-release` 锁且不取消运行。构建和打包失败不改版本；版本已推送后若上传失败，同一次 Actions 重跑以源码 SHA 与运行 ID 校验原有提交，复用版本、补全草稿，不能覆盖其他运行的正式标签。已公开版本重跑只补官网刷新。不要为同一失败另开一次递增；若 main 在打包期间前进且尚无版本提交，则应从新 main 开启新运行。人工修改 tag、分支保护、网络不可用等需检查远端实际状态。
 
@@ -41,3 +41,7 @@ macOS 保留 universal DMG／ZIP，`build.mac.mergeASARs: false` 避开上游工
 ### 定时延迟补偿（2026-11-14）
 
 GitHub schedule 实际可能延迟：已核对一次 13:23 UTC 的任务于 20:30 UTC 创建且成功完成。工作流保留 21:23 上海时间入口，并按小时补偿检查；同一 21:23 窗口已有公开 Nightly 时不再自动构建。延迟执行的日期取最近一次 21:23 窗口，避免跨上海午夜后标成次日。手动触发保留当天重建行为。补偿降低漏触发影响，不保证 GitHub 准点调度；API、标签与祖先关系失败继续明确报错。
+
+## Nightly 下一补丁版本规则
+
+正式版保持 main 的根 package／lock 为已发布版本。Nightly 从该版本计算下一补丁版本：正式版 0.1.1 对应 0.1.2-YYYYMMDD-Nightly，不预先递增 main，也不影响下一次正式 patch。正式发布公开成功后显式触发当天 Nightly；已有旧基础版本的同日 Nightly 不阻止新版本构建，旧公开记录保留。补偿检查只跳过当前目标版本与日期均匹配的 Nightly。构建 checkout 已带 Nightly 后缀时仅更新日期，避免重复递增。

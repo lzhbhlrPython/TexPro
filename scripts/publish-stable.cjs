@@ -74,6 +74,7 @@ function publish(root, env = process.env, runGh) {
     gh('release', 'edit', tag, '--repo', repo, '--draft=false', '--prerelease=false', '--latest');
   } else if (existing.prerelease || !existing.published_at) throw Error('Existing release is not a published stable version');
   // Also repeat dispatch on retry: a Pages failure does not require a new version.
+  gh('workflow', 'run', 'nightly.yml', '--repo', repo, '--ref', 'main');
   gh('workflow', 'run', 'product-page.yml', '--repo', repo, '--ref', 'main', '-f', `release_tag=${tag}`);
 }
 module.exports = { commitVersion, publish, releasePresentation };
