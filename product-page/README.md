@@ -116,3 +116,9 @@ CodeHighlight 以 React 文本节点渲染 Shiki token，不注入高亮 HTML。
 `src/i18n/messages/{zh,en}.json` 是两种界面的唯一短文案来源，使用稳定语义键。`catalog.ts` 按需请求 JSON 并缓存成功结果，`useMessages` 提供类型检查；`useLocalizedFields` 只处理明确列出的显示字段，禁止递归翻译 id、href、资源路径和 React 节点。切换等待资源、隔离过期请求，失败保留当前语言并提示。完整文档统一位于 `src/content/docs/{locale}/{slug}.md`，当前为平级的 `zh/` 与 `en/`；文档根目录只保留共享模块，不为中文设置特例。彩蛋长信移到 `src/content/letters/{zh,en}/qwerty.md`，由 `LocalizedMarkdown` 复用现有解析器、渲染器和 Shiki，按需加载、缺译提示及重试。长正文不逐句进入词典。其他语种由第三方按 [翻译交接](../docs/website-translation.md) 接入。
 
 首页截图共用 `PreviewImage`，兼容部署子路径，失败后尝试绕过旧缓存，再提供原位重试。Service Worker 缓存版本 v2 拒绝把 HTML 当作图片缓存。核查实际图片解码与主题切换，不把 HTTP 200 当作图片可显示的唯一证据。
+
+### Language contribution contract
+
+Add `src/i18n/languages/{code}.json` (code, autonym `name`, `htmlLang`, `dateLocale`, `componentLocale`), `src/i18n/messages/{code}.json`, and optional `src/content/docs/{code}/{slug}.md`. The menu, message loading, documentation and counts discover these files automatically. Missing messages fall back to English; missing/empty articles indicate the actual fallback language. Run `node scripts/check-locales.mjs`; the build runs it too. Component-library locale adaptation stays centralized; currently `zh_CN` and `en_US` are supported, with explicit English fallback for other component locales.
+
+The homepage lists stable and Nightly channels separately, using public release snapshots synced during the build. Missing channel data is displayed explicitly. Nightly synchronization failure preserves the previous snapshot.

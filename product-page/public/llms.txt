@@ -7,7 +7,7 @@
 - 平台：macOS 13+、Windows 10+、Linux x64（AppImage / deb / rpm）。
 - 编译：latexmk 驱动 pdflatex / XeLaTeX / LuaLaTeX，支持 SyncTeX 双向定位。
 - 架构与验证：以 electron/main.cjs、electron/preload.cjs、tests/ 和当前工作流为准；历史数量不代表当前结果。
-- 中文文档 31 篇，中英文分别位于 zh 与 en 目录，使用相同 slug；博客只写简体中文，只记录应用本体开发。
+- 文档语言：en (English)、eo (Esperanto)、zh (简体中文)；各语言使用相同 slug，缺译明确回退；博客只写简体中文，只记录应用本体开发。
 - 许可：MIT。
 
 ## 使用文档

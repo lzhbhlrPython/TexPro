@@ -147,3 +147,7 @@ Pages also builds for product-page changes; PRs validate, while main deploys. A 
 Both architectures currently share identical JavaScript ASAR contents. `build.mac.mergeASARs: false` avoids an upstream merge step expanding external Node files into an oversized glob. Universal DMG/ZIP delivery remains, with ASAR and external MCP checks on each architecture and the final bundle. Actual local directory packaging and lipo checks confirm x86_64/arm64. Revalidate the archive layout if architecture-specific modules are introduced; never bypass verification.
 
 The website groups stable releases by major.minor series, such as “V0.1 / Tajpilo”. Each patch release folds independently; only the latest opens by default. Notes reuse the existing Markdown renderer for headings, lists, code, quotes, tables and links; raw HTML is not executed.
+
+## Language contributions and build channels
+
+To add a website language, submit language metadata JSON, message JSON and translated Markdown; see docs/website-translation.md in the repository. Missing messages and articles fall back explicitly. The homepage separates stable and Nightly releases. Delayed Nightly schedules use the most recent 21:23 Asia/Shanghai window; hourly recovery checks skip windows with an already published build.

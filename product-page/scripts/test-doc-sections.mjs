@@ -60,7 +60,7 @@ try {
 // Exercise the real generator in an isolated fixture, including a GitHub Pages subpath.
 const fixture = await mkdtemp(path.join(tmpdir(), 'texpro-doc-sections-'));
 try {
-  for (const dir of ['scripts', 'src/content/docs/zh', 'src/content/docs/en', 'src/content/blog', 'public']) await mkdir(path.join(fixture, dir), { recursive: true });
+  for (const dir of ['src/i18n/languages', 'scripts', 'src/content/docs/zh', 'src/content/docs/en', 'src/content/blog', 'public']) await mkdir(path.join(fixture, dir), { recursive: true });
   await copyFile(path.join(root, 'scripts/gen-llms.mjs'), path.join(fixture, 'scripts/gen-llms.mjs'));
   await copyFile(path.join(root, 'src/content/docs/sections.mjs'), path.join(fixture, 'src/content/docs/sections.mjs'));
   for (const [slug, group] of [['start','开始'], ['sdk','开发'], ['mcp','AI 协作']]) await writeFile(path.join(fixture, `src/content/docs/zh/${slug}.md`), `---\nslug: ${slug}\ntitle: ${slug}\ngroup: ${group}\norder: 1\nsummary: Example\n---\n\n## Body\n`);

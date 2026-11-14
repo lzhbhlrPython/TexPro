@@ -43,12 +43,18 @@ function commitsSinceNightly(root, tag) {
   return git('rev-list', '--reverse', `${baseline}..HEAD`).split('\n').filter(Boolean);
 }
 
-module.exports = { shanghaiDay, publishedNightly, commitsSinceNightly };
+function scheduledDay(now) {
+  // A delayed schedule belongs to the most recent 21:23 Shanghai window.
+  return shanghaiDay(new Date(now.getTime() - (21 * 60 + 23) * 60000)).date;
+}
+module.exports = { shanghaiDay, scheduledDay, publishedNightly, commitsSinceNightly };
 if (require.main === module) (async () => {
-  const day = shanghaiDay(new Date()).date;
+  const scheduled = process.env.GITHUB_EVENT_NAME === 'schedule';
+  const day = scheduled ? scheduledDay(new Date()) : shanghaiDay(new Date()).date;
   const tag = await publishedNightly(process.env.GITHUB_REPOSITORY);
   const commits = commitsSinceNightly(process.cwd(), tag);
-  const build = commits.length > 0;
+  const alreadyPublished = scheduled && tag?.endsWith(`-${day.replaceAll('-', '')}-Nightly`);
+  const build = commits.length > 0 && !alreadyPublished;
   const message = `${day} (Asia/Shanghai): ${commits.length} new commit(s) since ${tag || 'the first commit'}; ${build ? 'build' : 'skip'}.`;
   console.log(message);
   if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `build=${build}\ndate=${day.replaceAll('-', '')}\n`);

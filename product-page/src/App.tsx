@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { SITE_LANGUAGES } from './i18n/locales';
 import enUS from 'antd/locale/en_US';
 import { RouterProvider } from 'react-router-dom';
 import { LocaleProvider, useLocale } from '@/i18n';
@@ -76,7 +77,7 @@ function AppShell() {
 
   return (
     <ConfigProvider
-      locale={locale === 'zh' ? zhCN : enUS}
+      locale={{ zh_CN: zhCN, en_US: enUS }[SITE_LANGUAGES.find(item => item.code === locale)?.componentLocale as 'zh_CN' | 'en_US'] ?? enUS}
       theme={{
         algorithm: dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {

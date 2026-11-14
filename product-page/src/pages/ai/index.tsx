@@ -49,7 +49,7 @@ export default function AiPage() {
             <ul>
               <li>{msg("site.the.main.process.and.preload.use.106.ipc.channels")}</li>
               <li>{msg("site.evidence.regression.summary")}</li>
-              <li>{msg("site.zh.chinese.and.en.english.documentation.pages.the.blog").replace('{zh}', String(DOC_COUNTS.zh)).replace('{en}', String(DOC_COUNTS.en))}</li>
+              <li>{msg('site.docs.language.counts').replace('{counts}', Object.entries(DOC_COUNTS).map(([code, count]) => `${code}: ${count}`).join(' · '))}</li>
               <li>{msg("site.the.current.nightly.configuration.produces.8.distribution.packages.2")}</li>
             </ul>
           </section>

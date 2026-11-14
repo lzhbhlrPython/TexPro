@@ -422,5 +422,11 @@
   "site.docs.group.reference": "参考",
   "site.docs.group.development": "开发",
   "site.docs.group.ai": "AI 协作",
-  "site.docs.group.about": "关于"
+  "site.docs.group.about": "关于",
+  "site.docs.languages": "文档语言",
+  "site.docs.translation.fallback": "缺少译文时按整篇回退，并标明实际语言。",
+  "site.docs.language.counts": "文档：{counts}；博客以简体中文撰写。",
+  "site.build.channels": "当前构建",
+  "site.build.unavailable": "暂无已发布构建",
+  "site.docs.body.fallback": "本文暂无译文，显示 {language} 原文。"
 }

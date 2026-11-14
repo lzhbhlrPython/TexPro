@@ -60,3 +60,9 @@ pnpm check:layout
 改短文案的 JSON 值，不因措辞变动修改已有语义键；新增键在中英词典同轮补齐。新增语种在 locales.ts 注册自称与 HTML 标签，并在 catalog.ts 注册独立 JSON 资源，通过现有加载器按需请求，验证缓存、失败重试与过期切换。不要把中文值留在组件充当隐式回退。新长文本采用按需加载；现有文档索引仍使用构建时的 glob 聚合，不应误称整站文档正文已全部按需请求。
 
 彩蛋长信位于 `src/content/letters/{语言}/qwerty.md`，文档仍为同 slug 整篇 Markdown。第三方维护完整译文，沿用 `LocalizedMarkdown`／`MarkdownBlocks` 与 Shiki；不为每段另建 UI 键，不运行 Markdown 中的脚本或 HTML。加载失败、缺译与实际正文语言必须准确提示。博客继续只维护简体中文。桌面语言包采用第 2 版语义键，旧正文键包必须重新制作，不能为迁就旧包恢复正文查词。
+
+## 声明式语言接入
+
+新增语言不修改 React、路由或生成器：在 `product-page/src/i18n/languages/{code}.json` 提交 `code`、`name`（自称）、`htmlLang`、`dateLocale`、`componentLocale`，在 `messages/{code}.json` 提交语义键译文，在 `src/content/docs/{code}/` 提交同 slug 的 Markdown。可逐篇提交，缺少 UI 键回退英文，缺少文章回退英文再中文，页面注明实际正文语言。空正文同样明确标注回退。
+
+`componentLocale` 是统一组件库适配标识，目前支持 `zh_CN` 与 `en_US`；其他语言显式使用 `en_US`，不宣称组件库已有对应翻译。贡献者不需要修改业务代码。运行 `node scripts/check-locales.mjs`（工作目录 `product-page`）检查声明、语义键与插值变量；构建自动执行同一检查。世界语资源继续由翻译贡献者维护，新增宿主键缺译时按上述规则回退。

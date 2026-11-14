@@ -102,3 +102,11 @@ test('nightly stamps manifests and release metadata consistently without stackin
   assert.throws(() => run('20260230'));
   assert.throws(() => run('2026-11-09'));
 });
+
+test('delayed schedules retain the most recent Shanghai 21:23 build date', () => {
+  const { scheduledDay } = require('../scripts/nightly-changes.cjs');
+  assert.equal(scheduledDay(new Date('2026-11-13T13:23:00Z')), '2026-11-13');
+  assert.equal(scheduledDay(new Date('2026-11-13T20:30:45Z')), '2026-11-13');
+  assert.equal(scheduledDay(new Date('2026-11-14T13:22:59Z')), '2026-11-13');
+  assert.equal(scheduledDay(new Date('2026-11-14T13:23:00Z')), '2026-11-14');
+});

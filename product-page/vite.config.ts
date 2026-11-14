@@ -1,3 +1,4 @@
+import { syncNightly } from './scripts/sync-nightly.mjs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
@@ -18,7 +19,9 @@ function contentFiles(): Plugin {
   return {
     name: 'texpro-content-files',
     async buildStart() {
+      run('check-locales.mjs');
       await syncStableReleases();
+      await syncNightly();
       run('gen-feed.mjs');
       run('gen-llms.mjs');
     },

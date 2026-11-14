@@ -147,3 +147,7 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 当前两架构共用相同 JavaScript ASAR，`build.mac.mergeASARs: false` 避免上游合并工具将大量外部 Node 文件展开成超长 glob。仍发布 universal DMG／ZIP，两个架构与最终包都保留 ASAR／外部 MCP 校验；本机实际目录打包和 lipo 检查确认包含 x86_64／arm64。若未来引入架构专属模块，需重新验证归档布局，不能跳过校验。
 
 官网正式版本按中版本系列分组，例如「V0.1 / Tajpilo」；小版本独立折叠，默认展开最新版本。说明复用 Markdown 渲染，支持标题、列表、代码、引用、表格与链接，不执行原始 HTML。
+
+## 语言贡献与构建渠道
+
+新增官网语言只需提交语言声明 JSON、消息 JSON 与对应 Markdown；详见仓库 docs/website-translation.md。缺译按键或整篇回退，并显示实际文章语言。首页分别展示正式版与 Nightly。Nightly 定时延迟时按最近一次上海时间 21:23 窗口处理，按小时补偿检查，同窗口已有公开构建时跳过。

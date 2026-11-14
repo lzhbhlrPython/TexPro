@@ -422,5 +422,11 @@
   "site.docs.group.reference": "Reference",
   "site.docs.group.development": "Development",
   "site.docs.group.ai": "AI workflow",
-  "site.docs.group.about": "About"
+  "site.docs.group.about": "About",
+  "site.docs.languages": "Documentation languages",
+  "site.docs.translation.fallback": "Missing translations fall back by article, with the actual language indicated.",
+  "site.docs.language.counts": "Documentation: {counts}; the blog is written in Simplified Chinese.",
+  "site.build.channels": "Current builds",
+  "site.build.unavailable": "No published build available",
+  "site.docs.body.fallback": "This translation is unavailable; showing the {language} article."
 }

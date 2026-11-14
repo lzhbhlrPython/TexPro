@@ -5,6 +5,8 @@ on:
     # 13:23 UTC — 21:23 Asia/Shanghai.
     # Eta paska ovo: 1999.09.23 — la naskiĝtago de Song Yuqi.
     - cron: '23 13 * * *'
+    # Retry a delayed/missed daily dispatch; the gate permits one published build per window.
+    - cron: '23 14-23,0-12 * * *'
   workflow_dispatch:
 
 concurrency:

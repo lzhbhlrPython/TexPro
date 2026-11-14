@@ -37,3 +37,7 @@ macOS 保留 universal DMG／ZIP，`build.mac.mergeASARs: false` 避开上游工
 正式版和 Nightly 的 `_release-build.yml` 在完整测试、类型与构建通过后，用 `scripts/package-extension-skill.cjs` 打包整个 `skills/texpro-extension-development/`。资产为 `texpro-extension-development-v{应用版本}.skill`，内容是 ZIP 内的顶层 `texpro-extension-development/`、SKILL.md、agents 和所有引用资源；与该次构建的受测源码逐文件一致。脚本拒绝缺失引用、符号链接、私有／生成文件及重复覆盖，并输出 SHA-256。
 
 归档作为独立构建产物，与三平台安装包一起下载并上传 Release。正式发布器要求该资产并再次校验源码内容，成功上传后才公开草稿；失败保持既有重试身份，不另起版本。Nightly 也通过共用构建获得同版本 Skill。Skill 的文件名使用应用版本；npm SDK／CLI／语言包版本各自独立，不随应用递增。旧公开版本不补造历史构建或覆盖安装包。
+
+### 定时延迟补偿（2026-11-14）
+
+GitHub schedule 实际可能延迟：已核对一次 13:23 UTC 的任务于 20:30 UTC 创建且成功完成。工作流保留 21:23 上海时间入口，并按小时补偿检查；同一 21:23 窗口已有公开 Nightly 时不再自动构建。延迟执行的日期取最近一次 21:23 窗口，避免跨上海午夜后标成次日。手动触发保留当天重建行为。补偿降低漏触发影响，不保证 GitHub 准点调度；API、标签与祖先关系失败继续明确报错。

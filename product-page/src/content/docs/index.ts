@@ -31,25 +31,12 @@ export interface DocsNavGroup {
 
 const GROUP_ORDER = ['开始', '使用', '参考', '开发', 'AI 协作', '关于'];
 
-const rawZhFiles = import.meta.glob('./zh/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
-
-/** 英文版：`src/content/docs/en/<slug>.md`，缺哪篇就回落到中文正文。 */
-const rawEnFiles = import.meta.glob('./en/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
-
-/** 世界语版：`src/content/docs/eo/<slug>.md`，缺哪篇就先回落英文、再回落中文。 */
-const rawEoFiles = import.meta.glob('./eo/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
+const rawFiles = import.meta.glob('./*/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+function filesFor(locale: string) {
+  return Object.fromEntries(Object.entries(rawFiles).filter(([path]) => path.split('/')[1] === locale));
+}
+const rawZhFiles = filesFor('zh');
+const rawEnFiles = filesFor('en');
 
 export const GROUP_LABELS: Record<string, MessageId> = {
   开始: 'site.docs.group.start',
@@ -109,6 +96,7 @@ function localizedTopics(files: Record<string, string>): DocTopic[] {
         order: zh.order,
         // 译文正文为空时用中文补位，页面会提示
         blocks: translated.blocks.length ? translated.blocks : zh.blocks,
+        ...(!translated.blocks.length ? { bodyFallback: 'zh' as const } : {}),
       };
     }
     const english = Object.entries(rawEnFiles).find(
@@ -129,16 +117,13 @@ function localizedTopics(files: Record<string, string>): DocTopic[] {
 }
 
 export const DOC_TOPICS_EN = localizedTopics(rawEnFiles);
-export const DOC_TOPICS_EO = localizedTopics(rawEoFiles);
+export const DOC_TOPICS_EO = localizedTopics(filesFor('eo'));
 
-const TOPICS_BY_LOCALE: Record<Locale, DocTopic[]> = {
-  zh: DOC_TOPICS,
-  en: DOC_TOPICS_EN,
-  eo: DOC_TOPICS_EO,
-};
+const TOPICS_BY_LOCALE = new Map<Locale, DocTopic[]>([['zh', DOC_TOPICS]]);
 
 export function topicsFor(locale: Locale, section?: DocumentationSection): DocTopic[] {
-  const topics = TOPICS_BY_LOCALE[locale] ?? DOC_TOPICS;
+  let topics = TOPICS_BY_LOCALE.get(locale);
+  if (!topics) { topics = localizedTopics(filesFor(locale)); TOPICS_BY_LOCALE.set(locale, topics); }
   return section ? topics.filter(topic => topic.section === section) : topics;
 }
 

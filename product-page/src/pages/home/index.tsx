@@ -1,3 +1,4 @@
+import { BuildChannels } from './BuildChannels';
 import { useEffect } from 'react';
 import { useMessages } from '@/i18n';
 import { Reveal } from '@/components/Reveal';
@@ -25,6 +26,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <BuildChannels />
 
       <Reveal>
         <Capabilities />

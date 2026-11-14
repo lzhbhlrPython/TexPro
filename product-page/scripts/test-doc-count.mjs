@@ -9,6 +9,9 @@ const docs = path.join(root, 'src/content/docs');
 await mkdir(path.join(docs, 'en'), { recursive: true });
 await mkdir(path.join(docs, 'zh'), { recursive: true });
 await mkdir(path.join(root, 'src/data'), { recursive: true });
+await mkdir(path.join(root, 'src/i18n/languages'), { recursive: true });
+for (const code of ['zh', 'en', 'eo']) await writeFile(path.join(root, `src/i18n/languages/${code}.json`), '{}');
+await mkdir(path.join(docs, 'eo'), { recursive: true });
 await copyFile(new URL('../src/data/documentation.ts', import.meta.url), path.join(root, 'src/data/documentation.ts'));
 async function snapshot() {
   const server = await createServer({ root, configFile: false, appType: 'custom', server: { middlewareMode: true, watch: null, ws: false } });
@@ -21,15 +24,20 @@ async function snapshot() {
 try {
   for (const file of ['zh/a.md', 'zh/b.md', 'zh/c.md', 'en/a.md', 'en/b.md', 'en/orphan.md']) await writeFile(path.join(docs, file), '# Test');
   let data = await snapshot();
-  assert.deepEqual(data.DOC_COUNTS, { zh: 3, en: 2 });
-  assert.equal(data.DOC_METRIC.value, '3 / 2');
+  assert.deepEqual(data.DOC_COUNTS, { en: 2, eo: 0, zh: 3 });
+  assert.equal(data.DOC_METRIC.value, '2 / 0 / 3');
   await writeFile(path.join(docs, 'en/c.md'), '# Translation');
   data = await snapshot();
-  assert.deepEqual(data.DOC_COUNTS, { zh: 3, en: 3 });
-  assert.equal(data.DOC_METRIC.value, '3 × 2');
+  assert.deepEqual(data.DOC_COUNTS, { en: 3, eo: 0, zh: 3 });
+  assert.equal(data.DOC_METRIC.value, '3 / 0 / 3');
   await rm(path.join(docs, 'zh/c.md'));
   data = await snapshot();
-  assert.deepEqual(data.DOC_COUNTS, { zh: 2, en: 2 });
-  assert.equal(data.DOC_METRIC.value, '2 × 2');
+  assert.deepEqual(data.DOC_COUNTS, { en: 2, eo: 0, zh: 2 });
+  assert.equal(data.DOC_METRIC.value, '2 / 0 / 2');
+  await writeFile(path.join(root, 'src/i18n/languages/fr.json'), '{}');
+  await mkdir(path.join(docs, 'fr'));
+  await writeFile(path.join(docs, 'fr/a.md'), '# Traduction');
+  data = await snapshot();
+  assert.equal(data.DOC_COUNTS.fr, 1, 'A fourth language needs only resource files');
   console.log('PASS Vite documentation counts: missing translations, paired additions, deletions, orphan translations and no body imports');
 } finally { await rm(root, { recursive: true, force: true }); }

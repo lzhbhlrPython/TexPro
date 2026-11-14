@@ -1,3 +1,4 @@
+import { htmlLang } from '@/i18n/locales';
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Typography, theme } from 'antd';
@@ -17,11 +18,7 @@ export default function DocsPage({ section }: { section?: DocumentationSection }
   const { prev, next } = neighbors(topic.slug, locale);
   const docsNav = navFor(locale, topic.section);
   // 当前语言缺这一篇时，正文退回英文或中文，页面顶部说明实际语言
-  const fallbackNotice = topic.bodyFallback
-    ? locale === 'eo'
-      ? msg('site.this.page.is.not.yet.available.in.esperanto.the.text')
-      : msg('site.the.english.version.of.this.page.is.still.being')
-    : null;
+  const fallbackNotice = topic.bodyFallback ? msg('site.docs.body.fallback').replace('{language}', htmlLang(topic.bodyFallback)) : null;
   const sections = collectSections(topic.blocks);
 
   useEffect(() => {
@@ -99,7 +96,7 @@ export default function DocsPage({ section }: { section?: DocumentationSection }
               ) : null}
             </header>
 
-            <div lang={topic.bodyFallback === 'zh' ? 'zh-CN' : topic.bodyFallback === 'en' ? 'en' : undefined}>
+            <div lang={topic.bodyFallback ? htmlLang(topic.bodyFallback) : undefined}>
               <MarkdownBlocks blocks={topic.blocks} />
             </div>
 
