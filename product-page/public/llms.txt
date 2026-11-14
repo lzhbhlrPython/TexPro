@@ -53,6 +53,7 @@
 ## 博客
 
 - [收拢重复插入入口，修正视图菜单的语言显示](https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language): 更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。
+- [安装包在应用内下载，更新由作者完成](https://lzhbhlrpython.github.io/TexStudioPro/blog/in-app-download-manual-install): 延续设置里的 GitHub 更新入口，加入可选自动下载、进度、取消、SHA256 校验和文件定位；保存、退出与安装仍由作者控制。
 - [在设置里检查 GitHub 更新：让界面随任务生长](https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels): 正式版与可选 Nightly 共用一个按需更新入口；用这次 L2 决策说明 L0–L3 如何保护连续写作，也为复杂任务留下独立空间。
 - [从正文查词到稳定消息键：语言资源的一次重整](https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents): 桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。
 - [扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断](https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions): 保留 tpp／tpt 分发，同时让 npm／yarn 管理源码包；需要编译时明确确认，并与宿主和 MCP 共享只读校验。

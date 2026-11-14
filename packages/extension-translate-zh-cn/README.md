@@ -13,3 +13,5 @@ See the [language tutorial](https://texpro.pyliubaolin.top/docs/language-packs) 
 Catalogue v2 uses stable semantic IDs and requires a matching host, SDK 0.5.0 and qwertysay 0.6.0. Version 1 phrase-key packs are unsupported. Long prose is maintained as whole localized Markdown documents, separately from UI JSON.
 
 The source catalogue now includes software update checks, optional Nightly builds, version results, downloads and retry messages. See the [installation guide](https://texpro.pyliubaolin.top/docs/start). Application update checks do not update npm language packages; generating the package locally does not publish it.
+
+In-app download messages include automatic downloading after checks, progress, cancellation, integrity errors and Show in folder. Users still save and quit before manual installation; language packs are not automatically updated.

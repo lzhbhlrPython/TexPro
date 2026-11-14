@@ -155,11 +155,18 @@ export interface ProjectFileOperation {
 export type AppUpdateResult = { currentVersion: string } & (
   { ok: false; error: 'network' | 'timeout' | 'rateLimit' | 'invalidResponse' | 'historyLimit' | 'unsupportedVersion' | 'busy' }
   | { ok: true; status: 'available' | 'current' | 'unavailable'; release: null | {
-    version: string; channel: 'stable' | 'nightly'; url: string; downloadUrl: string; assetName: string; notes: string;
+    version: string; channel: 'stable' | 'nightly'; url: string; downloadUrl: string; assetName: string; notes: string; size: number; digest: string | null;
   } }
 );
 
+export interface UpdateDownloadState {
+  status: 'idle' | 'downloading' | 'verifying' | 'ready' | 'cancelled' | 'error';
+  version?: string; assetName?: string; received?: number; total?: number; digest?: string;
+  error?: 'noRelease' | 'checksumUnavailable' | 'checksum' | 'size' | 'network' | 'timeout' | 'storage' | 'cancelled';
+}
+
 export interface Settings {
+  autoDownloadUpdates: boolean;
   includeNightlyUpdates: boolean;
   theme: ThemeName;
   themePackage?: string;

@@ -108,4 +108,4 @@ For language extensions and package management, see [Language packs](docs/langua
 
 Short UI messages use stable semantic IDs in JSON. Host language catalogue v2 rejects old phrase-key packs. Long explanations, letters and documentation use complete Markdown documents per language. See the [language-pack contract and migration guide](docs/language-packs.md) for matching SDK, scaffold and host requirements.
 
-Application updates: manually check GitHub stable releases in Preferences → Software updates, optionally including Nightly builds. Download a newer compatible installer in your browser, save and quit, then install manually. See the [update contract](docs/app-updates.md) and [user guide](https://texpro.pyliubaolin.top/docs/start).
+Application updates: manually check GitHub stable releases in Preferences → Software updates, with optional Nightly builds and Automatically download after checking. In-app downloads verify size and SHA256. Show the completed file, save and quit, then install manually. See the [update contract](docs/app-updates.md) and [user guide](https://texpro.pyliubaolin.top/docs/start).

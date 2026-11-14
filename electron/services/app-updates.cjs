@@ -45,7 +45,7 @@ function candidate(release, platform, arch) {
   const page = `${RELEASES}/tag/${encodeURIComponent(release.tag_name)}`;
   return { ...parsed, channel: parsed.date ? 'nightly' : 'stable', url: page,
     downloadUrl: `${RELEASES}/download/${encodeURIComponent(release.tag_name)}/${encodeURIComponent(asset.name)}`,
-    assetName: asset.name, notes: typeof release.body === 'string' ? release.body.slice(0, 20000) : '' };
+    assetName: asset.name, size: asset.size, digest: typeof asset.digest === 'string' ? asset.digest : null, notes: typeof release.body === 'string' ? release.body.slice(0, 20000) : '' };
 }
 async function readJson(response) {
   if (!response.ok) throw new Error(response.status === 403 || response.status === 429 ? 'rateLimit' : 'network');

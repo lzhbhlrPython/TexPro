@@ -190,7 +190,7 @@
   "site.import.templates.and.assets": "导入、模板与素材",
   "site.shortcuts": "快捷键",
   "site.install.locally.writing.in.ten.minutes": "装到本机，十分钟开始写",
-  "site.build.v.version.nightly.checks.for.new.commits.daily": "当前构建 v{version}，安装包托管在 GitHub Releases。新版应用可在「偏好设置 → 软件更新」检查更新，可选包含 Nightly；旧版没有此入口时，请从此处手动下载。",
+  "site.build.v.version.nightly.checks.for.new.commits.daily": "当前构建 v{version}，安装包托管在 GitHub Releases。新版应用可在「偏好设置 → 软件更新」检查并下载安装包，可选包含 Nightly；下载校验后保存退出，手动安装。",
   "site.requirements": "运行前提",
   "site.tex.live.or.mactex.must.be.installed.any.of": "需要本机已安装 TeX Live 或 MacTeX（pdflatex / xelatex / lualatex 任一即可）；TeXPro 会自动探测发行版与可执行文件。安装包未签名，每行右侧的复制按钮给出该安装包的 SHA256。",
   "site.all.builds": "查看全部构建",

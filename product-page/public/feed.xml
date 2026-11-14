@@ -18,6 +18,16 @@
       <category>连续写作</category>
     </item>
     <item>
+      <title>安装包在应用内下载，更新由作者完成</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/in-app-download-manual-install</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/in-app-download-manual-install</guid>
+      <pubDate>Fri, 13 Nov 2026 16:00:00 GMT</pubDate>
+      <description>延续设置里的 GitHub 更新入口，加入可选自动下载、进度、取消、SHA256 校验和文件定位；保存、退出与安装仍由作者控制。</description>
+      <category>更新</category>
+      <category>下载</category>
+      <category>连续写作</category>
+    </item>
+    <item>
       <title>在设置里检查 GitHub 更新：让界面随任务生长</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels</guid>

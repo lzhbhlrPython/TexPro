@@ -80,7 +80,7 @@ export function SettingsPanel({
         </header>
 
         <div className="settings-body">
-          <UpdateSettings includeNightly={settings.includeNightlyUpdates} onChange={value => onChange({ includeNightlyUpdates: value })} />
+          <UpdateSettings autoDownload={settings.autoDownloadUpdates} onAutoDownloadChange={value => onChange({ autoDownloadUpdates: value })} includeNightly={settings.includeNightlyUpdates} onChange={value => onChange({ includeNightlyUpdates: value })} />
           <div className="settings-section">
             <div className="settings-section-title">{msg("app.language")}</div>
             <div className="select-row">

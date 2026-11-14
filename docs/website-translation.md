@@ -70,3 +70,7 @@ pnpm check:layout
 ## 2026-11-14 更新交接
 
 主体侧同步 zh/en 的首页下载区说明（`site.build.v.version.nightly.checks.for.new.commits.daily`）及 start、dev-design、dev-release：新增 GitHub 手动更新、可选 Nightly、兼容资产、错误重试、先保存退出再安装及同版本替换边界；设计篇补充 L0–L3 实例与页面判断。其他语种由对应维护者同步这三个同 slug 篇目，不覆盖其既有内容；此条不声明其他语种已完成。简体中文博客新增更新检查与 L0–L3 主题。
+
+## 2026-11-14 应用内下载补充交接
+
+zh/en 的 start、dev-release 和首页下载说明增加应用内下载、默认关闭的检查后自动下载、进度、取消、SHA256、文件定位和手动安装边界。其他语种由对应维护者同步。原来的浏览器入口继续保留，不把下载校验翻译为应用签名。
