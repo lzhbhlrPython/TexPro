@@ -10,7 +10,7 @@ La enhavo ĉiam estas la sama `.tex`. La vida tavolo ŝanĝas kiel ĝi montriĝa
 
 ## Vida reĝimo
 
-Implicite ŝaltita; `⇧⌘M` aŭ `Vido → Baskuligi vidan reĝimon` ŝaltas ĝin. Dum ĝi estas ŝaltita, la redaktilo bildigas titolojn, formulojn, tabelojn, bildojn, kodblokojn kaj citajn mediojn kiel preskaŭ kompostitajn komponantojn, kaj la sintaksa bruo malantaŭeniras.
+Implicite ŝaltita; `⇧⌘M` aŭ Pliaj → Vido → Ŝalti al fonta reĝimo / Ŝalti al vida reĝimo ŝaltas ĝin. Dum ĝi estas ŝaltita, la redaktilo bildigas titolojn, formulojn, tabelojn, bildojn, kodblokojn kaj citajn mediojn kiel preskaŭ kompostitajn komponantojn, kaj la sintaksa bruo malantaŭeniras.
 
 - Alklaku iun ajn bildigitan rezulton kaj la kursoro venas al ĝia fonta pozicio; la objekto malfaldiĝas en fonton, preta por redaktado.
 - Bloko, kiun la kursoro aŭ selekto eniras, dummomente revenas al fonto; ĝi rebildiĝas post kiam vi eliras.
@@ -88,3 +88,5 @@ Agordoj ŝaltas la interfacon inter la ĉina kaj la angla, kaj menuoj, komanda p
 - Kompilado kaj diagnozoj: `/docs/compile`
 - Klavkombinoj: `/docs/shortcuts`
 - Projektoj kaj dosieroj: `/docs/project`
+
+La menuo Pliaj ne plu duobligas la grupon Enmeti. Por profesiaj diagramoj uzu la respondajn studiojn; rektaj enmetaj komandoj restas serĉeblaj en la komanda paletro. Etikedoj en Vido spegulas la nunan staton: Eniri fokusan reĝimon / Lasi fokusan reĝimon kaj Ŝalti tajpilan rulumadon / Malŝalti tajpilan rulumadon.

@@ -422,5 +422,18 @@
   "site.docs.group.reference": "Referenco",
   "site.docs.group.development": "Disvolvado",
   "site.docs.group.ai": "AI-laborfluo",
-  "site.docs.group.about": "Pri"
+  "site.docs.group.about": "Pri",
+  "site.docs.languages": "Lingvoj de dokumentaro",
+  "site.docs.translation.fallback": "Mankantaj tradukoj anstataŭiĝas laŭ tuta artikolo, kun indiko de la reala lingvo.",
+  "site.docs.language.counts": "Dokumentaro: {counts}; la blogo estas verkita en simpligita ĉina.",
+  "site.build.channels": "Nunaj konstruoj",
+  "site.build.unavailable": "Neniu publikigita konstruo havebla",
+  "site.docs.body.fallback": "Ĉi tiu traduko ne haveblas; montrata la {language} artikolo.",
+  "site.build.stable.description": "Stabilaj eldonoj por ĉiutaga verkado, kun versiigitaj, kontrolitaj instaliloj.",
+  "site.build.nightly.description": "La plej novaj disvolvaj konstruoj por testado kaj reagoj.",
+  "site.download.skill.title": "Etendaĵa disvolva Skill",
+  "site.download.skill.description": "Gvidilo kaj referencoj por etendaĵa aŭtorado por AI-asistantoj, aparte de la aplikaĵa instalilo.",
+  "site.download.skill.action": "Elŝuti Skill",
+  "site.download.copy.digest": "Kopii SHA256 por {name}",
+  "site.download.channel.stable": "Stabila"
 }

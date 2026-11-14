@@ -147,3 +147,13 @@ Pages ankaŭ konstruas pro ŝanĝoj en product-page; PR-oj validigas, dum main d
 Ambaŭ arkitekturoj nuntempe kunuzas identan JavaScript-ASAR-enhavon. `build.mac.mergeASARs: false` evitas, ke supraflua kunfanda paŝo vastigu eksterajn Node-dosierojn en tro grandan globon. Universala DMG/ZIP-servado restas, kun ASAR- kaj eksteraj MCP-kontroloj sur ĉiu arkitekturo kaj la fina pakaĵo. Reala loka dosieruja pakado kaj lipo-kontroloj konfirmas x86_64/arm64. Revalidigu la arkivan aranĝon se arkitekturspecifaj moduloj enkondukiĝas; neniam preterpasi kontrolon.
 
 La retejo grupigas stabilajn eldonojn laŭ major.minor-serio, ekzemple „V0.1 / Tajpilo“. Ĉiu patch-eldono faldiĝas sendepende; nur la plej nova malfermiĝas implicite. Notoj reuzas la ekzistantan Markdown-legilon por titoloj, listoj, kodo, citaĵoj, tabeloj kaj ligiloj; kruda HTML ne estas plenumata.
+
+## Lingvokontribuaĵoj kaj konstrukanaloj
+
+Por aldoni retejan lingvon, sendu lingvajn metadatenojn JSON, mesaĝojn JSON kaj tradukitan Markdown; vidu docs/website-translation.md en la deponejo. Mankantaj mesaĝoj kaj artikoloj anstataŭiĝas eksplicite. La ĉefpaĝo apartigas stabilajn kaj Nightly-eldonojn. Prokrastitaj Nightly-horaroj uzas la plej freŝan 21:23-fenestron laŭ Asia/Shanghai; horecaj riparaj kontroloj saltas fenestrojn, kiuj jam havas publikan konstruon.
+
+## Nightly-versioj de la sekva patch
+
+La radika package kaj lock sur main konservas la publikigitan stabilan version. Nightly celas la sekvan patch: stabila 0.1.1 produktas 0.1.2-YYYYMMDD-Nightly sen antaŭe pliigi main aŭ duoble pliigi la sekvan stabilan eldonon. Sukcesa stabila publikigo eksplicite lanĉas la saman tagon Nightly. Malnova baza versio en tiu dato ne malhelpas la novan konstruon; ekzistantaj eldonoj restas sendifektaj. Planita riparo saltas nur la ĝustan celversion kaj daton. Jam stampita Nightly nur ŝanĝas la daton, evitante ripetajn pliigojn.
+
+La ĉefpaĝo havas ununuran elŝutan sekcion kun elekto por stabila/Nightly. macOS, Windows, Linux kaj la etendaĵa disvolva Skill kunuzas la samajn vicojn, grandecojn, SHA256-kontrolilojn kaj elŝutbutonojn. Skill-grandecoj uzas KB.
