@@ -8,7 +8,7 @@ import { useDialogFocus } from '../hooks/useDialogFocus';
 export type MoreAction = import('../app/commands/types').AppCommand;
 
 interface Props { open: boolean; actions: MoreAction[]; onClose: () => void }
-const groupOrder = ['File', 'Edit', 'Insert', 'Format', 'Project', 'Review', 'Tools', 'View', 'Build', 'Extensions'];
+const groupOrder = ['app.file.variant2', 'app.edit', 'app.format', 'app.project', 'app.review', 'app.tools', 'app.view', 'app.build', 'app.extensions', 'app.appearance'];
 
 export function MoreMenu({ open, actions, onClose }: Props) {
   const { msg, language } = useI18n();
@@ -20,6 +20,7 @@ export function MoreMenu({ open, actions, onClose }: Props) {
   const filtered = useMemo(() => {
     const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
     return [...actions].filter((action) => {
+      if (action.group === 'app.insert') return false;
       const text = `${action.label} ${msg.text(action.label)} ${action.group} ${msg.text(action.group || '')}`.toLowerCase();
       return (!group || action.group === group) && words.every((word) => text.includes(word));
     }).sort((a, b) => groupOrder.indexOf(a.group || '') - groupOrder.indexOf(b.group || ''));

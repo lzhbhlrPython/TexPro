@@ -5,8 +5,18 @@
     <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
     <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 12 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 13 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>收拢重复插入入口，修正视图菜单的语言显示</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language</guid>
+      <pubDate>Fri, 13 Nov 2026 16:00:00 GMT</pubDate>
+      <description>更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。</description>
+      <category>菜单</category>
+      <category>i18n</category>
+      <category>连续写作</category>
+    </item>
     <item>
       <title>从正文查词到稳定消息键：语言资源的一次重整</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents</link>

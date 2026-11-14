@@ -10,7 +10,7 @@ The content is always the same `.tex`. The visual layer changes how it is displa
 
 ## Visual mode
 
-On by default; `⇧⌘M` or `View → Toggle Visual Mode` toggles it. While it is on, the editor renders headings, formulas, tables, images, code blocks and quote environments as near-typeset components, and the syntax noise recedes.
+On by default; `⇧⌘M` or More → View → Switch to source mode / Switch to visual mode toggles it. While it is on, the editor renders headings, formulas, tables, images, code blocks and quote environments as near-typeset components, and the syntax noise recedes.
 
 - Click any rendered result and the caret lands at its source position; the object unfolds into source, ready to edit.
 - A block the caret or selection enters falls back to source for the moment; it re-renders once you leave.
@@ -88,3 +88,5 @@ Settings switch the interface between Chinese and English, and menus, command pa
 - Compiling and diagnostics: `/docs/compile`
 - Shortcuts: `/docs/shortcuts`
 - Projects and files: `/docs/project`
+
+The More menu no longer duplicates the Insert group. Use the corresponding studios for professional diagrams; direct insertion commands remain searchable in the command palette. View labels reflect the current state: Enter focus mode / Leave focus mode and Enable typewriter scrolling / Disable typewriter scrolling.

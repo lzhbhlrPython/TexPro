@@ -7,6 +7,19 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language",
+      "title": "收拢重复插入入口，修正视图菜单的语言显示",
+      "summary": "更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。",
+      "content_text": "更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。",
+      "date_published": "2026-11-13T16:00:00.000Z",
+      "tags": [
+        "菜单",
+        "i18n",
+        "连续写作"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
       "title": "从正文查词到稳定消息键：语言资源的一次重整",

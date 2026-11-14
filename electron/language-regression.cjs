@@ -14,6 +14,17 @@ module.exports = async function languageJourney({ key, wait, click, open, shot, 
   await click(el('[data-testid="language-switch"]')); await wait(`document.documentElement.lang==='zh-CN'`);
   assert.equal(await js(`${el('[data-testid="language-switch"]')}.textContent`), 'English');
   await shot('language-preferences-zh'); await click(el('.settings-header .icon-btn')); await wait(`!${el('.settings-panel')}`);
+  await click(el('.titlebar [aria-haspopup="dialog"]'));
+  await wait(`!!${el('.more-menu')}`);
+  assert.equal(await js(`!!document.querySelector('.more-menu [data-action="circuit"]')`), false, 'Redundant insert group is absent from More');
+  for (const id of ['visual', 'focus', 'typewriter']) {
+    const text = await js(`document.querySelector('.more-menu [data-action="${id}"]').textContent`);
+    assert.match(text, /[\u4e00-\u9fff]/, `${id} menu is translated`);
+    assert.doesNotMatch(text, /Switch to|Enter focus|Disable typewriter/);
+  }
+  await click(`[...document.querySelectorAll('.workbench-menu-groups button')].find(button => button.textContent === '视图')`);
+  await shot('more-menu-view-zh');
+  await key('Escape');
   const { Menu } = require('electron');
   const menuHas = label => Menu.getApplicationMenu().items.some(item => item.label === label);
   for (let attempt = 0; !menuHas('文件') && attempt < 50; attempt++) await new Promise(resolve => setTimeout(resolve, 20));

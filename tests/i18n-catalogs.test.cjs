@@ -104,3 +104,29 @@ test('image cache discards a cached HTML response and refetches the real preview
   assert.equal(result.headers.get('content-type'), 'image/jpeg');
   assert.equal(removed.length, 1); assert.equal(stored.length, 1);
 });
+
+test('view command labels use translated semantic keys in both toggle states', () => {
+  const filename = path.resolve(__dirname, '../src/app/commands/builtins.ts');
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  const originalRequire = mod.require.bind(mod);
+  mod.require = name => {
+    if (name === '../../i18n') return { availableLanguages: () => [], getLanguage: () => 'zh' };
+    if (name === '../../lib/writingSnippets') {
+      const snippets = new Module(path.resolve(__dirname, '../src/lib/writingSnippets.ts'), module);
+      snippets._compile(ts.transpileModule(fs.readFileSync(snippets.id, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, snippets.id);
+      return snippets.exports;
+    }
+    return originalRequire(name);
+  };
+  mod._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
+  for (const enabled of [false, true]) {
+    const commands = mod.exports.builtinCommands({}, { visual: enabled, focus: enabled, typewriter: enabled, theme: 'paper' }, null, id => chinese[id], true, true);
+    for (const id of ['visual', 'focus', 'typewriter', 'circuit', 'logic', 'structure', 'skeletal', 'tikz-writing', 'chart-writing']) {
+      const command = commands.find(item => item.id === id);
+      assert.ok(Object.hasOwn(sourceMessages, command.label), `${id} must reference a catalogue key`);
+      assert.match(chinese[command.label], /[\u4e00-\u9fff]/);
+    }
+  }
+});

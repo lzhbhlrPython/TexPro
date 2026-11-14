@@ -52,6 +52,7 @@
 
 ## 博客
 
+- [收拢重复插入入口，修正视图菜单的语言显示](https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language): 更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。
 - [从正文查词到稳定消息键：语言资源的一次重整](https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents): 桌面短文案改用语义键 JSON，语言包进入第 2 版契约；把标签、技术身份和作者内容分清，也把长篇说明还给完整文档。
 - [扩展可以直接发布源码到 npm，但安装、构建与启用是三次判断](https://lzhbhlrpython.github.io/TexStudioPro/blog/npm-source-extensions): 保留 tpp／tpt 分发，同时让 npm／yarn 管理源码包；需要编译时明确确认，并与宿主和 MCP 共享只读校验。
 - [让语言成为插件，让 npm／yarn 管理扩展版本](https://lzhbhlrpython.github.io/TexStudioPro/blog/language-plugins-package-environments): 简体中文拆为同源预装语言插件，SDK 与 qwertysay 迁移到 @texpro，包管理器通过逐项审核同步安装与卸载，开发 Skill 加入发行资产。
