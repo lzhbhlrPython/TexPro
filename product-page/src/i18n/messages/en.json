@@ -433,5 +433,7 @@
   "site.build.nightly.description": "The latest development builds for testing and feedback.",
   "site.download.skill.title": "Extension development Skill",
   "site.download.skill.description": "Extension authoring guidance and references for AI assistants, separate from the app installer.",
-  "site.download.skill.action": "Download Skill"
+  "site.download.skill.action": "Download Skill",
+  "site.download.copy.digest": "Copy SHA256 for {name}",
+  "site.download.channel.stable": "Stable"
 }

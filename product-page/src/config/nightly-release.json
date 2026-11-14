@@ -1,5 +1,62 @@
 {
   "releaseTag": "v0.1.0-20261114-Nightly",
+  "version": "0.1.0-20261114-Nightly",
+  "assets": [
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-linux-amd64.deb",
+      "size": 120296200,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-linux-amd64.deb",
+      "digest": "sha256:9eec9c489a51145d2c2a259a4955b0b323e99a59ad9b3d6591856cb792dee311"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-linux-x86_64.AppImage",
+      "size": 154302559,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-linux-x86_64.AppImage",
+      "digest": "sha256:9ba04c0ebc30d51ea34393479c67938919488f04536d8cc3f7a7c08bf431ac13"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-linux-x86_64.rpm",
+      "size": 101245275,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-linux-x86_64.rpm",
+      "digest": "sha256:3d5a32dcb7295ebfdf19e4b4c742ed31ae7c1bb52b8b3a60710a8f843fdd92a9"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-mac-universal.dmg",
+      "size": 257927461,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-mac-universal.dmg",
+      "digest": "sha256:1414dec49fdc2ccc8b221a702a455a07042228b91f4aa55f5011b2cc2707d554"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-mac-universal.zip",
+      "size": 257233526,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-mac-universal.zip",
+      "digest": "sha256:5880f173aed44f4712c60aecee24c55501b7be744f57fd29c455de6e3326c016"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-win-x64.zip",
+      "size": 180271008,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-win-x64.zip",
+      "digest": "sha256:b7e6890d6c4d2fe43d8b4c62b5d13c915981c5fda3b3940f2d2a845e0d33ed66"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-windows-x64-portable.exe",
+      "size": 131853966,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-windows-x64-portable.exe",
+      "digest": "sha256:264d57ec6cf2c110d4cce45ad11fc09f293fb2a874e5d74a4f3c2a039dfdcec1"
+    },
+    {
+      "name": "TeXPro-0.1.0-20261114-Nightly-windows-x64-setup.exe",
+      "size": 132078316,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/TeXPro-0.1.0-20261114-Nightly-windows-x64-setup.exe",
+      "digest": "sha256:dd8d6bd088887a5f14857e3072e5a55f766359d764adfdc57eb22fddedfe2a29"
+    },
+    {
+      "name": "texpro-extension-development-v0.1.0-20261114-Nightly.skill",
+      "size": 20120,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0-20261114-Nightly/texpro-extension-development-v0.1.0-20261114-Nightly.skill",
+      "digest": "sha256:d9884499ea07d71ca7a68657684ae649bdbbd89f83fe9fe6bd0287397cd2498c"
+    }
+  ],
   "source": "github",
-  "fetchedAt": "2026-11-14T06:22:27.536Z"
+  "fetchedAt": "2026-11-14T06:31:04.115Z"
 }

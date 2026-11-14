@@ -1,11 +1,12 @@
+import { useState } from 'react';
+import nightlySnapshot from '@/config/nightly-release.json';
 import stableSnapshot from '@/config/stable-releases.json';
 import { CopyOutlined, DownloadOutlined, GithubOutlined } from '@ant-design/icons';
-import { App, Button, Space, Tag, Tooltip, Typography, theme } from 'antd';
+import { App, Button, Segmented, Space, Tag, Tooltip, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Reveal } from '@/components/Reveal';
 import { SectionHeading } from '@/components/SectionHeading';
 import { SITE_LINKS } from '@/config/constants';
-import { useRelease } from '@/hooks/useRelease';
 import { usePlatform } from '@/lib/platform';
 import { findAsset, formatSize } from '@/lib/release';
 import { DOWNLOADS } from '@/data/site';
@@ -21,10 +22,16 @@ export function Download() {
   const localize = useLocalizedFields();
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const release = useRelease();
+  const [channel, setChannel] = useState<'stable' | 'nightly'>('stable');
+  const stable = [...stableSnapshot.releases].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0];
+  const release = channel === 'stable'
+    ? { version: stable?.tag.replace(/^v/, '') ?? '', assets: stable?.assets ?? [] }
+    : { version: nightlySnapshot.version, assets: nightlySnapshot.assets };
   const platform = usePlatform();
-  const skill = release.assets?.find(asset => asset.name.endsWith('.skill'))
-    ?? [...stableSnapshot.releases].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0]?.assets.find(asset => asset.name.endsWith('.skill'));
+  const targets = [
+    ...localize(DOWNLOADS, ['detail', 'variants']),
+    { key: 'skill', platform: msg('site.download.skill.title'), detail: msg('site.download.skill.description'), format: 'SKILL', assetPattern: '\\.skill$' },
+  ];
 
   /** Releases 里的 digest 形如 sha256:abc…，复制时只留摘要本身，方便直接比对 */
   const copyDigest = async (digest?: string | null) => {
@@ -50,6 +57,16 @@ export function Download() {
           )}
         />
 
+        <div className="download-channel-bar">
+          <Segmented
+            aria-label={msg('site.build.channels')}
+            value={channel}
+            onChange={setChannel}
+            options={[{ value: 'stable', label: msg('site.download.channel.stable') }, { value: 'nightly', label: 'Nightly' }]}
+          />
+          <span className="download-channel-version" aria-live="polite">{release.version ? `v${release.version}` : msg('site.build.unavailable')}</span>
+        </div>
+
         {platform && (
           <p className="download-detect" style={{ color: token.colorTextSecondary }}>
             {msg("site.detected")} <strong style={{ color: token.colorText }}>{PLATFORM_LABEL[platform]}</strong>
@@ -58,9 +75,9 @@ export function Download() {
         )}
 
         <div className="download-list">
-          {localize(DOWNLOADS, ["detail","variants"]).map((target, index) => {
+          {targets.map((target, index) => {
             const asset = findAsset(release.assets, release.version, new RegExp(target.assetPattern));
-            const size = formatSize(asset?.size);
+            const size = formatSize(asset?.size, target.key === 'skill' ? 'KB' : undefined);
             const current = platform === target.key;
 
             return (
@@ -104,16 +121,18 @@ export function Download() {
                       type="text"
                       size="small"
                       icon={<CopyOutlined />}
-                      aria-label={`复制 ${target.platform} 安装包的 SHA256`}
+                      aria-label={msg('site.download.copy.digest').replace('{name}', target.platform)}
                       onClick={() => copyDigest(asset.digest)}
                     />
                   </Tooltip>
-                ) : null}
+                ) : <span aria-hidden="true" />}
                 <Button
                   type={current ? 'primary' : 'link'}
                   className="dl-cta"
                   icon={<DownloadOutlined />}
-                  onClick={() => navigate(`/download?platform=${target.key}`)}
+                  href={asset?.url ?? SITE_LINKS.releases}
+                  target="_blank"
+                  rel="noreferrer"
                   style={current ? { justifySelf: 'end' } : { paddingInline: 0, justifySelf: 'end' }}
                 >
                   {asset ? msg("site.download") : msg("site.open.releases")}
@@ -122,17 +141,6 @@ export function Download() {
             );
           })}
         </div>
-
-        <Reveal className="download-skill" delay={60}>
-          <div className="download-main">
-            <Title level={4}>{msg('site.download.skill.title')}</Title>
-            <Text type="secondary">{msg('site.download.skill.description')}</Text>
-            {skill && <Text className="download-skill-file" type="secondary">{skill.name} · {formatSize(skill.size, 'KB')}</Text>}
-          </div>
-          <Button icon={<DownloadOutlined />} href={skill?.url ?? SITE_LINKS.releases} target="_blank" rel="noreferrer">
-            {skill ? msg('site.download.skill.action') : msg('site.open.releases')}
-          </Button>
-        </Reveal>
 
         <div className="download-note">
           <div>

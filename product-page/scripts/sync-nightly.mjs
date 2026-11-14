@@ -19,7 +19,7 @@ export async function syncNightly() {
       if (page === 100) throw Error('Release pagination limit');
     }
     candidates.sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at));
-    await writeFile(destination, JSON.stringify({ releaseTag: candidates[0]?.tag_name ?? null, source: 'github', fetchedAt: new Date().toISOString() }, null, 2) + '\n');
+    await writeFile(destination, JSON.stringify({ releaseTag: candidates[0]?.tag_name ?? null, version: candidates[0]?.tag_name?.replace(/^v/, '') ?? '', assets: (candidates[0]?.assets ?? []).filter(asset => asset.state === 'uploaded' && asset.size > 0).map(asset => ({ name: asset.name, size: asset.size, url: asset.browser_download_url, digest: asset.digest ?? null })), source: 'github', fetchedAt: new Date().toISOString() }, null, 2) + '\n');
   } catch (error) {
     console.warn(`Nightly sync failed; retaining previous snapshot: ${error.message}`);
     if (process.env.TEXPRO_RELEASE_TAG?.includes('Nightly')) throw error;

@@ -433,5 +433,7 @@
   "site.build.nightly.description": "Nightly 提供最新开发进展，适合试用与反馈。",
   "site.download.skill.title": "扩展开发 Skill",
   "site.download.skill.description": "供 AI 助手使用的扩展开发指南与参考资源，独立于应用安装包。",
-  "site.download.skill.action": "下载 Skill"
+  "site.download.skill.action": "下载 Skill",
+  "site.download.copy.digest": "复制 {name} 的 SHA256",
+  "site.download.channel.stable": "正式版"
 }

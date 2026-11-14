@@ -123,4 +123,4 @@ Add `src/i18n/languages/{code}.json` (code, autonym `name`, `htmlLang`, `dateLoc
 
 The homepage lists stable and Nightly channels separately, using public release snapshots synced during the build. Missing channel data is displayed explicitly. Nightly synchronization failure preserves the previous snapshot.
 
-Homepage channel comparison appears immediately before the final download section. The download section includes the versioned extension-development Skill from actual Release assets, with its filename and KB size. Motion reuses staggered Reveal and respects reduced motion; narrow screens stack the columns and Skill action.
+The homepage uses one final download section. An inline stable/Nightly selector updates the version and all four rows together. macOS, Windows, Linux and the development Skill share the existing download-row layout, separators, checksum and download controls; Skill sizes use KB. Rows keep their identity on channel changes and reuse Reveal motion.
