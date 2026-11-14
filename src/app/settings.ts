@@ -5,6 +5,7 @@ export const SETTINGS_KEY = 'texpro.settings.v1';
 export const RECENT_KEY = 'texpro.recent.v1';
 
 export const defaultSettings: Settings = {
+  includeNightlyUpdates: false,
   theme: 'paper',
   language: getLanguage(),
   fontSize: 17,
@@ -32,6 +33,7 @@ export const defaultSettings: Settings = {
 export function loadSettings(): Settings {
   try {
     const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    stored.includeNightlyUpdates = stored.includeNightlyUpdates === true;
     delete stored.aiApiKey;
     delete stored.realtimePreview; // Retired experimental UI preference.
     if (stored.theme === 'glass') stored.theme = 'paper';

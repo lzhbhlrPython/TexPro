@@ -1,0 +1,47 @@
+'use strict';
+const assert = require('node:assert/strict');
+module.exports = async ({ key, wait, click, open, shot, js, ipcMain }) => {
+  // Exercise validation over the actual preload before replacing remote responses.
+  assert.equal(await js(`window.texpro.checkForUpdates('bad').then(()=>false,()=>true)`), true);
+  let answer = { ok: false, currentVersion: '0.1.1', error: 'network' };
+  let releasePending; let seen;
+  ipcMain.removeHandler('app:check-updates');
+  ipcMain.handle('app:check-updates', (_event, includeNightly) => {
+    seen = includeNightly;
+    return answer === 'pending' ? new Promise(resolve => { releasePending = resolve; }) : answer;
+  });
+  let opened = '';
+  ipcMain.removeHandler('shell:openExternal');
+  ipcMain.handle('shell:openExternal', (_event, url) => { opened = url; return { ok: true }; });
+  const check = () => click(`document.querySelector('[data-testid="check-updates"]')`);
+  const box = `document.querySelector('.settings-section input[type="checkbox"]')`;
+  await open('language-en'); await wait(`document.documentElement.lang === 'en'`); await open('settings');
+  await wait(`document.body.textContent.includes('Software updates')`);
+  assert.equal(await js(`${box}.checked`), false);
+  await check(); await wait(`document.body.textContent.includes('Could not reach GitHub')`); assert.equal(seen, false);
+  answer = { ok: true, currentVersion:'0.1.1', status:'available', release:{ version:'0.1.2-20261114-Nightly', channel:'nightly', url:'https://github.com/lzhbhlrPython/TexPro/releases/tag/test', downloadUrl:'https://github.com/lzhbhlrPython/TexPro/releases/download/test/test.dmg', notes:'<script>test</script>\nRelease details', assetName:'test.dmg' } };
+  await click(box); await check(); await wait(`document.body.textContent.includes('An update is available')`); assert.equal(seen,true);
+  await click(`[...document.querySelectorAll('.settings-panel button')].find(e=>e.textContent==='Download update')`);
+  assert.equal(opened, answer.release.downloadUrl);
+  await click(`document.querySelector('.settings-section details summary')`);
+  await wait(`document.body.textContent.includes('<script>test</script>')`);
+  assert.equal(await js(`!!document.querySelector('.settings-panel script')`), false);
+  await shot('updates-en-paper');
+  answer = 'pending'; await check(); await wait(`document.querySelector('[data-testid="check-updates"]').disabled`);
+  await click(box); releasePending({ ok:true,currentVersion:'0.1.1',status:'unavailable',release:null });
+  await js(`new Promise(r=>setTimeout(r,100))`);
+  assert.equal(await js(`document.body.textContent.includes('No compatible installer')`),false,'channel switch rejects stale response');
+  await key('Escape'); await wait(`!document.querySelector('.settings-panel')`);
+  await open('language-zh'); await open('theme-night'); await open('settings');
+  await wait(`document.body.textContent.includes('软件更新')`);
+  answer = { ok:true,currentVersion:'0.1.1',status:'current',release:null }; await check();
+  await wait(`document.body.textContent.includes('所选渠道暂无更高的兼容版本')`);
+  await shot('updates-zh-night');
+  await key('Escape'); await open('theme-studio'); await open('settings'); await shot('updates-zh-studio');
+  await key('Escape'); await open('settings');
+  assert.equal(await js(`${box}.checked`), false, 'channel preference survives reopen');
+  await js(`document.querySelector('[data-testid="check-updates"]').focus()`);
+  await key('Tab',['shift']); assert.equal(await js(`document.activeElement.type`),'checkbox');
+  await key('Escape'); await wait(`!document.querySelector('.settings-panel')`);
+  console.log('PASS update settings: IPC validation, channels, errors, download, stale results, bilingual text, themes and keyboard');
+};

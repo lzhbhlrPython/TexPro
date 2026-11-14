@@ -115,3 +115,17 @@ main.tex  →  latexmk（-synctex=1）  →  main.pdf
 - 双向定位：[PDF 与源码双向定位](/docs/synctex)
 - 写作手感：[写作模式与主题](/docs/writing)
 - 从别的工具搬稿子：[导入、模板与素材](/docs/import)
+
+## 检查和安装应用更新
+
+准备条件：使用包含「软件更新」设置区的 TeXPro，且可以连接 GitHub。旧安装包若没有此入口，先从[GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases)手动安装新版。此操作在应用内完成，无需终端或工作目录。
+
+- 打开「偏好设置」，找到「软件更新」，核对「当前版本」。
+- 默认只检查正式版；希望接收预览构建时勾选「包含 Nightly」。此选择保存在本机，不会立即联网；Nightly 可能不够稳定。
+- 点击「检查更新」。应用只在此时请求 GitHub 的公开发布信息，不发送工程路径、源码、凭据或文档内容。
+- 有兼容的新版本时，核对「最新兼容版本」和「发布说明」，点击「下载更新」，通过浏览器下载当前系统与架构的安装包。
+- 保存所有工作并正常退出 TeXPro，再运行安装包或替换应用；重新打开后在「当前版本」核对结果。Linux 如使用 AppImage，需要赋予新文件执行权限。
+
+「包含 Nightly」表示同时比较正式版与 Nightly，不会强制切换或降级；基础版本先按数字比较，同基础版本的正式版优先于 Nightly，Nightly 按日期比较。不识别其他预发布格式。macOS 优先使用兼容的 DMG，Windows 使用 setup.exe，Linux 使用 AppImage；缺少兼容资产时不会推荐其他架构的包。已有同日 Nightly 被替换但版本号未改变时，检查无法识别重新构建，可从 GitHub Releases 手动获取。
+
+「所选渠道暂无更高的兼容版本」表示所选范围内没有更高版本。没有匹配安装包会单独提示。离线、超时、限流、异常响应或发布历史超限都显示可重试错误，不会冒充已是最新；网络恢复后再次点击「检查更新」。若无法打开浏览器，使用[GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases)。应用不会自动下载、退出或替换安装，也不在启动时自动检查。

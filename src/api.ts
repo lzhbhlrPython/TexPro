@@ -202,6 +202,7 @@ export interface TexProApi {
   openPath: (file: string) => Promise<{ ok: boolean; error?: string | null }>;
   reveal: (file: string) => Promise<{ ok: boolean }>;
   assetUrl: (file: string) => Promise<string | null>;
+  checkForUpdates: (includeNightly: boolean) => Promise<import('./types').AppUpdateResult>;
   getInfo: () => Promise<AppInfo>;
   getSpellWords: () => Promise<string[]>;
   onMenuAction: (callback: (action: string) => void) => () => void;

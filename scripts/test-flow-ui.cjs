@@ -6,6 +6,7 @@ const { spawn } = require('node:child_process');
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-ui-regression-'));
 const env = { ...process.env, TEXPRO_SMOKE: '1', TEXPRO_REGRESSION: '1', TEXPRO_USER_DATA: userData, TEXPRO_ARTIFACTS: path.resolve(__dirname, '../artifacts') };
 env.TEXPRO_FLOW_REGRESSION = '1';
+if (process.argv.includes('--updates')) env.TEXPRO_UPDATE_REGRESSION = '1';
 if (process.argv.includes('--realtime')) env.TEXPRO_REALTIME_REGRESSION = '1';
 if (process.argv.includes('--extensions')) env.TEXPRO_EXTENSION_REGRESSION = '1';
 if (process.argv.includes('--aids')) env.TEXPRO_AIDS_REGRESSION = '1';

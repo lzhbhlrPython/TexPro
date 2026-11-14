@@ -115,3 +115,17 @@ See [Shortcuts](/docs/shortcuts) for the full list.
 - Two-way navigation: [Two-Way Navigation Between PDF and Source](/docs/synctex)
 - Writing experience: [Writing Mode and Themes](/docs/writing)
 - Moving a manuscript from another tool: [Import, Templates, and Assets](/docs/import)
+
+## Check and install application updates
+
+Prerequisites: a TeXPro build with the Software updates section and access to GitHub. If an older installation lacks this section, install a newer build manually from [GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases). These steps take place in the app; no terminal or working directory is needed.
+
+- Open Preferences, find Software updates and verify Current version.
+- Stable releases are checked by default. Select Include Nightly builds to also consider preview builds. The choice is stored locally and does not itself connect to GitHub. Nightly may be less stable.
+- Click Check for updates. Only this action requests public GitHub release information; project paths, source, credentials and document content are not sent.
+- When a compatible update is available, review Latest compatible version and Release notes. Click Download update to download the installer for your system and architecture in your browser.
+- Save all work and quit TeXPro normally before running the installer or replacing the application. Reopen it and verify Current version. On Linux, grant executable permission to the new AppImage if needed.
+
+Include Nightly builds compares stable releases and Nightly together; it does not force a channel switch or downgrade. Numeric base versions take precedence, stable wins over Nightly with the same base version, and Nightly dates are compared chronologically. Other prerelease formats are excluded. macOS uses a compatible DMG, Windows uses setup.exe and Linux uses AppImage. Missing compatible assets never cause another architecture to be offered. Replacing a same-day Nightly without changing its version cannot be detected; retrieve that rebuild manually from GitHub Releases.
+
+No newer compatible version in the selected channel means the selected scope contains no higher version. Missing installers have a separate message. Offline, timeout, rate-limit, malformed-response and oversized-history errors remain retryable failures, never an up-to-date result. Click Check for updates again after connectivity recovers. If the browser cannot open, visit [GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases). TeXPro does not automatically download, quit, replace itself or check at startup.

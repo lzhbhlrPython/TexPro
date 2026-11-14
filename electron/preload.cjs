@@ -123,6 +123,7 @@ contextBridge.exposeInMainWorld('texpro', {
   openPath: (file) => ipcRenderer.invoke('shell:openPath', file),
   reveal: (file) => ipcRenderer.invoke('shell:reveal', file),
   assetUrl: (file) => ipcRenderer.invoke('app:assetUrl', file),
+  checkForUpdates: (includeNightly) => ipcRenderer.invoke('app:check-updates', includeNightly),
   getInfo: () => ipcRenderer.invoke('app:info'),
   getSpellWords: () => ipcRenderer.invoke('spell:words'),
   onMenuAction: (callback) => subscribe('menu:action', callback),

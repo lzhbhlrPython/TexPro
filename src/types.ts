@@ -152,7 +152,15 @@ export interface ProjectFileOperation {
   updates: Array<{ path: string; oldPath: string; before: string; after: string; changes: Array<{ from: number; to: number; insert: string }> }>;
 }
 
+export type AppUpdateResult = { currentVersion: string } & (
+  { ok: false; error: 'network' | 'timeout' | 'rateLimit' | 'invalidResponse' | 'historyLimit' | 'unsupportedVersion' | 'busy' }
+  | { ok: true; status: 'available' | 'current' | 'unavailable'; release: null | {
+    version: string; channel: 'stable' | 'nightly'; url: string; downloadUrl: string; assetName: string; notes: string;
+  } }
+);
+
 export interface Settings {
+  includeNightlyUpdates: boolean;
   theme: ThemeName;
   themePackage?: string;
   language: Language;

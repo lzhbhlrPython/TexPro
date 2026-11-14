@@ -58,3 +58,11 @@ Read PRODUCT.md, DESIGN.md and relevant source styles and components. Content cl
 The root DESIGN.md also documents the website: light and dark surface roles, serif fallbacks, control sizes and radii, responsive navigation, motion and print styles. Website tokens come from product-page/src/App.tsx, src/config/design.ts and src/styles/global.css. Theme state and temporary overrides live in src/lib/theme.tsx; the existing easter-egg page temporarily forces dark mode and restores the previous choice on exit.
 
 The website uses its own light/dark palette, not the desktop paper/studio/night modes. Preserve the existing paper sections, specification rows, linked references and real screenshots. Check narrow layouts, long translations, keyboard operation and printing separately. Content work does not change the layout lock.
+
+## Example: why update checks use L2
+
+Checking application updates is an explicit maintenance task. Preferences already accommodates Include Nightly builds, check status, versions and downloads, so it uses L2 without a new update center. Engineering difficulty and importance alone do not justify a page. Conversely, multi-stage workflows, large canvases, persistent state or substantial crowding can justify an L3 space with a clear responsibility.
+
+Levels are not a ranking of value. Realtime preview uses L0, editor completion uses L1, on-demand tools use L2 and complete independent workflows may use L3. Record the task, suitability of existing spaces, problem solved by a new page and duplicate entry points. Validate focus restoration, scrolling, undo, IME, stale asynchronous results and failure recovery. Page count is not an acceptance target.
+
+See [Installation and your first project](/docs/start) for update steps and [Versions and releases](/docs/dev-release) for service and failure boundaries.

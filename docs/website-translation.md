@@ -66,3 +66,7 @@ pnpm check:layout
 新增语言不修改 React、路由或生成器：在 `product-page/src/i18n/languages/{code}.json` 提交 `code`、`name`（自称）、`htmlLang`、`dateLocale`、`componentLocale`，在 `messages/{code}.json` 提交语义键译文，在 `src/content/docs/{code}/` 提交同 slug 的 Markdown。可逐篇提交，缺少 UI 键回退英文，缺少文章回退英文再中文，页面注明实际正文语言。空正文同样明确标注回退。
 
 `componentLocale` 是统一组件库适配标识，目前支持 `zh_CN` 与 `en_US`；其他语言显式使用 `en_US`，不宣称组件库已有对应翻译。贡献者不需要修改业务代码。运行 `node scripts/check-locales.mjs`（工作目录 `product-page`）检查声明、语义键与插值变量；构建自动执行同一检查。世界语资源继续由翻译贡献者维护，新增宿主键缺译时按上述规则回退。
+
+## 2026-11-14 更新交接
+
+主体侧同步 zh/en 的首页下载区说明（`site.build.v.version.nightly.checks.for.new.commits.daily`）及 start、dev-design、dev-release：新增 GitHub 手动更新、可选 Nightly、兼容资产、错误重试、先保存退出再安装及同版本替换边界；设计篇补充 L0–L3 实例与页面判断。其他语种由对应维护者同步这三个同 slug 篇目，不覆盖其既有内容；此条不声明其他语种已完成。简体中文博客新增更新检查与 L0–L3 主题。

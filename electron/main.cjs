@@ -400,6 +400,13 @@ function createWindow() {
 }
 
 function registerIpc() {
+  let updateCheck = null;
+  ipcMain.handle('app:check-updates', async (event, includeNightly) => {
+    if (event.sender !== mainWindow?.webContents || typeof includeNightly !== 'boolean') throw new Error('Invalid update request');
+    if (updateCheck) return { ok: false, currentVersion: app.getVersion(), error: 'busy' };
+    updateCheck = require('./services/app-updates.cjs').checkForUpdates({ includeNightly, currentVersion: app.getVersion(), fetchImpl: (...args) => net.fetch(...args) });
+    try { return await updateCheck; } finally { updateCheck = null; }
+  });
   extensionManager = registerExtensionIpc({ app, ipcMain, dialog, getWindow: () => mainWindow, safeMode, onChanged: () => { if (!extensionManager?.languages().some(locale => locale.id === menuLanguage)) menuLanguage = 'en'; buildMenu(); },
     assertRoot: root => { if (!isAllowed(root)) throw new Error('Project access is not authorized'); }, symbols: root => tex.collectProjectSymbols(root) });
   const realtimeOperation = task => {

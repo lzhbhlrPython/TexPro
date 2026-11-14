@@ -20,6 +20,20 @@
       ]
     },
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels",
+      "title": "在设置里检查 GitHub 更新：让界面随任务生长",
+      "summary": "正式版与可选 Nightly 共用一个按需更新入口；用这次 L2 决策说明 L0–L3 如何保护连续写作，也为复杂任务留下独立空间。",
+      "content_text": "正式版与可选 Nightly 共用一个按需更新入口；用这次 L2 决策说明 L0–L3 如何保护连续写作，也为复杂任务留下独立空间。",
+      "date_published": "2026-11-13T16:00:00.000Z",
+      "tags": [
+        "更新",
+        "Nightly",
+        "设计哲学",
+        "连续写作"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents",
       "title": "从正文查词到稳定消息键：语言资源的一次重整",

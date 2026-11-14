@@ -44,3 +44,5 @@
 
 - [声明式语言包](language-packs.md)：预装简中、翻译源与英文恢复。
 - [npm／yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。
+
+[应用更新检查](app-updates.md)：GitHub 版本比较、渠道、兼容安装包、网络与 IPC 边界。

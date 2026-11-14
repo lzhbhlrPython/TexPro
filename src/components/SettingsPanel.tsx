@@ -1,3 +1,6 @@
+import { useRef } from 'react';
+import { useDialogFocus } from '../hooks/useDialogFocus';
+import { UpdateSettings } from './UpdateSettings';
 import { availableLanguages, formatShortcut } from '../i18n';
 import { BarChart3, LayoutTemplate, PenTool, X } from 'lucide-react';
 import type { Settings, ThemeName } from '../types';
@@ -29,6 +32,8 @@ export function SettingsPanel({
   onOpenTikz,
 }: Props) {
   const { msg, language } = useI18n();
+  const panelRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, panelRef, onClose);
   const languages = availableLanguages();
   const target = languages.find(item => item.id !== language);
   if (!open) return null;
@@ -63,7 +68,7 @@ export function SettingsPanel({
 
   return (
     <div className="settings-scrim" onMouseDown={onClose}>
-      <aside className="settings-panel" onMouseDown={(event) => event.stopPropagation()}>
+      <aside ref={panelRef} role="dialog" aria-modal="true" aria-label={msg("app.preferences")} tabIndex={-1} className="settings-panel" onMouseDown={(event) => event.stopPropagation()}>
         <header className="settings-header">
           <div>
             <span className="settings-eyebrow">{msg("app.preferences")}</span>
@@ -75,6 +80,7 @@ export function SettingsPanel({
         </header>
 
         <div className="settings-body">
+          <UpdateSettings includeNightly={settings.includeNightlyUpdates} onChange={value => onChange({ includeNightlyUpdates: value })} />
           <div className="settings-section">
             <div className="settings-section-title">{msg("app.language")}</div>
             <div className="select-row">

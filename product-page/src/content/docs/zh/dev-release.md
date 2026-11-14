@@ -162,3 +162,11 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 ## 重大修复的同版本替换
 
 仅在维护者明确授权时，在 main 的 Release patch 填写 replacement_version，例如 0.1.1，必须与当前基础版本一致。流程仍先通过完整基线、类型、构建、三平台打包及 Skill 核验，之后才删除该版本旧 Release／标签并上传、核验新草稿。此阶段会有短暂下载中断；其他历史版本不变。失败重跑同一次 Actions，不另开版本递增。常规更新继续使用正常补丁发布。
+
+## 桌面更新检查
+
+更新检查复用「偏好设置 → 软件更新」（L2），默认正式版，可选「包含 Nightly」。`electron/services/app-updates.cjs` 固定读取 GitHub 公开 Releases；主进程从 app.getVersion() 取得当前版本，专用 preload／IPC 仅接受布尔渠道参数，不传工程数据。查询正式版 latest；包含 Nightly 时另取分页列表（100 条／页，最多 10 页），总超时 20 秒，单响应 8 MiB 上限，超限明确失败。
+
+只推荐 uploaded、非零且匹配系统与架构的 DMG、setup.exe 或 AppImage。基础版本按数字比较，同基础版本正式版优先，Nightly 按日期排序；排除其他预发布。链接从固定仓库构造，说明按纯文本显示。无兼容安装包、无更高版本和查询失败分别反馈；切换渠道或关闭设置后丢弃旧结果。默认不在启动时检查，不自动下载或安装。用户先保存并退出再安装，步骤见[安装指南](/docs/start)。
+
+同版本替换和同日 Nightly 重建无法通过版本号检测；需要手动访问 Releases。应用更新不属于工程写作 MCP，不增加外部 MCP 工具。服务回归见 tests/app-updates.test.cjs，详细契约见仓库 docs/app-updates.md；真实查询不代表三平台安装验收。

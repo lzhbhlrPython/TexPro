@@ -18,6 +18,17 @@
       <category>连续写作</category>
     </item>
     <item>
+      <title>在设置里检查 GitHub 更新：让界面随任务生长</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/github-updates-and-interaction-levels</guid>
+      <pubDate>Fri, 13 Nov 2026 16:00:00 GMT</pubDate>
+      <description>正式版与可选 Nightly 共用一个按需更新入口；用这次 L2 决策说明 L0–L3 如何保护连续写作，也为复杂任务留下独立空间。</description>
+      <category>更新</category>
+      <category>Nightly</category>
+      <category>设计哲学</category>
+      <category>连续写作</category>
+    </item>
+    <item>
       <title>从正文查词到稳定消息键：语言资源的一次重整</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/semantic-locales-and-whole-documents</guid>

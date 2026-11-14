@@ -57,6 +57,9 @@ module.exports = function installFlowRegression(window, { app, ipcMain, extensio
       await require('./language-regression.cjs')({ window, key, wait, click, open, shot, js, main, extensionManager });
       await require('./extensions-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main }); app.quit(); return;
     }
+    if (process.env.TEXPRO_UPDATE_REGRESSION === '1') {
+      await require('./updates-regression.cjs')({ window, key, wait, click, open, shot, js, ipcMain }); app.quit(); return;
+    }
     if (process.env.TEXPRO_REALTIME_REGRESSION === '1') {
       await require('./realtime-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return;
     }
