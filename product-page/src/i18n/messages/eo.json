@@ -190,7 +190,7 @@
   "site.import.templates.and.assets": "Enporto, ŝablonoj kaj rimedoj",
   "site.shortcuts": "Klavkombinoj",
   "site.install.locally.writing.in.ten.minutes": "Instalu loke, skribu post dek minutoj",
-  "site.build.v.version.nightly.checks.for.new.commits.daily": "Konstruu v{version}. Nightly ĉiutage kontrolas novajn commit-ojn; instaliloj gastiĝas ĉe GitHub Releases.",
+  "site.build.v.version.nightly.checks.for.new.commits.daily": "Nuna konstruo v{version}; instaliloj gastiĝas ĉe GitHub Releases. Pli novaj konstruoj povas kontroli kaj elŝuti instalilojn en Agordoj → Ĝisdatigoj de la programo, laŭvole inkluzive Nightly. Post la kontrolo, konservu vian laboron kaj fermu, poste instalu permane.",
   "site.requirements": "Postuloj",
   "site.tex.live.or.mactex.must.be.installed.any.of": "TeX Live aŭ MacTeX devas esti instalitaj (iu el pdflatex / xelatex / lualatex); TeXPro detektas la distribuon kaj la binariojn. La konstruaĵoj estas nesubskribitaj — la kopibutono ĉe ĉiu linio donas la SHA256 de tiu instalilo.",
   "site.all.builds": "Ĉiuj konstruaĵoj",

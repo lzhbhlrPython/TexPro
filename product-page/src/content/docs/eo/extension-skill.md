@@ -25,7 +25,7 @@ Provizu la celon, fontan lokon, pakaĵan tipon, API-on, kapablojn, celajn sistem
 ```text
 Use $texpro-extension-development.
 Create an API 1 selection-uppercase plugin in my specified new directory.
-Use SDK 0.3.0 and guided qwertysay; do not require me to memorize flags.
+Use SDK 0.5.0 and guided qwertysay; do not require me to memorize flags.
 Declare document.read/document.write and preserve UTF-16, accepted proposals and one-step undo.
 Deliver source, MIT LICENSE, .tpp, SHA256, actual evidence and known limits.
 Do not publish npm or enable it in my everyday profile or project.
@@ -75,7 +75,7 @@ Kiam gastigantaj aŭ ilaj kontraktoj ŝanĝiĝas, ĝisdatigu la Skill, reference
 
 ## Lingvopakaĵoj kaj pakaĵadministraj medioj
 
-Vidu [lingvopakaĵojn](/docs/language-packs) por la deklara ŝablono, la antaŭinstalita @texpro/extension-translate-zh-cn, lokokupila validigo kaj angla restaŭro. Vidu [npm/yarn-administradon](/docs/extension-package-management) por aŭtora agordo, distribuaĵaj envolviloj kaj reviziita sinkronigo de instalado, ĝisdatigo kaj forigo. SDK 0.3.0 kaj qwertysay 0.4.1 uzas @texpro; historiaj @gardenialiu-versioj restas haveblaj aparte.
+Vidu [lingvopakaĵojn](/docs/language-packs) por la deklara ŝablono, la antaŭinstalita @texpro/extension-translate-zh-cn, lokokupila validigo kaj angla restaŭro. Vidu [npm/yarn-administradon](/docs/extension-package-management) por aŭtora agordo, distribuaĵaj envolviloj kaj reviziita sinkronigo de instalado, ĝisdatigo kaj forigo. SDK 0.5.0 kaj qwertysay 0.6.0 uzas @texpro; historiaj @gardenialiu-versioj restas haveblaj aparte.
 
 ## Elŝuti la eldonan Skill
 
@@ -84,3 +84,9 @@ Estontaj stabilaj kaj Nightly-eldonoj aldonas `texpro-extension-development-v{ap
 ## npm-fonta publikigado kaj konstrua sekureco
 
 Publikigu fonton rekte per texpro.source (implicita pakaĵa radiko); enmetita .tpp/.tpt estas nedeviga. SDK 0.4.0, qwertysay 0.5.0 kaj la kongrua gastiganto subtenas ĉi tiun vojon, apud arkivaj envolviloj. Ruleblaj JS/staticaj dosieroj sinkroniĝas post instalado; kompilitaj pakaĵoj postulas **Prepare installed source** en qwertysay kaj eksplicitan fidon antaŭ sinkronigo kaj TeXPro-revizio. Kompililoj kaj projekta agordo havas uzantajn permesojn; malŝaltitaj instalaj skriptoj kaj portempaj dosierujoj ne estas sablaj skatoloj. Vidu [npm/yarn-etendaĵan administradon](/docs/extension-package-management) por publikigado, instal-, ĝisdatig- kaj forig-paŝoj, ilĉenaj limoj kaj riskoj.
+
+## Nunaj prizorgaj limigoj
+
+La eldona Skill sekvas SDK 0.5.0, qwertysay 0.6.0 kaj catalogVersion 2. Ambaŭ statoj de dinamikaj menuaj etikedoj uzas semantikajn ŝlosilojn, solvitajn kiam montritaj aŭ alvokitaj por eviti kadukiĝintajn tradukojn. «Pliaj» ne plu duobligas la grupon Enmeti de la labortablo; enmetado restas havebla per la labortablo kaj la komanda paletro.
+
+La fina elŝuta listo de la ĉefpaĝo ŝanĝas inter stabilaj/Nightly-versioj kaj kunuzas vicostilon por sistemaj pakaĵoj kaj la Skill. Skill-grandecoj uzas KB. Retejaj lingvoj kontribuas metadatenojn, mesaĝojn JSON kaj Markdown sen lingvaj branĉoj en paĝoj. La references/website-and-releases.md de la Skill priskribas ĉi tiujn integrajn limojn.

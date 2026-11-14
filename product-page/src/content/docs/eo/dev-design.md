@@ -58,3 +58,11 @@ Legu PRODUCT.md, DESIGN.md kaj koncernajn fontajn stilojn kaj komponantojn. Enha
 La radika DESIGN.md ankaŭ dokumentas la retejon: helajn kaj malhelajn surfacajn rolojn, serifajn rezervojn, regilajn grandecojn kaj radiusojn, adaptiĝeman navigadon, moviĝon kaj printstilojn. Retejaj tokenoj venas de product-page/src/App.tsx, src/config/design.ts kaj src/styles/global.css. Etosa stato kaj provizoraj anstataŭigoj troviĝas en src/lib/theme.tsx; la ekzistanta paskaĵa paĝo provizore devigas malhelan reĝimon kaj restarigas la antaŭan elekton ĉe eliro.
 
 La retejo uzas sian propran helan/malhelan paletron, ne la tablajn reĝimojn paper/studio/night. Konservu la ekzistantajn paperajn sekciojn, specifajn vicojn, ligitajn referencojn kaj realajn ekrankopiojn. Kontrolu aparte mallarĝajn aranĝojn, longajn tradukojn, klavaran operacion kaj printadon. Enhava laboro ne ŝanĝas la aranĝan ŝloson.
+
+## Ekzemplo: kial ĝisdatigokontroloj uzas L2
+
+Kontroli ĝisdatigojn de la programo estas eksplicita prizorga tasko. Agordoj jam gastigas «Inkluzivi Nightly-konstruojn», kontrolan staton, versiojn kaj elŝutojn, do ĝi uzas L2 sen nova ĝisdatigcentro. Inĝeniera malfacileco kaj graveco sole ne pravigas paĝon. Inverse, plurpaŝaj laborfluoj, grandaj kanvasoj, persista stato aŭ konsiderinda hompleneco povas pravigi L3-spacon kun klara respondeco.
+
+Niveloj ne estas rangigo de valoro. Realtempa antaŭrigardo uzas L0, redaktila kompletigo L1, laŭpostulaj iloj L2 kaj kompletaj sendependaj laborfluoj povas uzi L3. Registru la taskon, taŭgecon de ekzistantaj spacoj, la problemon solvitan de nova paĝo kaj duoblajn enirejojn. Validigu fokusrestarigon, rulumadon, malfaron, IME, eksvalidiĝintajn asinkronajn rezultojn kaj malsukcesan resaniĝon. Paĝnombro ne estas akcepta celo.
+
+Vidu [Instaladon kaj vian unuan projekton](/docs/start) por ĝisdatigaj paŝoj kaj [Versiojn kaj eldonojn](/docs/dev-release) por servaj kaj malsukcesaj limoj.
