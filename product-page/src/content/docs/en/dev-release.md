@@ -157,3 +157,8 @@ To add a website language, submit language metadata JSON, message JSON and trans
 The root package and lock on main retain the published stable version. Nightly targets the next patch: stable 0.1.1 produces 0.1.2-YYYYMMDD-Nightly without incrementing main or the next stable release twice. Successful stable publication explicitly dispatches the same-day Nightly. An older base version on that date does not suppress the new build; existing releases remain intact. Scheduled recovery skips only the exact target version and date. An already stamped Nightly only changes date, avoiding repeated increments.
 
 The homepage has one download section with a stable/Nightly selector. macOS, Windows, Linux and the extension-development Skill share the same rows, sizes, SHA256 controls and download buttons. Skill sizes use KB.
+
+
+## Replacing a version after critical fixes
+
+Only with explicit maintainer authorization, run Release patch on main with replacement_version, for example 0.1.1, matching the current stable base. The full regression, types, build, three-platform packages and Skill validation must pass before the old Release/tag is deleted and the new draft uploaded and verified. Downloads briefly become unavailable during replacement; other historical versions remain intact. Retry the same Actions run on failure instead of incrementing again. Ordinary updates continue to use normal patch releases.

@@ -2,6 +2,10 @@ name: Release patch
 on:
   workflow_dispatch:
     inputs:
+      replacement_version:
+        description: Explicitly replace the current stable version after critical fixes (e.g. 0.1.1)
+        type: string
+        default: ""
       initial_release:
         description: Publish current base as the first stable release (no increment)
         type: boolean
@@ -17,5 +21,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/_release-stable.yml
     with:
-      bump: ${{ inputs.initial_release && 'initial' || 'patch' }}
+      bump: ${{ inputs.replacement_version != '' && 'replace' || inputs.initial_release && 'initial' || 'patch' }}
+      replacement_version: ${{ inputs.replacement_version }}
     secrets: inherit

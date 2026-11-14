@@ -25,7 +25,7 @@ Provide the goal, source location, package type, API, capabilities, target syste
 ```text
 Use $texpro-extension-development.
 Create an API 1 selection-uppercase plugin in my specified new directory.
-Use SDK 0.3.0 and guided qwertysay; do not require me to memorize flags.
+Use SDK 0.5.0 and guided qwertysay; do not require me to memorize flags.
 Declare document.read/document.write and preserve UTF-16, accepted proposals and one-step undo.
 Deliver source, MIT LICENSE, .tpp, SHA256, actual evidence and known limits.
 Do not publish npm or enable it in my everyday profile or project.
@@ -75,7 +75,7 @@ When host/tool contracts change, update the Skill, references, SDK, qwertysay an
 
 ## Language packs and package-manager environments
 
-See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.3.0 and qwertysay 0.4.1 use @texpro; historical @gardenialiu versions remain available separately.
+See [language packs](/docs/language-packs) for the declarative template, preinstalled @texpro/extension-translate-zh-cn, placeholder validation and English recovery. See [npm/yarn management](/docs/extension-package-management) for authoring configuration, distribution wrappers and reviewed installation/update/removal synchronization. SDK 0.5.0 and qwertysay 0.6.0 use @texpro; historical @gardenialiu versions remain available separately.
 
 ## Download the release Skill
 
@@ -84,3 +84,10 @@ Future stable and Nightly releases attach `texpro-extension-development-v{applic
 ## npm source publishing and build safety
 
 Publish source directly with texpro.source (default package root); an embedded .tpp/.tpt is optional. SDK 0.4.0, qwertysay 0.5.0 and the matching host support this path, alongside archive wrappers. Runnable JS/static files sync after installation; compiled packages require Prepare installed source in qwertysay and explicit trust before synchronization and TeXPro review. Compilers and project configuration have user permissions; disabled install scripts and temporary directories are not sandboxes. See [npm/yarn extension management](/docs/extension-package-management) for publishing, install/update/remove steps, toolchain limits and risks.
+
+
+## Current maintenance constraints
+
+The release Skill tracks SDK 0.5.0, qwertysay 0.6.0 and catalogVersion 2. Both states of dynamic menu labels use semantic keys, resolved when displayed or invoked to avoid stale translations. More no longer duplicates the workbench's Insert group; insertion remains available through the workbench and command palette.
+
+The final homepage download list switches stable/Nightly versions and shares row styling for system packages and the Skill. Skill sizes use KB. Website languages contribute metadata, message JSON and Markdown without language branches in pages. The Skill's references/website-and-releases.md describes these integration boundaries.

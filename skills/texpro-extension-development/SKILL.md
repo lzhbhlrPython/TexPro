@@ -5,7 +5,7 @@ description: Develop, debug, package, and review TeXPro local extensions and the
 
 # TeXPro extension development
 
-Build against the checked-out TeXPro contracts. Use `@texpro/extension-sdk` for public API 1 types and `@texpro/qwertysay` for offline scaffolding/check/pack. SDK 0.3.0 / API 1 provides multilingual contracts; qwertysay 0.4.1 adds bilingual guided workflows and accent-only themes. Pin compatible SDK/CLI releases for npm use, or install matching local paths together for source development. Read docs/extension-authoring.md for compiler/build/bridge work. Find the TeXPro repository for host work; do not guess internal contracts. Source is maintained in `packages/extension-sdk`, independently of Electron.
+Build against the checked-out TeXPro contracts. Use `@texpro/extension-sdk` for public API 1 types and `@texpro/qwertysay` for offline scaffolding/check/pack. The checked-in SDK is 0.5.0 / API 1, qwertysay is 0.6.0, and the bundled Chinese package is 2.0.0; verify npm availability separately. Host language catalogs use catalogVersion 2. Pin compatible SDK/CLI releases for npm use, or install matching local paths together for source development. Read docs/extension-authoring.md for compiler/build/bridge work. Find the TeXPro repository for host work; do not guess internal contracts. Source is maintained in `packages/extension-sdk`, independently of Electron.
 
 Keep the minimal color-only theme path: `texpro.extension.json` plus `LICENSE`, `capabilities: []`, and only required `contributes.themes[].tokens` such as `accent`. Use `examples/extensions/accent-only`. No stylesheet, executable entry, build configuration or compiler is required; check/pack the directory directly as `.tpt`. Do not force preprocessing on token-only authors.
 
@@ -17,7 +17,7 @@ Classify the author task as L0–L3. Rendering stays L0; ordinary writing stays 
 
 ## Implement a local package
 
-1. For authors, start `npx --package @texpro/qwertysay@0.4.1 qwertysay` without arguments and guide language, operation, type, destination, id, author and toolchain choices. Review before confirmation. Token-only themes use the accent-only option and need no build. In unattended automation, use complete compatible arguments, record equivalent choices and never fake TTY or silently accept prompts; for multilingual/static-style builds, read [build and bridge checks](references/build-and-bridge.md). Install dependencies explicitly; selecting build runs trusted project/compiler code. Check/pack never build. Create `texpro.extension.json` with API version 1, a namespaced lowercase id, bilingual names, author, semantic version, license, and only the required capabilities. Include LICENSE.
+1. For authors, start `npx --package @texpro/qwertysay@0.6.0 qwertysay` without arguments and guide language, operation, type, destination, id, author and toolchain choices. Review before confirmation. Token-only themes use the accent-only option and need no build. In unattended automation, use complete compatible arguments, record equivalent choices and never fake TTY or silently accept prompts; for multilingual/static-style builds, read [build and bridge checks](references/build-and-bridge.md). Install dependencies explicitly; selecting build runs trusted project/compiler code. Check/pack never build. Create `texpro.extension.json` with API version 1, a namespaced lowercase id, bilingual names, author, semantic version, license, and only the required capabilities. Include LICENSE.
 2. Prefer data-only completions, templates, snippets and theme tokens when sufficient. Theme colors use allowlisted 6/8-digit hex tokens. Font families, bounded dimensions and optional package CSS/local assets are supported; read the current theme contract in `docs/extension-development.md`. Declare `theme.styles` for CSS, explain spoofing/hidden-control risks, and test native recovery and `--safe-mode`. No remote assets or JavaScript theme injection.
 3. For code, provide a self-contained `.cjs` or `.mjs` entry with `activate(ctx)`. Register only declared action ids via `ctx.handle()`. Clean up external effects through `ctx.onDispose()` or the returned disposer. Do not depend on install scripts, native binaries, runtime npm installation, or an existing node_modules directory.
 4. Return serializable results. Use checked edit proposals for document changes. Preserve UTF-16 positions; never mutate the editor DOM or replace all source to perform a local edit.
@@ -28,7 +28,7 @@ Executable plugins are trusted Node code. Process isolation controls faults, not
 
 ## Validate and distribute
 
-Use **Extensions → Load development directory…**, inspect, install disabled, then explicitly trust and enable executable code. Reload creates a new disabled snapshot; recheck capabilities before enabling. Test disable/re-enable, changes after invocation, undo, IME, project switches, failure and restoration. Check all relevant themes and both languages.
+Use **Extensions → Load development directory…**, inspect, install disabled, then explicitly trust and enable executable code. Reload creates a new disabled snapshot; recheck capabilities before enabling. Test disable/re-enable, changes after invocation, undo, IME, project switches, failure and restoration. Check all relevant themes, English recovery and each affected installed language. Do not assume the host or website has only two languages.
 
 From the TeXPro root, run `npm run test:extensions`, `npm run typecheck`, and relevant native journeys. Changes to the host also require the complete `npm run test:regression` baseline: zero failures, zero skips, zero TODOs. Do not bypass missing process permissions by editing tests to skip.
 
@@ -54,4 +54,11 @@ For direct npm source distribution, follow the source/prepare contract in [langu
 
 宿主语言包使用 `catalogVersion: 2`、语义消息 ID 与独立 JSON。旧正文键包破坏性迁移，不增加别名适配。SDK 参考目录、qwertysay 引导、简中包与 MCP 只读声明同轮对齐。功能插件自己管理词典，每次调用读取语言，不能把宿主私有词典作为依赖。按钮与状态是短文案；文档、教程、彩蛋长信按语言维护完整 Markdown，交给共用受控渲染器，不逐句建立翻译键。明确区分界面标签、技术枚举与作者数据，保留变量、英文恢复、过期结果隔离和失败重试。
 
-官网文档目录统一为 `product-page/src/content/docs/{locale}/{slug}.md`，当前 `zh/` 与 `en/` 平级；不把中文正文放在根目录作为特殊默认语言。新增／移动文件同步加载、搜索、生成与测试，保留公开 `/docs/:slug` 链接。
+官网文档目录统一为 `product-page/src/content/docs/{locale}/{slug}.md`，`zh/`、`en/`、`eo/` 等实际接入的语言平级；不把中文正文放在根目录作为特殊默认语言。新增／移动文件同步加载、搜索、生成与测试，保留公开 `/docs/:slug` 链接。
+
+
+## Host menu and website integration
+
+For host commands, store semantic message IDs in static command/snippet/group metadata and resolve them at display time. Toggle labels need keys for both states; never return English prose from dynamic labels. Verify the More menu, command palette and native menu against the active language, including switching within one session. The More menu omits the duplicate Insert group now covered by the workbench; retain existing insertion commands and their palette/shortcut access.
+
+For website language contributions and release downloads, read [website and release integration](references/website-and-releases.md). This reference applies only when changing the host repository or distributing this Skill, not to an author's ordinary extension package.

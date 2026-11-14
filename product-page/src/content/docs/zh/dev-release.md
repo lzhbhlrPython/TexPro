@@ -157,3 +157,8 @@ Nightly／正式版发布成功后显式 dispatch Product page 工作流，传�
 正式版保持 main 的根 package／lock 为已发布版本。Nightly 从该版本计算下一补丁版本：正式版 0.1.1 对应 0.1.2-YYYYMMDD-Nightly，不预先递增 main，也不影响下一次正式 patch。正式发布公开成功后显式触发当天 Nightly；已有旧基础版本的同日 Nightly 不阻止新版本构建，旧公开记录保留。补偿检查只跳过当前目标版本与日期均匹配的 Nightly。构建 checkout 已带 Nightly 后缀时仅更新日期，避免重复递增。
 
 首页使用统一下载区，通过正式版／Nightly 选项切换资产。macOS、Windows、Linux 与扩展开发 Skill 共用下载行、大小、SHA256 和下载按钮；Skill 大小使用 KB。
+
+
+## 重大修复的同版本替换
+
+仅在维护者明确授权时，在 main 的 Release patch 填写 replacement_version，例如 0.1.1，必须与当前基础版本一致。流程仍先通过完整基线、类型、构建、三平台打包及 Skill 核验，之后才删除该版本旧 Release／标签并上传、核验新草稿。此阶段会有短暂下载中断；其他历史版本不变。失败重跑同一次 Actions，不另开版本递增。常规更新继续使用正常补丁发布。

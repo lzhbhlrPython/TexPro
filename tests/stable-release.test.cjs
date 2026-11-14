@@ -102,7 +102,41 @@ test('release workflows gate publishing on shared three-platform success and pin
   for(const job of Object.values(build.jobs))assert.equal(job.steps[0].with.ref,'${{ inputs.source_sha }}');
   assert.deepEqual(stable.jobs.publish.needs,['prepare','build']);assert.deepEqual(nightly.jobs.release.needs,['changes','build']);
   assert.equal(stable.jobs.build.uses,nightly.jobs.build.uses);assert.equal(nightly.on.schedule[0].cron,'23 13 * * *');
-  for(const bump of ['major','minor','patch']) {const entry=read(`release-${bump}.yml`);assert.equal(entry.jobs.release.with.bump,bump==='patch'?"${{ inputs.initial_release && 'initial' || 'patch' }}":bump);assert.equal(entry.jobs.release.if,"github.ref == 'refs/heads/main'");assert.deepEqual(entry.concurrency,nightly.concurrency);assert.equal(entry.concurrency['cancel-in-progress'],false);}
+  for(const bump of ['major','minor','patch']) {const entry=read(`release-${bump}.yml`);assert.equal(entry.jobs.release.with.bump,bump==='patch'?"${{ inputs.replacement_version != '' && 'replace' || inputs.initial_release && 'initial' || 'patch' }}":bump);assert.equal(entry.jobs.release.if,"github.ref == 'refs/heads/main'");assert.deepEqual(entry.concurrency,nightly.concurrency);assert.equal(entry.concurrency['cancel-in-progress'],false);}
   assert.equal(read('release-patch.yml').on.workflow_dispatch.inputs.initial_release.default,false);
   assert.equal(stable.jobs.publish.steps.at(-1).env.RELEASE_INITIAL,"${{ inputs.bump == 'initial' }}");
+});
+
+
+test('critical replacement preserves other versions, gates deletion on assets, and retries the same run', t => {
+  const {work,remote,sourceSha}=fixture(t);
+  git(work,'tag','v1.2.2');git(work,'tag','v1.2.3');git(work,'push','origin','--tags');
+  const env={RELEASE_VERSION:'1.2.3',RELEASE_SOURCE:sourceSha,GITHUB_RUN_ID:'234',GITHUB_REPOSITORY:'owner/repo',RELEASE_REPLACE:'true'};
+  let release={tag_name:'v1.2.3',draft:false,prerelease:false,published_at:'2026-11-14',assets:[]},deleted=0,fail=true;
+  const names=['app.dmg','app.exe','app.deb','app.rpm','app.AppImage','texpro-extension-development-v1.2.3.skill'];
+  const gh=(...args)=>{
+    if(args[0]==='api') {
+      if(args.includes('--slurp'))return JSON.stringify([release?[release]:[]]);
+      if(!release){const e=Error('missing');e.stderr='HTTP 404';throw e;}
+      return JSON.stringify(release);
+    }
+    if(args[1]==='delete'){deleted++;release=null;}
+    if(args[1]==='create')release={tag_name:'v1.2.3',draft:true,assets:[]};
+    if(args[1]==='upload'){if(fail)throw Error('interrupted');release.assets=names.map(name=>({name,size:5,state:'uploaded'}));}
+    if(args[1]==='edit'){release.draft=false;release.prerelease=false;release.published_at='2026-11-14';}
+    return '';
+  };
+  fs.mkdirSync(path.join(work,'release'));
+  assert.throws(()=>publish(work,env,gh),/assets incomplete/);assert.equal(deleted,0);
+  names.slice(0,-1).forEach(n=>fs.writeFileSync(path.join(work,'release',n),'asset'));
+  fs.cpSync(path.join(__dirname,'../skills'),path.join(work,'skills'),{recursive:true});
+  require('../scripts/package-extension-skill.cjs').packageSkill(work,'1.2.3');
+  assert.throws(()=>publish(work,{...env,RELEASE_SOURCE:'invalid'},gh),/identity/);assert.equal(deleted,0);
+  assert.throws(()=>publish(work,env,gh),/interrupted/);assert.equal(deleted,1);assert.equal(release.draft,true);
+  assert.equal(git(remote,'rev-parse','v1.2.2'),sourceSha);
+  const commit=git(remote,'rev-parse','v1.2.3');assert.notEqual(commit,sourceSha);
+  assert.equal(JSON.parse(git(remote,'show','main:package.json')).version,'1.2.3');
+  fail=false;publish(work,env,gh);assert.equal(deleted,1);assert.equal(release.draft,false);
+  publish(work,env,gh);assert.equal(deleted,1);assert.equal(git(remote,'rev-parse','v1.2.3'),commit);
+  assert.throws(()=>publish(work,{...env,GITHUB_RUN_ID:'345'},gh),/main advanced/);
 });

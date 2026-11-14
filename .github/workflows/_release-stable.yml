@@ -2,6 +2,9 @@ name: Shared stable release
 on:
   workflow_call:
     inputs:
+      replacement_version:
+        type: string
+        default: ""
       bump:
         required: true
         type: string
@@ -25,6 +28,7 @@ jobs:
           node-version: 22
       - id: version
         env:
+          RELEASE_REPLACEMENT_VERSION: ${{ inputs.replacement_version }}
           VERSION_BUMP: ${{ inputs.bump }}
         run: node scripts/release-version.cjs plan "$VERSION_BUMP"
   build:
@@ -60,5 +64,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
           RELEASE_SOURCE: ${{ github.sha }}
+          RELEASE_REPLACE: ${{ inputs.bump == 'replace' }}
           RELEASE_INITIAL: ${{ inputs.bump == 'initial' }}
         run: node scripts/publish-stable.cjs

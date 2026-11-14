@@ -4,10 +4,11 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { stampVersion } = require('./release-version.cjs');
 const git = (root, ...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
-function commitVersion(root, { version, sourceSha, runId, initial = false }) {
+function commitVersion(root, { version, sourceSha, runId, initial = false, replace = false }) {
   if (!/^\d+\.\d+\.\d+$/.test(version) || !/^[a-f0-9]{40}$/.test(sourceSha) || !/^\d+$/.test(runId)) throw Error('Invalid release identity');
-  const tag = `v${version}`, trailer = `Release-Source: ${sourceSha}\nRelease-Run: ${runId}${initial ? '\nRelease-Initial: true' : ''}`;
+  const tag = `v${version}`, trailer = `Release-Source: ${sourceSha}\nRelease-Run: ${runId}${initial ? '\nRelease-Initial: true' : ''}${replace ? '\nRelease-Replacement: true' : ''}`;
   git(root, 'fetch', 'origin', '+refs/heads/main:refs/remotes/origin/main', '--tags');
+  if (replace && (initial || JSON.parse(git(root, 'show', `${sourceSha}:package.json`)).version !== version)) throw Error('Replacement must use the current stable version');
   if (initial) {
     if (JSON.parse(git(root, 'show', `${sourceSha}:package.json`)).version !== version) throw Error('Initial release must use the current base version');
     if (git(root, 'tag', '--list').split('\n').some(name => /^v\d+\.\d+\.\d+$/.test(name) && name !== tag)) throw Error('Initial release requires no previous stable tags');
@@ -17,7 +18,7 @@ function commitVersion(root, { version, sourceSha, runId, initial = false }) {
     const commit = git(root, 'rev-parse', `${tag}^{commit}`);
     const body = git(root, 'show', '-s', '--format=%B', commit);
     const files = git(root, 'diff-tree', '--no-commit-id', '--name-only', '-r', commit).split('\n').sort();
-    const versionFiles = files.join(',') === 'package-lock.json,package.json' || (initial && files.join(',') === '');
+    const versionFiles = files.join(',') === 'package-lock.json,package.json' || ((initial || replace) && files.join(',') === '');
     const owned = trailer.split('\n').every(line => body.split('\n').includes(line));
     if (git(root, 'rev-parse', `${commit}^`) !== sourceSha || !owned || !versionFiles) throw Error('Existing release tag belongs to another release; never overwrite it');
     git(root, 'merge-base', '--is-ancestor', commit, 'origin/main');
@@ -28,7 +29,7 @@ function commitVersion(root, { version, sourceSha, runId, initial = false }) {
   if (git(root, 'status', '--porcelain', '--untracked-files=no')) throw Error('Tracked checkout must be clean before version commit');
   stampVersion(root, version);
   git(root, 'add', '--', 'package.json', 'package-lock.json');
-  git(root, '-c', 'user.name=github-actions[bot]', '-c', 'user.email=41898282+github-actions[bot]@users.noreply.github.com', 'commit', ...(initial ? ['--allow-empty'] : []), '-m', `chore(release): v${version}\n\n${trailer}`);
+  git(root, '-c', 'user.name=github-actions[bot]', '-c', 'user.email=41898282+github-actions[bot]@users.noreply.github.com', 'commit', ...((initial || replace) ? ['--allow-empty'] : []), '-m', `chore(release): v${version}\n\n${trailer}`);
   git(root, 'tag', tag);
   // Both refs advance together. A concurrent main push rejects the entire update.
   git(root, 'push', '--atomic', 'origin', 'HEAD:refs/heads/main', `refs/tags/${tag}`);
@@ -53,21 +54,55 @@ function findRelease(gh, repo, tag) {
   const pages = JSON.parse(gh('api', '--paginate', '--slurp', `repos/${repo}/releases?per_page=100`));
   return pages.flat().find(release => release.tag_name === tag);
 }
+function validateAssets(root, version) {
+  const assets = fs.readdirSync(path.join(root, 'release')).filter(name => /\.(dmg|zip|exe|AppImage|deb|rpm|skill)$/.test(name));
+  if (!assets.some(n => n.endsWith('.dmg')) || !assets.some(n => n.endsWith('.exe')) || !assets.some(n => n.endsWith('.deb')) || !assets.some(n => n.endsWith('.rpm')) || !assets.some(n => n.endsWith('.AppImage'))) throw Error('Three-platform assets incomplete');
+  const skill = `texpro-extension-development-v${version}.skill`;
+  if (!assets.includes(skill)) throw Error('Extension development Skill asset missing');
+  require('./package-extension-skill.cjs').verifySkillArchive(root, path.join(root, 'release', skill));
+  if (assets.some(name => fs.statSync(path.join(root, 'release', name)).size === 0)) throw Error('Empty release asset');
+  return assets;
+}
 function publish(root, env = process.env, runGh) {
   const { RELEASE_VERSION: version, RELEASE_SOURCE: sourceSha, GITHUB_RUN_ID: runId, GITHUB_REPOSITORY: repo } = env;
+  if (!/^\d+\.\d+\.\d+$/.test(version || '') || !/^[a-f0-9]{40}$/.test(sourceSha || '') || !/^\d+$/.test(runId || '')) throw Error('Invalid release identity');
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo || '')) throw Error('Invalid release repository');
   if (env.RELEASE_INITIAL && !['true', 'false'].includes(env.RELEASE_INITIAL)) throw Error('Invalid initial release flag');
   const presentation = releasePresentation(root, version);
-  commitVersion(root, { version, sourceSha, runId, initial: env.RELEASE_INITIAL === 'true' });
   const tag = `v${version}`, gh = runGh || ((...args) => execFileSync('gh', args, { cwd: root, encoding: 'utf8', env }).trim());
+  if (env.RELEASE_REPLACE && !['true', 'false'].includes(env.RELEASE_REPLACE)) throw Error('Invalid replacement flag');
+  const replace = env.RELEASE_REPLACE === 'true';
+  if (replace) {
+    // Complete source/archive validation before removing any public download.
+    validateAssets(root, version);
+    if (env.RELEASE_INITIAL === 'true' || JSON.parse(git(root, 'show', `${sourceSha}:package.json`)).version !== version) throw Error('Replacement must use the current stable version');
+    git(root, 'fetch', 'origin', '+refs/heads/main:refs/remotes/origin/main', '--tags');
+    const oldTag = git(root, 'tag', '--list', tag);
+    const body = oldTag ? git(root, 'show', '-s', '--format=%B', tag).split('\n') : [];
+    const owned = [`Release-Source: ${sourceSha}`, `Release-Run: ${runId}`, 'Release-Replacement: true'].every(line => body.includes(line));
+    if (!owned) {
+      if (git(root, 'rev-parse', 'origin/main') !== sourceSha || git(root, 'rev-parse', 'HEAD') !== sourceSha) throw Error('main advanced since this build; start a new release run');
+      if (git(root, 'status', '--porcelain', '--untracked-files=no')) throw Error('Tracked checkout must be clean before replacement');
+      if (oldTag && JSON.parse(git(root, 'show', `${tag}:package.json`)).version !== version) throw Error('Release tag version mismatch');
+      const previous = findRelease(gh, repo, tag);
+      if (previous) {
+        if (!oldTag || previous.draft || previous.prerelease || !previous.published_at) throw Error('Replacement requires a published stable release');
+        git(root, 'merge-base', '--is-ancestor', `${tag}^{commit}`, sourceSha);
+        gh('release', 'delete', tag, '--repo', repo, '--yes');
+      }
+      // A retry after deletion may find no release/tag. Never touch other tags.
+      if (oldTag) {
+        git(root, 'merge-base', '--is-ancestor', `${tag}^{commit}`, sourceSha);
+        git(root, 'push', `--force-with-lease=refs/tags/${tag}:${git(root, 'rev-parse', tag)}`, 'origin', `:refs/tags/${tag}`);
+        git(root, 'tag', '-d', tag);
+      }
+    }
+  }
+  commitVersion(root, { version, sourceSha, runId, initial: env.RELEASE_INITIAL === 'true', replace });
   const existing = findRelease(gh, repo, tag);
   if (!existing || existing.draft) {
     if (!existing) gh('release', 'create', tag, '--repo', repo, '--verify-tag', '--draft', ...presentation.notes, '--title', presentation.title);
-    const assets = fs.readdirSync(path.join(root, 'release')).filter(name => /\.(dmg|zip|exe|AppImage|deb|rpm|skill)$/.test(name));
-    if (!assets.some(n => n.endsWith('.dmg')) || !assets.some(n => n.endsWith('.exe')) || !assets.some(n => n.endsWith('.deb')) || !assets.some(n => n.endsWith('.rpm')) || !assets.some(n => n.endsWith('.AppImage'))) throw Error('Three-platform assets incomplete');
-    const skill = `texpro-extension-development-v${version}.skill`;
-    if (!assets.includes(skill)) throw Error('Extension development Skill asset missing');
-    require('./package-extension-skill.cjs').verifySkillArchive(root, path.join(root, 'release', skill));
+    const assets = validateAssets(root, version);
     gh('release', 'upload', tag, '--repo', repo, '--clobber', ...assets.map(name => path.join('release', name)));
     const uploaded = findRelease(gh, repo, tag);
     if (!uploaded || !assets.every(name => uploaded.assets.some(a => a.name === name && a.state === 'uploaded' && a.size > 0))) throw Error('Uploaded assets incomplete; keeping release draft');

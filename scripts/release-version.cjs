@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 function nextVersion(current, bump) {
   if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(current)) throw Error('Expected a stable X.Y.Z base version');
-  if (bump === 'initial') {
+  if (bump === 'initial' || bump === 'replace') {
     if (current.split('.').some(n => !Number.isSafeInteger(Number(n)))) throw Error('Invalid base version');
     return current;
   }
@@ -27,8 +27,9 @@ if (require.main === module) {
   const [mode, value] = process.argv.slice(2);
   if (mode === 'plan') {
     const version = nextVersion(JSON.parse(fs.readFileSync('package.json')).version, value);
+    if (value === 'replace' && process.env.RELEASE_REPLACEMENT_VERSION !== version) throw Error('Replacement must explicitly name the current stable version');
     if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\ntag=v${version}\n`);
     console.log(`v${version}`);
   } else if (mode === 'stamp') stampVersion(process.cwd(), value);
-  else throw Error('Usage: release-version.cjs plan major|minor|patch|initial OR stamp VERSION');
+  else throw Error('Usage: release-version.cjs plan major|minor|patch|initial|replace OR stamp VERSION');
 }

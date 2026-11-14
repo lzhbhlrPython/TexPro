@@ -25,7 +25,7 @@ summary: 安装并调用仓库开发 Skill，组织输入、能力与 L0–L3 �
 ```text
 使用 $texpro-extension-development。
 在我指定的新目录创建一个 API 1 插件，只将选区转换为大写。
-使用 SDK 0.3.0 和 qwertysay 的引导式配置，不要求我记参数。
+使用 SDK 0.5.0 和 qwertysay 的引导式配置，不要求我记参数。
 声明 document.read/document.write，保留 UTF-16、提案确认与单次撤销。
 交付源码、MIT LICENSE、.tpp、SHA256、实际测试证据和已知限制。
 不要发布 npm，也不要在我的日常工程或用户目录启用插件。
@@ -84,3 +84,10 @@ Node 插件与构建工具具有用户权限；进程隔离不是沙箱。主题
 ## 源码发布 npm 与构建安全
 
 源码可直接发布 npm，texpro.source 指向目录（省略为包根），不必先内嵌 .tpp／.tpt。SDK 0.4.0、qwertysay 0.5.0 和对应宿主支持此路径；旧归档分发继续兼容。可运行 JS／静态文件安装后直接同步；需要编译的包在 qwertysay 选择「构建已安装的源码扩展」，单独确认信任后再同步到 TeXPro 审核。构建配置和编译器拥有用户权限；禁用安装脚本和临时目录都不是沙箱。完整的作者发布、用户安装／升级／卸载、工具链限制与风险见 [npm／yarn 管理扩展](/docs/extension-package-management)。
+
+
+## 当前维护约束
+
+随应用发行的 Skill 同步当前 SDK 0.5.0、qwertysay 0.6.0 与 catalogVersion 2。动态菜单的两个状态均使用语义键；语言切换在调用和展示时解析，避免缓存旧译文。更多菜单的重复插入组已移除，插入能力保留在工作台和命令面板。
+
+首页末尾的同一下载列表可切换正式版／Nightly，系统包与 Skill 共用行样式，Skill 大小以 KB 显示。官网语言贡献使用声明文件、消息 JSON 与 Markdown，不在页面中增加语言分支。Skill 的 references/website-and-releases.md 说明相关集成边界。
