@@ -1,6 +1,6 @@
 {
   "name": "texstudio-pro",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "A writing-first LaTeX editor that combines continuous inline writing with project, compile and SyncTeX tools.",
   "main": "electron/main.cjs",
