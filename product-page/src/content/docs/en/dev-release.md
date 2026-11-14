@@ -162,3 +162,17 @@ The homepage has one download section with a stable/Nightly selector. macOS, Win
 ## Replacing a version after critical fixes
 
 Only with explicit maintainer authorization, run Release patch on main with replacement_version, for example 0.1.1, matching the current stable base. The full regression, types, build, three-platform packages and Skill validation must pass before the old Release/tag is deleted and the new draft uploaded and verified. Downloads briefly become unavailable during replacement; other historical versions remain intact. Retry the same Actions run on failure instead of incrementing again. Ordinary updates continue to use normal patch releases.
+
+## Desktop update checks
+
+Update checks use Preferences → Software updates (L2), defaulting to stable with optional Include Nightly builds. electron/services/app-updates.cjs reads public GitHub Releases from a fixed repository. The main process obtains the current version from app.getVersion(); dedicated preload/IPC accepts only a boolean channel choice and sends no project data. It queries stable latest separately and, when Nightly is included, paginates the list (100 per page, at most 10 pages). The total timeout is 20 seconds and each response is limited to 8 MiB. Exceeding limits fails explicitly.
+
+Only uploaded, nonempty DMG, setup.exe or AppImage assets matching the system and architecture are eligible. Numeric base versions are compared first; stable wins at the same base, and Nightly uses dates. Other prereleases are excluded. Links are constructed from the fixed repository and notes are plain text. Missing installers, no higher version and failed queries are distinct results. Channel changes and closing Preferences invalidate old results. There are no startup checks or automatic installation; automatic downloading is off by default. Users save and quit before installing; see the [installation guide](/docs/start).
+
+Same-version replacements and same-day Nightly rebuilds cannot be detected by version comparison; visit Releases manually. App maintenance does not add a writing/project MCP tool. Service regressions are in tests/app-updates.test.cjs and the detailed repository contract is docs/app-updates.md. A real query does not certify installation on three platforms.
+
+## In-app downloads with manual installation
+
+Preferences → Software updates adds Automatically download after checking, off by default and used only after an explicit check finds an update. Download update also starts an in-app download with progress, cancellation and retry. Once size and GitHub SHA256 match, Show in folder locates the installer. Save and quit before installing manually. Download in browser remains available.
+
+The main-process update-download.cjs holds the trusted candidate and cache paths; the renderer cannot supply arbitrary download URLs or local paths. Transfers use exclusive .part files, streaming byte counts and hashes, a per-redirect HTTPS host allowlist, a 15-minute total timeout and 30-second idle timeout. Failures and cancellation clean the temporary directory. State survives reopening Preferences in the current app process only. There is no resume or installer execution. Missing digests block in-app downloads and expose the browser fallback; hashes are not code signatures. No new signing, updater library or release metadata is required. See repository docs/app-updates.md for the contract.

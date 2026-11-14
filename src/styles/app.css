@@ -2282,6 +2282,13 @@ code {
   border-bottom: 1px solid var(--border);
 }
 
+/* Update maintenance shares the preferences typography and compact actions. */
+.updates-section p { font-size: 12px; line-height: 1.6; margin: 8px 0; overflow-wrap: anywhere; }
+.updates-section input[type="checkbox"] { accent-color: var(--accent); }
+.update-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.update-notes { white-space: pre-wrap; }
+.update-download progress { width: 100%; accent-color: var(--accent); }
+
 .settings-section:last-child {
   border-bottom: none;
 }

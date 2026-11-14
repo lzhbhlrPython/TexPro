@@ -12,6 +12,7 @@ const { RealtimeHost } = require('./services/realtime-tex.cjs');
 const { registerExtensionIpc } = require('./services/extensions/ipc.cjs');
 const { syncPath } = require('./services/extensions/launch.cjs');
 let extensionManager = null;
+let updateDownloads = null;
 let realtimeHost = null;
 let realtimeOwner = null;
 let realtimeSerial = Promise.resolve();
@@ -400,6 +401,23 @@ function createWindow() {
 }
 
 function registerIpc() {
+  let updateCheck = null, updateRelease = null;
+  updateDownloads = new (require('./services/update-download.cjs').UpdateDownload)(path.join(app.getPath('userData'), 'updates'), { fetchImpl: (...args) => net.fetch(...args) });
+  const assertUpdateSender = event => { if (event.sender !== mainWindow?.webContents) throw new Error('Invalid update request'); };
+  ipcMain.handle('app:update-download', event => { assertUpdateSender(event); return updateDownloads.start(updateRelease); });
+  ipcMain.handle('app:update-download-status', event => { assertUpdateSender(event); return updateDownloads.snapshot(); });
+  ipcMain.handle('app:update-download-cancel', async event => { assertUpdateSender(event); return updateDownloads.cancel(); });
+  ipcMain.handle('app:update-download-reveal', async event => { assertUpdateSender(event); return updateDownloads.reveal(file => shell.showItemInFolder(file)); });
+  ipcMain.handle('app:check-updates', async (event, includeNightly) => {
+    if (event.sender !== mainWindow?.webContents || typeof includeNightly !== 'boolean') throw new Error('Invalid update request');
+    if (updateCheck || updateDownloads.job) return { ok: false, currentVersion: app.getVersion(), error: 'busy' };
+    updateCheck = require('./services/app-updates.cjs').checkForUpdates({ includeNightly, currentVersion: app.getVersion(), fetchImpl: (...args) => net.fetch(...args) });
+    try {
+      const result = await updateCheck;
+      updateRelease = result.ok && result.status === 'available' ? result.release : null;
+      return result;
+    } finally { updateCheck = null; }
+  });
   extensionManager = registerExtensionIpc({ app, ipcMain, dialog, getWindow: () => mainWindow, safeMode, onChanged: () => { if (!extensionManager?.languages().some(locale => locale.id === menuLanguage)) menuLanguage = 'en'; buildMenu(); },
     assertRoot: root => { if (!isAllowed(root)) throw new Error('Project access is not authorized'); }, symbols: root => tex.collectProjectSymbols(root) });
   const realtimeOperation = task => {
@@ -964,7 +982,7 @@ require('./quit-watchdog.cjs').installQuitWatchdog(app, {
   },
 });
 app.on('before-quit', () => { quitting = true; });
-app.on('will-quit', () => { extensionManager?.stop(); mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
+app.on('will-quit', () => { void updateDownloads?.cancel(); extensionManager?.stop(); mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin' || isSmoke) setImmediate(() => app.quit());

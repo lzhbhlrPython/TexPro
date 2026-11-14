@@ -115,3 +115,19 @@ See [Shortcuts](/docs/shortcuts) for the full list.
 - Two-way navigation: [Two-Way Navigation Between PDF and Source](/docs/synctex)
 - Writing experience: [Writing Mode and Themes](/docs/writing)
 - Moving a manuscript from another tool: [Import, Templates, and Assets](/docs/import)
+
+## Check and install application updates
+
+Prerequisites: a TeXPro build with Software updates and access to GitHub. If your version lacks this section, download a newer build from [GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases). These steps take place in the app; no terminal or working directory is needed.
+
+- Open Preferences → Software updates and verify Current version. Only stable releases are checked by default; select Include Nightly builds for preview releases.
+- Enable Automatically download after checking to download a newer installer as soon as your manual check finds one. It is off by default and stored locally. It does not check at startup.
+- Click Check for updates. With automatic downloading enabled, a newer compatible installer downloads inside the app; otherwise click Download update. Files go into the updates subdirectory of the application's user-data directory. Progress appears in Preferences; Cancel download allows you to stop and retry.
+- TeXPro verifies the size and GitHub SHA256 before showing Show in folder. Save your work and quit TeXPro normally, then manually run the installer or replace the application. Grant executable permission to a Linux AppImage if needed. Reopen TeXPro and verify Current version.
+- Use Download in browser or GitHub Releases as a fallback. If the release has no SHA256, the in-app download is explicitly refused; download in the browser and verify it manually.
+
+Closing Preferences keeps the download running; reopen it to view progress or locate the completed file. Quitting interrupts downloads. Resume is not supported: failed or cancelled downloads restart from the beginning, and download state does not survive an application restart. Cancel an active download before switching channels. Temporary files use .part and the current temporary directory is removed on failure or cancellation. Completed files remain in the cache. TeXPro never executes the installer or quits to install it. A crash or forced termination may leave .part files behind.
+
+Channels never force a downgrade. Numeric base versions are compared first, stable wins at the same base, and Nightly uses dates. Other prereleases are excluded. Installers must match the current system and architecture: DMG on macOS, setup.exe on Windows, AppImage on Linux. Missing compatible installers and no higher version are distinct results. Same-version stable replacements and same-day Nightly rebuilds still require manual retrieval from Releases.
+
+Offline, rate-limit, timeout, malformed-response and history-limit failures never report up-to-date status. Download timeouts, insufficient disk space, size and checksum mismatches have separate messages; retry after recovery. SHA256 checks download integrity and does not replace operating-system code signing. This feature does not update npm plugins or require a new signing or automatic installation mechanism.

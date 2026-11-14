@@ -11,3 +11,7 @@ The pack requires a TeXPro build with declarative language support; v0.1.0 preda
 See the [language tutorial](https://texpro.pyliubaolin.top/docs/language-packs) and [npm/yarn guide](https://texpro.pyliubaolin.top/docs/extension-package-management). Source translations live in language/, and build.cjs generates the artifact before packaging; never edit the archive directly. Publication state must be verified separately from a local build.
 
 Catalogue v2 uses stable semantic IDs and requires a matching host, SDK 0.5.0 and qwertysay 0.6.0. Version 1 phrase-key packs are unsupported. Long prose is maintained as whole localized Markdown documents, separately from UI JSON.
+
+The source catalogue now includes software update checks, optional Nightly builds, version results, downloads and retry messages. See the [installation guide](https://texpro.pyliubaolin.top/docs/start). Application update checks do not update npm language packages; generating the package locally does not publish it.
+
+In-app download messages include automatic downloading after checks, progress, cancellation, integrity errors and Show in folder. Users still save and quit before manual installation; language packs are not automatically updated.

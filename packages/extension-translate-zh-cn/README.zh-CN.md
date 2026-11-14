@@ -11,3 +11,7 @@ TeXPro 简体中文语言插件，作者 Baolin Liu（gardenialiu），MIT，版
 见[语言包教程](https://texpro.pyliubaolin.top/docs/language-packs)和[npm／yarn 管理](https://texpro.pyliubaolin.top/docs/extension-package-management)。维护源在 language/，打包前使用 build.cjs 生成发行物，不手改归档。本地构建与 npm 公开发布分别核对。
 
 目录第 2 版使用稳定语义键，需配套宿主、SDK 0.5.0 与 qwertysay 0.6.0。第 1 版正文键包不再兼容；长篇正文按语言维护完整 Markdown，不逐句放入 UI JSON。
+
+本次源码补齐「软件更新」的检查、Nightly 选择、版本、下载和失败重试文案；使用流程见[安装指南](https://texpro.pyliubaolin.top/docs/start)。应用更新检查不更新 npm 语言插件；本地生成不代表 npm 已发布。
+
+应用内下载同时提供「检查后自动下载」、进度、取消、校验错误与「打开文件位置」文案。下载完成后仍须保存退出并手动安装；语言包本身不因此自动更新。

@@ -190,7 +190,7 @@
   "site.import.templates.and.assets": "Import, templates and assets",
   "site.shortcuts": "Shortcuts",
   "site.install.locally.writing.in.ten.minutes": "Install locally, writing in ten minutes",
-  "site.build.v.version.nightly.checks.for.new.commits.daily": "Build v{version}. Nightly checks for new commits daily; installers are hosted on GitHub Releases.",
+  "site.build.v.version.nightly.checks.for.new.commits.daily": "Current build v{version}; installers are hosted on GitHub Releases. New builds can check and download installers in Preferences → Software updates, optionally including Nightly. After verification, save and quit, then install manually.",
   "site.requirements": "Requirements",
   "site.tex.live.or.mactex.must.be.installed.any.of": "TeX Live or MacTeX must be installed (any of pdflatex / xelatex / lualatex); TeXPro detects the distribution and binaries. Builds are unsigned — the copy button on each row gives that installer’s SHA256.",
   "site.all.builds": "All builds",
