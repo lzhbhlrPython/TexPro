@@ -115,3 +115,19 @@ Vidu [Klavkombinoj](/docs/shortcuts) por la plena listo.
 - Dudirekta navigado: [Dudirekta navigado inter PDF kaj fonto](/docs/synctex)
 - Verkada sperto: [Verkaj reĝimoj kaj etosoj](/docs/writing)
 - Movi manuskripton el alia ilo: [Importi, ŝablonoj kaj rimedoj](/docs/import)
+
+## Kontroli kaj instali ĝisdatigojn de la programo
+
+Antaŭkondiĉoj: TeXPro-konstruo kun «Ĝisdatigoj de la programo» kaj aliro al GitHub. Se via versio ne havas ĉi tiun sekcion, elŝutu pli novan konstruon de [GitHub Releases](https://github.com/lzhbhlrPython/TexPro/releases). Ĉi tiuj paŝoj okazas en la programo; terminalo aŭ labordosierujo ne necesas.
+
+- Malfermu Agordoj → Ĝisdatigoj de la programo kaj kontrolu «Nuna versio». Defaŭlte kontroliĝas nur stabilaj eldonoj; elektu «Inkluzivi Nightly-konstruojn» por antaŭrigardaj eldonoj.
+- Ŝaltu «Aŭtomate elŝuti post kontrolo» por elŝuti pli novan instalilon tuj kiam via permana kontrolo trovas ĝin. Ĝi estas defaŭlte malŝaltita kaj konserviĝas loke. Ĝi ne kontrolas ĉe lanĉo.
+- Alklaku «Kontroli ĝisdatigojn». Kun aŭtomata elŝuto ŝaltita, pli nova kongrua instalilo elŝutiĝas en la programo; alie alklaku «Elŝuti ĝisdatigon». Dosieroj iras al la subdosierujo updates de la uzantadata dosierujo de la programo. Progreso montriĝas en Agordoj; «Nuligi elŝuton» ebligas haltigi kaj reprovi.
+- TeXPro kontrolas la grandecon kaj la SHA256 de GitHub antaŭ ol montri «Montri en dosierujo». Konservu vian laboron kaj fermu TeXPro normale, poste permane rulu la instalilon aŭ anstataŭigu la programon. Donu plenumrajton al linuxa AppImage se necese. Remalfermu TeXPro kaj kontrolu «Nuna versio».
+- Uzu «Elŝuti per retumilo» aŭ GitHub Releases kiel rezervan vojon. Se la eldono mankas SHA256, la ena elŝuto estas eksplicite rifuzata; elŝutu per la retumilo kaj kontrolu permane.
+
+Fermado de Agordoj lasas la elŝuton daŭri; remalfermu ĝin por vidi progreson aŭ trovi la pretan dosieron. Fermo de la programo interrompas elŝutojn. Daŭrigo ne estas subtenata: malsukcesaj aŭ nuligitaj elŝutoj rekomenciĝas de la komenco, kaj elŝuta stato ne postvivas restarigon. Nuligu aktivan elŝuton antaŭ ŝanĝi kanalon. Portempaj dosieroj uzas .part kaj la aktuala portempa dosierujo estas forigata ĉe malsukceso aŭ nuligo. Pretaj dosieroj restas en la kaŝmemoro. TeXPro neniam plenumas la instalilon nek fermas sin por instali ĝin. Kraŝo aŭ perforta finigo povas lasi .part-dosierojn.
+
+Kanaloj neniam devigas malaltigon. Unue kompariĝas nombraj bazversioj, ĉe la sama bazo stabila venkas, kaj Nightly uzas datojn. Aliaj antaŭeldonoj estas ekskluditaj. Instaliloj devas kongrui kun la nuna sistemo kaj arkitekturo: DMG ĉe macOS, setup.exe ĉe Windows, AppImage ĉe Linux. Mankantaj kongruaj instaliloj kaj neniu pli alta versio estas apartaj rezultoj. Samversiaj stabilaj anstataŭigoj kaj samtagaj Nightly-rekonstruoj ankoraŭ postulas permanan akiron el Releases.
+
+Senreta, limiga, tempolima, misformita kaj historilima malsukcesoj neniam raportas «ĝisdata» staton. Elŝutaj tempolimoj, nesufiĉa diskospaco, grandecaj kaj kontrolsumaj malkongruoj havas apartajn mesaĝojn; reprovu post resaniĝo. SHA256 kontrolas la elŝutan integrecon kaj ne anstataŭigas operaciuman kodsubskribon. Ĉi tiu funkcio ne ĝisdatigas npm-kromaĵojn nek postulas novan subskriban aŭ aŭtomatan instaladon.
