@@ -1,59 +1,65 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "channel": "stable",
-  "releaseTag": "v0.1.0",
-  "publishedAt": "2026-11-12T14:44:10Z",
+  "releaseTag": "v0.1.1",
+  "publishedAt": "2026-11-14T05:44:46Z",
   "assets": [
     {
-      "name": "TeXPro-0.1.0-linux-amd64.deb",
-      "size": 120245740,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-amd64.deb",
-      "digest": "sha256:e54e0b5e983d9ff03d73f8fc67fceb3def26763e8ebbc007470deb42fed1d771"
+      "name": "TeXPro-0.1.1-linux-amd64.deb",
+      "size": 120296612,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-amd64.deb",
+      "digest": "sha256:0d418a4da2a87d95ffc8d65cd74ecbaa42c99e0e611ff6884365f1a6c4009be0"
     },
     {
-      "name": "TeXPro-0.1.0-linux-x86_64.AppImage",
-      "size": 154245001,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-x86_64.AppImage",
-      "digest": "sha256:897fa6dcdc599b80ce96de08edff63fd67134bafd5c6218974e472142e5c595b"
+      "name": "TeXPro-0.1.1-linux-x86_64.AppImage",
+      "size": 154302559,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-x86_64.AppImage",
+      "digest": "sha256:cd60ddb8f1addf1411819dd8718d778c9af648a4296f049bcc331415edeebaf3"
     },
     {
-      "name": "TeXPro-0.1.0-linux-x86_64.rpm",
-      "size": 101206190,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-linux-x86_64.rpm",
-      "digest": "sha256:05924962e10e8736645ead57374458d532bdfdff9b61216f39c1e594d070ed59"
+      "name": "TeXPro-0.1.1-linux-x86_64.rpm",
+      "size": 101239918,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-x86_64.rpm",
+      "digest": "sha256:0dfc0fcf043eafa39bfde878f7b366c50542201a91d6b917ed3029f618fc0451"
     },
     {
-      "name": "TeXPro-0.1.0-mac-universal.dmg",
-      "size": 257797437,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-mac-universal.dmg",
-      "digest": "sha256:d16c434df876f28e6cf34884578cb4de4f8e256a8ebbfcc05924e335ae4e6aab"
+      "name": "TeXPro-0.1.1-mac-universal.dmg",
+      "size": 257927114,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-mac-universal.dmg",
+      "digest": "sha256:657054a6ed4f0a69da04c67cf02a8d4cbfdc5ae6479469164228fb51ded0a382"
     },
     {
-      "name": "TeXPro-0.1.0-mac-universal.zip",
-      "size": 257177023,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-mac-universal.zip",
-      "digest": "sha256:f28a938e0221c6aa819c667edc2e31bb69ba2ed0e3c199070c0b1e459d6319a3"
+      "name": "TeXPro-0.1.1-mac-universal.zip",
+      "size": 257233490,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-mac-universal.zip",
+      "digest": "sha256:192e77677618625a39edfae48c712756cea79496cfa07630baa911fb4b2fa9ae"
     },
     {
-      "name": "TeXPro-0.1.0-win-x64.zip",
-      "size": 180218577,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-win-x64.zip",
-      "digest": "sha256:93140c5e9a08384a569b339bb5f3b8180436ed1defe3f38c5d26987e4e148435"
+      "name": "TeXPro-0.1.1-win-x64.zip",
+      "size": 180270981,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-win-x64.zip",
+      "digest": "sha256:fa6ebd37eb17401519ed56a592021ed0906fd98a215eb65cb271e931075434fa"
     },
     {
-      "name": "TeXPro-0.1.0-windows-x64-portable.exe",
-      "size": 131809182,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-windows-x64-portable.exe",
-      "digest": "sha256:b2439fa95c473c2cce2124ccf216741ecd85587b3e24decbc7f1fac8af65028d"
+      "name": "TeXPro-0.1.1-windows-x64-portable.exe",
+      "size": 131853947,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-windows-x64-portable.exe",
+      "digest": "sha256:ace4bbba448d38804f821f9fa0c445e6b4d4f46217d41df659fa36439495e679"
     },
     {
-      "name": "TeXPro-0.1.0-windows-x64-setup.exe",
-      "size": 132033180,
-      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.0/TeXPro-0.1.0-windows-x64-setup.exe",
-      "digest": "sha256:b7735e3812a1f985f2341311ce20648402bb445eb00041346bdc864a6d339be1"
+      "name": "TeXPro-0.1.1-windows-x64-setup.exe",
+      "size": 132078267,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-windows-x64-setup.exe",
+      "digest": "sha256:98c4c3f91e063fcbfa9f2feb04074b8de3a1f6a1ecfcd2f9eade4ef7715e2229"
+    },
+    {
+      "name": "texpro-extension-development-v0.1.1.skill",
+      "size": 20120,
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/texpro-extension-development-v0.1.1.skill",
+      "digest": "sha256:d9884499ea07d71ca7a68657684ae649bdbbd89f83fe9fe6bd0287397cd2498c"
     }
   ],
   "repo": "lzhbhlrPython/TexStudioPro",
-  "syncedAt": "2026-11-12T17:09:47.294Z",
+  "syncedAt": "2026-11-14T06:22:11.328Z",
   "source": "github"
 }

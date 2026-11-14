@@ -1,6 +1,68 @@
 {
   "releases": [
     {
+      "tag": "v0.1.1",
+      "publishedAt": "2026-11-14T05:44:46Z",
+      "notes": "# TeXPro v0.1.1 · Tajpilo\n\n2026-11-14 · 相对 v0.1.0 的完整更新 / Changes since v0.1.0\n\n## 中文\n\n本次更新重点是桌面语言插件、扩展分发与构建流程，以及官网多语言和文档体验；不仅包含最后一轮 Nightly 与首页调整。\n\n### 桌面语言与国际化\n\n- 简体中文拆为随应用预装的声明式语言插件，英文保留为内置恢复语言；偏好设置与原生菜单共用受检语言资源。\n- 短文案迁移到稳定语义键和独立 JSON，宿主与 SDK 共用英文源目录，区分可翻译标签、技术标识与作者数据，避免改写正文、文件名或插件返回值。\n- 支持语言包启停、卸载、缺译回退和异步刷新隔离；英文资源加载失败提供独立的最小恢复界面，原生恢复命令始终使用内置英文。\n- **语言包契约升级为 `catalogVersion: 2`，扩展 `apiVersion` 仍为 1。旧正文键语言包会被明确拒绝，需要按新参考目录迁移译文、校验变量并重新打包；仅修改版本字段无效。**\n\n### 扩展安装、分发与开发\n\n- 增加 npm／yarn 专用扩展环境，通过 qwertysay 同步新增、更新与卸载，并在 TeXPro 逐项审核；安装后保持停用，卸载默认保留插件数据，环境所有权避免接管手动安装或其他环境的扩展。\n- 保留 `texpro.package` 指向 `.tpp`／`.tpt` 的分发方式，同时支持 `texpro.source` 源码包。自包含 JavaScript、语言 JSON、静态片段和主题可校验后同步，不在原始 node_modules 中直接执行。\n- 需要编译的源码包须显式选择构建：核对包身份与风险后复制源码、安装编译依赖并调用工具链。依赖生命周期脚本默认禁用；信任安装脚本是单独、默认拒绝的选择。构建产物绑定源码摘要，失败或源码变化时拒绝旧产物。\n- 功能插件维护独立语言资源，每次调用取得当前语言。语言包模板、构建引导与共享校验同步更新；仓库配套版本为 SDK 0.5.0、qwertysay 0.6.0、预制简中包 2.0.0，独立 npm 包的发布状态与应用版本分开管理。\n- MCP 格式查询及包检查复用公共校验，支持语言包新契约与 npm 源码状态说明；检查保持只读，不安装、构建或执行插件。\n- 正式版与 Nightly 新增版本化扩展开发 `.skill` 资产，包含完整说明和引用资源，并与受测源码核对。\n\n### 官网与文档\n\n- 官网新增世界语界面、文档及长篇内容资源，提供统一语言菜单；新增语言改为提交声明 JSON、消息 JSON 与 Markdown，无需修改页面或路由。缺译明确回退，构建检查语义键与插值变量。\n- 使用文档 `/docs` 与开发文档 `/developers` 直接进入实际文章，共用阅读器、目录、搜索与前后篇导航；原有 `/docs/:slug` 链接保持稳定。代码块增加按需语法高亮。\n- 首页分别展示正式版与 Nightly，链接真实公开 Release；正式版本浏览按版本系列整理。新增英文根 README，并补齐扩展安装、语言包与翻译贡献说明。\n\n### 发布与验证\n\n- Nightly 保留上海时间 21:23 入口，增加小时级补偿检查；延迟执行归属最近一次 21:23 窗口，避免跨午夜误标，同窗口已有公开构建时跳过自动重复发布。手动同日重建保留。\n- 正式发布补齐草稿 Release 查询与资产完整性处理，保留失败重试身份及发布后官网刷新。\n- v0.1.1 已通过完整回归（159 项、零失败／跳过／TODO）、类型与构建检查、三平台打包及发行包核验，交付 8 个安装包和开发 Skill。另验证官网语言切换、第四语言文件发现、文档分区及宽窄屏布局。\n\n安装包仍未签名、公证；本地 TeX 工具链要求不变。构建、安装和启用扩展分别需要判断可信来源，临时目录不是沙箱。GitHub 调度不保证准点；三平台打包不等于所有系统的安装运行验收。世界语中本轮新增的 6 个界面键暂回退英文，待翻译贡献者补齐。\n\n## English\n\nThis release covers all changes since v0.1.0, including desktop language plugins, extension distribution and source builds, and the multilingual website.\n\n### Desktop languages\n\n- Simplified Chinese is now a bundled declarative language plugin. Built-in English remains the recovery language; preferences and native menus share validated language resources.\n- Short UI text uses stable semantic keys and separate JSON catalogues. The host and SDK share the English source catalogue, while author content, file names and technical identifiers retain their own values.\n- Language activation, disabling, removal, missing-message fallback and stale asynchronous refreshes are handled explicitly. A minimal independent recovery interface covers English resource loading failures; native recovery commands always use built-in English.\n- **Language catalogues now require `catalogVersion: 2`; extension `apiVersion` remains 1. Legacy text-key catalogues are rejected. Authors must migrate translations against the new reference, validate placeholders and repack; changing the version field alone is insufficient.**\n\n### Extension distribution and development\n\n- Dedicated npm/yarn environments manage extension versions. qwertysay synchronizes additions, updates and removals for individual review in TeXPro. Installed extensions stay disabled; removal preserves plugin data by default and respects environment ownership.\n- Existing `.tpp`/`.tpt` distribution through `texpro.package` remains supported. New `texpro.source` packages can supply source directly; self-contained JavaScript, language JSON, snippets and static themes can be validated and synchronized without executing the original node_modules copy.\n- Source packages requiring compilation need an explicit build decision. Build dependencies disable lifecycle scripts by default; trusting dependency installation scripts is a separate, default-denied choice. Outputs are tied to source fingerprints, preventing failed or changed sources from reusing stale builds.\n- Functional plugins own their language resources and receive the current language on each invocation. Templates, guided builds and shared validation were updated. Companion source versions are SDK 0.5.0, qwertysay 0.6.0 and Simplified Chinese package 2.0.0; npm publication is tracked separately from the app release.\n- MCP format queries and package inspection share public validation, describe the new language contract and source-build requirements, and remain read-only.\n- Stable and Nightly releases now include a versioned extension-development `.skill` archive, checked against the tested source and its referenced resources.\n\n### Website and documentation\n\n- Esperanto UI, documentation and long-form resources are available through a unified language menu. Language metadata, message JSON and Markdown drive discovery without page or router changes. Missing translations fall back explicitly; builds validate keys and placeholders.\n- `/docs` and `/developers` open actual articles directly using a shared reader, navigation and search. Existing `/docs/:slug` links remain stable. Code blocks gain on-demand syntax highlighting.\n- The homepage separates stable and Nightly releases, and stable releases are grouped by version series. An English root README and expanded extension, language-package and translation guidance were added.\n\n### Delivery and validation\n\n- Nightly keeps the 21:23 Asia/Shanghai schedule with hourly recovery checks. Delayed runs belong to the most recent 21:23 window; a published build suppresses automatic duplicates. Manual same-day rebuilds remain available.\n- Stable publishing improves draft lookup and asset completeness checks while preserving retry identity and the post-release website refresh.\n- v0.1.1 passed the complete 159-test regression baseline with zero failures, skipped tests or TODOs, type checks, builds, three-platform packaging and release-package verification. It delivers eight installers and the development Skill. Website language switching, file-only discovery of a fourth language, documentation sections and responsive layouts were also checked.\n\nInstallers remain unsigned and unnotarized; local TeX requirements are unchanged. Extension build, installation and activation require separate trust decisions; temporary directories are not sandboxes. GitHub scheduling is not guaranteed to be punctual. Packaging is not installation/runtime acceptance on every OS. Six newly added Esperanto UI keys currently fall back to English pending contributor translations.\n\n[完整提交差异 / Full comparison](https://github.com/lzhbhlrPython/TexPro/compare/v0.1.0...v0.1.1)\n",
+      "url": "https://github.com/lzhbhlrPython/TexPro/releases/tag/v0.1.1",
+      "assets": [
+        {
+          "name": "TeXPro-0.1.1-linux-amd64.deb",
+          "size": 120296612,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-amd64.deb",
+          "digest": "sha256:0d418a4da2a87d95ffc8d65cd74ecbaa42c99e0e611ff6884365f1a6c4009be0"
+        },
+        {
+          "name": "TeXPro-0.1.1-linux-x86_64.AppImage",
+          "size": 154302559,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-x86_64.AppImage",
+          "digest": "sha256:cd60ddb8f1addf1411819dd8718d778c9af648a4296f049bcc331415edeebaf3"
+        },
+        {
+          "name": "TeXPro-0.1.1-linux-x86_64.rpm",
+          "size": 101239918,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-linux-x86_64.rpm",
+          "digest": "sha256:0dfc0fcf043eafa39bfde878f7b366c50542201a91d6b917ed3029f618fc0451"
+        },
+        {
+          "name": "TeXPro-0.1.1-mac-universal.dmg",
+          "size": 257927114,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-mac-universal.dmg",
+          "digest": "sha256:657054a6ed4f0a69da04c67cf02a8d4cbfdc5ae6479469164228fb51ded0a382"
+        },
+        {
+          "name": "TeXPro-0.1.1-mac-universal.zip",
+          "size": 257233490,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-mac-universal.zip",
+          "digest": "sha256:192e77677618625a39edfae48c712756cea79496cfa07630baa911fb4b2fa9ae"
+        },
+        {
+          "name": "TeXPro-0.1.1-win-x64.zip",
+          "size": 180270981,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-win-x64.zip",
+          "digest": "sha256:fa6ebd37eb17401519ed56a592021ed0906fd98a215eb65cb271e931075434fa"
+        },
+        {
+          "name": "TeXPro-0.1.1-windows-x64-portable.exe",
+          "size": 131853947,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-windows-x64-portable.exe",
+          "digest": "sha256:ace4bbba448d38804f821f9fa0c445e6b4d4f46217d41df659fa36439495e679"
+        },
+        {
+          "name": "TeXPro-0.1.1-windows-x64-setup.exe",
+          "size": 132078267,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/TeXPro-0.1.1-windows-x64-setup.exe",
+          "digest": "sha256:98c4c3f91e063fcbfa9f2feb04074b8de3a1f6a1ecfcd2f9eade4ef7715e2229"
+        },
+        {
+          "name": "texpro-extension-development-v0.1.1.skill",
+          "size": 20120,
+          "url": "https://github.com/lzhbhlrPython/TexPro/releases/download/v0.1.1/texpro-extension-development-v0.1.1.skill",
+          "digest": "sha256:d9884499ea07d71ca7a68657684ae649bdbbd89f83fe9fe6bd0287397cd2498c"
+        }
+      ]
+    },
+    {
       "tag": "v0.1.0",
       "publishedAt": "2026-11-12T14:44:10Z",
       "notes": "# TeXPro v0.1.0 · Tajpilo\n\n2026-11-12 · 首次正式发布 / First stable release\n\n## 中文\n\nTeXPro 首次正式发布。**0.1.x** 系列代号 **Tajpilo**，世界语“打字机”。普通 `.tex` 仍是文档原件。\n\n- 连续写作：正文、公式、简单表格、插图、TikZ 与乐谱预览；Markdown 输入快捷语法、占位符及源码修订备忘。\n- 工程与排版：多文件工程、主文件解析、素材、文献与引用；本地 latexmk、多引擎编译、诊断、PDF 和 SyncTeX 双向定位。\n- 无感实时预览：内置 rtex-ts，在支持的 LuaLaTeX 工程中融入既有 PDF 区域；正式 PDF 操作按需准备本地排版。\n- 按需工具：复杂绘图、手写和模板任务使用共享工作台；历史、Git、备份、局域网协作、AI 和 Node stdio MCP 均按需使用。\n- 本地扩展：自行分发 `.tpp` 插件和 `.tpt` 主题，无公开市场。支持只改强调色的最简主题；独立 SDK、qwertysay 引导式配置和开发 Skill 分别提供开发契约、工具与 AI 工作流说明。\n\n安装包：macOS universal DMG／ZIP（Apple Silicon / Intel）、Windows x64 安装版／便携版／ZIP、Linux x64 AppImage／deb／rpm。资产及 SHA256 以本 Release 为准。\n\n需要本机 TeX Live／MacTeX、latexmk 及所选引擎；实时预览需 LuaLaTeX。安装包未签名、未公证，首次打开可能需要系统放行。复杂 TeX 保留源码入口，实时预览不替代最终 PDF。Node 插件拥有用户文件、网络与进程权限；主题可能隐藏或伪装控件。只启用可信来源，原生菜单和 `--safe-mode` 提供恢复入口。\n\n发布闸门包含完整回归零跳过／TODO、类型检查、构建及三平台打包与真实 ASAR 核验。CI 打包不等于所有系统完成安装运行验收。应用采用 MIT；rtex-ts 等依赖的归属和许可见 THIRD_PARTY_NOTICES.md。\n\n## English\n\nThe first stable TeXPro release. **Tajpilo**, Esperanto for “typewriter”, names the **0.1.x** series. Ordinary `.tex` remains the document of record.\n\n- Continuous writing with inline formulas, simple tables, figures, TikZ and music previews; Markdown input shortcuts, placeholders and source-based revision memos.\n- Multi-file projects, explicit root resolution, assets and references; local latexmk, multiple engines, diagnostics, PDF and two-way SyncTeX navigation.\n- Integrated rtex-ts preview for supported LuaLaTeX projects, using the existing PDF area. Formal PDF operations prepare local typesetting when needed.\n- Shared workspaces for complex drawing, handwriting and templates; optional history, Git, backup, LAN collaboration, AI and Node stdio MCP.\n- Locally distributed `.tpp` plugins and `.tpt` themes, including accent-only themes; no public marketplace. Separate SDK, guided qwertysay and development Skill guides cover contracts, tools and AI workflows.\n\nDownloads: macOS universal DMG/ZIP, Windows x64 installer/portable/ZIP, Linux x64 AppImage/deb/rpm. Assets and SHA256 digests belong to this Release.\n\nInstall TeX Live or MacTeX, latexmk and your chosen engine locally; real-time preview needs LuaLaTeX. Installers are unsigned and not notarized, so the OS may require manual approval. Complex TeX retains source access; previews do not replace the final PDF. Node plugins have user file, network and process permissions; themes can hide or imitate controls. Enable trusted sources only. Native menus and `--safe-mode` provide recovery.\n\nPublishing requires a complete regression baseline with zero skipped tests/TODOs, type checks, builds, three-platform packaging and actual ASAR verification. CI packaging is not installation/runtime acceptance on every OS. TeXPro uses MIT; attribution and dependency licenses, including rtex-ts, are in THIRD_PARTY_NOTICES.md.\n",
@@ -57,6 +119,6 @@
       ]
     }
   ],
-  "syncedAt": "2026-11-14T05:34:03.498Z",
+  "syncedAt": "2026-11-14T06:22:23.426Z",
   "source": "github"
 }

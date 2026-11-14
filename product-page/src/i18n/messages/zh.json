@@ -428,5 +428,10 @@
   "site.docs.language.counts": "文档：{counts}；博客以简体中文撰写。",
   "site.build.channels": "当前构建",
   "site.build.unavailable": "暂无已发布构建",
-  "site.docs.body.fallback": "本文暂无译文，显示 {language} 原文。"
+  "site.docs.body.fallback": "本文暂无译文，显示 {language} 原文。",
+  "site.build.stable.description": "正式版适合日常写作，按版本保留经过发布验证的安装包。",
+  "site.build.nightly.description": "Nightly 提供最新开发进展，适合试用与反馈。",
+  "site.download.skill.title": "扩展开发 Skill",
+  "site.download.skill.description": "供 AI 助手使用的扩展开发指南与参考资源，独立于应用安装包。",
+  "site.download.skill.action": "下载 Skill"
 }

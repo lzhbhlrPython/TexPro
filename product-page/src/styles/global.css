@@ -3855,3 +3855,28 @@ html[lang='eo'] .qwerty-code {
 .qwerty-prose .docs-inline-code { color: inherit; background: none; border: 0; }
 
 .preview-image-error { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: var(--site-muted); background: var(--site-bg); }
+
+/* Quiet channel comparison immediately before the installation choices. */
+.section-build-channels { padding-bottom: 0; }
+.build-channel { border-top: 1px solid var(--site-border); padding-block: 24px; height: 100%; }
+.build-channel .build-channel-title { margin: 0 0 12px; }
+.build-channel-description { color: var(--site-muted); max-width: 40ch; min-height: 3em; }
+.build-channel-version { display: block; font-family: var(--mono); overflow-wrap: anywhere; }
+.build-channel-link { margin-top: 16px; padding-inline: 0; }
+.build-channel-link .anticon { transition: transform var(--dur-quick) var(--ease-out); }
+@media (hover: hover) {
+  .build-channel-link:hover .anticon { transform: translate(2px, -2px); }
+}
+.download-skill { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 24px; border-bottom: 1px solid var(--site-border); }
+.download-skill h4 { margin: 0; }
+.download-skill-file { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .download-skill { align-items: flex-start; flex-direction: column; }
+  .build-channel-description { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .build-channel-link .anticon { transition: none; transform: none !important; }
+}
+
+.download-skill .download-main { flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.download-skill > .ant-btn { flex-shrink: 0; }

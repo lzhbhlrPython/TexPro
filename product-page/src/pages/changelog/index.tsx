@@ -104,7 +104,7 @@ export default function ChangelogPage() {
               dataIndex: 'size',
               width: 110,
               align: 'right',
-              render: (size?: number) => formatSize(size) ?? '—',
+              render: (size: number | undefined, asset: { name: string }) => formatSize(size, asset.name.endsWith('.skill') ? 'KB' : undefined) ?? '—',
             },
             {
               title: 'SHA256',

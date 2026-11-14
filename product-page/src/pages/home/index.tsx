@@ -26,7 +26,6 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <BuildChannels />
 
       <Reveal>
         <Capabilities />
@@ -75,6 +74,8 @@ export default function HomePage() {
       <Reveal>
         <Proof />
       </Reveal>
+
+      <BuildChannels />
 
       <Reveal>
         <Download />

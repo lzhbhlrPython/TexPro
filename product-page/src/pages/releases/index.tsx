@@ -102,7 +102,7 @@ export default function ReleasesPage() {
                         },
                         {
                           title: msg("site.size"), dataIndex: 'size', width: 110,
-                          render: (size: number) => formatSize(size) || '—',
+                          render: (size: number, asset: StableRelease['assets'][number]) => formatSize(size, asset.name.endsWith('.skill') ? 'KB' : undefined) || '—',
                         },
                         {
                           title: 'SHA256', dataIndex: 'digest', width: 220,

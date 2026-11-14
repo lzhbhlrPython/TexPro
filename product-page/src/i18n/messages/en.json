@@ -428,5 +428,10 @@
   "site.docs.language.counts": "Documentation: {counts}; the blog is written in Simplified Chinese.",
   "site.build.channels": "Current builds",
   "site.build.unavailable": "No published build available",
-  "site.docs.body.fallback": "This translation is unavailable; showing the {language} article."
+  "site.docs.body.fallback": "This translation is unavailable; showing the {language} article.",
+  "site.build.stable.description": "Stable releases for everyday writing, with versioned, verified installers.",
+  "site.build.nightly.description": "The latest development builds for testing and feedback.",
+  "site.download.skill.title": "Extension development Skill",
+  "site.download.skill.description": "Extension authoring guidance and references for AI assistants, separate from the app installer.",
+  "site.download.skill.action": "Download Skill"
 }

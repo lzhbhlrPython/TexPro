@@ -1,3 +1,4 @@
+import stableSnapshot from '@/config/stable-releases.json';
 import { CopyOutlined, DownloadOutlined, GithubOutlined } from '@ant-design/icons';
 import { App, Button, Space, Tag, Tooltip, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +23,8 @@ export function Download() {
   const navigate = useNavigate();
   const release = useRelease();
   const platform = usePlatform();
+  const skill = release.assets?.find(asset => asset.name.endsWith('.skill'))
+    ?? [...stableSnapshot.releases].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0]?.assets.find(asset => asset.name.endsWith('.skill'));
 
   /** Releases 里的 digest 形如 sha256:abc…，复制时只留摘要本身，方便直接比对 */
   const copyDigest = async (digest?: string | null) => {
@@ -119,6 +122,17 @@ export function Download() {
             );
           })}
         </div>
+
+        <Reveal className="download-skill" delay={60}>
+          <div className="download-main">
+            <Title level={4}>{msg('site.download.skill.title')}</Title>
+            <Text type="secondary">{msg('site.download.skill.description')}</Text>
+            {skill && <Text className="download-skill-file" type="secondary">{skill.name} · {formatSize(skill.size, 'KB')}</Text>}
+          </div>
+          <Button icon={<DownloadOutlined />} href={skill?.url ?? SITE_LINKS.releases} target="_blank" rel="noreferrer">
+            {skill ? msg('site.download.skill.action') : msg('site.open.releases')}
+          </Button>
+        </Reveal>
 
         <div className="download-note">
           <div>

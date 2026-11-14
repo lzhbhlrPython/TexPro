@@ -155,3 +155,5 @@ To add a website language, submit language metadata JSON, message JSON and trans
 ## Next-patch Nightly versions
 
 The root package and lock on main retain the published stable version. Nightly targets the next patch: stable 0.1.1 produces 0.1.2-YYYYMMDD-Nightly without incrementing main or the next stable release twice. Successful stable publication explicitly dispatches the same-day Nightly. An older base version on that date does not suppress the new build; existing releases remain intact. Scheduled recovery skips only the exact target version and date. An already stamped Nightly only changes date, avoiding repeated increments.
+
+Stable and Nightly links appear before the final homepage download section. That section also offers the separate extension-development Skill, showing its actual asset filename and size in KB.
