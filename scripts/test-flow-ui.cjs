@@ -7,6 +7,9 @@ const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'texpro-ui-regression-'))
 const env = { ...process.env, TEXPRO_SMOKE: '1', TEXPRO_REGRESSION: '1', TEXPRO_USER_DATA: userData, TEXPRO_ARTIFACTS: path.resolve(__dirname, '../artifacts') };
 env.TEXPRO_FLOW_REGRESSION = '1';
 if (process.argv.includes('--updates')) env.TEXPRO_UPDATE_REGRESSION = '1';
+if (process.argv.includes('--source-studio')) env.TEXPRO_SOURCE_STUDIO_REGRESSION = '1';
+if (process.argv.includes('--native-writing')) env.TEXPRO_NATIVE_WRITING_REGRESSION = '1';
+if (process.argv.includes('--project-writing')) env.TEXPRO_PROJECT_WRITING_REGRESSION = '1';
 if (process.argv.includes('--realtime')) env.TEXPRO_REALTIME_REGRESSION = '1';
 if (process.argv.includes('--extensions')) env.TEXPRO_EXTENSION_REGRESSION = '1';
 if (process.argv.includes('--aids')) env.TEXPRO_AIDS_REGRESSION = '1';
@@ -19,7 +22,7 @@ if (process.argv.includes('--continuity')) env.TEXPRO_CONTINUITY_REGRESSION = '1
 const child = spawn(require('electron'), ['.'], { cwd: path.resolve(__dirname, '..'), env, stdio: 'inherit' });
 let timedOut = false;
 // This journey includes renderer restart and screenshots of all three themes.
-const timer = setTimeout(() => { timedOut = true; console.error('UI regression timed out'); child.kill('SIGKILL'); }, (env.TEXPRO_REALTIME_REGRESSION || env.TEXPRO_EXTENSION_REGRESSION) ? 300000 : 180000);
+const timer = setTimeout(() => { timedOut = true; console.error('UI regression timed out'); child.kill('SIGKILL'); }, (env.TEXPRO_REALTIME_REGRESSION || env.TEXPRO_EXTENSION_REGRESSION || env.TEXPRO_NATIVE_WRITING_REGRESSION || env.TEXPRO_SOURCE_STUDIO_REGRESSION) ? 300000 : 180000);
 const cleanup = () => { clearTimeout(timer); fs.rmSync(userData, { recursive: true, force: true }); };
 child.on('error', (error) => { cleanup(); console.error(error); process.exitCode = 1; });
 child.on('exit', (code, signal) => {

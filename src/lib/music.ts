@@ -1,3 +1,4 @@
+import { texCommands, texEnvironments, texDocumentStart, texDocumentClass } from '../../electron/services/tex-source-core.mjs';
 /** Portable music blocks: editable state is a TeX comment; the score itself is ordinary TeX. */
 export type MusicKind = 'staff' | 'numbered' | 'guitar';
 export type Clef = 'treble' | 'bass' | 'alto';
@@ -213,12 +214,13 @@ export interface ParsedMusicBlock {
 export function findMusicBlocks(text: string): ParsedMusicBlock[] {
     const blocks: ParsedMusicBlock[] = [];
     let consumed = -1;
+    const invalidMarkers: Array<{ from: number; to: number }> = [];
     for (const m of text.matchAll(new RegExp(MUSIC_START.source, 'gm'))) {
         if (m.index! < consumed) continue;
         const close = new RegExp('^% TeXPro music end ' + m[1] + '\\r?$', 'gm');
         close.lastIndex = m.index! + m[0].length;
         const end = close.exec(text);
-        if (!end) continue;
+        if (!end) { invalidMarkers.push({ from: m.index!, to: text.length }); continue; }
         const to = end.index + end[0].replace(/\r$/, '').length;
         const source = text.slice(m.index!, to);
         const data = source.match(/^% texpro-music-data: ([A-Za-z0-9+/=]+)\r?$/m);
@@ -228,6 +230,35 @@ export function findMusicBlocks(text: string): ParsedMusicBlock[] {
         blocks.push({ id: m[1], from: m.index!, to, source, score, body });
         consumed = to;
     }
-    return blocks;
+    const bodyStart = texDocumentStart(text)?.to ?? 0;
+    const addRaw = (from: number, to: number) => {
+        if (invalidMarkers.some(range => from >= range.from && from < range.to) || from < bodyStart || blocks.some(block => from < block.to && to > block.from)) return;
+        const source = text.slice(from, to);
+        blocks.push({ id: `source-music-${from}`, from, to, source, body: source, score: null });
+    };
+    for (const env of texEnvironments(text, ['music'])) addRaw(env.from, env.to);
+    // Plain MusiXTeX scores need no TeXPro marker. Include the preceding setup
+    // paragraph, but never consume document/preamble boundaries or prose.
+    let start: number | undefined;
+    for (const command of texCommands(text)) {
+        if (command.from < bodyStart) continue;
+        if (['startpiece', 'startextract'].includes(command.name)) start = command.from;
+        if (start !== undefined && ['endpiece', 'Endpiece', 'stoppiece', 'endextract'].includes(command.name)) {
+            let from = text.lastIndexOf('\n', start - 1) + 1;
+            if (text.slice(from, start).trim()) from = start;
+            while (from > bodyStart) {
+                const previous = text.lastIndexOf('\n', from - 2) + 1, line = text.slice(previous, from).trim();
+                if (!/^\\(?:instrumentnumber|setstaffs|setclef|generalmeter|generalsignature|nostartrule|smallmusicsize|normalmusicsize)\b/.test(line)) break;
+                from = previous;
+            }
+            addRaw(from, command.to); start = undefined;
+        }
+    }
+    return blocks.sort((a, b) => a.from - b.from);
 }
-export function previewDocument(body: string): string { return `\\documentclass${/[\u3400-\u9fff]/.test(body) ? '[fontset=fandol]' : ''}{${/[\u3400-\u9fff]/.test(body) ? 'ctexart' : 'article'}}\n\\usepackage[margin=12mm]{geometry}\n\\usepackage{musixtex,tikz}\n\\pagestyle{empty}\n\\begin{document}\n${body}\n\\end{document}\n`; }
+export function previewDocument(body: string, preamble?: string): string {
+    if (preamble && texDocumentClass(preamble)) {
+        const packages = /\\(?:usepackage|RequirePackage)(?:\[[^\]]*\])?\{[^}]*\bmusixtex\b/.test(preamble) ? '' : '\\usepackage{musixtex}';
+        return `${preamble}\n${packages}\n\\pagestyle{empty}\n\\begin{document}\n${body}\n\\end{document}\n`;
+    }
+    return `\\documentclass${/[\u3400-\u9fff]/.test(body) ? '[fontset=fandol]' : ''}{${/[\u3400-\u9fff]/.test(body) ? 'ctexart' : 'article'}}\n\\usepackage[margin=12mm]{geometry}\n\\usepackage{musixtex,tikz}\n\\pagestyle{empty}\n\\begin{document}\n${body}\n\\end{document}\n`; }

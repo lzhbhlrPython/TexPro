@@ -5,6 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const tex = require('./services/tex.cjs');
+const nativeWriting = require('./services/native-writing.cjs').createNativeWritingService(tex);
+const nativeWritingOwners = new Map();
 const collab = require('./services/collab.cjs');
 const mcpClient = require('./services/mcp-client.cjs');
 const paperApi = require('./services/paper-api.cjs');
@@ -379,12 +381,13 @@ function createWindow() {
     finish: () => setImmediate(() => { if (quitting) app.quit(); else if (!guardedWindow.isDestroyed()) guardedWindow.close(); }),
   });
   mainWindow.webContents.on('render-process-gone', () => {
-    void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null;
+    void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null; void nativeWriting.close(); nativeWritingOwners.clear();
   });
   mainWindow.webContents.on('did-start-navigation', (_event, _url, isInPlace, isMainFrame) => {
-    if (isMainFrame && !isInPlace) { void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null; }
+    if (isMainFrame && !isInPlace) { void realtimeHost?.stop(); realtimeHost = null; realtimeOwner = null; void nativeWriting.close(); nativeWritingOwners.clear(); }
   });
   mainWindow.on('closed', () => {
+    void nativeWriting.close(); nativeWritingOwners.clear();
     void realtimeHost?.stop(); realtimeHost = null;
     mainWindow = null;
   });
@@ -587,6 +590,7 @@ function registerIpc() {
 
   ipcMain.handle('music:preview', async (_event, payload) => {
     if (!payload || typeof payload.projectRoot !== 'string' || !isAllowed(payload.projectRoot) || typeof payload.runId !== 'string' || !/^music-[a-f0-9-]{36}$/.test(payload.runId)) throw new Error('Project is not open');
+    if (payload.engine && !['pdflatex', 'xelatex', 'lualatex'].includes(payload.engine)) throw new Error('Invalid preview engine');
     return tex.renderMusicPreview(payload);
   });
 
@@ -614,11 +618,35 @@ function registerIpc() {
     return { ...tex.collectProjectSymbols(root), placeholders: aids.placeholders, writingNotes: aids.memos };
   });
 
+  ipcMain.handle('writing:render', async (event, input) => {
+    if (!input || typeof input.root !== 'string' || !isAllowed(input.root) || event.sender !== mainWindow?.webContents) throw new Error('Project is not open');
+    const owner = nativeWritingOwners.get(input.session);
+    if (owner && owner !== event.sender.id) throw new Error('Writing session belongs to another window');
+    for (const [id, sender] of nativeWritingOwners) if (sender === event.sender.id && id !== input.session) { nativeWritingOwners.delete(id); await nativeWriting.stop(id); }
+    nativeWritingOwners.set(input.session, event.sender.id);
+    try { return await nativeWriting.render(input); }
+    catch (error) { if (error.message === 'Writing snapshot superseded') return null; throw error; }
+  });
+  ipcMain.handle('writing:stop', async (event, id) => {
+    if (nativeWritingOwners.get(id) !== event.sender.id) return;
+    nativeWritingOwners.delete(id); await nativeWriting.stop(id);
+  });
+  ipcMain.handle('writing:inverse', async (event, id, revision, point) => {
+    if (nativeWritingOwners.get(id) !== event.sender.id) throw new Error('Writing session is not available');
+    return nativeWriting.inverse(id, revision, point);
+  });
+
+  ipcMain.handle('project:writing-source', async (_event, root, file) => {
+    if (typeof root !== 'string' || !isAllowed(root)) throw new Error('Project is not open');
+    return require('./services/writing-source.cjs').readWritingSource(root, file);
+  });
+
   ipcMain.handle('tikz:render', async (_event, options) => {
     if (!options || typeof options.projectRoot !== 'string' || !isAllowed(options.projectRoot)) {
       throw new Error('Project is not open');
     }
     if (options.filePath && !isAllowed(options.filePath)) throw new Error('File is outside the project');
+    if (options.engine && !['pdflatex', 'xelatex', 'lualatex'].includes(options.engine)) throw new Error('Invalid preview engine');
     return tex.renderTikz(options);
   });
 
@@ -982,7 +1010,7 @@ require('./quit-watchdog.cjs').installQuitWatchdog(app, {
   },
 });
 app.on('before-quit', () => { quitting = true; });
-app.on('will-quit', () => { void updateDownloads?.cancel(); extensionManager?.stop(); mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
+app.on('will-quit', () => { void nativeWriting.close(); void updateDownloads?.cancel(); extensionManager?.stop(); mcpClient.disconnectAll(); paperApi.stop(); collab.stopCollab(); });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin' || isSmoke) setImmediate(() => app.quit());

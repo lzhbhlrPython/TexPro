@@ -61,6 +61,7 @@ import { applyWriting, rememberWriting, restoreWriting, writingTargets, type Wri
 import { ensureTexPackages, texDocumentStart, applyLayoutPreamble } from '../lib/texDocument';
 import { focusMode, typewriterMode, visualLatex, refreshWritingPreview, type VisualContext } from './visual';
 import type { CursorInfo, Diagnostic, ProjectSymbols, Settings, SourceJump } from '../types';
+import type { ProjectWritingContext } from '../lib/writingEngine/project';
 import { dirname } from '../lib/latex';
 import { findSpellingIssues } from '../lib/spellcheck';
 import { smartPaste } from '../lib/pasteCleaner';
@@ -113,6 +114,9 @@ interface Props {
   diagnosticsStale: boolean;
   root: string;
   mainText?: string;
+  writingContext?: ProjectWritingContext;
+  writingComposition?: import('../lib/writingEngine/includes').WritingComposition;
+  nativeWriting?: import('../lib/writingEngine/native').NativeWritingProjection;
   settings: Settings;
   symbols: ProjectSymbols;
   diagnostics: Diagnostic[];
@@ -237,18 +241,26 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   const viewRef = useRef<EditorView | null>(null);
   const propsRef = useRef(props);
   propsRef.current = props;
-  const mainPreamble = props.mainText?.slice(0, texDocumentStart(props.mainText)?.to ?? props.mainText.length);
+  const mainPreamble = props.writingContext?.preamble ?? props.mainText?.slice(0, texDocumentStart(props.mainText)?.to ?? props.mainText.length);
   const visualRef = useRef<VisualContext>({
     filePath: props.path,
     projectRoot: props.root,
+    engine: props.settings.engine,
     collapsePreamble: props.settings.collapsePreamble,
     preamble: mainPreamble,
+    project: props.writingContext,
+    native: props.nativeWriting,
+    composition: props.writingComposition,
   });
   visualRef.current = {
     filePath: props.path,
     projectRoot: props.root,
+    engine: props.settings.engine,
     collapsePreamble: props.settings.collapsePreamble,
     preamble: mainPreamble,
+    project: props.writingContext,
+    native: props.nativeWriting,
+    composition: props.writingComposition,
   };
   const symbolsRef = useRef({
     symbols: props.symbols,
@@ -575,7 +587,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     };
   }, [state]);
 
-  useEffect(() => { viewRef.current?.dispatch({ effects: refreshWritingPreview.of(null) }); }, [mainPreamble, language]);
+  useEffect(() => { viewRef.current?.dispatch({ effects: refreshWritingPreview.of(null) }); }, [mainPreamble, props.writingContext, props.nativeWriting, props.writingComposition, language]);
   useEffect(() => { if (!reviewing) viewRef.current?.dispatch({ effects: reviewWriting.of(null) }); }, [reviewing]);
 
   useEffect(() => {

@@ -23,7 +23,16 @@ module.exports = function installContinuityRegression(window, { app, ipcMain }) 
   const key = async (keyCode, modifiers = []) => { for (const type of ['keyDown', 'keyUp']) window.webContents.sendInputEvent({ type, keyCode, modifiers }); await pause(60); };
   const type = async text => { await window.webContents.insertText(text); await pause(120); };
   const endLine = async text => { await click(line(text)); await key('Right', ['meta']); };
-  const open = async id => { await click(el('[data-testid="more-menu"]')); await click(el(`[data-action="${id}"]`)); };
+  const open = async id => {
+    await click(el('[data-testid="more-menu"]'));
+    if (await js(`!!document.querySelector('[data-action="${id}"]')`)) { await click(el(`[data-action="${id}"]`)); return; }
+    await key('Escape');
+    const keys = { table: 'app.insert.table', music: 'app.insert.music', 'writing-note': 'app.leave.a.revision.memo', 'move-content-up': 'app.move.content.up', 'move-content-down': 'app.move.content.down', 'table-editor': 'app.visual.table.editor' };
+    const label = require('../packages/extension-translate-zh-cn/language/locales/zh.json')[keys[id]];
+    assert.ok(label, `Known command ${id}`);
+    await key('k', ['meta']); await wait(`!!document.querySelector('.palette input')`); await type(label);
+    await click(`[...document.querySelectorAll('.palette-row')].find(e=>e.querySelector('strong')?.textContent===${JSON.stringify(label)})`);
+  };
   const save = async () => { await key('s', ['meta']); await pause(180); };
   const shot = async name => {
     await js(`document.querySelectorAll('.toast button').forEach(e=>e.click())`);
@@ -101,8 +110,8 @@ Second paragraph.
     await endLine('Writing anchor.'); await open('writing-note'); await type('补充实验数据');
     await click(el('[data-testid="tab-notes"]')); await wait(`document.querySelector('.writing-notes').textContent.includes('补充实验数据')`);
     await click(`[...document.querySelectorAll('.writing-note')].find(e=>e.textContent.includes('补充实验数据')).querySelector('button')`);
-    await save(); assert.ok(fs.readFileSync(main, 'utf8').includes('% DONE: 补充实验数据'));
-    await key('z', ['meta']); await save(); assert.ok(fs.readFileSync(main, 'utf8').includes('% TODO: 补充实验数据'));
+    await save(); assert.ok(fs.readFileSync(main, 'utf8').includes('% MEMO-DONE: 补充实验数据'));
+    await key('z', ['meta']); await save(); assert.ok(fs.readFileSync(main, 'utf8').includes('% MEMO: 补充实验数据'));
     console.log('PASS portable writing notes, completion and undo');
 
     await click(el('[data-testid="tab-files"]'));

@@ -74,3 +74,11 @@ pnpm check:layout
 ## 2026-11-14 应用内下载补充交接
 
 zh/en 的 start、dev-release 和首页下载说明增加应用内下载、默认关闭的检查后自动下载、进度、取消、SHA256、文件定位和手动安装边界。其他语种由对应维护者同步。原来的浏览器入口继续保留，不把下载校验翻译为应用签名。
+
+## 2026-11-15 写作引擎内容交接
+
+本轮更新中英 `writing`、`dev-renderer` 和 `mcp`，说明多文件静态上下文、受限宏、图片工作目录、内部提供器及共享 SyncTeX 服务。新增 MCP 工具名为 `texpro_writing_context`，明确 `source: disk`，不读取未保存缓冲区；现有工具／参数与插件 API 1 保持兼容。其他语种由对应维护者同步，不修改技术标识。桌面新增语义键 `writing.context.incomplete`，中英资源均有恢复说明。博客仅提供简体中文，AI 扩展提案暂缓实施。
+
+本轮写作引擎另补原生临时工程、未知宏／环境回退、连续章节投影、常见几何宏包与源码高亮的独立验收说明；变更涉及 `writing`、`dev-renderer`、`mcp` 中英篇目与简中博客。新增桌面键 `writing.native.unavailable`、`writing.native.mapping.incomplete`；其他语种由各自维护者按同一语义键翻译，不复制中文正文作回退译文。
+
+补充交接：writing／dev-renderer 中英增加常见几何语法、明暗墨色与作者颜色、无标记乐谱及同一工作室内的源码／可视模式；桌面新增 `writing.studio.*` 语义键。其他语种按同一键与实际界面名称独立维护，博客仅简中。

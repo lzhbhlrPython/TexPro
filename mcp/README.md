@@ -97,3 +97,11 @@ Extension capabilities now describe `contributes.locales`, data-only JSON messag
 ### 语言目录检查边界
 
 `texpro_extension_formats` 的只读作者能力声明包含 `locales.catalogVersion: 2`、语义消息 ID 和整篇本地化 Markdown 的长文本约定。`texpro_inspect_extension` 复用 SDK 校验第 2 版语言包，旧正文键包返回迁移错误；检查不安装、启用、渲染 Markdown 或执行作者代码。扩展 API 仍为 1；目录版本不等于扩展 API 或应用 Release。
+
+## Project writing context and compatibility
+
+`texpro_writing_context` is an additive, read-only tool with no arguments. Open the project first; it uses the shared selected-main contract and returns `source: "disk"`, `rootFile`, `base`, static `preamble`, project-relative `dependencies`, `incomplete` and recognized `mathMacros`. The bounded parser does not execute TeX, save files or read unsaved editor buffers. It follows literal top-level preamble inputs; dynamic paths and full TeX scope are outside its static model. Ambiguous/invalid main selection fails rather than switching entries. Missing dependencies are reported as incomplete.
+
+The existing MCP tool names, schemas and result fields remain available; plugin API 1 is unchanged. `texpro_synctex_forward` and `texpro_synctex_inverse` delegate through the existing `tex.cjs` facade to a shared service. Page/line inputs must be positive integers, coordinates finite, and file paths remain inside the real project root. Invalid input returns failure. Layout boxes remain separate from text anchors; viewport transforms belong to the PDF viewer. A disk query does not prove that a previous PDF matches unsaved editor text.
+
+There is no known breaking interface migration in this refactor. Previously incorrect child-relative graphics paths may need correction to the actual project working directory. Future unavoidable plugin/MCP breaks require affected-version, migration and recovery notes. Internal projection providers are not automatically exposed as plugin capabilities or MCP tools. See [the writing engine contract](../docs/writing-engine.md); verify the real protocol with `node --test tests/mcp-writing-context.test.cjs` and the normal MCP smoke test. Shared source/context/path and SyncTeX modules are included in the unpacked external Node dependency checks.

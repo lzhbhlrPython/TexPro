@@ -1,3 +1,9 @@
+import { IncludedWritingWidget } from './projection/includeWidget';
+import { writingIncludes, type WritingComposition } from '../lib/writingEngine/includes';
+import { nativeProjectionForFile } from '../lib/writingEngine/native';
+import { NativeWritingWidget } from './projection/nativeWidget';
+import type { NativeWritingProjection } from '../lib/writingEngine/native';
+import { PlaceholderWidget, InlineMathWidget, DisplayMathWidget, SectionBadgeWidget, BulletWidget, ImageWidget, CodeBlockWidget, PreambleWidget, TitleWidget, ReferenceWidget, TexLogoWidget, TikzWidget, ClearWidget, MusicDataWidget, HiddenBlockWidget, EnvironmentWidget, LabelWidget, CaptionBadgeWidget } from './projection/widgets';
 import { MusicWidget, musicSourceField, revealMusicSource } from './musicWidget';
 import { findMusicBlocks } from '../lib/music';
 import { diagramBlocks, skipTexSpace, texCommands, texDocumentStart, texEnvironments, texGroup, writingTable, type TexCommand } from '../lib/texDocument';
@@ -5,13 +11,15 @@ import { WritingTableWidget } from './tableWidget';
 import { focusWriting, selectionTouches, writingComposition, tableWritingField, writeTableCell } from './writing';
 import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import { StateEffect, StateField, type EditorState, type Extension, type Range } from '@codemirror/state';
-import katex from 'katex';
-import { assetUrl, dirname, joinPath, parseDocumentTitle } from '../lib/latex';
-import { getLanguage, msg } from '../i18n';
-import { themeTexArtwork } from '../lib/texArtwork';
-import { rasterizeTexPdf } from '../lib/texPdfArtwork';
+import { renderMath } from '../lib/texMath';
+import { projectTextFormats } from '../lib/writingEngine/project';
+import { assetUrl, parseDocumentTitle } from '../lib/latex';
 import { reviewedRanges } from './writingReview';
-import { parseWritingAids, type WritingPlaceholder } from '../../electron/services/writing-aids-core.mjs';
+import { parseWritingAids } from '../../electron/services/writing-aids-core.mjs';
+
+import { projectMathMacros, type ProjectWritingContext } from '../lib/writingEngine/project';
+
+import { createTexWritingEngine, type MathProjection, type GraphicProjection, type FormatProjection, type TableProjection, type DiagramProjection } from '../lib/writingEngine';
 
 export const refreshWritingPreview = StateEffect.define<null>();
 
@@ -19,652 +27,20 @@ export interface VisualContext {
   filePath: string;
   projectRoot: string;
   collapsePreamble: boolean;
+  engine?: import('../types').Engine;
   preamble?: string;
+  project?: ProjectWritingContext;
+  native?: NativeWritingProjection;
+  composition?: WritingComposition;
+  ancestry?: string[];
 }
 
 export interface VisualConfig {
   get: () => VisualContext;
 }
 
-const MATH_ENVIRONMENTS = 'equation\\*?|align\\*?|gather\\*?|multline\\*?|eqnarray\\*?';
-const mathHtmlCache = new Map<string, string>();
-
-function renderMath(tex: string, displayMode: boolean): string {
-  const cacheKey = `${displayMode ? 'd' : 'i'}:${tex}`;
-  const cached = mathHtmlCache.get(cacheKey);
-  if (cached) {
-    mathHtmlCache.delete(cacheKey);
-    mathHtmlCache.set(cacheKey, cached);
-    return cached;
-  }
-  try {
-    const html = katex.renderToString(tex, {
-      displayMode,
-      throwOnError: true,
-      errorColor: 'var(--danger)',
-      strict: 'ignore',
-      trust: false,
-      maxExpand: 500,
-      macros: {
-        '\\R': '\\mathbb{R}',
-        '\\N': '\\mathbb{N}',
-        '\\Z': '\\mathbb{Z}',
-        '\\C': '\\mathbb{C}',
-        '\\dd': '\\mathrm{d}',
-      },
-    });
-    mathHtmlCache.set(cacheKey, html);
-    if (mathHtmlCache.size > 800) {
-      const oldest = mathHtmlCache.keys().next().value;
-      if (oldest) mathHtmlCache.delete(oldest);
-    }
-    return html;
-  } catch {
-    return '';
-  }
-}
-
-function activate(view: EditorView, pos: number) {
-  focusWriting(view, pos);
-}
-
-abstract class LatexWidget extends WidgetType {
-  readonly locale = getLanguage();
-  constructor(readonly focusPos: number) {
-    super();
-  }
-
-  protected bind(dom: HTMLElement, view: EditorView) {
-    dom.addEventListener('mousedown', (event) => {
-      if (event.button !== 0) return;
-      event.preventDefault();
-      event.stopPropagation();
-      activate(view, this.focusPos);
-    });
-    dom.setAttribute('title', msg("app.click.to.edit.latex.source"));
-    dom.setAttribute('data-texpro-pos', String(this.focusPos));
-  }
-}
-
-class PlaceholderWidget extends LatexWidget {
-  constructor(readonly item: WritingPlaceholder, readonly block: boolean) { super(item.contentFrom); }
-  eq(other: PlaceholderWidget) { return this.item.source === other.item.source && this.focusPos === other.focusPos && this.block === other.block && this.locale === other.locale; }
-  toDOM(view: EditorView) {
-    const dom = document.createElement('span');
-    dom.className = `cm-writing-placeholder${this.block ? ' is-block' : ''}`;
-    const labels = { text: "app.text.placeholder", figure: "app.figure.placeholder", table: "app.table.placeholder", citation: "app.citation.placeholder", data: "app.data.placeholder" };
-    const label = document.createElement('small'); label.textContent = msg.text(labels[this.item.kind]);
-    const description = document.createElement('span'); description.textContent = this.item.text === 'TODO' ? msg("app.describe.what.belongs.here") : this.item.text.replace(/\\([%#$&_{}])/g, '$1');
-    dom.append(label, description); this.bind(dom, view);
-    dom.setAttribute('role', 'button'); dom.tabIndex = 0;
-    dom.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(view, this.focusPos); } });
-    return dom;
-  }
-}
-
-class InlineMathWidget extends LatexWidget {
-  constructor(readonly tex: string, focusPos: number) {
-    super(focusPos);
-  }
-
-  eq(other: InlineMathWidget) {
-    return other.locale === this.locale && other.tex === this.tex;
-  }
-
-  toDOM(view: EditorView) {
-    const span = document.createElement('span');
-    span.className = 'cm-math-inline';
-    span.innerHTML = renderMath(this.tex, false);
-    this.bind(span, view);
-    return span;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class DisplayMathWidget extends LatexWidget {
-  constructor(
-    readonly tex: string,
-    readonly label: string | null,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: DisplayMathWidget) {
-    return other.locale === this.locale && other.tex === this.tex && other.label === this.label;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-math-block';
-    const body = document.createElement('div');
-    body.className = 'cm-math-block-body';
-    body.innerHTML = renderMath(this.tex, true);
-    wrap.appendChild(body);
-    if (this.label) {
-      const tag = document.createElement('span');
-      tag.className = 'cm-math-label';
-      tag.textContent = this.label;
-      wrap.appendChild(tag);
-    }
-    this.bind(wrap, view);
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class SectionBadgeWidget extends LatexWidget {
-  constructor(
-    readonly level: number,
-    readonly command: string,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: SectionBadgeWidget) {
-    return other.locale === this.locale && other.level === this.level && other.command === this.command;
-  }
-
-  toDOM(view: EditorView) {
-    const span = document.createElement('span');
-    span.className = `cm-section-badge cm-section-badge-${this.level}`;
-    const labels: Record<string, string> = { part: "app.part", chapter: "app.chapter", section: "app.section", subsection: "app.subsection", subsubsection: "app.subsubsection", paragraph: "app.paragraph" };
-    span.textContent = msg.text(labels[this.command] || "app.section");
-    this.bind(span, view);
-    return span;
-  }
-}
-
-class BulletWidget extends LatexWidget {
-  constructor(focusPos: number) {
-    super(focusPos);
-  }
-
-  eq(other: BulletWidget) {
-    return other.locale === this.locale;
-  }
-
-  toDOM(view: EditorView) {
-    const span = document.createElement('span');
-    span.className = 'cm-list-bullet';
-    span.textContent = '•';
-    this.bind(span, view);
-    return span;
-  }
-}
-
-class ImageWidget extends LatexWidget {
-  constructor(
-    readonly src: string,
-    readonly label: string,
-    readonly block: boolean,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: ImageWidget) {
-    return other.locale === this.locale && other.src === this.src && other.block === this.block;
-  }
-
-  toDOM(view: EditorView) {
-    const figure = document.createElement('figure');
-    figure.className = this.block ? 'cm-image-figure cm-image-block' : 'cm-image-figure';
-    const img = document.createElement('img');
-    img.src = this.src;
-    img.alt = this.label;
-    img.loading = 'eager';
-    img.addEventListener('error', () => {
-      figure.classList.add('cm-image-missing');
-      img.remove();
-      const fallback = document.createElement('span');
-      fallback.className = 'cm-image-fallback';
-      fallback.textContent = msg("app.missing.image.name", { name: this.label });
-      figure.appendChild(fallback);
-    });
-    figure.appendChild(img);
-    if (this.block) {
-      const caption = document.createElement('figcaption');
-      caption.textContent = this.label;
-      figure.appendChild(caption);
-    }
-    this.bind(figure, view);
-    return figure;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class TableWidget extends LatexWidget {
-  constructor(
-    readonly html: string,
-    readonly focusPos: number,
-    readonly rows: number,
-    readonly source: string,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: TableWidget) {
-    return other.locale === this.locale && other.html === this.html && other.source === this.source;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-table-widget';
-    const table = document.createElement('div');
-    table.className = 'cm-table-widget-inner';
-    table.innerHTML = this.html;
-    wrap.appendChild(table);
-    const hint = document.createElement('div');
-    hint.className = 'cm-table-hint';
-    hint.textContent = `${msg("app.n.rows", { n: this.rows })} · ${msg("app.click.to.edit.source")}`;
-    wrap.appendChild(hint);
-    this.bind(wrap, view);
-
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class CodeBlockWidget extends LatexWidget {
-  constructor(
-    readonly code: string,
-    readonly language: string,
-    readonly focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: CodeBlockWidget) {
-    return other.locale === this.locale && other.code === this.code && other.language === this.language;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-code-widget';
-    const head = document.createElement('div');
-    head.className = 'cm-code-head';
-    const dot = document.createElement('i');
-    const label = document.createElement('span');
-    label.textContent = this.language === 'code' || !this.language ? msg("app.code") : this.language;
-    head.append(dot, label);
-    const pre = document.createElement('pre');
-    pre.textContent = this.code;
-    wrap.append(head, pre);
-    this.bind(wrap, view);
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class PreambleWidget extends LatexWidget {
-  constructor(
-    readonly documentClass: string,
-    readonly packages: number,
-    readonly lines: number,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: PreambleWidget) {
-    return other.locale === this.locale && other.documentClass === this.documentClass && other.packages === this.packages && other.lines === this.lines;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-preamble';
-    const icon = document.createElement('div');
-    icon.className = 'cm-preamble-icon';
-    icon.textContent = 'P';
-    const text = document.createElement('div');
-    text.className = 'cm-preamble-text';
-    const strong = document.createElement('strong');
-    strong.textContent = msg("app.preamble");
-    const detail = document.createElement('span');
-    detail.textContent = `${this.documentClass} · ${msg("app.n.packages", { n: this.packages })} · ${msg("app.n.lines.hidden", { n: this.lines })}`;
-    text.append(strong, detail);
-    const action = document.createElement('div');
-    action.className = 'cm-preamble-action';
-    action.textContent = msg("app.reveal");
-    wrap.append(icon, text, action);
-    this.bind(wrap, view);
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class TitleWidget extends LatexWidget {
-  constructor(
-    readonly title: string,
-    readonly author: string,
-    readonly date: string,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: TitleWidget) {
-    return other.locale === this.locale && other.title === this.title && other.author === this.author && other.date === this.date;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-title-widget';
-    const eyebrow = document.createElement('div');
-    eyebrow.className = 'cm-title-eyebrow';
-    eyebrow.textContent = msg("app.title.page");
-    const h1 = document.createElement('h1');
-    h1.textContent = this.title || 'Untitled document';
-    const meta = document.createElement('div');
-    meta.className = 'cm-title-meta';
-    meta.textContent = [this.author, this.date === '\\today' ? msg("app.resolved.at.compile.time") : this.date].filter(Boolean).join('  ·  ');
-    wrap.append(eyebrow, h1);
-    if (meta.textContent) wrap.appendChild(meta);
-    this.bind(wrap, view);
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class ReferenceWidget extends LatexWidget {
-  constructor(
-    readonly kind: string,
-    readonly target: string,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: ReferenceWidget) {
-    return other.locale === this.locale && other.kind === this.kind && other.target === this.target;
-  }
-
-  toDOM(view: EditorView) {
-    const element = document.createElement('span');
-    const cite = this.kind.startsWith('cite') || this.kind === 'parencite' || this.kind === 'textcite';
-    element.className = `cm-ref-pill ${cite ? 'cite' : 'ref'}`;
-    element.textContent = cite
-      ? `[${this.target}]`
-      : this.kind === 'eqref'
-        ? `(${this.target})`
-        : `→ ${this.target}`;
-    this.bind(element, view);
-    return element;
-  }
-}
-
-class TexLogoWidget extends LatexWidget {
-  constructor(focusPos: number) {
-    super(focusPos);
-  }
-
-  eq(other: TexLogoWidget) {
-    return other.locale === this.locale;
-  }
-
-  toDOM(view: EditorView) {
-    const element = document.createElement('span');
-    element.className = 'cm-tex-logo';
-    element.textContent = 'LaTeX';
-    this.bind(element, view);
-    return element;
-  }
-}
-
-interface TikzResult {
-  ok: boolean;
-  svgPath?: string;
-  pdfPath?: string;
-  error?: string;
-  log?: string;
-  engine?: string;
-  cached?: boolean;
-}
-
-const tikzRequests = new Map<string, Promise<TikzResult>>();
-
-function requestTikz(source: string, projectRoot: string, filePath: string, preamble?: string) {
-  const key = JSON.stringify([projectRoot, filePath, preamble, source]);
-  const cached = tikzRequests.get(key);
-  if (cached) return cached;
-  const request: Promise<TikzResult> = window.texpro
-    .renderTikz({ projectRoot, filePath, source, preamble, preferPdf: true })
-    .catch((error): TikzResult => ({ ok: false, error: String(error) }))
-    .then(result => { if (!result.ok) tikzRequests.delete(key); return result; });
-  if (tikzRequests.size >= 128) tikzRequests.delete(tikzRequests.keys().next().value!);
-  tikzRequests.set(key, request);
-  return request;
-}
-
-class TikzWidget extends LatexWidget {
-  private timer?: ReturnType<typeof setTimeout>;
-  private previewAbort?: AbortController;
-  constructor(
-    readonly source: string,
-    readonly projectRoot: string,
-    readonly filePath: string,
-    focusPos: number,
-    readonly kind = 'tikz',
-    readonly inline = false,
-    readonly previewOnly = false,
-    readonly preamble?: string,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: TikzWidget) {
-    return other.locale === this.locale && other.source === this.source && other.filePath === this.filePath && other.preamble === this.preamble && other.inline === this.inline && other.previewOnly === this.previewOnly && other.focusPos === this.focusPos;
-  }
-
-  toDOM(view: EditorView) {
-    const wrap = document.createElement(this.inline ? 'span' : 'div');
-    wrap.className = `cm-tikz-widget${this.inline ? ' cm-diagram-inline' : ''}${this.previewOnly ? ' cm-writing-preview' : ''}`;
-    wrap.dataset.diagramKind = this.kind;
-
-    const header = document.createElement('div');
-    header.className = 'cm-tikz-header';
-    const label = document.createElement('span');
-    label.className = 'cm-tikz-label';
-    label.textContent = this.kind === 'chemistry' ? msg("app.chemical.structure") : this.kind === 'circuit' ? msg("app.circuit.logic") : 'TikZ';
-    const status = document.createElement('span');
-    status.className = 'cm-tikz-status';
-    status.textContent = msg("app.rendering");
-    const studio = document.createElement('button');
-    studio.type = 'button';
-    studio.className = 'cm-tikz-studio';
-    studio.textContent = msg("app.studio");
-    studio.title = msg("app.open.tikz.studio");
-    studio.addEventListener('mousedown', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      window.dispatchEvent(new CustomEvent('texpro:open-tikz', { detail: { source: this.source, from: this.focusPos - 1, to: this.focusPos - 1 + this.source.length, file: this.filePath } }));
-    });
-    header.append(label, status, studio);
-
-    const body = document.createElement('div');
-    body.className = 'cm-tikz-body';
-    const spinner = document.createElement('div');
-    spinner.className = 'cm-tikz-spinner';
-    spinner.textContent = msg("app.typesetting.diagram");
-    body.appendChild(spinner);
-    wrap.append(header, body);
-    this.bind(body, view);
-
-    const abort = new AbortController(); this.previewAbort = abort;
-    const showFailure = (result: TikzResult) => {
-      if (abort.signal.aborted || !body.isConnected) return;
-      const message = document.createElement('div');
-      message.className = 'cm-tikz-error';
-      message.textContent = result.error || msg("app.tikz.rendering.failed");
-      body.replaceChildren(message);
-      status.textContent = msg("app.render.error"); status.classList.add('failed');
-      if (result.log) {
-        const details = document.createElement('details'); details.className = 'cm-tikz-log';
-        const summary = document.createElement('summary'); summary.textContent = msg("app.show.log");
-        const pre = document.createElement('pre'); pre.textContent = result.log.slice(-3000);
-        details.append(summary, pre); wrap.appendChild(details);
-      }
-      view.requestMeasure();
-    };
-    this.timer = setTimeout(() => { void requestTikz(this.source, this.projectRoot, this.filePath, this.preamble).then(async (result) => {
-      if (abort.signal.aborted || !body.isConnected) return;
-      if (result.ok && (result.pdfPath || result.svgPath)) {
-        const img = document.createElement('img');
-        img.crossOrigin = 'anonymous';
-        const frame = document.createElement('span'); frame.className = 'tex-artwork'; frame.dataset.artwork = 'document-color';
-        if (result.pdfPath) {
-          const style = getComputedStyle(view.contentDOM);
-          const writingWidth = view.contentDOM.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-          const rendered = await rasterizeTexPdf(result.pdfPath, { width: Math.min(this.inline ? 360 : Infinity, writingWidth || 650), height: this.inline ? 150 : this.previewOnly ? 250 : 340 }, abort.signal);
-          if (abort.signal.aborted || !body.isConnected) return;
-          img.style.width = `${rendered.width}px`;
-          img.src = rendered.src;
-        } else img.src = assetUrl(result.svgPath!);
-        img.addEventListener('load', () => { if (!abort.signal.aborted && body.isConnected) { themeTexArtwork(frame, img); view.requestMeasure(); } });
-        img.alt = 'TikZ diagram';
-        img.loading = 'lazy';
-        img.addEventListener('error', () => showFailure({ ok: false, error: msg("app.could.not.load.the.rendered.diagram") }));
-        frame.appendChild(img); body.replaceChildren(frame);
-        status.textContent = result.cached ? msg("app.cached") : result.engine || msg("app.rendered");
-        status.classList.add('ready');
-      } else {
-        showFailure(result);
-      }
-      view.requestMeasure();
-    }).catch(error => showFailure({ ok: false, error: String(error) })); }, 600);
-
-    return wrap;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-  destroy() { clearTimeout(this.timer); this.previewAbort?.abort(); }
-}
-
-class ClearWidget extends WidgetType {
-  eq() {
-    return true;
-  }
-
-  toDOM() {
-    return document.createElement('span');
-  }
-}
-
-class MusicDataWidget extends WidgetType {
-  readonly locale = getLanguage();
-  eq(other: MusicDataWidget) { return other.locale === this.locale; }
-  toDOM() {
-    const dom = document.createElement('div'); dom.className = 'cm-music-data'; dom.textContent = msg("app.music.data.preserved");
-    return dom;
-  }
-}
-
-class HiddenBlockWidget extends WidgetType {
-  eq() {
-    return true;
-  }
-
-  toDOM() {
-    const element = document.createElement('div');
-    element.className = 'cm-hidden-block';
-    return element;
-  }
-}
-
-class EnvironmentWidget extends LatexWidget {
-  constructor(
-    readonly name: string,
-    readonly closing: boolean,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: EnvironmentWidget) {
-    return other.locale === this.locale && other.name === this.name && other.closing === this.closing;
-  }
-
-  toDOM(view: EditorView) {
-    const element = document.createElement('div');
-    element.className = `cm-env-marker ${this.closing ? 'closing' : ''}`;
-    const icon = document.createElement('span');
-    icon.className = 'cm-env-icon';
-    icon.textContent = this.closing ? '/' : '▸';
-    const label = document.createElement('span');
-    label.textContent = this.name;
-    element.append(icon, label);
-    this.bind(element, view);
-    return element;
-  }
-
-  ignoreEvent() {
-    return false;
-  }
-}
-
-class LabelWidget extends LatexWidget {
-  constructor(
-    readonly label: string,
-    focusPos: number,
-  ) {
-    super(focusPos);
-  }
-
-  eq(other: LabelWidget) {
-    return other.locale === this.locale && other.label === this.label;
-  }
-
-  toDOM(view: EditorView) {
-    const element = document.createElement('span');
-    element.className = 'cm-label-pill';
-    element.textContent = '#' + this.label;
-    this.bind(element, view);
-    return element;
-  }
-}
-
-class CaptionBadgeWidget extends LatexWidget {
-  constructor(focusPos: number) {
-    super(focusPos);
-  }
-
-  eq(other: CaptionBadgeWidget) {
-    return other.locale === this.locale;
-  }
-
-  toDOM(view: EditorView) {
-    const element = document.createElement('span');
-    element.className = 'cm-caption-badge';
-    element.textContent = msg("app.caption.variant2");
-    this.bind(element, view);
-    return element;
-  }
-}
+let inheritedPreamble: string | undefined;
+let inheritedMacros: Record<string, string> = {};
 
 interface Occupied {
   from: number;
@@ -691,44 +67,19 @@ function textArgument(text: string, command: TexCommand) {
   return texGroup(text, at);
 }
 
-function parseTabular(body: string, spec: string): string | null {
-  const cleaned = body
-    .replace(/\\(?:toprule|midrule|bottomrule|hline|endhead|endfirsthead|endfoot|endlastfoot)\b/g, '')
-    .replace(/\\cmidrule(?:\([^)]*\))?\{[^}]*\}/g, '')
-    .replace(/\\addlinespace(?:\[[^\]]*\])?/g, '')
-    .replace(/\\(?:tiny|small|footnotesize|scriptsize|normalsize|large)\b/g, '');
-  const rawRows = cleaned
-    .split(/\\\\/)
-    .map((row) => row.trim())
-    .filter((row) => row.length > 0 && !/^\\(?:caption|label|centering)/.test(row));
-  if (rawRows.length === 0) return null;
-  const alignments: string[] = [];
-  const specText = spec.replace(/p\{[^}]*\}|m\{[^}]*\}|b\{[^}]*\}/g, 'l');
-  for (const char of specText) {
-    if (char === 'l' || char === 'c' || char === 'r') alignments.push(char);
-  }
-  const rows = rawRows.slice(0, 40).map((row) =>
-    row
-      .replace(/^\s*&/, '')
-      .split('&')
-      .map((cell) => cell.trim())
-      .slice(0, 12),
-  );
-  const header = rows.shift();
-  const escape = (value: string) => value.replace(/[&<>]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[char] || char);
-  const td = (cell: string, index: number) => {
-    const tag = header ? 'td' : 'td';
-    const align = alignments[index] || 'l';
-    return `<${tag} style="text-align:${align === 'l' ? 'left' : align === 'r' ? 'right' : 'center'}">${escape(cell) || '&nbsp;'}</${tag}>`;
-  };
-  return `<table><thead><tr>${(header || []).map((cell, index) => `<th style="text-align:${alignments[index] === 'r' ? 'right' : alignments[index] === 'c' ? 'center' : 'left'}">${escape(cell)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map(td).join('')}</tr>`).join('')}</tbody></table>`;
-}
-
 interface PreviewSelectionRange { from: number; to: number; selected: boolean }
 const previewSelections = new WeakMap<EditorState, PreviewSelectionRange[]>();
 
-function buildDecorations(state: EditorState, context: VisualContext): DecorationSet {
+function buildDecorations(state: EditorState, context: VisualContext, engine: ReturnType<typeof createTexWritingEngine>): DecorationSet {
   const text = state.doc.toString();
+  const macroPreamble = context.preamble || text.slice(0, texDocumentStart(text)?.from ?? 0);
+  if (inheritedPreamble !== macroPreamble) {
+    inheritedPreamble = macroPreamble;
+    inheritedMacros = projectMathMacros(macroPreamble);
+  }
+  const plan = engine.compile({ text, preamble: macroPreamble, project: context.project, filePath: context.filePath });
+  const macros = inheritedMacros;
+  const math = (source: string, display: boolean) => renderMath(source, display, macros);
   const ranges: Range<Decoration>[] = [];
   const occupied: Occupied[] = [];
   const revisions = state.field(reviewedRanges, false) || [];
@@ -744,18 +95,48 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     occupied.push({ from, to });
   };
 
+  const native = nativeProjectionForFile(context.native, context.filePath);
+  if (native) {
+    for (const region of native.regions) {
+      const original = native.source.slice(region.from, region.to);
+      // Preserve an unchanged projection when preceding prose shifts. Ambiguous
+      // repeated blocks stay source until the next immutable snapshot arrives.
+      let from = region.from;
+      if (text.slice(from, region.to) !== original) {
+        from = text.indexOf(original);
+        if (from < 0 || text.indexOf(original, from + 1) >= 0) continue;
+      }
+      const to = from + original.length;
+      if (!original.trim() || touched(from, to) || overlaps(from, to, occupied)) continue;
+      const start = state.doc.lineAt(from), end = state.doc.lineAt(to);
+      if (text.slice(start.from, from).trim() || text.slice(to, end.to).trim()) continue;
+      addBlock(start.from, end.to, new NativeWritingWidget(native, region, from, to));
+    }
+  }
+
+  if (context.project && context.composition) {
+    for (const include of writingIncludes(text, context.project)) {
+      const source = context.composition.sources[include.file];
+      if (source === undefined || context.ancestry?.includes(include.file) || include.file === context.filePath || touched(include.from, include.to) || overlaps(include.from, include.to, occupied)) continue;
+      const start = state.doc.lineAt(include.from), end = state.doc.lineAt(include.to);
+      if (text.slice(start.from, include.from).trim() || text.slice(include.to, end.to).trim()) continue;
+      addBlock(start.from, end.to, new IncludedWritingWidget(include.file, source, context));
+    }
+  }
+
   for (const block of findMusicBlocks(text)) {
+    if (overlaps(block.from, block.to, occupied)) continue;
     // Reserve the entire block before math/TikZ scanners see generated TeX or metadata.
     if (state.field(musicSourceField, false) === block.id || touched(block.from, block.to)) {
       occupied.push({ from: block.from, to: block.to });
-      ranges.push(Decoration.widget({ widget: new MusicWidget(block, context.projectRoot, true), block: true, side: 1 }).range(block.to));
+      ranges.push(Decoration.widget({ widget: new MusicWidget(block, context.projectRoot, true, context.filePath, context.preamble, context.engine), block: true, side: 1 }).range(block.to));
       const metadata = /^% texpro-music-data:.*$/m.exec(block.source);
       if (metadata) {
         const from = block.from + metadata.index, to = from + metadata[0].length;
         if (!touched(from, to)) ranges.push(Decoration.replace({ widget: new MusicDataWidget(), block: true }).range(from, to));
       }
     }
-    else addBlock(block.from, block.to, new MusicWidget(block, context.projectRoot));
+    else addBlock(block.from, block.to, new MusicWidget(block, context.projectRoot, false, context.filePath, context.preamble, context.engine));
   }
 
   const preamble = text.match(/\\documentclass(?:\[[^\]]*\])?\{[^}]+\}/);
@@ -788,61 +169,30 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     occupied.push({ from: titleLine.from, to: titleLine.to });
   }
 
-  const displayPatterns: Array<{
-    regex: RegExp;
-    body: (match: RegExpMatchArray) => string;
-    environment?: boolean;
-  }> = [
-    { regex: /\$\$([\s\S]*?)\$\$/g, body: (match) => match[1] },
-    { regex: /\\\[([\s\S]*?)\\\]/g, body: (match) => match[1] },
-    {
-      regex: new RegExp(`\\\\begin\\{(${MATH_ENVIRONMENTS})\\}([\\s\\S]*?)\\\\end\\{\\1\\}`, 'g'),
-      body: (match) => match[2],
-      environment: true,
-    },
-  ];
-
-  for (const pattern of displayPatterns) {
-    for (const match of text.matchAll(pattern.regex)) {
-      if (match.index === undefined) continue;
-      const from = match.index;
-      const to = from + match[0].length;
-      if (touched(from, to) || overlaps(from, to, occupied)) continue;
-      const startLine = state.doc.lineAt(from);
-      const endLine = state.doc.lineAt(to);
-      const before = startLine.text.slice(0, from - startLine.from);
-      const after = endLine.text.slice(to - endLine.from);
-      if (before.trim() || after.trim()) continue;
-      let tex = pattern.body(match)
-        .replace(/\\label\{[^}]*\}/g, '')
-        .replace(/\\(?:nonumber|notag)\b/g, '')
-        .trim();
-      if (!tex || !renderMath(tex, false)) continue;
-      if (pattern.environment) {
-        const environment = match[1];
-        const wrapper = /^(align|eqnarray)/.test(environment) ? 'aligned' : 'gathered';
-        tex = `\\begin{${wrapper}}${tex}\\end{${wrapper}}`;
-      }
-      const label = match[0].match(/\\label\{([^}]+)\}/)?.[1] ?? null;
-      if (renderMath(tex, true)) addBlock(startLine.from, endLine.to, new DisplayMathWidget(tex, label, startLine.from + 1));
-    }
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'math') continue;
+    const data = projection.data as MathProjection;
+    if (!data.display) continue;
+    const { from, to } = projection;
+    if (touched(from, to) || overlaps(from, to, occupied)) continue;
+    const startLine = state.doc.lineAt(from), endLine = state.doc.lineAt(to);
+    if (text.slice(startLine.from, from).trim() || text.slice(to, endLine.to).trim()) continue;
+    const html = math(data.tex, true);
+    if (html) addBlock(startLine.from, endLine.to, new DisplayMathWidget(data.tex, data.label, data.focus, html));
   }
 
-  for (const block of texEnvironments(text, ['tabular', 'tabularx', 'longtable'])) {
-    const { from, to } = block;
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'table') continue;
+    const { from, to } = projection;
     if (overlaps(from, to, occupied)) continue;
-    const parsed = writingTable(text, block);
+    const parsed = (projection.data as TableProjection).table;
+    if (!parsed) { occupied.push({ from, to }); continue; }
     const active = state.field(tableWritingField, false);
     if (touched(from, to) && (!parsed || active?.from !== from || revisions.some(hunk => hunk.from <= to && hunk.to >= from))) continue;
     const startLine = state.doc.lineAt(from), endLine = state.doc.lineAt(to);
     if (startLine.text.slice(0, from - startLine.from).trim() || endLine.text.slice(to - endLine.from).trim()) continue;
-    if (parsed) addBlock(startLine.from, endLine.to, new WritingTableWidget(parsed));
-    else {
-      // Complex tables remain losslessly editable as TeX; no simplified model writes them back.
-      const source = text.slice(from, to), spec = source.match(/\\begin\{[^}]+\}(?:\[[^\]]*\])?\{([^}]*)\}/);
-      const html = spec && parseTabular(source.slice(spec[0].length, source.lastIndexOf('\\end')), spec[1]);
-      if (html) addBlock(startLine.from, endLine.to, new TableWidget(html, from + 1, (html.match(/<tr>/g) || []).length, source));
-    }
+    if (parsed) addBlock(startLine.from, endLine.to, new WritingTableWidget(parsed, { macros, formats: projectTextFormats(macroPreamble) }));
+
   }
 
   for (const match of text.matchAll(/\\begin\{(verbatim|lstlisting|minted)\}(?:\[([^\]]*)\])?(?:\{([^}]*)\})?([\s\S]*?)\\end\{\1\}/g)) {
@@ -859,12 +209,14 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     addBlock(startLine.from, endLine.to, new CodeBlockWidget(code, language, startLine.from + 1));
   }
 
-  for (const block of diagramBlocks(text)) {
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'diagram') continue;
+    const block = projection.data as DiagramProjection;
     const { from, to } = block;
     if (overlaps(from, to, occupied)) continue;
     const startLine = state.doc.lineAt(from), endLine = state.doc.lineAt(to);
     const active = touched(from, to), inline = !!startLine.text.slice(0, from - startLine.from).trim() || !!endLine.text.slice(to - endLine.from).trim();
-    const widget = new TikzWidget(block.source, context.projectRoot, context.filePath, from + 1, block.kind, inline, active, context.preamble);
+    const widget = new TikzWidget(block.source, context.projectRoot, context.filePath, from + 1, block.kind, inline, active, context.preamble ? context.preamble + '\n\\begin{document}' : undefined, context.engine, block.adapter);
     if (active) {
       occupied.push({ from, to });
       if (!inline) ranges.push(Decoration.widget({ widget, block: true, side: 1 }).range(to));
@@ -877,21 +229,40 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     }
   }
 
-  for (const match of text.matchAll(/\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}/g)) {
-    if (match.index === undefined) continue;
-    const from = match.index;
-    const to = from + match[0].length;
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'graphic') continue;
+    const { path, name } = projection.data as GraphicProjection;
+    const { from, to } = projection;
     if (touched(from, to) || overlaps(from, to, occupied)) continue;
     const line = state.doc.lineAt(from);
-    const isBlock = line.text.trim() === match[0].trim();
-    const target = joinPath(dirname(context.filePath), match[1].trim());
-    const widget = new ImageWidget(assetUrl(target), match[1].trim(), isBlock, from + 1);
+    const isBlock = line.text.trim() === text.slice(from, to).trim();
+    const widget = new ImageWidget(assetUrl(path) + `&revision=${context.project?.revision || 0}`, name, isBlock, from + 1, path);
     if (isBlock) {
       ranges.push(Decoration.replace({ widget, block: true }).range(line.from, line.to));
       occupied.push({ from: line.from, to: line.to });
     } else {
       ranges.push(Decoration.replace({ widget }).range(from, to));
       occupied.push({ from, to });
+    }
+  }
+
+  const flow = plan.projections.filter(projection => projection.kind === 'flow');
+  const flowLines = new Map<number, typeof flow>();
+  for (const projection of flow) {
+    if (touched(projection.from, projection.to) || overlaps(projection.from, projection.to, occupied)) continue;
+    const line = state.doc.lineAt(projection.from);
+    if (projection.to > line.to) continue;
+    flowLines.set(line.number, [...(flowLines.get(line.number) || []), projection]);
+  }
+  for (const [number, nodes] of flowLines) {
+    const line = state.doc.line(number), sorted = nodes.sort((a, b) => a.from - b.from);
+    let rest = '', at = line.from;
+    for (const node of sorted) { rest += text.slice(at, node.from); at = node.to; }
+    rest += text.slice(at, line.to);
+    if (!rest.trim()) addBlock(line.from, line.to, new HiddenBlockWidget());
+    else for (const node of sorted) {
+      ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(node.from, node.to));
+      occupied.push({ from: node.from, to: node.to });
     }
   }
 
@@ -1030,20 +401,16 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     ranges.push(makeMarkerRange(from, to, ['cm-comment', isTodo ? 'cm-todo-comment' : '']));
   }
 
-  const formats: Record<string, string> = { textbf: 'cm-bold', texttt: 'cm-inline-code', underline: 'cm-underline', textsc: 'cm-smallcaps', textit: 'cm-italic', emph: 'cm-italic', textsl: 'cm-italic' };
-  for (const command of inlineCommands) {
-    const cls = formats[command.name];
-    if (!cls && command.name !== 'href') continue;
-    const first = textArgument(text, command);
-    const group = command.name === 'href' && first ? texGroup(text, skipTexSpace(text, first.to)) : first;
-    if (!group || group.to <= group.from + 2 || touched(command.from, group.to) || overlaps(command.from, group.to, occupied)) continue;
-    const contentStart = group.from + 1, contentEnd = group.to - 1;
-    const mark = cls ? { class: cls } : { class: 'cm-link', attributes: { 'data-href': text.slice(first!.from + 1, first!.to - 1), title: text.slice(first!.from + 1, first!.to - 1) } };
-    ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(command.from, contentStart));
-    ranges.push(Decoration.mark(mark).range(contentStart, contentEnd));
-    ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(contentEnd, group.to));
-    // Only syntax occupies source; nested formatting and math still render inside its body.
-    occupied.push({ from: command.from, to: contentStart }, { from: contentEnd, to: group.to });
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'format') continue;
+    const { from, to } = projection;
+    const data = projection.data as FormatProjection;
+    if (touched(from, to) || overlaps(from, to, occupied)) continue;
+    const mark: { class?: string; attributes?: Record<string, string> } = data.class ? { class: data.class } : data.color ? { attributes: { style: `color:${data.color}` } } : { class: 'cm-link', attributes: { 'data-href': data.href || '', title: data.href || '' } };
+    ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(from, data.contentFrom));
+    ranges.push(Decoration.mark(mark).range(data.contentFrom, data.contentTo));
+    ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(data.contentTo, to));
+    occupied.push({ from, to: data.contentFrom }, { from: data.contentTo, to });
   }
 
   const verbPattern = /\\verb(.)([^\\n]*?)\1/g;
@@ -1060,29 +427,16 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
     occupied.push({ from, to });
   }
 
-  for (let lineNumber = 1; lineNumber <= state.doc.lines; lineNumber++) {
-    const line = state.doc.line(lineNumber);
-    const inlinePattern = /(?<!\\)(?<!\$)\$(?!\$)([^$\n]+?)(?<!\\)\$(?!\$)/g;
-    for (const match of line.text.matchAll(inlinePattern)) {
-      if (match.index === undefined) continue;
-      const from = line.from + match.index;
-      const to = from + match[0].length;
-      if (touched(from, to) || overlaps(from, to, occupied)) continue;
-      const tex = match[1].trim();
-      if (!tex || !renderMath(tex, false)) continue;
-      ranges.push(Decoration.replace({ widget: new InlineMathWidget(tex, from + 1) }).range(from, to));
-      occupied.push({ from, to });
-    }
-    const parenPattern = /\\\(([\s\S]*?)\\\)/g;
-    for (const match of line.text.matchAll(parenPattern)) {
-      if (match.index === undefined) continue;
-      const from = line.from + match.index;
-      const to = from + match[0].length;
-      if (touched(from, to) || overlaps(from, to, occupied)) continue;
-      if (!renderMath(match[1].trim(), false)) continue;
-      ranges.push(Decoration.replace({ widget: new InlineMathWidget(match[1].trim(), from + 2) }).range(from, to));
-      occupied.push({ from, to });
-    }
+  for (const projection of plan.projections) {
+    if (projection.kind !== 'math') continue;
+    const data = projection.data as MathProjection;
+    if (data.display) continue;
+    const { from, to } = projection;
+    if (touched(from, to) || overlaps(from, to, occupied)) continue;
+    const html = math(data.tex, false);
+    if (!html) continue;
+    ranges.push(Decoration.replace({ widget: new InlineMathWidget(data.tex, data.focus, html) }).range(from, to));
+    occupied.push({ from, to });
   }
 
   const result = Decoration.set(ranges, true);
@@ -1091,8 +445,9 @@ function buildDecorations(state: EditorState, context: VisualContext): Decoratio
 }
 
 export function visualLatex(config: VisualConfig): Extension {
+  const engine = createTexWritingEngine();
   const field = StateField.define<DecorationSet>({
-    create(state) { return buildDecorations(state, config.get()); },
+    create(state) { return buildDecorations(state, config.get(), engine); },
     update(value, tr) {
       if (tr.state.field(writingComposition)) return value.map(tr.changes);
       const refresh = tr.effects.some(effect => effect.is(refreshWritingPreview));
@@ -1100,12 +455,12 @@ export function visualLatex(config: VisualConfig): Extension {
         || tr.startState.field(tableWritingField, false) !== tr.state.field(tableWritingField, false)
         || tr.startState.field(reviewedRanges, false) !== tr.state.field(reviewedRanges, false)
         || tr.startState.field(writingComposition);
-      if (tr.docChanged || refresh || changedContext) return buildDecorations(tr.state, config.get());
+      if (tr.docChanged || refresh || changedContext) return buildDecorations(tr.state, config.get(), engine);
       // Cursor motion inside the same prose/TeX region changes no preview. Reuse the
       // decorations until a boundary is crossed, avoiding another full source scan.
       if (tr.selection) {
         const cached = previewSelections.get(tr.startState);
-        if (!cached || cached.some(range => range.selected !== selectionTouches(tr.state, range))) return buildDecorations(tr.state, config.get());
+        if (!cached || cached.some(range => range.selected !== selectionTouches(tr.state, range))) return buildDecorations(tr.state, config.get(), engine);
       }
       const cached = previewSelections.get(tr.startState);
       if (cached) previewSelections.set(tr.state, cached);

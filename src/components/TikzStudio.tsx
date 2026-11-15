@@ -9,6 +9,12 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
+import { TexSourceEditor } from './TexSourceEditor';
+import { TexVisualEditor } from './TexVisualEditor';
+import { ScorePreview } from '../editor/MusicBlock';
+import { useDiagramPreview } from '../hooks/useDiagramPreview';
+import { useDialogFocus } from '../hooks/useDialogFocus';
+import type { Engine } from '../types';
 import { useI18n } from '../i18n';
 
 interface Props {
@@ -16,6 +22,9 @@ interface Props {
   projectRoot: string | null;
   filePath: string | null;
   initialSource: string | null;
+  kind?: 'diagram' | 'music';
+  preamble?: string;
+  engine?: Engine;
   onClose: () => void;
   onInsert: (source: string) => void;
 }
@@ -65,80 +74,41 @@ const templates = [
   },
 ];
 
-export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose, onInsert }: Props) {
+export function TikzStudio({ open, projectRoot, filePath, initialSource, kind = 'diagram', preamble, engine, onClose, onInsert }: Props) {
   const { msg } = useI18n();
   const [source, setSource] = useState(templates[0].source);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [engine, setEngine] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [log, setLog] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const requestId = useRef(0);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [sourceMode, setSourceMode] = useState(false);
+  const [musicRefresh, setMusicRefresh] = useState(0);
+  const { preview, error, busy, retry } = useDiagramPreview(open && kind === 'diagram', projectRoot, filePath, source, preamble, engine);
+  const sectionRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, sectionRef, onClose);
+  const textareaRef = useRef<{ focus: () => void } | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setSource(initialSource || templates[0].source);
-    setPreview(null);
-    setError(null);
-    setLog(null);
-    setEngine(null);
-    const timer = window.setTimeout(() => textareaRef.current?.focus(), 80);
-    return () => window.clearTimeout(timer);
+    setSourceMode(false);
   }, [open, initialSource]);
 
-  useEffect(() => {
-    if (!open || !projectRoot || !filePath || !source.trim()) return;
-    const id = ++requestId.current;
-    setBusy(true);
-    setError(null);
-    const timer = window.setTimeout(async () => {
-      try {
-        const result = await window.texpro.renderTikz({ projectRoot, filePath, source });
-        if (id !== requestId.current) return;
-        if (result.ok && result.svgPath) {
-          setPreview(result.svgPath);
-          setEngine(result.engine || null);
-          setError(null);
-          setLog(null);
-        } else {
-          setPreview(null);
-          setError(result.error || 'TikZ rendering failed');
-          setLog(result.log || null);
-        }
-      } catch (failure) {
-        if (id === requestId.current) setError(String(failure));
-      } finally {
-        if (id === requestId.current) setBusy(false);
-      }
-    }, 550);
-    return () => {
-      window.clearTimeout(timer);
-      setBusy(false);
-    };
-  }, [open, source, projectRoot, filePath]);
-
   if (!open) return null;
-
-  const previewUrl = preview
-    ? `texpro-asset://asset/?path=${encodeURIComponent(preview)}`
-    : null;
-
+  const title = msg(kind === 'music' ? 'writing.studio.music' : 'app.diagram.studio');
+  const sourceLabel = msg(kind === 'music' ? 'app.edit.tex.source' : 'app.diagram.source');
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="tikz-studio" data-testid="tikz-studio" onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={sectionRef} role="dialog" aria-modal="true" aria-label={title} className="tikz-studio" data-testid="tikz-studio" onMouseDown={(event) => event.stopPropagation()}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><PenTool size={18} /></div>
             <div>
-              <span className="modal-eyebrow">{msg("app.diagram.studio")}</span>
-              <h2>TikZ Studio</h2>
+              <span className="modal-eyebrow">{title}</span>
+              <h2>{title}</h2>
             </div>
           </div>
           <div className="studio-header-actions">
+            <button className="secondary-btn" onClick={() => setSourceMode(value => !value)}>{msg(sourceMode ? "writing.studio.visual.mode" : "writing.studio.source.mode")}</button>
             <span className={`studio-engine ${error ? 'failed' : preview ? 'ok' : ''}`}>
               {busy ? <Loader2 size={11} className="spin" /> : null}
-              {error ? msg("app.error") : engine || 'latex'}
+              {error ? msg("app.error") : engine || 'TeX'}
             </span>
             <button className="icon-btn" onClick={onClose} title={msg("app.close")}><X size={16} /></button>
           </div>
@@ -146,37 +116,33 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
 
         <div className="tikz-body">
           <div className="tikz-editor-pane">
-            <div className="pane-label"><Code2 size={12} /> {msg("app.diagram.source")}</div>
-            <textarea
-              ref={textareaRef}
-              className="tikz-source"
-              value={source}
-              onChange={(event) => setSource(event.target.value)}
-              spellCheck={false}
-            />
-            <div className="tikz-template-row">
+            <div className="pane-label"><Code2 size={12} /> {sourceMode ? sourceLabel : msg("writing.studio.visual.mode")}</div>
+            <div className="studio-source-mode" hidden={!sourceMode}><TexSourceEditor ref={textareaRef} className="tikz-source" value={source} onChange={setSource} label={sourceLabel} /></div>
+            {!sourceMode && <TexVisualEditor source={source} onChange={setSource} />}
+            {kind === 'diagram' && <div className="tikz-template-row">
               <span><Sparkles size={11} /> {msg("app.templates")}</span>
               {templates.map((item) => (
                 <button key={item.id} onClick={() => setSource(item.source)}>{msg.text(item.name)}</button>
               ))}
-            </div>
+            </div>}
           </div>
 
           <div className="tikz-preview-pane">
             <div className="pane-label">
               <Play size={12} /> {msg("app.preview")}
-              <button className="mini-refresh" onClick={() => setSource((value) => value + ' ')} title={msg("app.refresh")}>
+              <button className="mini-refresh" onClick={kind === 'music' ? () => setMusicRefresh(value => value + 1) : retry} title={msg("app.refresh")}>
                 <RefreshCw size={11} />
               </button>
             </div>
             <div className="tikz-preview">
-              {busy && !previewUrl && (
+              {kind === 'music' && projectRoot && <ScorePreview preamble={preamble} engine={engine} root={projectRoot} source={source} refresh={musicRefresh} onSource={() => { setSourceMode(true); requestAnimationFrame(() => textareaRef.current?.focus()); }} onMeasure={() => {}} />}
+              {busy && !preview && (
                 <div className="tikz-placeholder"><Loader2 size={18} className="spin" /> {msg("app.typesetting.diagram")}</div>
               )}
-              {!busy && !previewUrl && !error && (
+              {kind === 'diagram' && !busy && !preview && !error && (
                 <div className="tikz-placeholder">{msg("app.preview.will.appear.here")}</div>
               )}
-              {previewUrl && <TexArtwork src={previewUrl} alt="TikZ preview" />}
+              {preview && <TexArtwork src={preview} alt="TikZ preview" />}
               {error && (
                 <div className="tikz-error-box">
                   <strong>{msg("app.could.not.render.this.diagram")}</strong>
@@ -184,28 +150,24 @@ export function TikzStudio({ open, projectRoot, filePath, initialSource, onClose
                 </div>
               )}
             </div>
-            {log && (
-              <details className="tikz-studio-log">
-                <summary>{msg("app.show.log")}</summary>
-                <pre>{log}</pre>
-              </details>
-            )}
+
+            {sourceMode && <TexVisualEditor source={source} onChange={setSource} />}
           </div>
         </div>
 
         <footer className="studio-footer">
-          <span className="studio-hint">{msg("app.tikz.previews.use.the.current.document.preamble.and.tools")}</span>
+          <span className="studio-hint">{msg("writing.studio.preview.hint")}</span>
           <div className="spacer" />
           <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
           <button
             className="primary-btn"
-            disabled={!preview || busy}
+            disabled={!source.trim()}
             onClick={() => {
               onInsert(source);
               onClose();
             }}
           >
-            <PenTool size={13} /> {msg("app.insert.diagram")}
+            <PenTool size={13} /> {msg(initialSource ? "writing.studio.apply" : "app.insert.diagram")}
           </button>
         </footer>
       </section>

@@ -56,6 +56,7 @@ function fixture(root) {
   for (const [name, content] of Object.entries({
     'package.json': '{}', 'THIRD_PARTY_NOTICES.md': '', 'electron/services/realtime-tex.cjs': '', 'electron/services/realtime-scene.cjs': '', 'electron/quit-watchdog.cjs': '', 'electron/window-close.cjs': '', 'electron/main.cjs': '', 'electron/preload.cjs': '', 'mcp/server.mjs': '',
     'electron/services/writing-aids.cjs': '', 'electron/services/writing-aids-core.mjs': '', 'electron/services/tex-engine.mjs': '', 'electron/services/music.cjs': '', 'electron/services/tex.cjs': '', 'electron/services/history.cjs': '', 'electron/services/git.cjs': '', 'electron/services/project-files.cjs': '', 'electron/services/project-root.cjs': '', 'electron/services/project-operations.cjs': '', 'electron/services/font-report.cjs': '',
+    'electron/services/synctex.cjs': '', 'electron/services/writing-source.cjs': '', 'electron/services/writing-context.cjs': '', 'electron/services/writing-context-core.mjs': '', 'electron/services/writing-path-core.mjs': '', 'electron/services/tex-source-core.mjs': '', 'electron/services/geometry-core.mjs': '',
     'dist/index.html': '<script src="./assets/index-a.js"></script><link href="./assets/index-a.css" rel="stylesheet">',
     'dist/assets/index-a.js': '', 'dist/assets/index-a.css': '', 'dist/assets/pdf.worker-a.mjs': '',
   })) { fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true }); fs.writeFileSync(path.join(root, name), content); }

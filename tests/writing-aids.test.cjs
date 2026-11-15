@@ -73,7 +73,7 @@ test('draft placeholders compile with pdfLaTeX and Chinese typography compiles w
 test('placeholder planner preserves the active child and maps main-file selection with one invertible edit group', async () => {
   const ts=require('typescript'), vm=require('node:vm'), {Text}=require('@codemirror/state');
   const filename=path.resolve(__dirname,'../src/lib/writingAids.ts');
-  const texContext={exports:{},require};
+  const texContext={exports:{},require:name=>require('../electron/services/tex-source-core.mjs')};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/texDocument.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,texContext);
   const labelContext={exports:{},require:name=>name==='./texDocument'?texContext.exports:require(name)};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/labelRename.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,labelContext);

@@ -3,11 +3,12 @@ import { Transaction } from '@codemirror/state';
 import { isolateHistory, redo, undo } from '@codemirror/commands';
 import { appendWritingRow, texEnvironments, writingTable, type WritingTable } from '../lib/texDocument';
 import { msg, type MessageId } from '../i18n';
-import { renderInlineTex } from '../lib/texInline';
+import { renderInlineTex, type InlineRenderContext } from '../lib/texInline';
 import { continueWriting, focusWriting, tableWritingField, writeTableCell } from './writing';
 
-interface Binding { table: WritingTable; view: EditorView; composing: boolean }
+interface Binding { table: WritingTable; view: EditorView; composing: boolean; inline: InlineRenderContext }
 const bindings = new WeakMap<HTMLElement, Binding>();
+const cellContexts = new WeakMap<HTMLElement, InlineRenderContext>();
 const cellAt = (dom: HTMLElement, row: number, col: number) => dom.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
 
 function caretOffset(cell: HTMLElement): number {
@@ -41,12 +42,15 @@ function literalSeparators(text: string): string {
 
 const inputText = (source: string) => source.replace(/\\([&%])/g, '$1');
 function showCell(cell: HTMLElement, source: string, editing: boolean) {
+  const table = cell.closest<HTMLElement>('.cm-writing-table');
+  const context = table ? bindings.get(table)?.inline : undefined;
   if (editing) {
     const value = inputText(source);
     if (cell.dataset.reading === 'true' || cell.textContent !== value) cell.textContent = value;
     cell.dataset.reading = 'false';
-  } else if (cell.dataset.source !== source || cell.dataset.reading !== 'true') {
-    cell.innerHTML = renderInlineTex(source); cell.dataset.reading = 'true'; cell.dataset.source = source;
+  } else if (cell.dataset.source !== source || cell.dataset.reading !== 'true' || cellContexts.get(cell) !== context) {
+    cell.innerHTML = renderInlineTex(source, 0, 0, context); cell.dataset.reading = 'true'; cell.dataset.source = source;
+    if (context) cellContexts.set(cell, context);
   }
 }
 
@@ -65,12 +69,12 @@ export function enterWritingTable(view: EditorView, pos: number) {
 }
 
 export class WritingTableWidget extends WidgetType {
-  constructor(readonly table: WritingTable) { super(); }
-  eq(other: WritingTableWidget) { return this.table === other.table; }
+  constructor(readonly table: WritingTable, readonly inline: InlineRenderContext = {}) { super(); }
+  eq(other: WritingTableWidget) { return this.table === other.table && this.inline === other.inline; }
 
   toDOM(view: EditorView) {
     const dom = document.createElement('div'); dom.className = 'cm-table-widget cm-writing-table';
-    bindings.set(dom, { table: this.table, view, composing: false });
+    bindings.set(dom, { table: this.table, view, composing: false, inline: this.inline });
     const inner = document.createElement('div'); inner.className = 'cm-table-widget-inner';
     inner.appendChild(document.createElement('table')); dom.appendChild(inner);
     const tools = document.createElement('div'); tools.className = 'cm-writing-tools';
@@ -169,6 +173,7 @@ export class WritingTableWidget extends WidgetType {
 
   updateDOM(dom: HTMLElement, view: EditorView) {
     const binding = bindings.get(dom)!;
+    binding.inline = this.inline;
     binding.table = this.table; binding.view = view;
     if (binding.composing) return true;
     const table = dom.querySelector('table')!, current = view.state.field(tableWritingField, false), focused = dom.contains(document.activeElement);

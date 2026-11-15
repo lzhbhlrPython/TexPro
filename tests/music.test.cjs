@@ -65,3 +65,29 @@ test('block delimiters match full IDs and ties require the same pitch and accide
   assert.equal(m.canTie({...notes[0],pitch:0,accidental:1},{...notes[1],pitch:0,accidental:0}),false);
   assert.equal(m.canTie({pitch:0,duration:4,chord:[2,4]},{pitch:0,duration:2,chord:[4,2]}),true);
 });
+
+
+test('handwritten MusiXTeX has source previews without metadata or lossy score recovery', () => {
+  const body = String.raw`\begin{music}
+\instrumentnumber{1}
+\startpiece
+\Notes \qu{c}\en
+\Endpiece
+\end{music}`;
+  const source = '\\documentclass{article}\n\\begin{document}\nAnchor.\n' + body + '\n\\end{document}';
+  const blocks = m.findMusicBlocks(source);
+  assert.equal(blocks.length, 1); assert.equal(blocks[0].body, body); assert.equal(blocks[0].score, null);
+  assert.equal(source.slice(blocks[0].from, blocks[0].to), body);
+  assert.equal(m.findMusicBlocks('% '+body.replaceAll('\n', '\n% ')).length, 0);
+  const raw = String.raw`\instrumentnumber{1}
+\startpiece
+\Notes \qu{d}\en
+\Endpiece`;
+  assert.equal(m.findMusicBlocks(raw)[0].source, raw);
+  const preamble = String.raw`% !TeX program = xelatex
+\documentclass{article}
+\usepackage{musixtex}
+\newcommand{\myNote}{\qu{c}}`;
+  const preview = m.previewDocument(body, preamble);
+  assert.ok(preview.startsWith(preamble)); assert.equal((preview.match(/usepackage\{musixtex\}/g)||[]).length, 1);
+});

@@ -1,3 +1,8 @@
+import { TexSourceEditor } from './TexSourceEditor';
+import { TexVisualEditor } from './TexVisualEditor';
+import { useDiagramPreview } from '../hooks/useDiagramPreview';
+import { useDialogFocus } from '../hooks/useDialogFocus';
+import { diagramBlocks } from '../lib/texDocument';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TexArtwork } from './TexArtwork';
 import {
@@ -140,11 +145,16 @@ interface Props {
   open: boolean;
   projectRoot: string | null;
   filePath: string | null;
+  initialSource?: string | null;
+  preamble?: string;
+  engine?: import('../types').Engine;
   onClose: () => void;
   onInsert: (code: string) => void;
 }
 
-export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert }: Props) {
+export function PgfplotsStudio({ open, projectRoot, filePath, initialSource, preamble, engine, onClose, onInsert }: Props) {
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   const { msg } = useI18n();
   const [csv, setCsv] = useState(starterCsv);
   const [options, setOptions] = useState<PlotOptions>({
@@ -163,14 +173,9 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
     legendPos: 'north west',
     extra: '',
   });
-  const [previewPath, setPreviewPath] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState<string | null>(null);
-  const [log, setLog] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [codeDraft, setCodeDraft] = useState<string | null>(null);
+  const [sourceMode, setSourceMode] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [refreshTick, setRefreshTick] = useState(0);
-  const requestId = useRef(0);
-
   const parsedResult = useMemo(() => {
     try {
       return { data: parseCsv(csv), error: null as string | null };
@@ -185,53 +190,12 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
     [parsed, options],
   );
 
-  useEffect(() => {
-    if (!open) return;
-    setPreviewPath(null);
-    setPreviewError(null);
-    setLog(null);
-    setCopied(false);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open || !projectRoot || !filePath || !generated) return;
-    const id = ++requestId.current;
-    setBusy(true);
-    setPreviewError(null);
-    const timer = window.setTimeout(async () => {
-      try {
-        const result = await window.texpro.renderTikz({
-          projectRoot,
-          filePath,
-          source: generated.preview,
-        });
-        if (id !== requestId.current) return;
-        if (result.ok && result.svgPath) {
-          setPreviewPath(result.svgPath);
-          setPreviewError(null);
-          setLog(null);
-        } else {
-          setPreviewPath(null);
-          setPreviewError(result.error || 'pgfplots rendering failed');
-          setLog(result.log || null);
-        }
-      } catch (error) {
-        if (id === requestId.current) setPreviewError(String(error));
-      } finally {
-        if (id === requestId.current) setBusy(false);
-      }
-    }, 700);
-    return () => {
-      window.clearTimeout(timer);
-      setBusy(false);
-    };
-  }, [open, generated, projectRoot, filePath, refreshTick]);
-
+  const output = codeDraft ?? generated?.figure ?? '';
+  const artwork = codeDraft ? diagramBlocks(codeDraft)[0]?.source || codeDraft : generated?.preview || '';
+  const { preview: previewPath, error: previewError, busy, retry } = useDiagramPreview(open, projectRoot, filePath, artwork, preamble, engine);
+  useEffect(() => { if (open) { setCodeDraft(initialSource || null); setSourceMode(false); setCopied(false); } }, [open, initialSource]);
   if (!open) return null;
-  const previewUrl = previewPath
-    ? `texpro-asset://asset/?path=${encodeURIComponent(previewPath)}`
-    : null;
-
+  const previewUrl = previewPath;
   const patch = (value: Partial<PlotOptions>) => setOptions((current) => ({ ...current, ...value }));
 
   const kinds: Array<{ id: PlotKind; label: string }> = [
@@ -244,7 +208,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
 
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <section className="chart-studio pgf-studio" data-testid="chart-studio" onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={msg("app.chart.studio")} className="chart-studio pgf-studio" data-testid="chart-studio" onMouseDown={(event) => event.stopPropagation()}>
         <header className="studio-header">
           <div className="studio-heading">
             <div className="studio-icon"><BarChart3 size={18} /></div>
@@ -254,6 +218,7 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
             </div>
           </div>
           <div className="studio-header-actions">
+            <button className="secondary-btn" onClick={() => setSourceMode(value => !value)}>{msg(sourceMode ? "writing.studio.visual.mode" : "writing.studio.source.mode")}</button>
             <span className={`studio-engine ${previewError ? 'failed' : previewPath ? 'ok' : ''}`}>
               {busy ? <Loader2 size={11} className="spin" /> : previewError ? null : previewPath ? <Check size={11} /> : null}
               {previewError ? msg("app.error") : 'pgfplots'}
@@ -262,8 +227,9 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
           </div>
         </header>
 
-        <div className="chart-studio-body pgf-body">
-          <div className="chart-data-pane">
+        <div className={`chart-studio-body pgf-body is-unified${sourceMode ? " is-source" : ""}`}>
+          <div className="chart-data-pane" hidden={sourceMode}>
+            {codeDraft !== null ? <TexVisualEditor source={output} onChange={setCodeDraft} /> : <>
             <div className="pane-label">
               <Clipboard size={12} /> {msg("app.chart.data")}
               <span className="pane-hint">CSV</span>
@@ -333,12 +299,13 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
                 <textarea className="pgf-extra" value={options.extra} onChange={(event) => patch({ extra: event.target.value })} placeholder="ymin=0, ymax=6, ..." />
               </label>
             </div>
+            </>}
           </div>
 
           <div className="chart-preview-pane">
             <div className="pane-label">
               <Play size={12} /> {msg("app.native.pgfplots.preview")}
-              <button className="mini-refresh" onClick={() => setRefreshTick((value) => value + 1)} title={msg("app.refresh")}>
+              <button className="mini-refresh" onClick={() => retry()} title={msg("app.refresh")}>
                 <RefreshCw size={11} />
               </button>
             </div>
@@ -353,24 +320,20 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
                 </div>
               )}
             </div>
-            {log && (
-              <details className="tikz-studio-log">
-                <summary>{msg("app.show.log")}</summary>
-                <pre>{log}</pre>
-              </details>
-            )}
+            {sourceMode && <TexVisualEditor source={output} onChange={setCodeDraft} />}
             <div className="pgf-note">
               <Sparkles size={12} />
               {msg("app.the.preview.is.compiled.by.the.same.tex.toolchain")}
             </div>
           </div>
 
-          <div className="chart-code-pane">
+          <div className="chart-code-pane" hidden={!sourceMode}>
+            {codeDraft !== null && <p className="studio-hint">{msg("writing.studio.source.retained")}</p>}
             <div className="pane-label">
-              <Code2 size={12} /> {msg("app.generated.latex")}
+              <Code2 size={12} /> {msg("app.diagram.source")}
               <span className="pane-hint">pgfplots</span>
             </div>
-            <pre className="chart-code">{generated?.figure || ''}</pre>
+            <TexSourceEditor className="chart-code" value={output} onChange={setCodeDraft} label={msg("app.diagram.source")} />
           </div>
         </div>
 
@@ -379,25 +342,25 @@ export function PgfplotsStudio({ open, projectRoot, filePath, onClose, onInsert 
           <div className="spacer" />
           <button className="secondary-btn" onClick={async () => {
             try {
-              await navigator.clipboard.writeText(generated?.figure || '');
+              await navigator.clipboard.writeText(output);
               setCopied(true);
               window.setTimeout(() => setCopied(false), 1400);
             } catch {
               setCopied(false);
             }
-          }} disabled={!generated}>
+          }} disabled={!output.trim()}>
             {copied ? <Check size={13} /> : <Clipboard size={13} />}
             {copied ? msg("app.copied") : msg("app.copy.latex")}
           </button>
           <button
             className="primary-btn"
-            disabled={!generated || !previewPath || busy}
+            disabled={!output.trim() || !previewPath || busy}
             onClick={() => {
-              if (generated) onInsert(generated.figure);
+              if (output.trim()) onInsert(output);
               onClose();
             }}
           >
-            <BarChart3 size={13} /> {msg("app.insert.chart")}
+            <BarChart3 size={13} /> {msg(initialSource ? "writing.studio.apply" : "app.insert.chart")}
           </button>
         </footer>
       </section>

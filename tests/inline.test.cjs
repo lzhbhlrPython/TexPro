@@ -8,9 +8,11 @@ const ts = require('typescript');
 const compile = name => ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/lib/', name + '.ts'), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
 }).outputText;
-const documentContext = { exports: {} };
+const documentContext = { exports: {}, require: name => require('../electron/services/tex-source-core.mjs') };
 vm.runInNewContext(compile('texDocument'), documentContext);
-const context = { exports: {}, require: name => name === './texDocument' ? documentContext.exports : require(name) };
+const mathContext = { exports: {}, require };
+vm.runInNewContext(compile('texMath'), mathContext);
+const context = { exports: {}, require: name => name === './texDocument' ? documentContext.exports : name === './texMath' ? mathContext.exports : require(name) };
 vm.runInNewContext(compile('texInline'), context);
 const { renderInlineTex } = context.exports;
 
@@ -32,4 +34,13 @@ test('inline preview respects escaped delimiters and retains invalid or unknown 
   assert.ok(renderInlineTex('\\textbf{incomplete').includes('\\textbf'));
   assert.equal(renderInlineTex(String.raw`$\frac{1}{$`), String.raw`$\frac{1}{$`);
   assert.equal(renderInlineTex('$unfinished'), '$unfinished');
+});
+
+test('table inline math shares project macros and keeps exact source offsets when context changes', () => {
+  const source = String.raw`$3\unit{V}$`;
+  const normal = renderInlineTex(source, 20, 0, { macros: { '\\unit': '\\mathrm{#1}' } });
+  const bold = renderInlineTex(source, 20, 0, { macros: { '\\unit': '\\mathbf{#1}' } });
+  assert.match(normal, /katex/); assert.notEqual(normal, bold);
+  assert.match(normal, /data-tex-offset="21"/);
+  assert.equal(renderInlineTex(source), source);
 });

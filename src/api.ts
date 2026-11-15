@@ -14,6 +14,9 @@ import type {
 } from './types';
 
 export interface TexProApi {
+  renderNativeWriting: (input: import('./lib/writingEngine/native').NativeWritingRequest) => Promise<import('./lib/writingEngine/native').NativeWritingResult | null>;
+  stopNativeWriting: (session: string) => Promise<void>;
+  inverseNativeWriting: (session: string, revision: string, point: { page: number; x: number; y: number }) => Promise<{ file: string; line: number; column: number; source: string }>;
   safeMode: boolean;
   platform: string;
   languagePacks: () => Promise<import('../packages/extension-sdk').LanguagePack[]>;
@@ -84,7 +87,7 @@ export interface TexProApi {
   deleteSecret: (name: string) => Promise<{ ok: boolean }>;
   lookupBibtex: (identifier: string) => Promise<{ entry: { type: string; key: string; fields: Record<string, string> }; source: string }>;
   chooseBibFile: () => Promise<{ path: string; content: string; name: string } | null>;
-  renderMusicPreview: (payload: { projectRoot: string; source: string; runId: string }) => Promise<{ ok: boolean; bytes?: Uint8Array; error?: string; log?: string }>;
+  renderMusicPreview: (payload: { projectRoot: string; source: string; runId: string; engine?: Engine }) => Promise<{ ok: boolean; bytes?: Uint8Array; error?: string; log?: string }>;
   renderTemplatePreview: (payload: { source: string; engine: string }) => Promise<{ ok: boolean; path?: string; cached?: boolean; dataUrl?: string; error?: string }>;
   saveUserTemplate: (payload: {
     name: string;
@@ -94,12 +97,14 @@ export interface TexProApi {
   }) => Promise<TemplateItem>;
   deleteUserTemplate: (id: string) => Promise<TemplateItem[]>;
   projectSymbols: (root: string) => Promise<ProjectSymbols>;
+  readWritingSource: (root: string, file: string) => Promise<string>;
   renderTikz: (options: {
     projectRoot: string;
     filePath: string;
     source: string;
     preamble?: string;
     preferPdf?: boolean;
+    engine?: Engine;
   }) => Promise<{
     ok: boolean;
     svgPath?: string;
@@ -107,6 +112,7 @@ export interface TexProApi {
     engine?: string;
     cacheKey?: string;
     cached?: boolean;
+    warning?: string;
     error?: string;
     log?: string;
   }>;

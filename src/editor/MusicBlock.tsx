@@ -69,8 +69,10 @@ function NotationInput({ score, part, selected, onSelect, onPitch, onAdd }: {
         })}
   </svg></div>;
 }
-export function ScorePreview({ root, source, refresh, onMeasure, onSource }: {
+export function ScorePreview({ root, source, refresh, onMeasure, onSource, preamble, engine }: {
     root: string;
+    preamble?: string;
+    engine?: import('../types').Engine;
     onSource: () => void;
     source: string;
     refresh: number;
@@ -84,9 +86,10 @@ export function ScorePreview({ root, source, refresh, onMeasure, onSource }: {
         let task: ReturnType<typeof pdfjs.getDocument> | undefined;
         setBusy(true);
         setError('');
+        host.current?.replaceChildren();
         const timer = window.setTimeout(async () => {
             try {
-                const result = await window.texpro.renderMusicPreview({ projectRoot: root, source: previewDocument(source), runId });
+                const result = await window.texpro.renderMusicPreview({ projectRoot: root, source: previewDocument(source, preamble), engine, runId });
                 if (dead)
                     return;
                 if (!result.ok || !result.bytes)
@@ -163,11 +166,14 @@ export function ScorePreview({ root, source, refresh, onMeasure, onSource }: {
         return () => { dead = true; clearTimeout(timer); void window.texpro.cancelCompile(runId).catch(() => { }); void task?.destroy(); };
         // onMeasure is a widget callback; changing it must not restart TeX.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [root, source, refresh, retry]);
+    }, [root, source, refresh, retry, preamble, engine]);
     return <><div className="music-typeset" ref={host} aria-label={msg("app.tex.score.preview")}/><div className={`music-preview-state ${error?'has-error':''}`} role="status">{busy && <><Loader2 size={12} className="spin"/>{msg("app.typesetting.score")}</>}{error && <div className="music-preview-error music-error" role="alert"><strong>{msg("app.could.not.typeset.this.score")}</strong><p>{msg("app.your.source.is.safe.check.that.the.tex.music")}</p><div className="music-error-actions"><button onClick={()=>setRetry(x=>x+1)}>{msg("app.retry.preview")}</button><button onClick={onSource}>{msg("app.edit.tex.source")}</button></div><details><summary>{msg("app.technical.details")}</summary><pre>{error}</pre></details></div>}</div></>;
 }
-export function MusicBlock({ block, root, onChange, onSource, onContinue, onUndo, onMeasure }: {
+export function MusicBlock({ block, root, onChange, onSource, onContinue, onUndo, onMeasure, onStudio, preamble, engine }: {
     block: ParsedMusicBlock;
+    onStudio: () => void;
+    preamble?: string;
+    engine?: import('../types').Engine;
     root: string;
     onChange: (source: string) => void;
     onSource: () => void;
@@ -206,7 +212,7 @@ export function MusicBlock({ block, root, onChange, onSource, onContinue, onUndo
                 onContinue();
             }
         }}>
-    <div className="music-block-actions"><span><Music2 size={13}/>{msg("app.music")}</span><div><button title={msg("app.write.music")} aria-label={msg("app.write.music")} onClick={onSource}><Code2 size={14}/>{msg("app.write.music")}</button>{score && <button title={msg("app.notation.tools")} aria-label={msg("app.notation.tools")} aria-expanded={editing} onClick={() => setEditing(!editing)}><FileMusic size={14}/>{msg(editing ? "app.hide.notation.tools" : "app.notation.tools")}</button>}</div></div>
+    <div className="music-block-actions"><span><Music2 size={13}/>{msg("app.music")}</span><div><button onClick={onStudio}>{msg("app.studio")}</button><button title={msg("app.write.music")} aria-label={msg("app.write.music")} onClick={onSource}><Code2 size={14}/>{msg("app.write.music")}</button>{score && <button title={msg("app.notation.tools")} aria-label={msg("app.notation.tools")} aria-expanded={editing} onClick={() => setEditing(!editing)}><FileMusic size={14}/>{msg(editing ? "app.hide.notation.tools" : "app.notation.tools")}</button>}</div></div>
     {editing && score && <div className="music-inline-controls">
       <div className="music-meta"><label>{msg("app.score.template")}<select aria-label={msg("app.score.template")} value="" onChange={e => { change(newScore(e.target.value)); setPart(0); setSelected(0); }}><option value="" disabled>{msg("app.choose.template")}</option>{musicTemplates.map(a => <option key={a.id} value={a.id}>{msg.text(a.name)}</option>)}</select></label><label>{msg("app.notation")}<select value={score.kind} onChange={e => patch({ kind: e.target.value as MusicScore['kind'] })}><option value="staff">{msg("app.staff.notation")}</option><option value="numbered">{msg("app.numbered.notation")}</option><option value="guitar">{msg("app.guitar.tablature")}</option></select></label><label>{msg("app.score.title")}<input value={score.title} maxLength={200} onChange={e => patch({ title: e.target.value })}/></label></div>
       <div className="music-part-tabs" role="group" aria-label={msg("app.instruments")}>{score.parts.map((a, i) => <button key={i} className={i === part ? 'active' : ''} onClick={() => { setPart(i); setSelected(0); }}>{a.name}</button>)}<button disabled={score.parts.length >= 8} onClick={() => { patch({ parts: [...score.parts, { name: `Part ${score.parts.length + 1}`, clef: 'treble', notes: [] }] }); setPart(score.parts.length); setSelected(0); }} aria-label={msg("app.add.instrument")} title={msg("app.add.instrument")}><Plus size={14}/></button></div>
@@ -224,7 +230,7 @@ export function MusicBlock({ block, root, onChange, onSource, onContinue, onUndo
     <div className="music-paper" tabIndex={0} role="button" aria-label={msg("app.write.music")} onClick={onSource} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         onSource();
-    } }}><ScorePreview root={root} onSource={onSource} source={block.body} refresh={refresh} onMeasure={onMeasure}/></div>
+    } }}><ScorePreview root={root} preamble={preamble} engine={engine} onSource={onSource} source={block.body} refresh={refresh} onMeasure={onMeasure}/></div>
     {editing && <div className="music-inline-footer"><button onClick={() => setRefresh(x => x + 1)}><RefreshCw size={12}/>{msg("app.refresh.preview")}</button><button onClick={onSource}><Code2 size={12}/>{msg("app.edit.in.document.source")}</button></div>}
   </section>;
 }

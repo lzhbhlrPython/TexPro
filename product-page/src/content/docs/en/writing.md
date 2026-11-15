@@ -90,3 +90,67 @@ Settings switch the interface between Chinese and English, and menus, command pa
 - Projects and files: `/docs/project`
 
 The More menu no longer duplicates the Insert group. Use the corresponding studios for professional diagrams; direct insertion commands remain searchable in the command palette. View labels reflect the current state: Enter focus mode / Leave focus mode and Enable typewriter scrolling / Disable typewriter scrolling.
+
+## Inline previews in multi-file projects
+
+When you open a chapter from the file tree, visual previews load the selected project main file and statically included preamble files. The main file does not need to remain open. Unsaved edits to the main or style files also participate in previews; composition input is preserved.
+
+Graphics paths follow the regular compiler's project working directory and literal `\graphicspath` declarations. If `images/实验.png` is under the project root, use this even while editing `sections/chapter.tex`:
+
+```tex
+\includegraphics{images/实验.png}
+```
+
+Common graphics extensions may be omitted. PDF graphics show their first page through PDF.js. Inserting an image from the asset flow also uses the project working directory; existing image commands are not rewritten automatically.
+
+Simple required-argument macros can render in formulas, and simple text style wrappers can be inherited. For example, define `\newcommand{\unit}[1]{\,\mathrm{#1}}` in the preamble. Click a formula or image to continue in its source with editor focus and undo preserved. Table formulas use the same macro context.
+
+Macro paragraphs, custom environments, complex tables and formulas beyond the fast projection path use the project’s own local TeX toolchain. Literal chapter inputs compose a continuous reading flow; clicking content enters the actual child file. Reliable native prose uses the editor’s fonts and line spacing, while geometry retains its original drawing. Full PDF pages stay in the preview pane. Ordinary prose, simple formulas and tables retain their immediate editing path.
+
+Install the project’s required TeX tools, fonts and packages, and select its main file. In settings, enable **Visual mode** and **Auto compile**, and choose a **Compile strategy** other than **Manual only**. Pause typing and allow actual typesetting to complete; the first preview of a large project takes real compilation time. Native previews use temporary project copies with unsaved buffers and do not save author files themselves. Existing auto-save and formal auto-compile save behavior is unchanged. No additional workspace or engine mode is required.
+
+Click a native block to reveal its TeX, or use Enter/Space. Revealed source and **Source** mode retain syntax highlighting, completion and diagnostics independently of WYSIWYG. Changes and undo go through the editor; stale results cannot replace newer input.
+
+If the problems list reports unavailable native typesetting or incomplete mapping, editable source is retained. Check that the original project compiles, install missing fonts/packages, repair TeX errors, then edit or reopen the file to retry. For incomplete preamble dependencies, check the references and reopen the project. Oversized snapshots, very long individual blocks or missing SyncTeX may retain source; native regions are not guaranteed to refresh on every keystroke. Arbitrary HTML in `.tex` is not executed as a web page. The compiled PDF remains authoritative for fonts, floats and pagination. XeLaTeX projects retain their compiler.
+
+## Common geometry and drawing packages
+
+Keep the project’s package declarations and local TeX installation. Enter ordinary source in the document and click the rendered object to edit it. No separate workspace is required. Install missing packages in your local TeX distribution; the editor does not silently substitute packages in the project.
+
+| Content | Packages / syntax |
+| --- | --- |
+| Euclidean geometry, triangles, circles and construction lines | TikZ, tkz-euclide; project coordinate, intersection and angle libraries are retained |
+| Spatial geometry and 3D coordinates | tikz-3dplot, PGFPlots addplot3; Lua graphdrawing requires LuaLaTeX |
+| Function plots, logarithmic/polar axes and plot groups | PGFPlots axis, semilogxaxis, semilogyaxis, loglogaxis, polaraxis, groupplot |
+| Basic line drawings | picture, pict2e |
+| Trees, commutative and relation diagrams | Forest, qtree, tikz-qtree, tikz-cd, Xy-pic |
+| Proof trees | bussproofs, ebproof, logicproof |
+| Circuits, quantum circuits and chemistry | Circuitikz, Quantikz, QCircuit, Chemfig |
+| Sets, flows and schedules | venndiagram, smartdiagram, pgfgantt |
+| PostScript geometry and 3D | PSTricks, pst-eucl, pst-3dplot; inline artwork uses XeLaTeX and its driver dependencies |
+| Particle interaction diagrams | tikz-feynman; automatic layouts may additionally require LuaLaTeX |
+
+For example, load `tkz-euclide` in the main preamble, then enter:
+
+```tex
+\begin{tikzpicture}
+  \tkzDefPoints{0/0/A,3/0/B,1/2/C}
+  \tkzDrawPolygon(A,B,C)
+  \tkzLabelPoints(A,B,C)
+\end{tikzpicture}
+```
+
+Load TikZ before tikz-3dplot. qtree versus tikz-qtree and bussproofs versus ebproof follow actual project declarations rather than loading conflicting packages. Project macros, libraries and styles enter artwork compilation. If rendering fails, inspect the inline error/log and check the original project compiles. Complex or unfinished syntax remains source. This describes covered syntax families, not every package version, layout option or draggable visual editing operation.
+
+tkz-elements and luadraw require compatible local packages and LuaLaTeX; real compilation acceptance for these two packages is not complete in this iteration. Asymptote, MetaPost, externally generated files and shell-escape workflows are not automatically executed. Continue using the project’s configured build actions and formal PDF.
+
+## Open handwritten content in a studio
+
+Handwritten circuits, geometry and complete MusiXTeX passages need neither studio generation nor metadata. Use **Studio** on an inline drawing, or the corresponding studio command with the caret inside the block, to open its original source. Music’s **Studio** opens **Music studio**. Source retains highlighting and undo; pausing input updates the real typeset preview. Cancel leaves the document intact. **Apply changes** replaces the original block and supports one document undo.
+
+Neutral lines follow light/dark themes; authored colors remain intact without whole-image inversion. When complex source cannot be recovered losslessly as draggable nodes/notes, continue with source and live preview. Circuit tools offer **Source and live preview**; code differing from the generated model cannot switch directly back to the old model and overwrite changes. Chart source is editable and takes precedence over generated data output.
+
+
+### Two modes in one studio
+
+Open the object’s Studio, then switch between Source editor and Visual editor. Both modes share one draft and live preview. There is no separate source studio. Visual controls can edit literal coordinates, selected MusiXTeX pitches/meters/key signatures, and simple PGFPlots expressions without rebuilding surrounding code. Source edits refresh these controls. Unknown syntax remains intact; an old generated model never replaces handwritten changes. Cancel keeps the document unchanged; Apply changes replaces the original block with document undo support.

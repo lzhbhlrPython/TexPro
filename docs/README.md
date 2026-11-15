@@ -24,6 +24,7 @@
 | 引导式脚手架与工具发布 | [qwertysay](qwertysay.md) |
 | AI 扩展开发与交接 | [开发 Skill](extension-skill.md) |
 | 连续编辑、选择、粘贴、修订 | [写作](writing.md) |
+| 多文件上下文、投影提供器、MCP 与 SyncTeX 边界 | [写作引擎](writing-engine.md) |
 | 乐谱源码、依赖与预览 | [乐谱](music.md) |
 | 素材与文件树联动 | [素材](assets.md) |
 | Nightly、Pages、版本刷新 | [产品页部署](product-page-deployment.md)及 `.github/workflows/` |
@@ -46,3 +47,7 @@
 - [npm／yarn 扩展管理](extension-package-management.md)：锁文件、分发包与受控安装／卸载同步。
 
 [应用更新检查](app-updates.md)：GitHub 版本比较、渠道、兼容安装包、网络与 IPC 边界。
+
+[AI 助手演进提案](proposals/ai-writing-assistant.md)：API／本地模型与外部智能体的共同设计；暂缓实施，当前优先完善写作引擎。
+
+常见几何语法、驱动、手写图稿与工作室的源码／可视模式的维护入口：[几何兼容](geometry-compatibility.md)。

@@ -229,56 +229,23 @@ function collectProjectSymbols(root) {
 }
 
 
-function removeLatexCommand(text, command) {
-  let output = text;
-  const token = '\\' + command;
-  let index = output.indexOf(token);
-  while (index >= 0) {
-    let cursor = index + token.length;
-    while (cursor < output.length && /\s/.test(output[cursor])) cursor++;
-    if (output[cursor] !== '{') {
-      index = output.indexOf(token, cursor);
-      continue;
+function extractTikzPreamble(text, core, declarations) {
+  const end = core.texDocumentStart(text)?.from;
+  if (end === undefined) return '';
+  let preamble = text.slice(0, end);
+  const ranges = [];
+  for (const command of declarations(preamble)) {
+    if (!['documentclass', 'title', 'author', 'date', 'thanks', 'maketitle', 'tableofcontents'].includes(command.name)) continue;
+    let at = core.skipTexSpace(preamble, command.to);
+    if (preamble[at] === '*') at = core.skipTexSpace(preamble, at + 1);
+    while (preamble[at] === '[' || preamble[at] === '{') {
+      const group = core.texGroup(preamble, at, preamble[at], preamble[at] === '[' ? ']' : '}');
+      if (!group) break;
+      at = core.skipTexSpace(preamble, group.to);
     }
-    let depth = 0;
-    let end = cursor;
-    for (; end < output.length; end++) {
-      if (output[end] === '\\') {
-        end++;
-        continue;
-      }
-      if (output[end] === '{') depth++;
-      if (output[end] === '}') {
-        depth--;
-        if (depth === 0) {
-          end++;
-          break;
-        }
-      }
-    }
-    output = output.slice(0, index) + output.slice(end);
-    index = output.indexOf(token, index);
+    ranges.push({ from: command.from, to: at });
   }
-  return output;
-}
-
-function extractTikzPreamble(text) {
-  const start = text.indexOf('\\documentclass');
-  const end = text.indexOf('\\begin{document}');
-  if (start < 0 || end < 0 || end <= start) return '';
-  let preamble = text.slice(start, end);
-  preamble = preamble.replace(/\\documentclass(?:\[[^\]]*\])?\{[^}]+\}/g, '');
-  for (const command of ['title', 'author', 'date', 'thanks', 'maketitle']) {
-    preamble = removeLatexCommand(preamble, command);
-  }
-  preamble = preamble.replace(/\\maketitle\b/g, '').replace(/\\tableofcontents\b/g, '')
-    .replace(/\\usepackage(?:\[[^\]]*\])?\{geometry\}/g, '')
-    .replace(/\\usepackage(?:\[[^\]]*\])?\{hyperref\}/g, '')
-    .replace(/\\usepackage(?:\[[^\]]*\])?\{microtype\}/g, '')
-    .replace(/\\usepackage(?:\[[^\]]*\])?\{fancyhdr\}/g, '')
-    .replace(/\\usepackage(?:\[[^\]]*\])?\{setspace\}/g, '')
-    .replace(/\\begin\{document\}/g, '')
-    .replace(/\\end\{document\}/g, '');
+  for (const range of ranges.reverse()) preamble = preamble.slice(0, range.from) + preamble.slice(range.to);
   return preamble.trim();
 }
 
@@ -316,24 +283,39 @@ async function runLatexOnce(engine, args, cwd, timeoutMs) {
   });
 }
 
-async function renderTikz({ projectRoot, filePath, source, preamble: documentBuffer, preferPdf = false }) {
+async function renderTikz({ projectRoot, filePath, source, preamble: documentBuffer, preferPdf = false, engine: requestedEngine }) {
   const root = path.resolve(projectRoot || '');
   if (!fs.existsSync(root)) return { ok: false, error: 'Project is not open' };
-  const cleanSource = String(source || '').trim();
-  if (!cleanSource || cleanSource.length > 250000) return { ok: false, error: 'Empty or oversized TikZ source' };
+  const { geometryAdapter, geometryPreviewSource, geometryPackages } = await import('./geometry-core.mjs');
+  const originalSource = String(source || '').trim();
+  if (!originalSource || originalSource.length > 250000) return { ok: false, error: 'Empty or oversized TikZ source' };
   let documentText = '';
   try {
-    const main = resolveProjectRoot(root).rootFile || filePath;
+    const project = openProject(root);
+    if (!project.rootFile) return { ok: false, error: project.rootError || 'Choose a project main file' };
     if (typeof documentBuffer === 'string' && documentBuffer.length <= 2000000) documentText = documentBuffer;
-    else if (main && fs.existsSync(main)) documentText = fs.readFileSync(main, 'utf8');
+    else {
+      const context = await require('./writing-context.cjs').loadDiskWritingContext(project);
+      documentText = context.preamble + '\n\\begin{document}';
+    }
   } catch {
     // use empty preamble
   }
-  const preamble = extractTikzPreamble(documentText);
+  const core = await import('./tex-source-core.mjs');
+  const { declarations } = await import('./writing-context-core.mjs');
+  const declaration = core.texDocumentClass(documentText);
+  const previewClass = declaration ? documentText.slice(declaration.command.from, declaration.group.to) : '\\documentclass{article}';
+  const preamble = extractTikzPreamble(documentText, core, declarations);
+  const cleanSource = geometryPreviewSource(originalSource, preamble);
+  const loadedPackages = geometryPackages(preamble);
   const usesPgfplots = /\\(?:begin\{axis\}|addplot|pgfplotsset)\b/.test(cleanSource) || /\\(?:begin\{axis\}|addplot|pgfplotsset)\b/.test(preamble);
   const extras = [];
-  if (!/\\usepackage(?:\[[^\]]*\])?\{[^}]*\btikz\b/.test(preamble)) extras.push('\\usepackage{tikz}');
-  if (usesPgfplots && !/\\usepackage(?:\[[^\]]*\])?\{[^}]*\bpgfplots\b/.test(preamble)) extras.push('\\usepackage{pgfplots}');
+  const adapter = geometryAdapter(originalSource, preamble);
+  for (const name of adapter?.packages || []) {
+    if (!loadedPackages.has(name)) extras.push(`\\usepackage${name === 'xy' ? '[all]' : ''}{${name}}`);
+  }
+  if (!adapter?.packages.includes('tikz') && !/\\usepackage(?:\[[^\]]*\])?\{[^}]*\btikz\b/.test(preamble)) extras.push('\\usepackage{tikz}');
+  if (usesPgfplots && !extras.includes('\\usepackage{pgfplots}') && !/\\usepackage(?:\[[^\]]*\])?\{[^}]*\bpgfplots\b/.test(preamble)) extras.push('\\usepackage{pgfplots}');
   if (usesPgfplots && !/\\pgfplotsset\s*\{/.test(preamble + cleanSource)) extras.push('\\pgfplotsset{compat=1.18}');
   if (!/\\usepackage(?:\[[^\]]*\])?\{[^}]*\bxcolor\b/.test(preamble)) extras.push('\\usepackage{xcolor}');
   if (!/\\usepackage(?:\[[^\]]*\])?\{[^}]*\bamsmath\b/.test(preamble)) extras.push('\\usepackage{amsmath,amssymb}');
@@ -348,25 +330,32 @@ async function renderTikz({ projectRoot, filePath, source, preamble: documentBuf
     [/\\bm\{/, '\\usepackage{bm}'],
   ];
   for (const [pattern, packageLine] of packageHints) {
-    if (pattern.test(cleanSource) && !preamble.includes(packageLine)) extras.push(packageLine);
+    if (pattern.test(cleanSource) && !preamble.includes(packageLine) && !extras.includes(packageLine)) extras.push(packageLine);
   }
   extras.push('\\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,shapes.misc,patterns,decorations.pathmorphing,decorations.markings,fit,backgrounds,chains,matrix,quotes,angles,intersections,circuits.logic.US,circuits.logic.IEC}');
+  if (/\\begin\{polaraxis\}/.test(cleanSource)) extras.push('\\usepgfplotslibrary{polar}');
+  if (/\\begin\{groupplot\}/.test(cleanSource)) extras.push('\\usepgfplotslibrary{groupplots}');
   const ctexClass = /\\documentclass(?:\[[^\]]*\])?\{ctex(?:art|book|rep|beamer)?\}/.test(documentText);
   const magicEngine = /^\s*%\s*!TEX\s+program\s*=\s*(xelatex|lualatex|pdflatex)/im.exec(documentText)?.[1];
-  const useLua = /\\documentclass(?:\[[^\]]*\])?\{(?:ltjs|luatexja)|\\usepackage(?:\[[^\]]*\])?\{luatexja\}/.test(documentText + '\n' + preamble);
-  const useXe = magicEngine === 'xelatex' || ctexClass || /\\usepackage(?:\[[^\]]*\])?\{[^}]*\b(?:fontspec|ctex|polyglossia)\b|\\setCJKmainfont/.test(preamble);
-  const engine = useLua ? 'lualatex' : useXe ? 'xelatex' : 'pdflatex';
+  const useLua = magicEngine === 'lualatex' || ['tkz-elements', 'luadraw'].some(name => loadedPackages.has(name)) || /\\documentclass(?:\[[^\]]*\])?\{(?:ltjs|luatexja)|\\usepackage(?:\[[^\]]*\])?\{luatexja\}/.test(documentText + '\n' + preamble);
+  const useXe = magicEngine === 'xelatex' || adapter?.driver === 'postscript' || ctexClass || /\\usepackage(?:\[[^\]]*\])?\{[^}]*\b(?:fontspec|ctex|polyglossia)\b|\\setCJKmainfont/.test(preamble);
+  const engine = magicEngine || (useLua ? 'lualatex' : useXe ? 'xelatex' : ['pdflatex', 'xelatex', 'lualatex'].includes(requestedEngine) ? requestedEngine : 'pdflatex');
   const document = [
-    '\\documentclass[border=2pt]{standalone}',
+    previewClass,
+    '\\PassOptionsToPackage{active,tightpage}{preview}',
     preamble,
     ...extras,
+    '\\usepackage{preview}',
+    '\\setlength{\\PreviewBorder}{2pt}',
     '\\begin{document}',
+    '\\begin{preview}',
     cleanSource,
+    '\\end{preview}',
     '\\end{document}',
     '',
   ].join('\n');
 
-  const cacheKey = crypto.createHash('sha256').update(document).digest('hex').slice(0, 24);
+  const cacheKey = crypto.createHash('sha256').update(engine + '\0' + document).digest('hex').slice(0, 24);
   const dir = path.join(root, '.texpro', 'tikz');
   fs.mkdirSync(dir, { recursive: true });
   const base = 'tikz-' + cacheKey;
@@ -1691,7 +1680,7 @@ function cancelCompilation(runId) {
   return { ok: true };
 }
 
-async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeoutMs = 180000, runId, buildDir: buildDirOption, onData, isolated = false }) {
+async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeoutMs = 180000, runId, buildDir: buildDirOption, onData, isolated = false, resourceRoot }) {
   const started = Date.now();
   let rootFile;
   try { rootFile = resolveCompileRoot(projectRoot, activeFile, fallbackRoot); }
@@ -1711,6 +1700,7 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
     // ignore
   }
   const selectedEngine = detectEngine(rootText, engine);
+  const compileCwd = isolated && resourceRoot ? path.resolve(resourceRoot) : projectRoot;
   const buildDir = path.resolve(projectRoot, readConfig(projectRoot).directories?.build || buildDirOption || '.texpro/build');
   if (!buildDir.startsWith(path.resolve(projectRoot) + path.sep)) {
     return { ok: false, error: 'Build directory must stay inside the project', diagnostics: [], duration: 0 };
@@ -1726,7 +1716,7 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
     '-interaction=nonstopmode',
     '-file-line-error',
     '-outdir=' + buildDir,
-    path.relative(projectRoot, rootFile),
+    path.relative(compileCwd, rootFile),
   ];
 
   if (onData) {
@@ -1788,7 +1778,7 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
 
   let result;
   try {
-    result = await runStage(latexmk, args, projectRoot);
+    result = await runStage(latexmk, args, compileCwd);
     if (result.code === 0 && !result.cancelled && !result.timedOut) {
       const spacing = await musicSpacing({ buildDir, jobName: path.basename(rootFile, path.extname(rootFile)), before: beforeMx1,
         resolveScript: async () => {
@@ -1804,7 +1794,7 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
         const firstOutput = result.stdout + '\n' + (spacing.stdout || '');
         if (spacing.code === 0 && !controller.cancelled && !spacing.timedOut) {
           onData?.({ stream: 'meta', text: '$ latexmk -g — apply music spacing\n', rootFile });
-          result = await runStage(latexmk, ['-g', ...args], projectRoot);
+          result = await runStage(latexmk, ['-g', ...args], compileCwd);
           result.stdout = firstOutput + '\n' + result.stdout;
         } else result = { ...result, ...spacing, stdout: firstOutput, cancelled: controller.cancelled };
       }
@@ -1863,9 +1853,10 @@ async function runCompile({ projectRoot, activeFile, fallbackRoot, engine, timeo
   };
 }
 
-async function renderMusicPreview({ projectRoot, source, runId }) {
+async function renderMusicPreview({ projectRoot, source, runId, engine }) {
   if (typeof source !== 'string' || source.length > 200000 || !/\\documentclass\b/.test(source)) throw new Error('Invalid music preview source');
-  const key = crypto.createHash('sha256').update(source).digest('hex').slice(0, 24);
+  const selectedEngine = detectEngine(source, engine || (/[\u3400-\u9fff]/.test(source) ? 'xelatex' : 'pdflatex'));
+  const key = crypto.createHash('sha256').update(selectedEngine + '\0' + source).digest('hex').slice(0, 24);
   const cache = path.join(projectRoot, '.texpro', 'music-previews');
   fs.mkdirSync(cache, { recursive: true });
   const pdf = path.join(cache, key + '.pdf');
@@ -1874,7 +1865,7 @@ async function renderMusicPreview({ projectRoot, source, runId }) {
   const work = fs.mkdtempSync(path.join(cache, 'build-'));
   try {
     fs.writeFileSync(path.join(work, 'main.tex'), source, 'utf8');
-    const result = await runCompile({ projectRoot: work, engine: /[\u3400-\u9fff]/.test(source) ? 'xelatex' : 'pdflatex', runId, timeoutMs: 45000, isolated: true });
+    const result = await runCompile({ projectRoot: work, engine: selectedEngine, runId, timeoutMs: 45000, isolated: true, resourceRoot: projectRoot });
     if (!result.ok) return { ok: false, error: result.error || result.diagnostics.find(d => d.severity === 'error')?.message || 'Music typesetting failed', log: result.log.slice(-6000) };
     const completed = path.join(work, 'complete.pdf');
     fs.copyFileSync(result.pdfPath, completed);
@@ -1885,78 +1876,7 @@ async function renderMusicPreview({ projectRoot, source, runId }) {
   }
 }
 
-function parseSynctexValue(text, key) {
-  const re = new RegExp('^' + key + ':(.*)$', 'm');
-  const match = text.match(re);
-  return match ? match[1].trim() : null;
-}
-
-async function synctexForward({ projectRoot, texFile, pdfFile, line, column = 0 }) {
-  const synctex = resolveTexBinary('synctex');
-  const args = ['view', '-i', `${line}:${column}:${texFile}`, '-o', pdfFile];
-  try {
-    const { stdout } = await execFileAsync(synctex, args, {
-      cwd: projectRoot,
-      env: texEnvironment(),
-      maxBuffer: 4 * 1024 * 1024,
-      timeout: 12000,
-    });
-    const page = parseSynctexValue(stdout, 'Page');
-    const x = parseSynctexValue(stdout, 'x');
-    const y = parseSynctexValue(stdout, 'y');
-    const h = parseSynctexValue(stdout, 'h');
-    const v = parseSynctexValue(stdout, 'v');
-    const width = parseSynctexValue(stdout, 'W');
-    const height = parseSynctexValue(stdout, 'H');
-    if (!page || !x || !y) return { ok: false, error: 'No SyncTeX result', raw: stdout };
-    const box = { x: Number(h), y: Number(v) - Number(height), width: Number(width), height: Number(height) };
-    const bounds = h !== null && v !== null && width !== null && height !== null && Object.values(box).every(Number.isFinite) && box.width > 0 && box.height > 0 ? box : undefined;
-    return {
-      ok: true,
-      page: Number(page),
-      x: Number(x),
-      y: Number(y),
-      h: h ? Number(h) : null,
-      v: v ? Number(v) : null,
-      width: width ? Number(width) : null,
-      height: height ? Number(height) : null,
-      bounds,
-      raw: stdout,
-    };
-  } catch (error) {
-    return { ok: false, error: String(error.message || error) };
-  }
-}
-
-async function synctexInverse({ projectRoot, pdfFile, page, x, y }) {
-  const synctex = resolveTexBinary('synctex');
-  const args = ['edit', '-o', `${page}:${x}:${y}:${pdfFile}`];
-  try {
-    const { stdout } = await execFileAsync(synctex, args, {
-      cwd: projectRoot,
-      env: texEnvironment(),
-      maxBuffer: 4 * 1024 * 1024,
-      timeout: 12000,
-    });
-    const input = parseSynctexValue(stdout, 'Input');
-    const line = parseSynctexValue(stdout, 'Line');
-    const column = parseSynctexValue(stdout, 'Column');
-    if (!input || !line) return { ok: false, error: 'No SyncTeX source result', raw: stdout };
-    const realRoot = fs.realpathSync(projectRoot);
-    const realInput = fs.realpathSync(path.resolve(projectRoot, input));
-    if (!realInput.startsWith(realRoot + path.sep)) return { ok: false, error: 'SyncTeX source is outside the project' };
-    const sourceFile = path.join(path.resolve(projectRoot), path.relative(realRoot, realInput));
-    return {
-      ok: true,
-      file: sourceFile,
-      line: Number(line),
-      column: column && Number(column) > 0 ? Number(column) : 1,
-      raw: stdout,
-    };
-  } catch (error) {
-    return { ok: false, error: String(error.message || error) };
-  }
-}
+const { synctexForward, synctexInverse } = require('./synctex.cjs').createSyncTexService({ resolveBinary: resolveTexBinary, environment: texEnvironment });
 
 module.exports = {
   detectEngine,

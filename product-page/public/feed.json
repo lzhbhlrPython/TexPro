@@ -7,6 +7,20 @@
   "language": "zh-CN",
   "items": [
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/project-aware-native-writing",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/project-aware-native-writing",
+      "title": "让复杂工程也能参与所见即所得",
+      "summary": "拆分写作引擎，让即时投影与真实 TeX 排版互补，并分别维护源码高亮、工程快照和双向定位。",
+      "content_text": "拆分写作引擎，让即时投影与真实 TeX 排版互补，并分别维护源码高亮、工程快照和双向定位。",
+      "date_published": "2026-11-14T16:00:00.000Z",
+      "tags": [
+        "写作体验",
+        "渲染引擎",
+        "SyncTeX",
+        "架构"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language",
       "title": "收拢重复插入入口，修正视图菜单的语言显示",

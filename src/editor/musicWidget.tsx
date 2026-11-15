@@ -20,8 +20,8 @@ export const musicSourceField = StateField.define<string | null>({ create: () =>
     } });
 const roots = new WeakMap<HTMLElement, Root>();
 export class MusicWidget extends WidgetType {
-    constructor(readonly block: ParsedMusicBlock, readonly projectRoot: string, readonly previewOnly = false) { super(); }
-    eq(other: MusicWidget) { return this.previewOnly === other.previewOnly && this.block.source === other.block.source && this.block.from === other.block.from && this.projectRoot === other.projectRoot; }
+    constructor(readonly block: ParsedMusicBlock, readonly projectRoot: string, readonly previewOnly = false, readonly filePath = '', readonly preamble?: string, readonly engine?: import('../types').Engine) { super(); }
+    eq(other: MusicWidget) { return this.previewOnly === other.previewOnly && this.block.source === other.block.source && this.block.from === other.block.from && this.projectRoot === other.projectRoot && this.filePath === other.filePath && this.preamble === other.preamble && this.engine === other.engine; }
     private render(dom: HTMLElement, view: EditorView) {
         const resolve = () => findMusicBlocks(view.state.doc.toString()).find(b => b.id === this.block.id && b.from === this.block.from);
         const onSource = () => { const b = resolve(); if (b) {
@@ -29,11 +29,12 @@ export class MusicWidget extends WidgetType {
             view.dispatch({ effects: revealMusicSource.of(b.id) });
             focusWriting(view, b.from + Math.max(0, content));
         } };
+        const onStudio = () => { const b = resolve(); if (b) window.dispatchEvent(new CustomEvent('texpro:open-tikz', { detail: { source: b.source, from: b.from, to: b.to, file: this.filePath, kind: 'music' } })); };
         if (this.previewOnly) {
-            roots.get(dom)!.render(<ScorePreview root={this.projectRoot} source={this.block.body} refresh={0} onSource={onSource} onMeasure={() => view.requestMeasure()}/>);
+            roots.get(dom)!.render(<ScorePreview preamble={this.preamble} engine={this.engine} root={this.projectRoot} source={this.block.body} refresh={0} onSource={onSource} onMeasure={() => view.requestMeasure()}/>);
             return;
         }
-        roots.get(dom)!.render(<MusicBlock block={this.block} root={this.projectRoot} onMeasure={() => view.requestMeasure()} onUndo={() => undo(view)} onContinue={() => { const b = resolve(); if (b) continueWriting(view, b); }} onSource={onSource} onChange={source => {
+        roots.get(dom)!.render(<MusicBlock preamble={this.preamble} engine={this.engine} onStudio={onStudio} block={this.block} root={this.projectRoot} onMeasure={() => view.requestMeasure()} onUndo={() => undo(view)} onContinue={() => { const b = resolve(); if (b) continueWriting(view, b); }} onSource={onSource} onChange={source => {
             const block = resolve();
             if (!block || source === block.source) return;
             // Preserve both decoration boundaries so CodeMirror can reuse the live React DOM.

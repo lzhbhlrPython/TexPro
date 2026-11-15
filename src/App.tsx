@@ -1,3 +1,5 @@
+import { useWritingComposition } from './hooks/useWritingComposition';
+import { useNativeWriting } from './hooks/useNativeWriting';
 import { useEditorProviders } from './app/extensions/useEditorProviders';
 import { useWorkspaces } from './app/workspaces';
 import { commandRegistry } from './app/commands/types';
@@ -12,7 +14,7 @@ import { planPlaceholder } from './lib/writingAids';
 import { parseWritingAids, applyCtexTypography, type PlaceholderKind, type WritingPlaceholder } from '../electron/services/writing-aids-core.mjs';
 import { requestText, TextRequestHost } from './components/TextRequest';
 import { rememberActiveFile, resumeFile } from './lib/writingResume';
-import { ensureTexPackages } from './lib/texDocument';
+import { diagramBlocks, ensureTexPackages, texEnvironments } from './lib/texDocument';
 import { SaveQueue } from './app/saveQueue';
 import { movedPath, reconcileFiles } from './app/fileOperations';
 import type { ProjectFileOperation } from './types';
@@ -21,7 +23,7 @@ import { figureWritingRange, writingFigure } from './lib/writingFigure';
 import { writingPackages, writingSnippets } from './lib/writingSnippets';
 import type { WritingTarget } from './editor/writingTargets';
 import type { WritingPosition, WritingSessions } from './editor/writingSession';
-import { musicBlock, newScore } from './lib/music';
+import { findMusicBlocks, musicBlock, newScore } from './lib/music';
 import { TemplateGallery, PgfplotsStudio, ExtensionsPanel, PaperStudio, PaperApiPanel, CrewPanel, CommandStudio, PackageManager, GitPanel, InkStudio, SchematicStudio, BackupPanel, VersionReview, FontCoverage, ProjectGraph, ArxivPanel, McpPanel, AIAssistant, CommentsPanel, ExportStudio, ProjectDoctor, TableStudio, ImportStudio, TemplateWorkshop, ProjectStudio, BibManager, FormulaStudio, LayoutStudio, TikzStudio } from './app/lazyTools';
 import { SETTINGS_KEY, RECENT_KEY, loadSettings, loadRecent } from './app/settings';
 import { findFirstTex, flattenFiles, isTextPath, normalizeFile, fileFromBuild, reanchorComments } from './app/project';
@@ -112,6 +114,7 @@ import { StatusBar } from './components/StatusBar';
 const PdfPane = lazy(() => import('./components/PdfPane').then(module => ({ default: module.PdfPane })));
 
 import { useRealtimePreview } from './hooks/useRealtimePreview';
+import { useProjectWriting } from './hooks/useProjectWriting';
 
 import { Welcome } from './components/Welcome';
 import { CommandPalette, type PaletteAction } from './components/CommandPalette';
@@ -197,6 +200,9 @@ export default function App() {
 
   const [actions, setActions] = useState<ProjectAction[]>(defaultActions);
   const [customCompletions, setCustomCompletions] = useState<CwlCompletion[]>([]);
+  const [sourceStudioKind, setSourceStudioKind] = useState<'diagram' | 'music'>('diagram');
+  const [schematicSource, setSchematicSource] = useState<string | null>(null);
+  const [chartSource, setChartSource] = useState<string | null>(null);
   const [tikzSource, setTikzSource] = useState<string | null>(null);
   const [outline, setOutline] = useState<ReturnType<typeof parseOutline>>([]);
   const [cursor, setCursor] = useState({ line: 1, column: 1, selected: 0 });
@@ -274,6 +280,10 @@ export default function App() {
   const [composing, setComposing] = useState(false);
   const realtimeFiles = useMemo(() => project ? flattenFiles(project.tree).map(file => file.path).sort().join('\0') : '', [project?.tree]);
   const realtime = useRealtimePreview(pdfOpen && settings.autoCompile && settings.compileMode !== 'manual', project?.root || null, project?.rootFile || null, settings.engine, docs, composing, realtimeFiles);
+  const writingContext = useProjectWriting(project, docs, composing);
+  const writingComposition = useWritingComposition(project, activePath || '', docs, settings.visual, composing, writingContext);
+  const nativeWriting = useNativeWriting(project, docs, activePath || '', settings.engine, settings.visual && settings.autoCompile && settings.compileMode !== 'manual', composing, writingContext, writingComposition);
+  const nativeSessionRef = useRef(nativeWriting.session); nativeSessionRef.current = nativeWriting.session;
   // Keep identity across save flags, but invalidate closed/reopened buffers and engine changes too.
   useMemo(() => {
     const key = [project?.root, project?.rootFile, settings.engine, realtimeFiles].join('\0');
@@ -634,6 +644,7 @@ export default function App() {
         saved = await saveAll();
         if (saved) {
           if (compileRunId.current) await window.texpro.cancelCompile(compileRunId.current);
+          await window.texpro.stopNativeWriting(nativeSessionRef.current);
           await window.texpro.stopCollab();
         }
       } catch { saved = false; }
@@ -657,6 +668,7 @@ export default function App() {
   const loadProject = useCallback(
     async (next: Project) => {
       if (projectRef.current && !(await saveAll())) return;
+      await window.texpro.stopNativeWriting(nativeSessionRef.current);
       const generation = ++projectGeneration.current;
       pendingCompile.current = false;
       if (compileRunId.current) await window.texpro.cancelCompile(compileRunId.current);
@@ -986,6 +998,7 @@ export default function App() {
     pendingCompile.current = false;
     try {
       if (!(await saveAll())) return;
+      await window.texpro.stopNativeWriting(nativeSessionRef.current);
       if (compileRunId.current) await window.texpro.cancelCompile(compileRunId.current);
       await window.texpro.stopCollab();
       projectGeneration.current++; syncGeneration.current++; inverseGeneration.current++; navigationGeneration.current++; openRequest.current++;
@@ -1194,8 +1207,16 @@ export default function App() {
       const root = projectRef.current?.root;
       if (root && target?.file.startsWith(root + '/')) void gotoLocation(target.file, target.line, 1, true);
     };
+    const nativeJump = async (event: Event) => {
+      const target = (event as CustomEvent<{ file: string; line: number; source: string }>).detail;
+      const owner = projectRef.current;
+      if (!owner || !target?.file.startsWith(owner.root + '/')) return;
+      const current = docsRef.current[target.file]?.content ?? await window.texpro.readFile(target.file).catch(() => null);
+      if (projectRef.current === owner && current === target.source) void gotoLocation(target.file, target.line, 1, true);
+    };
+    window.addEventListener('texpro:native-writing-jump', nativeJump);
     window.addEventListener('texpro:writing-jump', jump);
-    return () => window.removeEventListener('texpro:writing-jump', jump);
+    return () => { window.removeEventListener('texpro:writing-jump', jump); window.removeEventListener('texpro:native-writing-jump', nativeJump); };
   }, [gotoLocation]);
 
   const toggleNote = useCallback(async (note: WritingNote) => {
@@ -1643,13 +1664,14 @@ export default function App() {
     try {
       const saved = docsRef.current[current.rootFile]?.savedContent ?? await window.texpro.readFile(current.rootFile);
       if (generation !== projectGeneration.current || projectRef.current?.rootFile !== current.rootFile) return false;
-      setDocs(latest => {
-        const doc = latest[current.rootFile!] || { path: current.rootFile!, content: saved, savedContent: saved, dirty: false };
-        const content = ensureTexPackages(doc.content, packages);
-        const next = { ...latest, [current.rootFile!]: { ...doc, content, dirty: content !== doc.savedContent } };
-        docsRef.current = next;
-        return next;
-      });
+      // Publish the dependency buffer before the caller edits the chapter. A
+      // deferred state updater can otherwise be replaced by that editor event.
+      const latest = docsRef.current;
+      const doc = latest[current.rootFile] || { path: current.rootFile, content: saved, savedContent: saved, dirty: false };
+      const content = ensureTexPackages(doc.content, packages);
+      const next = { ...latest, [current.rootFile]: { ...doc, content, dirty: content !== doc.savedContent } };
+      docsRef.current = next;
+      setDocs(next);
       return true;
     } catch (error) { pushToast(tr("app.could.not.open.file"), 'error', String(error)); return false; }
   }, [pushToast]);
@@ -1686,7 +1708,7 @@ export default function App() {
           asset = await window.texpro.saveImageBuffer(current.root, projectConfigRef.current.directories.assets, { name: item.name || 'pasted-image', ext, data: new Uint8Array(await item.arrayBuffer()) });
         } else asset = item;
         if (asset.ext === '.svg') asset = await window.texpro.rasterizeSvg(current.root, asset.path);
-        const figure = writingFigure(relativePath(dirname(target.file), asset.path), asset.name, labels);
+        const figure = writingFigure(relativePath(current.root, asset.path), asset.name, labels);
         labels.add(figure.label); figures.push(figure);
       } catch (error) { pushToast(tr("app.could.not.save.image"), 'error', String(error)); }
     }
@@ -1738,6 +1760,21 @@ export default function App() {
       pushToast(tr("app.writing.target.changed.reopen.the.helper.at.the.intended"), 'info');
     }
   }, [ensureWritingPackages, pushToast]);
+  const openExistingStudio = useCallback(() => {
+    const editor = editorRef.current; if (!editor) return false;
+    const source = editor.getContent(), selection = editor.getSelectionRange();
+    const music = findMusicBlocks(source).find(block => selection.from >= block.from && selection.to <= block.to);
+    const block = music || diagramBlocks(source).find(block => selection.from >= block.from && selection.to <= block.to);
+    if (!block) return false;
+    if (!music && texEnvironments(block.source, ['axis', 'semilogxaxis', 'semilogyaxis', 'loglogaxis', 'groupplot', 'polaraxis']).length) {
+      if (beginWritingHelper('chart', block)) { setChartSource(block.source); setChartOpen(true); }
+    } else if (!music && 'kind' in block && ['circuit', 'chemistry'].includes(block.kind)) {
+      if (beginWritingHelper('schematic', block)) { setSchematicSource(block.source); setSchematicMode(block.kind === 'chemistry' ? 'structure' : 'circuit'); }
+    } else if (beginWritingHelper('tikz', block)) {
+      setSourceStudioKind(music ? 'music' : 'diagram'); setTikzSource(block.source); setTikzOpen(true);
+    }
+    return true;
+  }, [beginWritingHelper]);
   const openFormula = useCallback(() => {
     if (!beginWritingHelper('formula')) return;
     const selected = editorRef.current?.getSelection() || '';
@@ -1951,11 +1988,17 @@ export default function App() {
 
   useEffect(() => {
     const handler = (event: Event) => {
-      const detail = (event as CustomEvent<{ source?: string; from?: number; to?: number; file?: string }>).detail;
+      const detail = (event as CustomEvent<{ source?: string; from?: number; to?: number; file?: string; kind?: 'diagram' | 'music' }>).detail;
       if (!detail?.source || detail.file !== activePathRef.current || detail.from === undefined || detail.to === undefined) return;
-      if (!beginWritingHelper('tikz', { from: detail.from, to: detail.to })) return;
-      setTikzSource(detail.source);
-      setTikzOpen(true);
+      if (editorRef.current?.getContent().slice(detail.from, detail.to) !== detail.source) return;
+      const diagram = detail.kind === 'music' ? undefined : diagramBlocks(detail.source)[0];
+      if (diagram && texEnvironments(detail.source, ['axis', 'semilogxaxis', 'semilogyaxis', 'loglogaxis', 'groupplot', 'polaraxis']).length) {
+        if (beginWritingHelper('chart', { from: detail.from, to: detail.to })) { setChartSource(detail.source); setChartOpen(true); }
+      } else if (diagram && ['circuit', 'chemistry'].includes(diagram.kind)) {
+        if (beginWritingHelper('schematic', { from: detail.from, to: detail.to })) { setSchematicSource(detail.source); setSchematicMode(diagram.kind === 'chemistry' ? 'structure' : 'circuit'); }
+      } else if (beginWritingHelper('tikz', { from: detail.from, to: detail.to })) {
+        setSourceStudioKind(detail.kind === 'music' ? 'music' : 'diagram'); setTikzSource(detail.source); setTikzOpen(true);
+      }
     };
     window.addEventListener('texpro:open-tikz', handler);
     return () => window.removeEventListener('texpro:open-tikz', handler);
@@ -2083,14 +2126,14 @@ export default function App() {
     "table-editor": () => beginWritingHelper('table') && setTableRequest({ source: editorRef.current?.getSelection() || '', focusPos: 0, insert: true }),
     "figure": () => insert(snippetLibrary.find((item) => item.id === 'figure')?.template || ''),
     "code": () => insert(snippetLibrary.find((item) => item.id === 'code')?.template || ''),
-    "chart": () => { if (beginWritingHelper('chart')) setChartOpen(true); },
-    "circuit-studio": () => beginWritingHelper('schematic') && setSchematicMode('circuit'),
-    "logic-studio": () => beginWritingHelper('schematic') && setSchematicMode('logic'),
-    "structure-studio": () => beginWritingHelper('schematic') && setSchematicMode('structure'),
+    "chart": () => { if (openExistingStudio()) return; if (beginWritingHelper('chart')) { setChartSource(null); setChartOpen(true); } },
+    "circuit-studio": () => { if (!openExistingStudio() && beginWritingHelper('schematic')) { setSchematicSource(null); setSchematicMode('circuit'); } },
+    "logic-studio": () => { if (!openExistingStudio() && beginWritingHelper('schematic')) { setSchematicSource(null); setSchematicMode('logic'); } },
+    "structure-studio": () => { if (!openExistingStudio() && beginWritingHelper('schematic')) { setSchematicSource(null); setSchematicMode('structure'); } },
     "ink": () => beginWritingHelper('ink') && setInkOpen(true),
     "collab": () => setCollabOpen(true),
     "git": () => setGitOpen(true),
-    "tikz": () => { setTikzSource(null); if (beginWritingHelper('tikz')) setTikzOpen(true); },
+    "tikz": () => { if (openExistingStudio()) return; setSourceStudioKind('diagram'); setTikzSource(null); if (beginWritingHelper('tikz')) setTikzOpen(true); },
     "layout": () => void editMainFile(() => setLayoutOpen(true)),
     "packages": () => void editMainFile(() => setPackageOpen(true)),
     "commands": () => setCommandOpen(true),
@@ -2154,9 +2197,9 @@ export default function App() {
   const paletteActions = moreActions;
   moreActionsRef.current = moreActions;
 
-  const activeDiagnostics = useMemo<Diagnostic[]>(() => [...diagnostics, ...extensionRunner.diagnostics, ...realtime.diagnostics.map(item => ({
+  const activeDiagnostics = useMemo<Diagnostic[]>(() => [...((writingContext?.incomplete || writingComposition?.incomplete) ? [{ severity: 'warning' as const, message: msg("writing.context.incomplete"), source: 'writing', file: project?.rootFile || undefined }] : []), ...(nativeWriting.incomplete ? [{ severity: 'warning' as const, message: msg("writing.native.mapping.incomplete"), source: 'writing', file: activePath || undefined }] : []), ...(nativeWriting.error ? [{ severity: 'warning' as const, message: `${msg("writing.native.unavailable")} ${nativeWriting.error}`, source: 'writing', file: activePath || undefined }] : []), ...diagnostics, ...extensionRunner.diagnostics, ...realtime.diagnostics.map(item => ({
     ...item, severity: (item.severity === 'error' || item.severity === 'warning' ? item.severity : 'info') as Diagnostic['severity'], source: 'rtex-ts',
-  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: msg("app.references.have.not.converged"), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${msg("app.preview.acceleration.unavailable.regular.compilation.remains.available")} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [diagnostics, extensionRunner.diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
+  })), ...(realtime.running && realtime.state === 'PassLimitReached' ? [{ severity: 'warning' as const, message: msg("app.references.have.not.converged"), source: 'rtex-ts' }] : []), ...(realtime.error ? [{ severity: 'warning' as const, message: `${msg("app.preview.acceleration.unavailable.regular.compilation.remains.available")} ${realtime.error}`, source: 'rtex-ts', file: project?.rootFile || undefined }] : [])], [nativeWriting.error, nativeWriting.incomplete, activePath, writingContext?.incomplete, writingComposition?.incomplete, diagnostics, extensionRunner.diagnostics, realtime.diagnostics, realtime.running, realtime.state, realtime.error, project?.rootFile, language]);
   const errors = activeDiagnostics.filter((item) => item.severity === 'error').length;
 
   return (
@@ -2259,6 +2302,9 @@ export default function App() {
                   diagnosticsStale={Boolean(compileResult && compiledSources.current[activeDoc.path] !== activeDoc.content)}
                   root={project.root}
                   mainText={project.rootFile ? docs[project.rootFile]?.content : undefined}
+                  writingContext={writingContext}
+                  nativeWriting={nativeWriting.projection}
+                  writingComposition={writingComposition}
                   settings={settings}
                   symbols={effectiveSymbols}
                   diagnostics={activeDiagnostics}
@@ -2365,11 +2411,11 @@ export default function App() {
         }}
         onOpenChart={() => {
           setSettingsOpen(false);
-          if (beginWritingHelper('chart')) setChartOpen(true);
+          if (beginWritingHelper('chart')) { setChartSource(null); setChartOpen(true); }
         }}
         onOpenTikz={() => {
           setSettingsOpen(false);
-          setTikzSource(null);
+          setSourceStudioKind('diagram'); setTikzSource(null);
           if (beginWritingHelper('tikz')) setTikzOpen(true);
         }}
       />
@@ -2385,11 +2431,14 @@ export default function App() {
         onDeleteTemplate={handleDeleteTemplate}
       />
       <PgfplotsStudio
+        initialSource={chartSource}
+        preamble={writingContext?.preamble}
+        engine={settings.engine}
         open={chartOpen}
         projectRoot={project?.root || null}
         filePath={activePath}
         onClose={() => { setChartOpen(false); closeWritingHelper('chart'); }}
-        onInsert={(code) => void applyWritingHelper('chart', code, ['tikz', 'pgfplots'])}
+        onInsert={(code) => void applyWritingHelper('chart', code, chartSource ? [] : ['tikz', 'pgfplots'])}
       />
       <ExtensionsPanel
         open={pluginOpen}
@@ -2471,12 +2520,15 @@ export default function App() {
         onInsert={(text) => void applyWritingHelper('ink', text, ['graphicx'])}
       />
       <SchematicStudio
+        initialSource={schematicSource}
+        preamble={writingContext?.preamble}
+        engine={settings.engine}
         open={schematicMode !== null}
         mode={schematicMode || 'circuit'}
         projectRoot={project?.root || null}
         filePath={activePath}
         onClose={() => { setSchematicMode(null); closeWritingHelper('schematic'); }}
-        onInsert={(code, packageName) => void applyWritingHelper('schematic', code, [packageName])}
+        onInsert={(code, packageName) => void applyWritingHelper('schematic', code, schematicSource ? [] : [packageName])}
       />
       <BackupPanel
         open={backupOpen}
@@ -2659,8 +2711,11 @@ export default function App() {
         projectRoot={project?.root || null}
         filePath={activePath}
         initialSource={tikzSource}
+        kind={sourceStudioKind}
+        preamble={writingContext?.preamble}
+        engine={settings.engine}
         onClose={() => { setTikzOpen(false); closeWritingHelper('tikz'); }}
-        onInsert={(source) => void applyWritingHelper('tikz', source)}
+        onInsert={(source) => void applyWritingHelper('tikz', source, tikzSource ? [] : writingPackages(source))}
       />
       {collabExtension && !collabOpen && (
         <button className="collab-live-pill" onClick={() => setCollabOpen(true)} title={msg("app.open.writing.room")}>

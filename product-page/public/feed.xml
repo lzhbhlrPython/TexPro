@@ -5,8 +5,19 @@
     <link>https://lzhbhlrpython.github.io/TexStudioPro/blog</link>
     <description>TeXPro 应用本体的开发记录：改了什么、为什么这么改、验证到哪一步、还欠什么。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 13 Nov 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 14 Nov 2026 16:00:00 GMT</lastBuildDate>
     <atom:link href="https://lzhbhlrpython.github.io/TexStudioPro/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>让复杂工程也能参与所见即所得</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/project-aware-native-writing</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/project-aware-native-writing</guid>
+      <pubDate>Sat, 14 Nov 2026 16:00:00 GMT</pubDate>
+      <description>拆分写作引擎，让即时投影与真实 TeX 排版互补，并分别维护源码高亮、工程快照和双向定位。</description>
+      <category>写作体验</category>
+      <category>渲染引擎</category>
+      <category>SyncTeX</category>
+      <category>架构</category>
+    </item>
     <item>
       <title>收拢重复插入入口，修正视图菜单的语言显示</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language</link>

@@ -1,3 +1,4 @@
+import { TexSourceEditor } from './TexSourceEditor';
 import { WorkspaceFrame } from './WorkspaceFrame';
 import { configs, generateSchematic, nextId, nodeLabel, restoreSchematic, type SchematicNode, type SchematicEdge } from '../lib/schematic';
 import type { SchematicMode } from '../lib/schematic';
@@ -11,13 +12,16 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useDiagramPreview } from '../hooks/useDiagramPreview';
-import { useDialogFocus } from '../hooks/useDialogFocus';
+import { TexVisualEditor } from './TexVisualEditor';
 
 interface Props {
   open: boolean;
   mode: SchematicMode;
   projectRoot: string | null;
   filePath: string | null;
+  initialSource?: string | null;
+  preamble?: string;
+  engine?: import('../types').Engine;
   onClose: () => void;
   onInsert: (code: string, packageName: string) => void;
 }
@@ -40,9 +44,10 @@ function NodeIcon({ kind }: { kind: string }) {
   return <CircuitBoard size={13} />;
 }
 
-export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, onInsert }: Props) {
+export function SchematicStudio({ open, mode, projectRoot, filePath, initialSource, preamble, engine, onClose, onInsert }: Props) {
   const { msg } = useI18n();
   const config = configs[mode];
+  const [sourceMode, setSourceMode] = useState(false), [codeDraft, setCodeDraft] = useState<string | null>(null);
   const [nodes, setNodes] = useState<SchematicNode[]>([]);
   const [edges, setEdges] = useState<SchematicEdge[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -84,6 +89,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
 
   useEffect(() => {
     if (!open) return;
+    setSourceMode(false); setCodeDraft(initialSource || null);
     let nextNodes: SchematicNode[] | null = null;
     let nextEdges: SchematicEdge[] | null = null;
     if (storageKey) {
@@ -110,10 +116,10 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
     setStorageError(false);
     setHistory([]);
     setFuture([]);
-  }, [open, mode, storageKey]);
+  }, [open, mode, storageKey, initialSource]);
 
   useEffect(() => {
-    if (!open || !storageKey) return;
+    if (!open || !storageKey || initialSource) return;
     const timer = window.setTimeout(() => {
       try {
         localStorage.setItem(storageKey, JSON.stringify({ nodes, edges }));
@@ -121,13 +127,13 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
       } catch { setStorageError(true); }
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [open, storageKey, nodes, edges]);
+  }, [open, storageKey, nodes, edges, initialSource]);
 
   useEffect(() => {
     if (!open) return;
     const keydown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+      if (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
         event.preventDefault();
         if (event.shiftKey) redo(); else undo();
@@ -158,9 +164,11 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
     setEdges(next.edges);
   };
 
-  const code = useMemo(() => generateSchematic(mode, nodes, edges), [mode, nodes, edges]);
+  const generated = useMemo(() => generateSchematic(mode, nodes, edges), [mode, nodes, edges]);
+  const code = codeDraft ?? generated;
+  const sourceOwned = codeDraft !== null && codeDraft !== generated;
 
-  const { preview, error: previewError, busy: previewBusy, retry } = useDiagramPreview(open, projectRoot, filePath, code);
+  const { preview, error: previewError, busy: previewBusy, retry } = useDiagramPreview(open, projectRoot, filePath, code, preamble, engine);
 
   useEffect(() => {
     if (!open) return;
@@ -266,12 +274,13 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
             <div><h2 id="schematic-title">{title}</h2><p className="studio-subtitle">{msg("app.build.a.diagram.insert.editable.latex")}</p></div>
           </div>
           <div className="studio-header-actions">
+            <button className="secondary-btn" onClick={() => setSourceMode(value => !value)}>{msg(sourceMode ? "writing.studio.visual.mode" : "writing.studio.source.mode")}</button>
             <span className="studio-engine ok">{config.package}</span>
             <button className="icon-btn" onClick={onClose} aria-label={msg("app.close")}><X size={16} /></button>
           </div>
         </header>
 
-        <div className="schematic-toolbar">
+        {!sourceMode && !sourceOwned && <div className="schematic-toolbar">
           <select aria-label={msg("app.template")} value={template} onChange={(event) => { setTemplate(Number(event.target.value)); loadTemplate(Number(event.target.value)); }}>
             {config.templates.map((item, index) => <option key={item.name} value={index}>{msg.text(item.name)}</option>)}
           </select>
@@ -285,13 +294,14 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
           <button className="icon-btn" onClick={() => setZoom((value) => Math.min(1.6, value + 0.1))} title={msg("app.zoom.in")}><Plus size={13} /></button>
           <span className="spacer" />
           <button className="danger-btn" onClick={removeSelected} disabled={!selectedNode && !selectedEdge}><Trash2 size={12} /> {msg("app.delete")}</button>
-        </div>
-
+        </div>}
         <div className={`schematic-context ${pending ? 'connecting' : ''}`} role="status">
-          {pending ? <><span>{msg("app.choose.a.second.port.to.finish.the.connection")}</span><button onClick={() => setPending(null)}>{msg("app.cancel.connection")}</button></> : <span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")} · {msg("app.select.to.inspect.drag.to.move")}</span>}
+          {sourceMode || sourceOwned ? <span>{msg('writing.studio.source.retained')}</span> : pending ? <><span>{msg("app.choose.a.second.port.to.finish.the.connection")}</span><button onClick={() => setPending(null)}>{msg("app.cancel.connection")}</button></> : <span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")} · {msg("app.select.to.inspect.drag.to.move")}</span>}
           {storageError && <span role="alert">{msg("app.draft.could.not.be.saved.copy.the.latex.before")}</span>}
         </div>
-        <div className="schematic-body">
+        <div className={`schematic-body${sourceMode || sourceOwned ? " is-source" : ""}`}>
+          <div className="studio-source-mode" hidden={!sourceMode}><TexSourceEditor className="tikz-source" value={code} onChange={setCodeDraft} label={msg("app.diagram.source")} /></div>
+          {!sourceMode && (sourceOwned ? <TexVisualEditor source={code} onChange={setCodeDraft} /> : <>
           <aside className="schematic-palette">
             <div className="pane-label"><Plus size={12} /> {msg("app.components")}</div>
             <label className="schematic-search"><Search size={14} /><input aria-label={msg("app.search.components")} placeholder={msg("app.search.components")} value={paletteQuery} onChange={(event) => setPaletteQuery(event.target.value)} /></label>
@@ -366,9 +376,10 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
             </div>
           </div>
 
+          </>)}
           <aside className="schematic-preview">
             <div className="pane-label">{msg("app.inspector")}</div>
-            {selected ? (
+            {!sourceMode && !sourceOwned && (selected ? (
               <div className="schematic-inspector">
                 <label className="workshop-field"><span>{msg("app.label")}</span><input value={selected.label} onChange={(event) => updateSelected({ label: event.target.value })} /></label>
                 <label className="workshop-field"><span>{msg("app.element")}</span><input value={selected.kind} readOnly /></label>
@@ -391,7 +402,8 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
                   </select>
                 </label>
               </div>
-            ) : <div className="schematic-empty"><CircuitBoard size={20} /><strong>{msg("app.select.a.node.or.wire")}</strong><span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")}</span></div>}
+            ) : <div className="schematic-empty"><CircuitBoard size={20} /><strong>{msg("app.select.a.node.or.wire")}</strong><span>{nodes.length} {msg("app.nodes")} · {edges.length} {msg("app.wires")}</span></div>)}
+            {sourceMode && <TexVisualEditor source={code} onChange={setCodeDraft} />}
             <div className="pane-label">{msg("app.preview")}</div>
             <div className="schematic-preview-canvas">
               {previewBusy && <div className="schematic-loading"><Loader2 size={16} className="spin" /><span>{msg("app.typesetting.preview")}</span></div>}
@@ -413,7 +425,7 @@ export function SchematicStudio({ open, mode, projectRoot, filePath, onClose, on
           <span className="studio-hint">{msg("app.visual.structure.editable.latex.output")}</span>
           <div className="spacer" />
           <button className="secondary-btn" onClick={onClose}>{msg("app.cancel")}</button>
-          <button className="primary-btn" disabled={!nodes.length} onClick={() => { onInsert(code, config.package); onClose(); }}>{msg("app.insert.diagram")}</button>
+          <button className="primary-btn" disabled={!code.trim()} onClick={() => { onInsert(code, config.package); onClose(); }}>{msg(initialSource ? "writing.studio.apply" : "app.insert.diagram")}</button>
         </footer>
     </WorkspaceFrame>
   );

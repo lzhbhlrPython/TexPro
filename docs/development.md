@@ -97,3 +97,13 @@ CTeX 的 LuaLaTeX 中文路径依赖 `luatexja.sty`，Ubuntu 将它放在 texliv
 实时 TeX 预览是 L0，嵌入现有预览／编译；正文补全是 L1；本次 GitHub 更新检查是 L2，复用偏好设置即可承载渠道、检查结果、发布说明和下载操作。没有必要另建更新中心。复杂工作台可以是 L3，但普通正文输入仍须连续，退出恢复光标、选择、滚动与撤销上下文。
 
 验收同时核对焦点、IME、过期异步结果、失败恢复、主题和文案，不能以页面更少或截图更干净代替可用性。完整约束见 AGENTS.md 和 docs/frontend.md；[更新检查契约](app-updates.md)记录本次数据边界。
+
+## 写作引擎维护入口
+
+多文件投影的维护先读[写作引擎](writing-engine.md)：共享 TeX 扫描与上下文核心、纯投影提供器、CodeMirror 显示适配、磁盘／缓冲区边界及 SyncTeX 服务分开定位。新增提供器先补源码范围与失败回退测试，再接入界面；不要把插件 SDK 当作内部注册器，也不要让 MCP 另建解析器。
+
+AI 扩展暂保留为[设计提案](proposals/ai-writing-assistant.md)，不是当前已实现能力。
+
+原生回退维护入口为 `native-writing.cjs`、`writingEngine/native.ts`、`useNativeWriting.ts` 与 `projection/nativeWidget.ts`。快照、编译、源映射、呈现分别测试；不要把临时副本宣称为 TeX 沙箱，也不要把语法高亮验收当作原生渲染验收。
+
+几何适配集中在 `geometry-core.mjs`；正文与工作室共用 PDF.js 图稿、主题与源码目标。手写电路、无标记乐谱与源码编辑／实时预览见[几何兼容](geometry-compatibility.md)，验收入口为 `npm run test:geometry`、`npm run test:music`、`node scripts/test-flow-ui.cjs --source-studio`。工作室的源码修改仍按 L2 按需显现，不替代 L1 正文输入。

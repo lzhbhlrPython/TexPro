@@ -182,3 +182,9 @@ Newly added: `texpro_writing_aids`, `texpro_edit_writing_aid`, and `texpro_ctex_
 `texpro_extension_capabilities` reports plugin languages, theme styles, toolchains and `.tpp`/`.tpt` artifact suffixes without an open project. `texpro_inspect_extension` accepts a built directory or artifact inside the current project, e.g. `{"path":"extensions/example/dist/package"}`. It returns the manifest, digest, size and risk notices, rejecting outside paths and symlink escapes. It never builds, imports an entry, installs, trusts, enables or invokes a plugin.
 
 Experimental manifest `mcp` actions still do not become external tools automatically. Controlled invocation can be developed further with explicit enabling and tool allowlists. The standalone service reads disk, not unsaved buffers. Authoring builds use SDK `0.2.0` and qwertysay `0.3.0`, distinct from the original `0.1.0`; see the [SDK](/docs/extension-development) and [qwertysay](/docs/qwertysay) guides.
+
+## Inspect writing context
+
+After opening a project, call the read-only `texpro_writing_context` tool with `{}`. It returns `source: disk`, the selected main file, working directory, static preamble, dependency paths, `incomplete`, and recognized math macros. It shares the desktop preview parser but reads disk only, never unsaved buffers, and neither compiles nor saves. An ambiguous main file fails; missing dependencies produce an incomplete result rather than a complete TeX interpretation.
+
+Existing tool names, arguments and the plugin API remain compatible. SyncTeX still returns text anchors and optional layout boxes, rejecting invalid numbers and outside paths. PDF and source versions must correspond; old PDF coordinates are not exact positions in unsaved text.

@@ -1,4 +1,5 @@
 {
+  "writing.context.incomplete": "部分工程导言区依赖无法读取或静态解析。不支持的内容保留为 TeX 源码；请检查主文件和依赖，重新打开工程后重试。",
   "app.reset.appearance.and.disable.extensions": "重置外观并停用扩展",
   "app.close.project": "关闭工程",
   "app.file.variant2": "文件",
@@ -1861,5 +1862,15 @@
   "app.updates.download.error.size": "安装包大小不符，不完整下载已移除，请重试。",
   "app.updates.download.error.network": "下载失败，请检查网络后重试。",
   "app.updates.download.error.timeout": "下载超时，请在网络恢复后重试。",
-  "app.updates.download.error.storage": "无法保存安装包，请检查磁盘空间与写入权限后重试。"
+  "app.updates.download.error.storage": "无法保存安装包，请检查磁盘空间与写入权限后重试。",
+  "writing.native.unavailable": "原生排版暂不可用，仍可编辑源码。",
+  "writing.native.mapping.incomplete": "部分内容缺少可靠的原生源码映射或超出预览限额，仍保留可编辑源码。",
+  "writing.studio.music": "乐谱工作室",
+  "writing.studio.apply": "应用修改",
+  "writing.studio.source.mode": "源码编辑",
+  "writing.studio.visual.mode": "可视编辑",
+  "writing.studio.source.retained": "两种模式共用当前源码。可视控件只修改已识别的参数，保留其他代码。",
+  "writing.studio.preview.hint": "预览使用工程导言区与本地 TeX 工具链；点击「应用修改」后才回写正文。",
+  "writing.studio.visual.fields": "可修改下方已识别的参数，与源码和预览同步；其他 TeX 保持原样。",
+  "writing.studio.visual.unavailable": "这段源码暂时没有可编辑的可视参数，仍可预览；请切换「源码编辑」继续修改。"
 }

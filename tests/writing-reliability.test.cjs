@@ -14,7 +14,7 @@ const modules = new Map();
 function load(file) {
   file = path.resolve(file);
   if (modules.has(file)) return modules.get(file);
-  const context = { exports: {}, require: name => name.endsWith('.json') ? require(path.resolve(path.dirname(file), name)) : name.endsWith('.mjs') ? require(path.resolve(path.dirname(file), name)) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
+  const context = { exports: {}, require: name => name.endsWith('/nativeWidget') ? { NativeWritingWidget: class {} } : name.endsWith('/i18n') ? { msg: Object.assign(value => value, { text: value => value }), getLanguage: () => 'en' } : name.endsWith('/texPdfArtwork') ? { rasterizeTexPdf: () => {} } : name.endsWith('.json') ? require(path.resolve(path.dirname(file), name)) : name.endsWith('.mjs') ? require(path.resolve(path.dirname(file), name)) : name === '../lib/writingEngine' ? load(path.resolve(path.dirname(file), name, 'index.ts')) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts') : require(name) };
   modules.set(file, context.exports);
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, context);
   return context.exports;
@@ -113,10 +113,13 @@ test('preview reuses decorations for prose cursor motion and rebuilds when enter
   const { EditorView, WidgetType } = require('@codemirror/view');
   const field = StateField.define({ create: () => null, update: value => value });
   const context = { exports: {}, require: name => {
+    if (name === './projection/includeWidget') return { IncludedWritingWidget: class extends WidgetType {} };
+    if (name === './projection/nativeWidget') return { NativeWritingWidget: class extends WidgetType {} };
     if (name === './musicWidget') return { MusicWidget: class extends WidgetType {}, musicSourceField: field, revealMusicSource: StateEffect.define() };
     if (name === './tableWidget') return { WritingTableWidget: class extends WidgetType {} };
     if (name === '../i18n') return { t: value => value, getLanguage: () => 'en' };
     if (name === '../lib/texPdfArtwork') return { rasterizeTexPdf: () => {} };
+    if (name === '../lib/writingEngine') return load(path.resolve(__dirname, '../src/lib/writingEngine/index.ts'));
     return name.endsWith('.json') ? require(path.resolve(path.dirname(file), name)) : name.endsWith('.mjs') ? require(path.resolve(__dirname, '../src/editor', name)) : name.startsWith('.') ? load(path.join(__dirname, '../src/editor', name + '.ts')) : require(name);
   } };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/editor/visual.ts'), 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, context);

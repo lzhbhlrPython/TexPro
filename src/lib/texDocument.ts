@@ -1,95 +1,8 @@
-/** Source ranges for local writing. Unknown TeX stays source rather than being regenerated. */
-export interface TexRange { from: number; to: number }
-export interface TexEnvironment extends TexRange { name: string; bodyFrom: number; bodyTo: number }
-export interface TexCommand extends TexRange { name: string }
-
-export function skipTexSpace(text: string, from: number): number {
-  let at = from;
-  while (at < text.length) {
-    if (/\s/.test(text[at])) at++;
-    else if (text[at] === '%') { const end = text.indexOf('\n', at); at = end < 0 ? text.length : end + 1; }
-    else break;
-  }
-  return at;
-}
-
-export function texGroup(text: string, from: number, open = '{', close = '}'): TexRange | null {
-  if (text[from] !== open) return null;
-  let depth = 1;
-  for (let at = from + 1; at < text.length; at++) {
-    if (text[at] === '\\') { at++; continue; }
-    if (text[at] === '%') { const end = text.indexOf('\n', at); if (end < 0) return null; at = end; continue; }
-    if (text[at] === open) depth++;
-    if (text[at] === close && --depth === 0) return { from, to: at + 1 };
-  }
-  return null;
-}
-
-/** TeX control sequences outside comments, verbatim environments and inline \verb. */
-export function* texCommands(text: string): Generator<TexCommand> {
-  for (let at = 0; at < text.length;) {
-    if (text[at] === '%') { const end = text.indexOf('\n', at); at = end < 0 ? text.length : end + 1; continue; }
-    if (text[at] !== '\\') { at++; continue; }
-    const from = at++;
-    if (/[a-zA-Z@]/.test(text[at] || '')) while (/[a-zA-Z@]/.test(text[at] || '')) at++;
-    else at++;
-    const name = text.slice(from + 1, at);
-    if (name === 'verb') {
-      if (text[at] === '*') at++;
-      const delimiter = text[at++], end = text.indexOf(delimiter, at);
-      at = end < 0 ? text.length : end + 1;
-      continue;
-    }
-    yield { from, to: at, name };
-    if (name === 'begin') {
-      const group = texGroup(text, skipTexSpace(text, at));
-      const env = group && text.slice(group.from + 1, group.to - 1);
-      if (env && ['verbatim', 'verbatim*', 'lstlisting', 'minted'].includes(env)) {
-        const close = `\\end{${env}}`, end = text.indexOf(close, group!.to);
-        at = end < 0 ? text.length : end + close.length;
-      }
-    }
-  }
-}
-
-export function texEnvironments(text: string, names: readonly string[]): TexEnvironment[] {
-  const stack: Array<{ name: string; from: number; bodyFrom: number }> = [], blocks: TexEnvironment[] = [];
-  for (const command of texCommands(text)) {
-    if (command.name !== 'begin' && command.name !== 'end') continue;
-    const group = texGroup(text, skipTexSpace(text, command.to));
-    if (!group) continue;
-    const name = text.slice(group.from + 1, group.to - 1);
-    if (['verbatim', 'verbatim*', 'lstlisting', 'minted'].includes(name)) continue;
-    if (command.name === 'begin') stack.push({ name, from: command.from, bodyFrom: group.to });
-    else if (stack.at(-1)?.name === name) {
-      const start = stack.pop()!;
-      if (names.includes(name)) blocks.push({ ...start, to: group.to, bodyTo: command.from });
-    }
-  }
-  return blocks.sort((a, b) => a.from - b.from || b.to - a.to);
-}
-
-export function texDocumentStart(text: string): TexRange | null {
-  for (const command of texCommands(text)) {
-    if (command.name !== 'begin') continue;
-    const group = texGroup(text, skipTexSpace(text, command.to));
-    if (group && text.slice(group.from + 1, group.to - 1) === 'document') return { from: command.from, to: group.to };
-  }
-  return null;
-}
-
-export function texDocumentClass(text: string) {
-  for (const command of texCommands(text)) {
-    if (command.name === 'begin') break;
-    if (command.name !== 'documentclass') continue;
-    let at = skipTexSpace(text, command.to);
-    const options = text[at] === '[' ? texGroup(text, at, '[', ']') : null;
-    if (options) at = skipTexSpace(text, options.to);
-    const group = texGroup(text, at);
-    if (group) return { name: text.slice(group.from + 1, group.to - 1).trim(), command, options, group };
-  }
-  return null;
-}
+import { geometryAdapters, geometryAdapter } from '../../electron/services/geometry-core.mjs';
+import { skipTexSpace, texGroup, texCommands, texEnvironments, texDocumentStart, texDocumentClass } from '../../electron/services/tex-source-core.mjs';
+export { skipTexSpace, texGroup, texCommands, texEnvironments, texDocumentStart, texDocumentClass } from '../../electron/services/tex-source-core.mjs';
+export type { TexRange, TexCommand, TexEnvironment } from '../../electron/services/tex-source-core.mjs';
+import type { TexRange, TexCommand, TexEnvironment } from '../../electron/services/tex-source-core.mjs';
 
 export function isCtexClass(name: string): boolean {
   return /^ctex(?:art|rep|book|beamer)$/.test(name);
@@ -121,18 +34,31 @@ export function updateLayoutClassOptions(text: string, replacement: string): str
   return text.slice(0, from) + `[${options}]` + text.slice(to);
 }
 
-export interface DiagramBlock extends TexRange { source: string; kind: 'tikz' | 'circuit' | 'chemistry' }
+export interface DiagramBlock extends TexRange { source: string; adapter?: string; kind: 'tikz' | 'circuit' | 'chemistry' }
 export function diagramBlocks(text: string): DiagramBlock[] {
   const bodyStart = texDocumentStart(text)?.to ?? 0;
-  const blocks: DiagramBlock[] = texEnvironments(text, ['tikzpicture', 'circuitikz']).map(b => ({
-    ...b, source: text.slice(b.from, b.to), kind: b.name === 'circuitikz' ? 'circuit' : 'tikz',
-  }));
+  const names = geometryAdapters.flatMap(adapter => [...adapter.environments]);
+  const blocks: DiagramBlock[] = texEnvironments(text, names).map(block => {
+    const adapter = geometryAdapter(text.slice(block.from, block.to), text.slice(0, bodyStart))!;
+    return { ...block, source: text.slice(block.from, block.to), kind: adapter.kind, adapter: adapter.id };
+  });
   for (const command of texCommands(text)) {
-    if (command.name !== 'chemfig') continue;
-    let at = skipTexSpace(text, command.to);
-    if (text[at] === '[') { const options = texGroup(text, at, '[', ']'); if (!options) continue; at = skipTexSpace(text, options.to); }
-    const group = texGroup(text, at);
-    if (group) blocks.push({ from: command.from, to: group.to, source: text.slice(command.from, group.to), kind: 'chemistry' });
+    const name = /^(?:xymatrix|Qcircuit)@/.test(command.name) ? command.name.split('@')[0] : command.name;
+    const adapter = geometryAdapters.find(candidate => candidate.commands.includes(name));
+    if (!adapter) continue;
+    let at = skipTexSpace(text, command.from + 1 + name.length);
+    if (!adapter.argument && text[at] === '[') { const options = texGroup(text, at, '[', ']'); if (!options) continue; at = skipTexSpace(text, options.to); }
+    if (['xymatrix', 'Qcircuit'].includes(name)) {
+      // Known Xy-pic spacing modifiers; reject arbitrary tokens before the matrix.
+      const modifiers = /^(?:@[A-Za-z]?(?:!?[=+\-])?(?:[0-9.]+(?:em|ex|pt|pc|cm|mm)|[A-Za-z])?\s*)*/.exec(text.slice(at));
+      at += modifiers?.[0].length || 0;
+    }
+    const group = adapter.argument === 'bracket' ? texGroup(text, at, '[', ']') : texGroup(text, at);
+    if (group) {
+      const after = skipTexSpace(text, group.to);
+      const to = adapter.terminator && text[after] === adapter.terminator ? after + 1 : group.to;
+      blocks.push({ from: command.from, to, source: text.slice(command.from, to), kind: adapter.kind, adapter: adapter.id });
+    }
   }
   const result: DiagramBlock[] = [];
   for (const block of blocks.sort((a, b) => a.from - b.from || b.to - a.to)) {

@@ -22,7 +22,8 @@ export async function rasterizeTexPdf(file: string, bounds: { width: number; hei
     const viewport = page.getViewport({ scale: scale * density });
     canvas.width = Math.max(1, Math.ceil(viewport.width));
     canvas.height = Math.max(1, Math.ceil(viewport.height));
-    await page.render({ canvas, viewport }).promise;
+    canvas.getContext('2d', { alpha: true });
+    await page.render({ canvas, viewport, background: 'rgba(0,0,0,0)' }).promise;
     signal.throwIfAborted();
     return { src: canvas.toDataURL(), width, height };
   } finally {

@@ -60,6 +60,11 @@ module.exports = function installFlowRegression(window, { app, ipcMain, extensio
     if (process.env.TEXPRO_UPDATE_REGRESSION === '1') {
       await require('./updates-regression.cjs')({ window, key, wait, click, open, shot, js, ipcMain }); app.quit(); return;
     }
+    if (process.env.TEXPRO_SOURCE_STUDIO_REGRESSION === '1') { await require('./source-studio-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main }); app.quit(); return; }
+    if (process.env.TEXPRO_NATIVE_WRITING_REGRESSION === '1') { await require('./native-writing-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return; }
+    if (process.env.TEXPRO_PROJECT_WRITING_REGRESSION === '1') {
+      await require('./project-writing-regression.cjs')({ window, key, wait, type, click, line, open, save, shot, js, main, ipcMain }); app.quit(); return;
+    }
     if (process.env.TEXPRO_REALTIME_REGRESSION === '1') {
       await require('./realtime-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return;
     }

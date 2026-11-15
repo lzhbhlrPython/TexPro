@@ -1,3 +1,5 @@
+import { dirname, joinPath, relativePath } from '../../electron/services/writing-path-core.mjs';
+export { dirname, joinPath, relativePath } from '../../electron/services/writing-path-core.mjs';
 import { skipTexSpace, texCommands, texGroup } from './texDocument';
 import type { Diagnostic, OutlineItem, OutlineKind, ProjectSymbols } from '../types';
 
@@ -19,11 +21,6 @@ const SECTION_LABELS: Record<string, string> = {
   paragraph: 'Paragraph',
 };
 
-export function dirname(file: string): string {
-  const index = Math.max(file.lastIndexOf('/'), file.lastIndexOf('\\'));
-  return index >= 0 ? file.slice(0, index) : '.';
-}
-
 export function basename(file: string): string {
   const index = Math.max(file.lastIndexOf('/'), file.lastIndexOf('\\'));
   return index >= 0 ? file.slice(index + 1) : file;
@@ -39,27 +36,6 @@ export function stem(file: string): string {
   const base = basename(file);
   const index = base.lastIndexOf('.');
   return index > 0 ? base.slice(0, index) : base;
-}
-
-export function joinPath(base: string, relative: string): string {
-  const clean = relative.trim().replace(/^["']|["']$/g, '');
-  if (/^(\/|[A-Za-z]:[\\/])/.test(clean)) return clean;
-  const parts = (base + '/' + clean).replace(/\\/g, '/').split('/');
-  const stack: string[] = [];
-  for (const part of parts) {
-    if (!part || part === '.') continue;
-    if (part === '..') stack.pop();
-    else stack.push(part);
-  }
-  return '/' + stack.join('/');
-}
-
-export function relativePath(from: string, to: string): string {
-  const base = from.replace(/\/+$/, '').split('/');
-  const target = to.split('/');
-  let common = 0;
-  while (common < base.length && common < target.length && base[common] === target[common]) common++;
-  return [...base.slice(common).map(() => '..'), ...target.slice(common)].join('/');
 }
 
 export function assetUrl(file: string): string {

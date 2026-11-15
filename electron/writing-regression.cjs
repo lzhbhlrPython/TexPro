@@ -25,7 +25,19 @@ module.exports = function installWritingRegression(window, { app, ipcMain }) {
     await pause();
   };
   const type = async text => { await window.webContents.insertText(text); await pause(180); };
-  const open = async id => { await click('[data-testid="more-menu"]'); await click(`[data-action="${id}"]`); };
+  const open = async id => {
+    await click('[data-testid="more-menu"]');
+    if (await js(`!!document.querySelector('[data-action="${id}"]')`)) { await click(`[data-action="${id}"]`); return; }
+    await key('Escape');
+    const keys = { table: 'app.insert.table', circuit: 'app.insert.circuit', logic: 'app.insert.logic.gates', structure: 'app.insert.chemical.structure', skeletal: 'app.insert.skeletal.formula', 'tikz-writing': 'app.insert.tikz.diagram', 'chart-writing': 'app.insert.chart', music: 'app.insert.music', 'writing-note': 'app.leave.a.revision.memo', 'move-content-up': 'app.move.content.up', 'move-content-down': 'app.move.content.down', 'table-editor': 'app.visual.table.editor' };
+    const label = require('../packages/extension-translate-zh-cn/language/locales/zh.json')[keys[id]];
+    assert.ok(label, `Known command ${id}`);
+    await key('k', ['meta']); await wait(`!!document.querySelector('.palette input')`); await type(label);
+    const row = `[...document.querySelectorAll('.palette-row')].find(e=>e.querySelector('strong')?.textContent===${JSON.stringify(label)})`;
+    await wait(`!!(${row})`);
+    const index = await js(`(${row}).dataset.index`);
+    await click(`.palette-row[data-index="${index}"]`);
+  };
   const save = async () => { await key('s', ['meta']); await pause(300); };
   const shot = async name => {
     await js(`document.querySelectorAll('.toast button').forEach(e=>e.click())`);
@@ -202,7 +214,7 @@ Writing after the table.
     assert.equal(await js(`document.querySelector('.titlebar-file-name').textContent`), 'writing-chapter.tex');
     assert.equal(await js(`document.querySelector('.titlebar-main-file').title`), main);
     await key('Escape'); await type('Still writing.'); await save();
-    assert.ok(fs.readFileSync(main, 'utf8').includes('\\usepackage{chemfig}'));
+    assert.ok(fs.readFileSync(main, 'utf8').includes('\\usepackage{chemfig}'), fs.readFileSync(main, 'utf8'));
     assert.ok(fs.readFileSync(child, 'utf8').includes('Still writing.'));
     const childSaved = fs.readFileSync(child, 'utf8');
     await open('close-project'); await wait(`!!document.querySelector('[data-testid="welcome"]')`);

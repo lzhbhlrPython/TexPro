@@ -118,6 +118,7 @@ const TOOLS = [
   tool('texpro_read_file', 'Read a UTF-8 text file from the project.', {
     path: { type: 'string', description: 'Relative file path.' },
   }, ['path'], { readOnlyHint: true }),
+  tool('texpro_writing_context', 'Inspect the selected main file and its bounded static preamble context from disk. Does not read unsaved editor buffers or run TeX.', {}, [], { readOnlyHint: true }),
   tool('texpro_write_file', 'Write a UTF-8 text file inside the project. Use only with explicit user intent.', {
     path: { type: 'string' },
     content: { type: 'string' },
@@ -190,6 +191,11 @@ async function callTool(name, args = {}) {
     }
     case 'texpro_project_info':
       return { content: [{ type: 'text', text: JSON.stringify({ root: projectState.root, name: path.basename(projectState.root), rootFile: projectState.rootFile, rootCandidates: projectState.rootCandidates, rootSource: projectState.rootSource, rootError: projectState.rootError, buildDir: configBuildDir() }, null, 2) }] };
+    case 'texpro_writing_context': {
+      const context = await require('../electron/services/writing-context.cjs').loadDiskWritingContext({ ...projectState, rootError: projectState.rootError });
+      const core = require('../electron/services/writing-context-core.mjs');
+      return { content: [{ type: 'text', text: JSON.stringify({ source: 'disk', rootFile: projectState.rootFile, base: context.base, dependencies: context.dependencies.map(rel), incomplete: context.incomplete, preamble: context.preamble, mathMacros: core.projectMathMacros(context.preamble) }, null, 2) }] };
+    }
     case 'texpro_list_files': {
       const dir = inside(args.path || '.');
       const tree = walk(dir, 0, Math.min(8, Number(args.depth) || 4));

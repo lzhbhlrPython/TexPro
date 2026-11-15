@@ -1,4 +1,5 @@
 {
+  "writing.context.incomplete": "Some project preamble dependencies could not be read or interpreted statically. Unsupported content stays as TeX source. Check the main file and dependencies, then reopen the project to retry.",
   "app.language.chinese": "简体中文",
   "app.custom.theme.styles": "Custom theme styles",
   "app.only.enable.packages.from.authors.you.trust.code.can": "Only enable packages from authors you trust. Code can access your files, network and processes; themes can hide controls or imitate trusted UI.",
@@ -1861,5 +1862,15 @@
   "app.updates.download.error.size": "Installer size does not match. The incomplete download was removed; retry.",
   "app.updates.download.error.network": "Download failed. Check your connection and retry.",
   "app.updates.download.error.timeout": "Download timed out. Retry when the connection improves.",
-  "app.updates.download.error.storage": "Could not save the installer. Check free disk space and write permissions, then retry."
+  "app.updates.download.error.storage": "Could not save the installer. Check free disk space and write permissions, then retry.",
+  "writing.native.unavailable": "Native typesetting is unavailable. The source remains editable.",
+  "writing.native.mapping.incomplete": "Some blocks have no reliable native source mapping or exceed the preview limit. Their source remains editable.",
+  "writing.studio.music": "Music studio",
+  "writing.studio.apply": "Apply changes",
+  "writing.studio.source.mode": "Source editor",
+  "writing.studio.visual.mode": "Visual editor",
+  "writing.studio.source.retained": "Both modes share this source. Visual controls change only recognized parameters and preserve other code.",
+  "writing.studio.preview.hint": "Preview uses the project preamble and local TeX toolchain. Changes are applied only when you choose Apply changes.",
+  "writing.studio.visual.fields": "Edit the recognized parameters below. Source and preview stay in sync; other TeX remains intact.",
+  "writing.studio.visual.unavailable": "This source has no supported visual parameters yet. Its preview is available; continue editing in Source editor."
 }
