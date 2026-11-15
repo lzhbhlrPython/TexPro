@@ -19,6 +19,16 @@
       <category>架构</category>
     </item>
     <item>
+      <title>让展开的章节真正可以写</title>
+      <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/editing-included-chapters</link>
+      <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/editing-included-chapters</guid>
+      <pubDate>Sat, 14 Nov 2026 16:00:00 GMT</pubDate>
+      <description>从多文件只读投影推进到真实章节原位输入：同一纸面、独立源文件、各自撤销，以及仍然需要说明的边界。</description>
+      <category>[写作引擎</category>
+      <category>连续编辑</category>
+      <category>工程化]</category>
+    </item>
+    <item>
       <title>收拢重复插入入口，修正视图菜单的语言显示</title>
       <link>https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language</link>
       <guid isPermaLink="true">https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language</guid>

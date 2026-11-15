@@ -104,6 +104,8 @@ CTeX 的 LuaLaTeX 中文路径依赖 `luatexja.sty`，Ubuntu 将它放在 texliv
 
 AI 扩展暂保留为[设计提案](proposals/ai-writing-assistant.md)，不是当前已实现能力。
 
+多文件原位编辑从 `WritingSurface.tsx`、`composedEditing.ts` 与 `projection/includeWidget.ts` 开始：文件缓冲区、命令目标与会话分别保持身份，引用仅决定呈现位置。`node scripts/test-flow-ui.cjs --composed-writing` 验证真实输入、IME、键盘跨章节、保存与每文件撤销；不要把嵌入子文件重新实现为另一套简化编辑器。
+
 原生回退维护入口为 `native-writing.cjs`、`writingEngine/native.ts`、`useNativeWriting.ts` 与 `projection/nativeWidget.ts`。快照、编译、源映射、呈现分别测试；不要把临时副本宣称为 TeX 沙箱，也不要把语法高亮验收当作原生渲染验收。
 
 几何适配集中在 `geometry-core.mjs`；正文与工作室共用 PDF.js 图稿、主题与源码目标。手写电路、无标记乐谱与源码编辑／实时预览见[几何兼容](geometry-compatibility.md)，验收入口为 `npm run test:geometry`、`npm run test:music`、`node scripts/test-flow-ui.cjs --source-studio`。工作室的源码修改仍按 L2 按需显现，不替代 L1 正文输入。

@@ -65,14 +65,15 @@ import type { ProjectWritingContext } from '../lib/writingEngine/project';
 import { dirname } from '../lib/latex';
 import { findSpellingIssues } from '../lib/spellcheck';
 import { smartPaste } from '../lib/pasteCleaner';
+import { externalWritingUpdate, guardWritingChanges, type IncludedEditorHost } from './composedEditing';
 
 export interface EditorHandle {
   getDocumentIdentity: () => object | null;
   selectRange: (from: number, to: number) => void;
   renameLabel: () => void;
-  applyProjectChanges: (changes: ChangeSet) => void;
+  applyProjectChanges: (changes: ChangeSet, file?: string) => void;
   applyExtensionEdits: (source: string, edits: Array<{ from: number; to: number; insert: string }>) => boolean;
-  getSession: () => import('./writingSession').WritingSession | null;
+  getSession: (file?: string) => import('./writingSession').WritingSession | null;
   leaveNote: () => void;
   toggleNote: (note: WritingNote) => boolean;
   moveContent: (direction: -1 | 1) => boolean;
@@ -106,7 +107,7 @@ export interface EditorHandle {
   applyToc: (options: { enabled: boolean; depth: number; numbered: boolean }) => void;
 }
 
-interface Props {
+export interface EditorPaneProps {
   path: string;
   value: string;
   savedContent: string;
@@ -123,7 +124,14 @@ interface Props {
   readSource: (file: string) => Promise<string>;
   onRenameLabel: (before: string, after: string) => Promise<number>;
   onProjectHistory: (redo: boolean) => boolean;
-  onChange: (value: string) => void;
+  onChange: (value: string, before: string) => void;
+  inclusionHost?: IncludedEditorHost;
+  embedded?: boolean;
+  ancestry?: string[];
+  onFocus?: () => void;
+  isActive?: () => boolean;
+  canEdit?: (source: string) => boolean;
+  onWritingArrow?: (direction: -1 | 1, vertical: boolean) => boolean;
   onCompositionChange?: (composing: boolean) => void;
   onCursor: (cursor: CursorInfo) => void;
   onSave: () => void;
@@ -178,6 +186,13 @@ function moveContent(view: EditorView, direction: -1 | 1) {
   view.focus(); return true;
 }
 
+function moveWritingLine(view: EditorView, direction: -1 | 1, enter?: EditorPaneProps['onWritingArrow']) {
+  if (view.composing) return false;
+  const status = completionStatus(view.state);
+  if (status === 'active' || status === 'pending') return false;
+  return !!enter?.(direction, true) || moveLogicalLine(view, direction, false);
+}
+
 function moveLogicalLine(view: EditorView, direction: 1 | -1, select: boolean): boolean {
   if (view.composing) return false;
   const status = completionStatus(view.state);
@@ -225,7 +240,7 @@ const flashField = StateField.define<DecorationSet>({
   provide: (field) => EditorView.decorations.from(field),
 });
 
-export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(props, ref) {
+export const EditorPane = forwardRef<EditorHandle, EditorPaneProps>(function EditorPane(props, ref) {
   const { language } = useI18n();
   const [renaming, setRenaming] = useState<{ before: string; value: string; error: string; busy: boolean } | null>(null);
   const [resumeMemo] = useState(() => parseWritingAids(props.value, props.path).memos.filter(memo => !memo.done && memo.text.trim()).at(-1));
@@ -241,6 +256,10 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   const viewRef = useRef<EditorView | null>(null);
   const propsRef = useRef(props);
   propsRef.current = props;
+  const focusView = (view: EditorView | null) => {
+    if (!view) return;
+    propsRef.current.onFocus?.(); view.focus();
+  };
   const mainPreamble = props.writingContext?.preamble ?? props.mainText?.slice(0, texDocumentStart(props.mainText)?.to ?? props.mainText.length);
   const visualRef = useRef<VisualContext>({
     filePath: props.path,
@@ -251,6 +270,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     project: props.writingContext,
     native: props.nativeWriting,
     composition: props.writingComposition,
+    inclusionHost: props.inclusionHost,
+    ancestry: props.ancestry,
   });
   visualRef.current = {
     filePath: props.path,
@@ -261,6 +282,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     project: props.writingContext,
     native: props.nativeWriting,
     composition: props.writingComposition,
+    inclusionHost: props.inclusionHost,
+    ancestry: props.ancestry,
   };
   const symbolsRef = useRef({
     symbols: props.symbols,
@@ -312,8 +335,14 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
   };
   const [state] = useState(() => {
     const extensions: Extension[] = [
+      guardWritingChanges(source => propsRef.current.canEdit?.(source) ?? true),
+      ...(props.embedded ? [EditorView.theme({
+        '&': { height: 'auto' },
+        '.cm-scroller': { overflow: 'visible', padding: '0', lineHeight: 'inherit' },
+        '.cm-content': { padding: '0', margin: '0', maxWidth: 'none' },
+      })] : []),
       extensionHover,
-        compartments.lineNumbers.of(props.settings.showLineNumbers ? lineNumbers() : []),
+        compartments.lineNumbers.of(props.settings.showLineNumbers && !props.embedded ? lineNumbers() : []),
         highlightActiveLineGutter(),
         highlightSpecialChars(),
         history(),
@@ -338,7 +367,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           defaultKeymap: false,
         }),
         completionTheme,
-        foldGutter({ openText: '⌄', closedText: '›' }),
+        props.embedded ? [] : foldGutter({ openText: '⌄', closedText: '›' }),
         highlightSelectionMatches(),
         keymap.of([
           { key: 'Mod-Shift-u', run: () => { window.dispatchEvent(new Event('texpro:revision-memos')); return true; } },
@@ -354,13 +383,15 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           { key: 'Alt-Enter', run: leaveWritingBlock },
           { key: 'Alt-Shift-ArrowUp', run: view => moveContent(view, -1) },
           { key: 'Alt-Shift-ArrowDown', run: view => moveContent(view, 1) },
+          { key: 'ArrowLeft', run: view => !view.composing && !!propsRef.current.onWritingArrow?.(-1, false) },
+          { key: 'ArrowRight', run: view => !view.composing && !!propsRef.current.onWritingArrow?.(1, false) },
           {
             key: 'ArrowDown',
-            run: (view) => moveLogicalLine(view, 1, false),
+            run: (view) => moveWritingLine(view, 1, propsRef.current.onWritingArrow),
           },
           {
             key: 'ArrowUp',
-            run: (view) => moveLogicalLine(view, -1, false),
+            run: (view) => moveWritingLine(view, -1, propsRef.current.onWritingArrow),
           },
           {
             key: 'Shift-ArrowDown',
@@ -427,7 +458,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           'aria-label': msg("app.latex.source.editor"),
         }),
         placeholder(msg("app.start.writing.or.open.a.tex.file.from.the")),
-        lintGutter(),
+        props.embedded ? [] : lintGutter(),
         linter((view) => findSpellingIssues(view.state.doc.toString(), spellWordsRef.current).map((issue) => ({
           from: issue.from,
           to: issue.to,
@@ -528,7 +559,8 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
-            propsRef.current.onChange(update.state.doc.toString());
+            if (!update.transactions.some(transaction => transaction.annotation(externalWritingUpdate))) propsRef.current.onFocus?.();
+            propsRef.current.onChange(update.state.doc.toString(), update.startState.doc.toString());
           }
           if (update.selectionSet || update.docChanged || update.focusChanged) {
             scheduleBubble(update.view);
@@ -558,9 +590,22 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     if (!hostRef.current) return;
     const view = new EditorView({ state, parent: hostRef.current });
     viewRef.current = view;
+    // Capture native focus before CodeMirror/widget event filtering.
+    const focus = (event: FocusEvent) => {
+      if (event.target === view.contentDOM) propsRef.current.onFocus?.();
+    };
+    const pointer = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('.cm-editor') !== view.dom) return;
+      propsRef.current.onFocus?.();
+      // Widget tools must return to their own file, even if another file had focus.
+      if (target.closest('button')) view.focus();
+    };
+    view.contentDOM.addEventListener('focus', focus, true);
+    view.contentDOM.addEventListener('mousedown', pointer, true);
     const cached = props.sessions.get(props.path);
     const resumed = !cached && resumePosition(props.root, props.path, props.value);
-    if (resumed) { restoreWritingPosition(view, resumed); if (!resumed.top) view.dispatch({ effects: EditorView.scrollIntoView(resumed.head, { y: 'center' }) }); }
+    if (resumed && !props.embedded) { restoreWritingPosition(view, resumed); if (!resumed.top) view.dispatch({ effects: EditorView.scrollIntoView(resumed.head, { y: 'center' }) }); }
     if (cached) view.requestMeasure({ read: () => null, write: () => { view.scrollDOM.scrollTop = cached.top; view.scrollDOM.scrollLeft = cached.left; } });
     const selection = state.selection.main;
     const line = state.doc.lineAt(selection.head);
@@ -582,12 +627,14 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       props.sessions.set(props.path, { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft });
       cancelAnimationFrame(cursorFrame.current);
       propsRef.current.onCompositionChange?.(false);
+      view.contentDOM.removeEventListener('focus', focus, true);
+      view.contentDOM.removeEventListener('mousedown', pointer, true);
       view.destroy();
       viewRef.current = null;
     };
   }, [state]);
 
-  useEffect(() => { viewRef.current?.dispatch({ effects: refreshWritingPreview.of(null) }); }, [mainPreamble, props.writingContext, props.nativeWriting, props.writingComposition, language]);
+  useEffect(() => { if (!viewRef.current?.composing) viewRef.current?.dispatch({ effects: refreshWritingPreview.of(null) }); }, [mainPreamble, props.writingContext, props.nativeWriting, props.writingComposition, language]);
   useEffect(() => { if (!reviewing) viewRef.current?.dispatch({ effects: reviewWriting.of(null) }); }, [reviewing]);
 
   useEffect(() => {
@@ -605,7 +652,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           props.settings.typewriter ? typewriterMode() : [],
         ),
         compartments.lineNumbers.reconfigure(
-          props.settings.showLineNumbers ? lineNumbers() : [],
+          props.settings.showLineNumbers && !props.embedded ? lineNumbers() : [],
         ),
       ],
     });
@@ -630,7 +677,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     if (props.value === view.state.doc.toString()) return;
     view.dispatch({
       changes: textChange(view.state.doc.toString(), props.value),
-      annotations: Transaction.addToHistory.of(false),
+      annotations: [Transaction.addToHistory.of(false), externalWritingUpdate.of(true)],
       effects: view.scrollSnapshot(),
     });
   }, [props.value]);
@@ -652,7 +699,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         ...(props.gotoRequest.flash ? [flashEffect.of(lineNumber)] : []),
       ],
     });
-    view.focus();
+    focusView(view);
     if (props.gotoRequest.flash) {
       const timer = window.setTimeout(() => { if (viewRef.current === view) view.dispatch({ effects: flashEffect.of(-1) }); }, 1600);
       return () => window.clearTimeout(timer);
@@ -687,32 +734,32 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       getDocumentIdentity() { return viewRef.current?.state.doc ?? null; },
       renameLabel() { startRename(); },
       getSession() { const view = viewRef.current; return view ? { state: view.state, top: view.scrollDOM.scrollTop, left: view.scrollDOM.scrollLeft } : null; },
-      applyProjectChanges(changes) { const view = viewRef.current; if (view) view.dispatch({ changes, annotations: Transaction.addToHistory.of(false), effects: view.scrollSnapshot() }); },
+      applyProjectChanges(changes) { const view = viewRef.current; if (view) view.dispatch({ changes, annotations: [Transaction.addToHistory.of(false), externalWritingUpdate.of(true)], effects: view.scrollSnapshot() }); },
       applyExtensionEdits(source, edits) {
         const view = viewRef.current;
         return view ? applyExternalEdits(view, source, edits) : false;
       },
       toggleReview() { setReviewing(current => !current); },
       getPosition() { const view = viewRef.current; return view ? writingPosition(view, props.path) : null; },
-      restorePosition(point) { const view = viewRef.current; if (view && point.file === props.path) restoreWritingPosition(view, point); },
+      restorePosition(point) { const view = viewRef.current; if (view && point.file === props.path) { propsRef.current.onFocus?.(); restoreWritingPosition(view, point); } },
       leaveNote() {
         const view = viewRef.current; if (!view || view.composing) return;
         leaveWritingBlock(view);
         const at = view.state.doc.lineAt(view.state.selection.main.head).to;
         if (!writingPositionAllowed(view.state.doc.toString(), Math.max(0, at - 1))) return;
         view.dispatch({ changes: { from: at, insert: '\n% MEMO: \n' }, selection: { anchor: at + 9 }, annotations: isolateHistory.of('full'), scrollIntoView: true });
-        view.focus();
+        focusView(view);
       },
       selectRange(from, to) {
         const view = viewRef.current; if (!view || view.composing || from < 0 || to > view.state.doc.length) return;
-        view.dispatch({ selection: { anchor: from, head: to }, scrollIntoView: true }); view.focus();
+        view.dispatch({ selection: { anchor: from, head: to }, scrollIntoView: true }); focusView(view);
       },
       toggleNote(note) {
         const view = viewRef.current; if (!view || note.file !== props.path || note.line > view.state.doc.lines) return false;
         const line = view.state.doc.line(note.line), next = toggleWritingNote(line.text, note);
         if (next === null) return false;
         view.dispatch({ changes: { from: line.from, to: line.to, insert: next }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() });
-        view.focus(); return true;
+        focusView(view); return true;
       },
       moveContent(direction) { const view = viewRef.current; return view ? moveContent(view, direction) : false; },
       getPath: () => props.path,
@@ -726,7 +773,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           selection: { anchor: pos },
           effects: EditorView.scrollIntoView(pos, { y: 'center' }),
         });
-        view.focus();
+        focusView(view);
       },
       getContent() { return viewRef.current?.state.doc.toString() || ''; },
       getSelectionRange() { const s = viewRef.current?.state.selection.main; return { from: s?.from || 0, to: s?.to || 0 }; },
@@ -737,7 +784,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         if (propsRef.current.settings.visual) enterWritingTable(view, view.state.selection.main.head);
         return true;
       },
-      restoreWriting(target) { const view = viewRef.current; if (view && target.file === props.path) restoreWriting(view, target); },
+      restoreWriting(target) { const view = viewRef.current; if (view && target.file === props.path) { propsRef.current.onFocus?.(); restoreWriting(view, target); } },
       ensurePackages(packages) {
         const view = viewRef.current;
         if (!view) return;
@@ -752,7 +799,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         if (!view) return;
         const s = range || view.state.selection.main;
         view.dispatch({ changes: { from: s.from, to: s.to, insert: text }, selection: { anchor: s.from + text.length }, scrollIntoView: true });
-        view.focus();
+        focusView(view);
       },
       insert(template: string) {
         const view = viewRef.current;
@@ -769,7 +816,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
         return view.state.sliceDoc(selection.from, selection.to);
       },
       focus() {
-        viewRef.current?.focus();
+        focusView(viewRef.current);
       },
       undo() {
         if (viewRef.current) undo(viewRef.current);
@@ -866,7 +913,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           selection: { anchor: selection.from + text.length },
           scrollIntoView: true,
         });
-        view.focus();
+        focusView(view);
       },
       replaceRange(from: number, to: number, text: string) {
         const view = viewRef.current;
@@ -878,7 +925,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           selection: { anchor: start + text.length },
           scrollIntoView: true,
         });
-        view.focus();
+        focusView(view);
       },
       replaceAll(text: string) {
         const view = viewRef.current;
@@ -888,7 +935,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           selection: { anchor: text.length },
           scrollIntoView: true,
         });
-        view.focus();
+        focusView(view);
       },
       insertBeforeEndDocument(text: string) {
         const view = viewRef.current;
@@ -902,7 +949,7 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
           selection: { anchor: position + prefix.length + text.length },
           scrollIntoView: true,
         });
-        view.focus();
+        focusView(view);
       },
       applyLayout({ documentClassOptions, preambleBlock }) {
         const view = viewRef.current;
@@ -918,9 +965,9 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
     const view = viewRef.current;
     if (!view) return;
     const hide = () => setSelectionBubble(null);
-    view.scrollDOM.addEventListener('scroll', hide, { passive: true });
+    window.addEventListener('scroll', hide, true);
     return () => {
-      view.scrollDOM.removeEventListener('scroll', hide);
+      window.removeEventListener('scroll', hide, true);
       if (bubbleFrame.current) cancelAnimationFrame(bubbleFrame.current);
     };
   }, [state]);
@@ -935,37 +982,37 @@ export const EditorPane = forwardRef<EditorHandle, Props>(function EditorPane(pr
       selection: { anchor: selection.from + before.length + selected.length },
     });
     setSelectionBubble(null);
-    view.focus();
+    focusView(view);
   };
 
   useEffect(() => {
-    const rename = (event: Event) => { const detail = (event as CustomEvent).detail; if (typeof detail === 'string') startRename(detail); };
+    const rename = (event: Event) => { const detail = (event as CustomEvent).detail; if ((propsRef.current.isActive?.() ?? viewRef.current?.hasFocus) && typeof detail === 'string') startRename(detail); };
     window.addEventListener('texpro:rename-label', rename); return () => window.removeEventListener('texpro:rename-label', rename);
   }, []);
   return (
     <>
-      {resumeMemo && <div className={`revision-memo-reminder ${memoDismissed || !liveResumeMemo ? 'is-dismissed' : ''}`} data-testid="revision-memo-reminder" aria-hidden={memoDismissed || !liveResumeMemo}>
-        <MessageSquare size={13} /><button className="memo-resume-text" onClick={() => { const view = viewRef.current; if (!view || !liveResumeMemo) return; const line = view.state.doc.line(Math.max(1, liveResumeMemo.line - 1)); view.dispatch({ selection: { anchor: line.to }, scrollIntoView: true }); view.focus(); }} title={msg("app.continue.revising.this.passage")}><span>{msg("app.continue.revising")}</span> {liveResumeMemo?.text || resumeMemo.text}</button>
+      {resumeMemo && !props.embedded && <div className={`revision-memo-reminder ${memoDismissed || !liveResumeMemo ? 'is-dismissed' : ''}`} data-testid="revision-memo-reminder" aria-hidden={memoDismissed || !liveResumeMemo}>
+        <MessageSquare size={13} /><button className="memo-resume-text" onClick={() => { const view = viewRef.current; if (!view || !liveResumeMemo) return; const line = view.state.doc.line(Math.max(1, liveResumeMemo.line - 1)); view.dispatch({ selection: { anchor: line.to }, scrollIntoView: true }); focusView(view); }} title={msg("app.continue.revising.this.passage")}><span>{msg("app.continue.revising")}</span> {liveResumeMemo?.text || resumeMemo.text}</button>
         <button className="mini-btn" title={msg("app.complete.memo")} aria-label={msg("app.complete.memo")} onClick={() => {
           const view = viewRef.current; if (!view || !liveResumeMemo) return;
           const line = view.state.doc.line(liveResumeMemo.line), next = toggleWritingNote(line.text, liveResumeMemo);
-          if (next) view.dispatch({ changes: { from: line.from, to: line.to, insert: next }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() }); view.focus();
+          if (next) view.dispatch({ changes: { from: line.from, to: line.to, insert: next }, annotations: isolateHistory.of('full'), effects: view.scrollSnapshot() }); focusView(view);
         }}><Check size={13} /></button>
-        <button className="mini-btn" title={msg("app.dismiss.reminder")} aria-label={msg("app.dismiss.reminder")} onClick={() => { setMemoDismissed(true); viewRef.current?.focus(); }}><X size={13} /></button>
+        <button className="mini-btn" title={msg("app.dismiss.reminder")} aria-label={msg("app.dismiss.reminder")} onClick={() => { setMemoDismissed(true); focusView(viewRef.current); }}><X size={13} /></button>
       </div>}
       {renaming && <form className="writing-rename" onSubmit={async event => {
         event.preventDefault(); if (renaming.busy) return;
         setRenaming({ ...renaming, busy: true, error: '' });
-        try { await propsRef.current.onRenameLabel(renaming.before, renaming.value.trim()); setRenaming(null); viewRef.current?.focus(); }
+        try { await propsRef.current.onRenameLabel(renaming.before, renaming.value.trim()); setRenaming(null); focusView(viewRef.current); }
         catch (error) { setRenaming(current => current && ({ ...current, busy: false, error: msg.text(error instanceof Error ? error.message : String(error)) })); }
       }}>
-        <label>{msg("app.rename.label.and.references")}<input autoFocus onFocus={event => event.currentTarget.select()} aria-label={msg("app.new.label")} value={renaming.value} disabled={renaming.busy} onChange={event => setRenaming({ ...renaming, value: event.target.value, error: '' })} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } if (event.key === 'Escape' && !renaming.busy) { event.preventDefault(); setRenaming(null); viewRef.current?.focus(); } }} /></label>
+        <label>{msg("app.rename.label.and.references")}<input autoFocus onFocus={event => event.currentTarget.select()} aria-label={msg("app.new.label")} value={renaming.value} disabled={renaming.busy} onChange={event => setRenaming({ ...renaming, value: event.target.value, error: '' })} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } if (event.key === 'Escape' && !renaming.busy) { event.preventDefault(); setRenaming(null); focusView(viewRef.current); } }} /></label>
         <button className="primary-btn" disabled={renaming.busy || !renaming.value.trim()}>{msg(renaming.busy ? "app.updating" : "app.rename")}</button>
-        <button type="button" className="secondary-btn" disabled={renaming.busy} onClick={() => { setRenaming(null); viewRef.current?.focus(); }}>{msg("app.cancel")}</button>
+        <button type="button" className="secondary-btn" disabled={renaming.busy} onClick={() => { setRenaming(null); focusView(viewRef.current); }}>{msg("app.cancel")}</button>
         {renaming.error && <span role="alert">{renaming.error}</span>}
       </form>}
-      {reviewing && <WritingReviewBar root={props.root} file={props.path} saved={props.savedContent} onCompare={(source, label) => viewRef.current?.dispatch({ effects: reviewWriting.of({ source, label }) })} onClose={() => { setReviewing(false); viewRef.current?.dispatch({ effects: reviewWriting.of(null) }); viewRef.current?.focus(); }} />}
-      <div className="editor-host" ref={hostRef} data-file={props.path} />
+      {reviewing && <WritingReviewBar root={props.root} file={props.path} saved={props.savedContent} onCompare={(source, label) => viewRef.current?.dispatch({ effects: reviewWriting.of({ source, label }) })} onClose={() => { setReviewing(false); viewRef.current?.dispatch({ effects: reviewWriting.of(null) }); focusView(viewRef.current); }} />}
+      <div className={`editor-host${props.embedded ? ' is-embedded' : ''}`} ref={hostRef} data-file={props.path} />
       {selectionBubble && createPortal(
         <div
           className="selection-bubble"

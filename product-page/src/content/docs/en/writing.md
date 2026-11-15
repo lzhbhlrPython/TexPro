@@ -105,7 +105,7 @@ Common graphics extensions may be omitted. PDF graphics show their first page th
 
 Simple required-argument macros can render in formulas, and simple text style wrappers can be inherited. For example, define `\newcommand{\unit}[1]{\,\mathrm{#1}}` in the preamble. Click a formula or image to continue in its source with editor focus and undo preserved. Table formulas use the same macro context.
 
-Macro paragraphs, custom environments, complex tables and formulas beyond the fast projection path use the project’s own local TeX toolchain. Literal chapter inputs compose a continuous reading flow; clicking content enters the actual child file. Reliable native prose uses the editor’s fonts and line spacing, while geometry retains its original drawing. Full PDF pages stay in the preview pane. Ordinary prose, simple formulas and tables retain their immediate editing path.
+Macro paragraphs, custom environments, complex tables and formulas beyond the fast projection path use the project’s own local TeX toolchain. Literal chapter inputs compose a continuous writing flow with editable child files while the main-file tab stays open. Reliable native prose uses the editor’s fonts and line spacing, while geometry retains its original drawing. Full PDF pages stay in the preview pane. Ordinary prose, simple formulas and tables retain their immediate editing path.
 
 Install the project’s required TeX tools, fonts and packages, and select its main file. In settings, enable **Visual mode** and **Auto compile**, and choose a **Compile strategy** other than **Manual only**. Pause typing and allow actual typesetting to complete; the first preview of a large project takes real compilation time. Native previews use temporary project copies with unsaved buffers and do not save author files themselves. Existing auto-save and formal auto-compile save behavior is unchanged. No additional workspace or engine mode is required.
 
@@ -154,3 +154,19 @@ Neutral lines follow light/dark themes; authored colors remain intact without wh
 ### Two modes in one studio
 
 Open the object’s Studio, then switch between Source editor and Visual editor. Both modes share one draft and live preview. There is no separate source studio. Visual controls can edit literal coordinates, selected MusiXTeX pitches/meters/key signatures, and simple PGFPlots expressions without rebuilding surrounding code. Source edits refresh these controls. Unknown syntax remains intact; an old generated model never replaces handwritten changes. Cancel keeps the document unchanged; Apply changes replaces the original block with document undo support.
+
+## Edit included chapters in place
+
+Open the main file containing the chapters and enable **Visual mode**. Put each literal chapter input on its own line, for example:
+
+```tex
+\input{sections/introduction}
+
+\include{sections/method}
+```
+
+Chapters expand in the current paper, including nested inputs. Click chapter prose and type directly. The title bar, cursor position and writing commands follow the actual writing file. Saving, including saving before compilation, writes each buffer to its own `.tex` file. With **Auto save** enabled, chapters edited in place also participate in autosave. Focus never changes the project main file.
+
+Each file retains its own undo history and select-all range. Selecting all of a chapter does not select the parent or neighboring chapters. At file boundaries, arrow keys return to the parent; at an input position they can enter the child. Formulas, tables, source highlighting and studio entry reuse the same editor. Returning from a tool can restore the writing position.
+
+A repeatedly included file has one writable occurrence; other occurrences update as projections and can navigate to its actual editor. Cross-file continuous selection and a single chronological project-wide typing undo are not implemented. Project label renames retain grouped undo. During collaboration, included projections remain read-only; open the actual child file for collaborative editing. Dynamic filenames, cycles, resource limits and read failures retain source or read-only access without flattening or rewriting files.

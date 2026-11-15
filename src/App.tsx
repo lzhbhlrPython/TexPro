@@ -101,7 +101,8 @@ import type {
 } from './types';
 import { getLanguage, setLanguage, msg as tr, useI18n } from './i18n';
 import { basename, collectLocalSymbols, computeStats, dirname, emptySymbols, formatDuration, parseOutline, relativePath, stem } from './lib/latex';
-import { EditorPane, type EditorHandle } from './editor/EditorPane';
+import type { EditorHandle } from './editor/EditorPane';
+import { WritingSurface } from './editor/WritingSurface';
 import { snippetLibrary } from './editor/completions';
 import { escapeLatex, fillTemplate, slugify, type TemplateMeta } from './lib/templates';
 import { defaultProjectConfig, moduleInputPath, normalizeProjectConfig } from './lib/projectConfig';
@@ -277,11 +278,16 @@ export default function App() {
 
   useEffect(() => { if (project?.root && activePath) rememberActiveFile(project.root, activePath); }, [project?.root, activePath]);
   const activeDoc = activePath ? docs[activePath] : undefined;
+  const [writingPath, setWritingPath] = useState<string | null>(null);
+  useEffect(() => { setWritingPath(null); }, [activePath, project?.root]);
   const [composing, setComposing] = useState(false);
   const realtimeFiles = useMemo(() => project ? flattenFiles(project.tree).map(file => file.path).sort().join('\0') : '', [project?.tree]);
+  const editableFiles = useMemo(() => new Set(realtimeFiles.split('\0')), [realtimeFiles]);
   const realtime = useRealtimePreview(pdfOpen && settings.autoCompile && settings.compileMode !== 'manual', project?.root || null, project?.rootFile || null, settings.engine, docs, composing, realtimeFiles);
   const writingContext = useProjectWriting(project, docs, composing);
   const writingComposition = useWritingComposition(project, activePath || '', docs, settings.visual, composing, writingContext);
+  const writingFile = settings.visual && !collabExtension && writingPath && writingComposition?.sources[writingPath] !== undefined ? writingPath : activePath;
+  const writingDoc = writingFile ? docs[writingFile] : activeDoc;
   const nativeWriting = useNativeWriting(project, docs, activePath || '', settings.engine, settings.visual && settings.autoCompile && settings.compileMode !== 'manual', composing, writingContext, writingComposition);
   const nativeSessionRef = useRef(nativeWriting.session); nativeSessionRef.current = nativeWriting.session;
   // Keep identity across save flags, but invalidate closed/reopened buffers and engine changes too.
@@ -295,7 +301,7 @@ export default function App() {
   }, [docs, project?.root, project?.rootFile, settings.engine, realtimeFiles]);
   const pdfCurrent = Boolean(pdfBytes && publishedSources.current === currentSources.current);
   useEffect(() => { setComposing(false); }, [activePath]);
-  const deferredContent = useDeferredValue(activeDoc?.content || '');
+  const deferredContent = useDeferredValue(writingDoc?.content || '');
 
   const pushToast = useCallback((message: string, kind: ToastItem['kind'] = 'info', detail?: string) => {
     const id = 'toast-' + ++toastId.current;
@@ -354,21 +360,21 @@ export default function App() {
   }, [recent]);
 
   useEffect(() => {
-    document.title = activeDoc
-      ? `${activeDoc.dirty ? '• ' : ''}${activeDoc.path.split('/').pop()} — TeXPro`
+    document.title = writingDoc
+      ? `${writingDoc.dirty ? '• ' : ''}${writingDoc.path.split('/').pop()} — TeXPro`
       : 'TeXPro';
-  }, [activeDoc]);
+  }, [writingDoc]);
 
   useEffect(() => {
-    setOutline(activeDoc ? parseOutline(deferredContent, activeDoc.path) : []);
-  }, [deferredContent, activeDoc?.path]);
+    setOutline(writingDoc ? parseOutline(deferredContent, writingDoc.path) : []);
+  }, [deferredContent, writingDoc?.path]);
 
   useEffect(() => {
-    if (!activePath || !comments.length) return;
+    if (!writingFile || !comments.length) return;
     const timer = window.setTimeout(() => {
       let changed = false;
       const next = comments.map((comment) => {
-        if (comment.file !== activePath || !comment.snippet.trim()) return comment;
+        if (comment.file !== writingFile || !comment.snippet.trim()) return comment;
         const needle = comment.snippet.trim();
         const indices: number[] = [];
         let index = deferredContent.indexOf(needle);
@@ -392,7 +398,7 @@ export default function App() {
       }
     }, 700);
     return () => window.clearTimeout(timer);
-  }, [deferredContent, activePath, comments]);
+  }, [deferredContent, writingFile, comments]);
 
   const effectiveSymbols = useMemo(
     () => {
@@ -517,8 +523,7 @@ export default function App() {
       }
     }
     // Map the live selection through individual label edits before publishing the buffers.
-    const active = activePathRef.current;
-    if (active && edits[active]) editorRef.current?.applyProjectChanges(edits[active]);
+    for (const [file, changes] of Object.entries(edits)) editorRef.current?.applyProjectChanges(changes, file);
     docsRef.current = next; setDocs(next);
   }, []);
   const projectHistory = useCallback((redo: boolean) => {
@@ -551,7 +556,7 @@ export default function App() {
   }, [applyProjectTexts, pushToast]);
 
   const insertPlaceholder = useCallback(async (kind: PlaceholderKind = 'text') => {
-    const current = projectRef.current, editor = editorRef.current, file = activePathRef.current, generation = projectGeneration.current;
+    const current = projectRef.current, editor = editorRef.current, file = editorRef.current?.getPath() || activePathRef.current, generation = projectGeneration.current;
     if (!current?.rootFile || !editor || !file || !/\.(tex|ltx)$/i.test(file)) { pushToast(tr("app.choose.main.file"), 'info'); return; }
     const source = editor.getContent(), selection = editor.getSelectionRange(), main = current.rootFile;
     try {
@@ -656,7 +661,7 @@ export default function App() {
   }), [saveAll]);
 
   const saveActive = useCallback(async () => {
-    const path = activePathRef.current;
+    const path = editorRef.current?.getPath() || activePathRef.current;
     const dirty = Object.values(docsRef.current).some(doc => doc.dirty);
     if (!(await saveAll())) return;
     pushToast(tr(dirty ? "app.saved" : "app.no.changes.to.save"), dirty ? 'success' : 'info', path?.split('/').pop());
@@ -877,13 +882,12 @@ export default function App() {
   }, [project?.root]);
 
   useEffect(() => {
-    if (!settings.autoSave || !activeDoc?.dirty) return;
-    const docPath = activeDoc.path;
+    if (!settings.autoSave || !Object.values(docs).some(doc => doc.dirty)) return;
     const timer = window.setTimeout(() => {
-      void saveDoc(docPath, false);
+      for (const doc of Object.values(docsRef.current)) if (doc.dirty) void saveDoc(doc.path, false);
     }, 1000);
     return () => window.clearTimeout(timer);
-  }, [activeDoc?.content, activeDoc?.dirty, activeDoc?.path, saveDoc, settings.autoSave]);
+  }, [docs, saveDoc, settings.autoSave]);
 
   useEffect(() => {
     const unsubscribe = window.texpro.onMcpElicitation((payload) => setElicitation(payload));
@@ -1051,7 +1055,7 @@ export default function App() {
   const forwardSync = useCallback(
     async (line = cursorRef.current.line, column = cursorRef.current.column, quiet = true) => {
       const currentProject = projectRef.current;
-      const texFile = activePathRef.current;
+      const texFile = editorRef.current?.getPath() || activePathRef.current;
       const currentPdf = pdfPathRef.current;
       if (!currentProject || !texFile || !currentPdf) {
         if (!quiet) pushToast(tr("app.compile.first.to.enable.synctex"), 'info');
@@ -1067,7 +1071,7 @@ export default function App() {
           line,
           column: Math.max(0, column - 1),
         });
-        if (request !== syncGeneration.current || currentPdf !== pdfPathRef.current || texFile !== activePathRef.current) return;
+        if (request !== syncGeneration.current || currentPdf !== pdfPathRef.current || texFile !== (editorRef.current?.getPath() || activePathRef.current)) return;
         if (result.ok && result.page) {
           setSyncTarget((previous) => quiet && previous?.sourceLine === line && previous.page === result.page ? previous : ({
             page: result.page!,
@@ -1104,11 +1108,11 @@ export default function App() {
   }, [cursor.line, cursor.column, settings.followCursor, pdfOpen, pdfPath, activePath, compiling, forwardSync, pdfCurrent]);
 
   useEffect(() => {
-    if (realtime.running || !settings.autoCompile || settings.compileMode === 'manual' || !activeDoc) return;
+    if (realtime.running || !settings.autoCompile || settings.compileMode === 'manual' || !writingDoc) return;
     if (settings.compileMode === 'pdfOpen' && !pdfOpen) return;
-    const key = `${activeDoc.path}:${activeDoc.content}`;
-    if (autoCompilePath.current !== activeDoc.path) {
-      autoCompilePath.current = activeDoc.path;
+    const key = `${writingDoc.path}:${writingDoc.content}`;
+    if (autoCompilePath.current !== writingDoc.path) {
+      autoCompilePath.current = writingDoc.path;
       autoCompileBase.current = key;
       return;
     }
@@ -1118,7 +1122,7 @@ export default function App() {
       if (!compilingRef.current) void runCompile();
     }, 2200);
     return () => window.clearTimeout(timer);
-  }, [activeDoc?.content, activeDoc?.path, settings.autoCompile, settings.compileMode, pdfOpen, realtime.running, runCompile]);
+  }, [writingDoc?.content, writingDoc?.path, settings.autoCompile, settings.compileMode, pdfOpen, realtime.running, runCompile]);
 
   useEffect(() => {
     if (!pdfPath) {
@@ -1179,7 +1183,7 @@ export default function App() {
       const origin = editorRef.current?.getPosition();
       if (origin) { writingTrail.current.push(origin); writingTrail.current = writingTrail.current.slice(-80); }
       const navigation = ++navigationGeneration.current;
-      if (file && normalizeFile(file) !== normalizeFile(activePathRef.current || '')) {
+      if (file && !editorRef.current?.getSession(normalizeFile(file)) && normalizeFile(file) !== normalizeFile(activePathRef.current || '')) {
         await openFile(normalizeFile(file));
       }
       if (navigation === navigationGeneration.current) setGotoRequest({ file: file ? normalizeFile(file) : undefined, line, column, endLine, select, key: navigation, flash });
@@ -1190,7 +1194,8 @@ export default function App() {
   const returnToWriting = useCallback(async () => {
     const point = writingTrail.current.pop(); if (!point) return;
     const generation = projectGeneration.current;
-    await openFile(point.file);
+    if (!editorRef.current?.getSession(point.file)) await openFile(point.file);
+    else { editorRef.current.restorePosition(point); return; }
     for (let frame = 0; frame < 30 && editorRef.current?.getPath() !== point.file; frame++) await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
     if (generation === projectGeneration.current && editorRef.current?.getPath() === point.file) editorRef.current.restorePosition(point);
   }, [openFile]);
@@ -1437,7 +1442,7 @@ export default function App() {
   }, []);
 
   const handleAddComment = useCallback((text: string, line: number, snippet: string) => {
-    const file = activePathRef.current;
+    const file = editorRef.current?.getPath() || activePathRef.current;
     if (!file) return;
     const comment: ReviewComment = {
       id: `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
@@ -1465,9 +1470,11 @@ export default function App() {
       result = await run();
       const previous = docsRef.current, reconciled = reconcileFiles(previous, result);
       const active = activePathRef.current;
-      if (active && reconciled.edits[active]) editorRef.current?.applyProjectChanges(reconciled.edits[active]);
-      const live = editorRef.current?.getSession();
-      if (active && live) writingSessions.current.set(active, live);
+      for (const [file, change] of Object.entries(reconciled.edits)) editorRef.current?.applyProjectChanges(change, file);
+      for (const file of Object.keys(previous)) {
+        const live = editorRef.current?.getSession(file);
+        if (live) writingSessions.current.set(file, live);
+      }
       const sessions: WritingSessions = new Map();
       for (const [file, session] of writingSessions.current) {
         const change = reconciled.edits[file], before = previous[file]?.content;
@@ -1989,7 +1996,7 @@ export default function App() {
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ source?: string; from?: number; to?: number; file?: string; kind?: 'diagram' | 'music' }>).detail;
-      if (!detail?.source || detail.file !== activePathRef.current || detail.from === undefined || detail.to === undefined) return;
+      if (!detail?.source || detail.file !== editorRef.current?.getPath() || detail.from === undefined || detail.to === undefined) return;
       if (editorRef.current?.getContent().slice(detail.from, detail.to) !== detail.source) return;
       const diagram = detail.kind === 'music' ? undefined : diagramBlocks(detail.source)[0];
       if (diagram && texEnvironments(detail.source, ['axis', 'semilogxaxis', 'semilogyaxis', 'loglogaxis', 'groupplot', 'polaraxis']).length) {
@@ -2098,7 +2105,7 @@ export default function App() {
   ]);
 
   useEditorProviders(extensions.items, () => ({ editor: editorRef.current, project: projectRef.current, generation: projectGeneration.current }), language);
-  const extensionRunner = useExtensionRunner({ items: extensions.items, language, source: activeDoc?.content || '', file: activePath,
+  const extensionRunner = useExtensionRunner({ items: extensions.items, language, source: writingDoc?.content || '', file: writingFile,
     current: () => ({ editor: editorRef.current, project: projectRef.current, generation: projectGeneration.current }),
     compile: runCompile,
     create: async payload => { const next = await window.texpro.createProject(payload); if (next) await loadProject(next); },
@@ -2207,7 +2214,7 @@ export default function App() {
       {zeroMode && <button className="zero-exit" onClick={() => setZeroMode(false)} title={msg("app.exit.zero.interface.mode")}>{msg("app.exit.focus")}</button>}
       <TitleBar
         project={project}
-        doc={activeDoc || null}
+        doc={writingDoc || null}
         settings={settings}
         compiling={compiling}
         compileResult={compileResult}
@@ -2292,7 +2299,7 @@ export default function App() {
                   onOpenExternal={(path) => void window.texpro.openPath(path)}
                 />
               ) : activeDoc ? (
-                <EditorPane
+                <WritingSurface
                   key={activeDoc.path}
                   ref={editorRef}
                   path={activeDoc.path}
@@ -2336,6 +2343,24 @@ export default function App() {
                   spellWords={spellWords}
                   gotoRequest={gotoRequest}
                   collabExtension={collabExtension}
+                  buffer={file => docsRef.current[file]}
+                  fileDiagnosticsStale={(file, source) => Boolean(compileResult && compiledSources.current[file] !== source)}
+                  canEditFile={(file, source) => projectRef.current === project && editableFiles.has(file) && writingComposition?.sources[file] !== undefined && (docsRef.current[file]?.content ?? writingComposition.sources[file]) === source}
+                  onFileFocus={(file, source) => {
+                    if (projectRef.current !== project || !editableFiles.has(file)) return;
+                    if (!docsRef.current[file] && writingComposition?.sources[file] === source) {
+                      const next = { ...docsRef.current, [file]: { path: file, content: source, savedContent: source, dirty: false } };
+                      docsRef.current = next; setDocs(next);
+                    }
+                    setWritingPath(file);
+                  }}
+                  onFileChange={(file, before, content) => {
+                    if (projectRef.current !== project || !editableFiles.has(file) || writingComposition?.sources[file] === undefined) return;
+                    const doc = docsRef.current[file] ?? (writingComposition.sources[file] === before ? { path: file, content: before, savedContent: before, dirty: false } : undefined);
+                    if (!doc || doc.content !== before) return;
+                    const next = { ...docsRef.current, [file]: { ...doc, content, dirty: content !== doc.savedContent } };
+                    docsRef.current = next; setDocs(next);
+                  }}
                 />
               ) : (
                 <div className="editor-loading">
@@ -2422,7 +2447,7 @@ export default function App() {
       <TemplateGallery
         open={templatesOpen}
         userTemplates={userTemplates}
-        activeDoc={activeDoc || null}
+        activeDoc={writingDoc || null}
         activeEngine={settings.engine}
         onClose={() => { setTemplatesOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onCreate={handleCreateFromTemplate}
@@ -2436,7 +2461,7 @@ export default function App() {
         engine={settings.engine}
         open={chartOpen}
         projectRoot={project?.root || null}
-        filePath={activePath}
+        filePath={writingFile}
         onClose={() => { setChartOpen(false); closeWritingHelper('chart'); }}
         onInsert={(code) => void applyWritingHelper('chart', code, chartSource ? [] : ['tikz', 'pgfplots'])}
       />
@@ -2514,7 +2539,7 @@ export default function App() {
       <InkStudio
         open={inkOpen}
         projectRoot={project?.root || null}
-        activeFile={activePath}
+        activeFile={writingFile}
         assetsDir={projectConfig.directories.assets}
         onClose={() => { setInkOpen(false); closeWritingHelper('ink'); }}
         onInsert={(text) => void applyWritingHelper('ink', text, ['graphicx'])}
@@ -2526,7 +2551,7 @@ export default function App() {
         open={schematicMode !== null}
         mode={schematicMode || 'circuit'}
         projectRoot={project?.root || null}
-        filePath={activePath}
+        filePath={writingFile}
         onClose={() => { setSchematicMode(null); closeWritingHelper('schematic'); }}
         onInsert={(code, packageName) => void applyWritingHelper('schematic', code, schematicSource ? [] : [packageName])}
       />
@@ -2539,8 +2564,8 @@ export default function App() {
       <VersionReview
         open={versionOpen}
         projectRoot={project?.root || null}
-        activeFile={activePath}
-        activeContent={activeDoc?.content || ''}
+        activeFile={writingFile}
+        activeContent={writingDoc?.content || ''}
         onClose={() => setVersionOpen(false)}
         onRestored={(file) => { setVersionOpen(false); void openFile(file); }}
         gitManaged={gitManaged}
@@ -2577,8 +2602,8 @@ export default function App() {
           ...((compileResult?.diagnostics || []).filter((item) => item.severity === 'error').map((item) => `${item.file || ''}:${item.line || 0} ${item.message}`)),
           compileResult?.error || '',
         ].filter(Boolean).join('\n')}
-        defaultContext={activeDoc
-          ? activeDoc.content.split('\n').slice(Math.max(0, cursor.line - 1), Math.min(activeDoc.content.split('\n').length, cursor.line + 3)).join('\n')
+        defaultContext={writingDoc
+          ? writingDoc.content.split('\n').slice(Math.max(0, cursor.line - 1), Math.min(writingDoc.content.split('\n').length, cursor.line + 3)).join('\n')
           : ''}
         selection={editorRef.current?.getSelection() || ''}
         onClose={() => setAiOpen(false)}
@@ -2597,7 +2622,7 @@ export default function App() {
           else if (action.type === 'replace-selection') editorRef.current?.replaceSelection(action.text);
           else if (action.type === 'replace-document') {
             if (!window.confirm(tr("app.replace.the.entire.document.with.this.ai.action"))) return;
-            const length = docsRef.current[activePathRef.current]?.content.length || 0;
+            const length = editorRef.current?.getContent().length || 0;
             editorRef.current?.replaceRange(0, length, action.text);
           }
           pushToast(tr("app.ai.action.applied"), 'success', action.type);
@@ -2606,9 +2631,9 @@ export default function App() {
       <CommentsPanel
         open={commentsOpen}
         comments={comments}
-        activeFile={activePath}
+        activeFile={writingFile}
         currentLine={cursor.line}
-        currentSnippet={(activeDoc?.content.split('\n')[Math.max(0, cursor.line - 1)] || '').trim()}
+        currentSnippet={(writingDoc?.content.split('\n')[Math.max(0, cursor.line - 1)] || '').trim()}
         onClose={() => setCommentsOpen(false)}
         onAdd={handleAddComment}
         onResolve={(id, resolved) => void saveComments(comments.map((comment) => (comment.id === id ? { ...comment, resolved } : comment)))}
@@ -2618,8 +2643,8 @@ export default function App() {
       <ExportStudio
         open={exportOpen}
         onReviewPlaceholders={() => { setExportOpen(false); setSidebarOpen(true); setSidebarTab('placeholders'); editorRef.current?.focus(); }}
-        source={activeDoc?.content || ''}
-        name={activeDoc ? basename(activeDoc.path) : 'document.tex'}
+        source={writingDoc?.content || ''}
+        name={writingDoc ? basename(writingDoc.path) : 'document.tex'}
         onClose={() => setExportOpen(false)}
       />
       <ProjectDoctor
@@ -2658,7 +2683,7 @@ export default function App() {
         onClose={() => setWorkshopOpen(false)}
         onSave={handleSaveTemplate}
         onApply={(content) => {
-          const doc = activePathRef.current;
+          const doc = editorRef.current?.getPath() || activePathRef.current;
           if (!doc) {
             pushToast(tr("app.open.a.document.first"), 'info');
             return;
@@ -2686,8 +2711,8 @@ export default function App() {
       <BibManager
         open={bibOpen}
         projectRoot={project?.root || null}
-        activeFile={activePath}
-        activeContent={activeDoc?.content || ''}
+        activeFile={writingFile}
+        activeContent={writingDoc?.content || ''}
         bibFiles={bibFiles}
         onClose={() => { setBibOpen(false); requestAnimationFrame(() => editorRef.current?.focus()); }}
         onInsertCite={handleInsertCite}
@@ -2709,7 +2734,7 @@ export default function App() {
       <TikzStudio
         open={tikzOpen}
         projectRoot={project?.root || null}
-        filePath={activePath}
+        filePath={writingFile}
         initialSource={tikzSource}
         kind={sourceStudioKind}
         preamble={writingContext?.preamble}

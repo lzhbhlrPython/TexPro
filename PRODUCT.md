@@ -44,7 +44,7 @@ Confirmed capabilities include:
 - Visual editing of LaTeX source with KaTeX math, headings, tables, images, code blocks, labels/references, and TikZ previews.
 - Project tree, outline, symbol index, search, autosave, compile strategies, cancellation, and diagnostics.
 - Optional Markdown typing shortcuts and HTML/Markdown/TSV paste conversion, with literal TeX preservation and undo; contextual reference/footnote peek and validated project label rename.
-- Local per-project restoration of the last file, caret, selection, and scroll after reopening or restarting, without changing the selected main file. Undo history remains session-only; files retain separate editing surfaces rather than a merged continuous document.
+- Local per-project restoration of the last file, caret, selection, and scroll after reopening or restarting, without changing the selected main file. Included chapters can be edited in the same paper while retaining independent source buffers and session-only undo. Cross-file text selection and a single chronological undo history are not implemented; repeated includes and collaboration retain projection boundaries described in docs/writing-engine.md.
 - PDF search, thumbnails, text layer, spread/presentation modes, SyncTeX, and before/after pixel diff.
 - Bibliography management, DOI/arXiv lookup, Zotero Better BibTeX import/search, and citation/label graph.
 - Template gallery and template workshop; Markdown/Typst import; Markdown/Typst/HTML export.

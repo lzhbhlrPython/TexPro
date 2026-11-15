@@ -52,6 +52,8 @@ export const editorTheme = EditorView.theme({
   '.cm-native-prose p': { margin: '0', padding: '0' },
   '.cm-native-prose p + p': { marginTop: '0.6em' },
   '.cm-included-writing': { margin: '0', padding: '0', background: 'transparent' },
+  '.cm-included-writing > .editor-host.is-embedded': { height: 'auto' },
+  '.cm-included-writing > .editor-host.is-embedded > .cm-editor': { height: 'auto' },
   '.cm-included-writing:focus-visible': { outline: '2px solid var(--accent)', outlineOffset: '2px' },
   '.cm-native-writing pre': { whiteSpace: 'pre-wrap', font: 'inherit' },
   '.cm-prose-small': {

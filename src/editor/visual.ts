@@ -2,6 +2,7 @@ import { IncludedWritingWidget } from './projection/includeWidget';
 import { writingIncludes, type WritingComposition } from '../lib/writingEngine/includes';
 import { nativeProjectionForFile } from '../lib/writingEngine/native';
 import { NativeWritingWidget } from './projection/nativeWidget';
+import type { IncludedEditorHost } from './composedEditing';
 import type { NativeWritingProjection } from '../lib/writingEngine/native';
 import { PlaceholderWidget, InlineMathWidget, DisplayMathWidget, SectionBadgeWidget, BulletWidget, ImageWidget, CodeBlockWidget, PreambleWidget, TitleWidget, ReferenceWidget, TexLogoWidget, TikzWidget, ClearWidget, MusicDataWidget, HiddenBlockWidget, EnvironmentWidget, LabelWidget, CaptionBadgeWidget } from './projection/widgets';
 import { MusicWidget, musicSourceField, revealMusicSource } from './musicWidget';
@@ -33,6 +34,7 @@ export interface VisualContext {
   native?: NativeWritingProjection;
   composition?: WritingComposition;
   ancestry?: string[];
+  inclusionHost?: IncludedEditorHost;
 }
 
 export interface VisualConfig {
