@@ -21,6 +21,8 @@ The first stable release is **v0.1.0 · Tajpilo** (2026-11-12). The **0.1.x** se
 - **Realtime TeX preview:** LuaLaTeX projects automatically use the bundled rtex-ts in the existing PDF area, following automatic compilation settings. There is no separate engine switch or mode. PDF operations prepare a full typeset result when needed; typing continues to update the preview. A local LuaLaTeX installation is required. See the [embedding guide](docs/realtime-tex.md) for sources, MIT distribution and limitations.
 - Optional history, Git, backups, LAN collaboration, AI and MCP. Review permissions and data flow before enabling network features.
 
+Headings and recognized text styles support direct argument editing while retaining their appearance. Command boundaries and source mode expose wrapper syntax. Source highlighting remains available; complex macros may still require source editing.
+
 Complex TeX may fall back to source editing. SyncTeX maps typeset content rather than arbitrary individual characters, and visual previews do not replace the final PDF. Optional workspaces should not be prerequisites for ordinary writing. See [PRODUCT.md](PRODUCT.md) for product principles.
 
 ## Install and run

@@ -9,6 +9,7 @@ env.TEXPRO_FLOW_REGRESSION = '1';
 if (process.argv.includes('--updates')) env.TEXPRO_UPDATE_REGRESSION = '1';
 if (process.argv.includes('--source-studio')) env.TEXPRO_SOURCE_STUDIO_REGRESSION = '1';
 if (process.argv.includes('--composed-writing')) env.TEXPRO_COMPOSED_WRITING_REGRESSION = '1';
+if (process.argv.includes('--inline-writing')) env.TEXPRO_INLINE_WRITING_REGRESSION = '1';
 if (process.argv.includes('--native-writing')) env.TEXPRO_NATIVE_WRITING_REGRESSION = '1';
 if (process.argv.includes('--project-writing')) env.TEXPRO_PROJECT_WRITING_REGRESSION = '1';
 if (process.argv.includes('--realtime')) env.TEXPRO_REALTIME_REGRESSION = '1';

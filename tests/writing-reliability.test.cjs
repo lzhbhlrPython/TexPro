@@ -108,7 +108,7 @@ test('wrapped warnings and package errors retain the cause and correct source li
   const error = result.find(row => row.message.includes('Missing')); assert.ok(error.message.includes('Check the font installation.')); assert.equal(error.line, 24);
 });
 
-test('preview reuses decorations for prose cursor motion and rebuilds when entering TeX', () => {
+function previewHarness() {
   const { EditorState, StateField, StateEffect } = require('@codemirror/state');
   const { EditorView, WidgetType } = require('@codemirror/view');
   const field = StateField.define({ create: () => null, update: value => value });
@@ -124,8 +124,15 @@ test('preview reuses decorations for prose cursor motion and rebuilds when enter
   } };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/editor/visual.ts'), 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, context);
   const writing = load(path.join(__dirname, '../src/editor/writing.ts'));
+  return { visualLatex: context.exports.visualLatex, writing };
+}
+
+test('preview reuses decorations for prose cursor motion and rebuilds when entering TeX', () => {
+  const { EditorState, StateEffect } = require('@codemirror/state');
+  const { EditorView } = require('@codemirror/view');
+  const { visualLatex, writing } = previewHarness();
   let builds = 0;
-  let state = EditorState.create({ doc: 'Prose $x$ continues.', extensions: [writing.writingComposition, context.exports.visualLatex({ get: () => { builds++; return { filePath: '/p/main.tex', projectRoot: '/p', collapsePreamble: false }; } })] });
+  let state = EditorState.create({ doc: 'Prose $x$ continues.', extensions: [writing.writingComposition, visualLatex({ get: () => { builds++; return { filePath: '/p/main.tex', projectRoot: '/p', collapsePreamble: false }; } })] });
   const before = state.facet(EditorView.decorations)[0];
   state = state.update({ selection: { anchor: 1 } }).state; assert.equal(state.facet(EditorView.decorations)[0], before);
   state = state.update({ selection: { anchor: 7 } }).state; assert.notEqual(state.facet(EditorView.decorations)[0], before);
@@ -133,4 +140,49 @@ test('preview reuses decorations for prose cursor motion and rebuilds when enter
   state = state.update({ effects: StateEffect.define().of(null) }).state; assert.equal(state.facet(EditorView.decorations)[0], active);
   const previousBuilds = builds;
   state = state.update({ changes: { from: 8, insert: 'y' } }).state; assert.equal(builds, previousBuilds + 1);
+});
+
+
+test('formatted prose stays editable through selection, IME and history, while syntax boundaries reveal source', () => {
+  const { EditorState, EditorSelection } = require('@codemirror/state');
+  const { EditorView } = require('@codemirror/view');
+  const { history, undo, redo } = require('@codemirror/commands');
+  const { visualLatex, writing } = previewHarness();
+  const source = String.raw`\section{Chapter 2}
+Before \textbf{Signal \sig{R12}} and 51 ohms.
+Raw \unknown{12}.
+Incomplete \textbf{12
+% Comment 12
+Plain 12.
+\begin{tikzpicture}\draw (0,0)--(1,1);\end{tikzpicture}`;
+  const preamble = String.raw`\definecolor{Signal}{HTML}{99520C}
+\DeclareRobustCommand{\sig}[1]{{\color{Signal}#1}}`;
+  let state = EditorState.create({ doc: source, extensions: [history(), writing.writingComposition, visualLatex({ get: () => ({ filePath: '/p/main.tex', projectRoot: '/p', collapsePreamble: false, preamble }) })] });
+  const spans = () => { const result = []; state.facet(EditorView.decorations)[0].between(0, state.doc.length, (from, to, value) => result.push({ from, to, spec: value.spec })); return result; };
+  const hidden = at => spans().some(range => range.from === at && !!range.spec.widget);
+  const prose = number => spans().some(range => range.from === state.doc.line(number).from && range.spec.class === 'cm-prose-line');
+  const bold = source.indexOf('\\textbf'), color = source.indexOf('\\sig'), content = source.indexOf('R12');
+  const select = (anchor, head = anchor) => { state = state.update({ selection: EditorSelection.single(anchor, head) }).state; };
+  assert.equal(prose(1), true); assert.equal(prose(2), true);
+  assert.equal(prose(3), false); assert.equal(prose(4), false); assert.equal(prose(5), false); assert.equal(prose(6), true);
+  for (const anchor of [content, content + 1, content + 3]) {
+    select(anchor); assert.equal(hidden(bold), true); assert.equal(hidden(color), true);
+  }
+  select(content, content + 3); assert.equal(hidden(color), true, 'selecting just the argument retains formatting');
+  select(content - 1, content + 3); assert.equal(hidden(color), false, 'selecting its opening brace exposes real source');
+  assert.equal(prose(2), false);
+  select(content + 2);
+  state = state.update({ effects: writing.composingWriting.of(true) }).state;
+  state = state.update({ changes: { from: content + 2, insert: '中' }, selection: { anchor: content + 3 } }).state;
+  assert.equal(hidden(color), true);
+  state = state.update({ effects: writing.composingWriting.of(false) }).state;
+  assert.equal(hidden(color), true); assert.equal(prose(2), true);
+  const edited = state.doc.toString(); assert.equal(edited, source.slice(0, content + 2) + '中' + source.slice(content + 2));
+  const dispatch = transaction => { state = transaction.state; };
+  assert.equal(undo({ state, dispatch }), true); assert.equal(state.doc.toString(), source);
+  assert.equal(redo({ state, dispatch }), true); assert.equal(state.doc.toString(), edited);
+  select(state.doc.toString().indexOf('\\draw') + 2);
+  assert.equal(prose(7), false, 'reserved but visible diagram source retains its syntax palette');
+  select(2); assert.equal(hidden(0), false, 'heading badge/source boundary still exposes TeX');
+  select(source.indexOf('Chapter') + 2); assert.equal(hidden(0), true, 'heading text uses the same direct editing rule');
 });

@@ -53,6 +53,7 @@
 ## 博客
 
 - [让复杂工程也能参与所见即所得](https://lzhbhlrpython.github.io/TexStudioPro/blog/project-aware-native-writing): 拆分写作引擎，让即时投影与真实 TeX 排版互补，并分别维护源码高亮、工程快照和双向定位。
+- [让光标落在看见的文字里](https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-text-and-projection-geometry): 打磨格式文字与标题的直接编辑，修复块级留白造成的点击偏移，并把正文数字与源码高亮分开处理。
 - [让展开的章节真正可以写](https://lzhbhlrpython.github.io/TexStudioPro/blog/editing-included-chapters): 从多文件只读投影推进到真实章节原位输入：同一纸面、独立源文件、各自撤销，以及仍然需要说明的边界。
 - [收拢重复插入入口，修正视图菜单的语言显示](https://lzhbhlrpython.github.io/TexStudioPro/blog/menu-view-language): 更多菜单移除重复插入分组，保留工作台和命令面板；视图状态标签引用已有语义键，修复中文界面混入英文。
 - [安装包在应用内下载，更新由作者完成](https://lzhbhlrpython.github.io/TexStudioPro/blog/in-app-download-manual-install): 延续设置里的 GitHub 更新入口，加入可选自动下载、进度、取消、SHA256 校验和文件定位；保存、退出与安装仍由作者控制。

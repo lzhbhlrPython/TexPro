@@ -45,6 +45,9 @@ export function nativeWritingRegions(text: string, file: string, project?: Proje
   });
   const lineFrom = (at: number) => text.lastIndexOf('\n', at - 1) + 1;
   const lineTo = (at: number) => { const next = text.indexOf('\n', at); return next < 0 ? text.length : next; };
+  // Included files have their own editor and source map. A neighboring layout
+  // command must not turn a run of chapter inputs into one opaque native block.
+  const paragraphBoundary = /^\s*\\(?:input|include|section|subsection|subsubsection|chapter|part|Needspace|begin|end)\b/;
   for (const env of opaque) {
     if (opaque.some(parent => parent !== env && parent.from <= env.from && parent.to >= env.to)) continue;
     const from = lineFrom(env.from), to = lineTo(env.to);
@@ -56,8 +59,8 @@ export function nativeWritingRegions(text: string, file: string, project?: Proje
     // no semantic provider owns them. Enclose complete paragraphs and groups.
     if (!/^[A-Za-z@]+$/.test(command.name)) continue;
     let from = lineFrom(command.from), to = lineTo(command.to);
-    while (from > body && text.slice(lineFrom(from - 1), from).trim() && !/^\s*\\(?:section|subsection|subsubsection|chapter|part|Needspace|begin|end)\b/.test(text.slice(lineFrom(from - 1), from))) from = lineFrom(from - 1);
-    while (to < endDocument && text.slice(to + 1, lineTo(to + 1)).trim() && !/^\s*\\(?:section|subsection|subsubsection|chapter|part|Needspace|begin|end)\b/.test(text.slice(to + 1, lineTo(to + 1)))) to = lineTo(to + 1);
+    while (from > body && text.slice(lineFrom(from - 1), from).trim() && !paragraphBoundary.test(text.slice(lineFrom(from - 1), from))) from = lineFrom(from - 1);
+    while (to < endDocument && text.slice(to + 1, lineTo(to + 1)).trim() && !paragraphBoundary.test(text.slice(to + 1, lineTo(to + 1)))) to = lineTo(to + 1);
     if (from < body || to > endDocument || !text.slice(from, to).trim()) continue;
     // Don't cut an environment at a paragraph break. Its outer native region owns it.
     if (opaque.some(env => env.name !== 'document' && (env.from < from && env.to > from || env.from < to && env.to > to))) continue;

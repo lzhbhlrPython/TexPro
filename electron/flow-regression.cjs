@@ -61,6 +61,7 @@ module.exports = function installFlowRegression(window, { app, ipcMain, extensio
       await require('./updates-regression.cjs')({ window, key, wait, click, open, shot, js, ipcMain }); app.quit(); return;
     }
     if (process.env.TEXPRO_SOURCE_STUDIO_REGRESSION === '1') { await require('./source-studio-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main }); app.quit(); return; }
+    if (process.env.TEXPRO_INLINE_WRITING_REGRESSION === '1') { await require('./inline-writing-regression.cjs')({ window, key, wait, type, click, open, save, shot, js, main }); app.quit(); return; }
     if (process.env.TEXPRO_COMPOSED_WRITING_REGRESSION === '1') { await require('./composed-writing-regression.cjs')({ window, key, wait, type, click, line, open, save, shot, js, main }); app.quit(); return; }
     if (process.env.TEXPRO_NATIVE_WRITING_REGRESSION === '1') { await require('./native-writing-regression.cjs')({ window, key, wait, type, click, line, open, shot, js, main, ipcMain }); app.quit(); return; }
     if (process.env.TEXPRO_PROJECT_WRITING_REGRESSION === '1') {

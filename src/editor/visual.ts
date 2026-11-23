@@ -1,4 +1,5 @@
 import { IncludedWritingWidget } from './projection/includeWidget';
+import { WritingBlockWidget } from './projection/blockWidget';
 import { writingIncludes, type WritingComposition } from '../lib/writingEngine/includes';
 import { nativeProjectionForFile } from '../lib/writingEngine/native';
 import { NativeWritingWidget } from './projection/nativeWidget';
@@ -91,9 +92,12 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     selectionRanges.push({ from, to, selected });
     return selected || revisions.some(hunk => hunk.from <= to && hunk.to >= from);
   };
+  const syntaxTouched = (from: number, contentFrom: number, contentTo: number, to: number) =>
+    touched(from, contentFrom) || touched(contentTo, to)
+    || revisions.some(hunk => hunk.from <= to && hunk.to >= from);
 
   const addBlock = (from: number, to: number, widget: WidgetType) => {
-    ranges.push(Decoration.replace({ widget, block: true }).range(from, to));
+    ranges.push(Decoration.replace({ widget: new WritingBlockWidget(widget), block: true }).range(from, to));
     occupied.push({ from, to });
   };
 
@@ -131,11 +135,11 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     // Reserve the entire block before math/TikZ scanners see generated TeX or metadata.
     if (state.field(musicSourceField, false) === block.id || touched(block.from, block.to)) {
       occupied.push({ from: block.from, to: block.to });
-      ranges.push(Decoration.widget({ widget: new MusicWidget(block, context.projectRoot, true, context.filePath, context.preamble, context.engine), block: true, side: 1 }).range(block.to));
+      ranges.push(Decoration.widget({ widget: new WritingBlockWidget(new MusicWidget(block, context.projectRoot, true, context.filePath, context.preamble, context.engine)), block: true, side: 1 }).range(block.to));
       const metadata = /^% texpro-music-data:.*$/m.exec(block.source);
       if (metadata) {
         const from = block.from + metadata.index, to = from + metadata[0].length;
-        if (!touched(from, to)) ranges.push(Decoration.replace({ widget: new MusicDataWidget(), block: true }).range(from, to));
+        if (!touched(from, to)) addBlock(from, to, new MusicDataWidget());
       }
     }
     else addBlock(block.from, block.to, new MusicWidget(block, context.projectRoot, false, context.filePath, context.preamble, context.engine));
@@ -162,13 +166,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     const info = parseDocumentTitle(text);
     const titleLine = state.doc.lineAt(match.index);
     if (titleLine.text.trim() !== '\\maketitle') continue;
-    ranges.push(
-      Decoration.replace({
-        widget: new TitleWidget(info.title, info.author, info.date, titleLine.from + 1),
-        block: true,
-      }).range(titleLine.from, titleLine.to),
-    );
-    occupied.push({ from: titleLine.from, to: titleLine.to });
+    addBlock(titleLine.from, titleLine.to, new TitleWidget(info.title, info.author, info.date, titleLine.from + 1));
   }
 
   for (const projection of plan.projections) {
@@ -221,7 +219,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     const widget = new TikzWidget(block.source, context.projectRoot, context.filePath, from + 1, block.kind, inline, active, context.preamble ? context.preamble + '\n\\begin{document}' : undefined, context.engine, block.adapter);
     if (active) {
       occupied.push({ from, to });
-      if (!inline) ranges.push(Decoration.widget({ widget, block: true, side: 1 }).range(to));
+      if (!inline) ranges.push(Decoration.widget({ widget: new WritingBlockWidget(widget), block: true, side: 1 }).range(to));
       continue;
     }
     if (!startLine.text.slice(0, from - startLine.from).trim() && !endLine.text.slice(to - endLine.from).trim()) addBlock(startLine.from, endLine.to, widget);
@@ -240,8 +238,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     const isBlock = line.text.trim() === text.slice(from, to).trim();
     const widget = new ImageWidget(assetUrl(path) + `&revision=${context.project?.revision || 0}`, name, isBlock, from + 1, path);
     if (isBlock) {
-      ranges.push(Decoration.replace({ widget, block: true }).range(line.from, line.to));
-      occupied.push({ from: line.from, to: line.to });
+      addBlock(line.from, line.to, widget);
     } else {
       ranges.push(Decoration.replace({ widget }).range(from, to));
       occupied.push({ from, to });
@@ -273,7 +270,8 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     if (touched(item.from, item.to) || overlaps(item.from, item.to, occupied)) continue;
     const line = state.doc.lineAt(item.from), endLine = state.doc.lineAt(item.to);
     const block = ['figure', 'table'].includes(item.kind) && !text.slice(line.from, item.from).trim() && !text.slice(item.to, endLine.to).trim();
-    ranges.push(Decoration.replace({ widget: new PlaceholderWidget(item, block), block }).range(block ? line.from : item.from, block ? endLine.to : item.to));
+    const widget = new PlaceholderWidget(item, block);
+    ranges.push(Decoration.replace({ widget: block ? new WritingBlockWidget(widget) : widget, block }).range(block ? line.from : item.from, block ? endLine.to : item.to));
     occupied.push({ from: item.from, to: item.to });
   }
   const chinese = /\\(?:documentclass(?:\[[^\]]*\])?\{ctex(?:art|rep|book)\}|(?:usepackage|RequirePackage)(?:\[[^\]]*\])?\{[^}]*\bctex\b)/.test(context.preamble || text.slice(0, bodyStart));
@@ -290,7 +288,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     const level = headingLevels[command.name];
     if (!level) continue;
     const group = textArgument(text, command);
-    if (!group || touched(command.from, group.to) || overlaps(command.from, group.to, occupied)) continue;
+    if (!group || syntaxTouched(command.from, group.from + 1, group.to - 1, group.to) || overlaps(command.from, group.to, occupied)) continue;
     const line = state.doc.lineAt(command.from);
     if (text.slice(line.from, command.from).trim()) continue;
     for (let n = line.number; n <= state.doc.lineAt(group.to).number; n++) ranges.push(Decoration.line({ class: `cm-heading-line cm-heading-${level}` }).range(state.doc.line(n).from));
@@ -342,8 +340,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     const line = state.doc.line(lineNumber);
     if (!/^\s*\\centering\s*$/.test(line.text)) continue;
     if (touched(line.from, line.to) || overlaps(line.from, line.to, occupied)) continue;
-    ranges.push(Decoration.replace({ widget: new HiddenBlockWidget(), block: true }).range(line.from, line.to));
-    occupied.push({ from: line.from, to: line.to });
+    addBlock(line.from, line.to, new HiddenBlockWidget());
   }
 
   for (const match of text.matchAll(/\\label\{([^}]+)\}/g)) {
@@ -407,7 +404,7 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     if (projection.kind !== 'format') continue;
     const { from, to } = projection;
     const data = projection.data as FormatProjection;
-    if (touched(from, to) || overlaps(from, to, occupied)) continue;
+    if (syntaxTouched(from, data.contentFrom, data.contentTo, to) || overlaps(from, to, occupied)) continue;
     const mark: { class?: string; attributes?: Record<string, string> } = data.class ? { class: data.class } : data.color ? { attributes: { style: `color:${data.color}` } } : { class: 'cm-link', attributes: { 'data-href': data.href || '', title: data.href || '' } };
     ranges.push(Decoration.replace({ widget: new ClearWidget() }).range(from, data.contentFrom));
     ranges.push(Decoration.mark(mark).range(data.contentFrom, data.contentTo));
@@ -441,6 +438,25 @@ function buildDecorations(state: EditorState, context: VisualContext, engine: Re
     occupied.push({ from, to });
   }
 
+  // Classify the visible source, after every replacement has been assigned.
+  // A remaining TeX delimiter keeps the whole line in the source palette. This
+  // also handles incomplete input without teaching the highlighter TeX macros.
+  // Reserved ranges can contain visible source (an active diagram, for example).
+  // Only nonempty widget replacements actually hide their original syntax.
+  const hidden = ranges.filter(range => range.from < range.to && range.value.spec.widget)
+    .sort((a, b) => a.from - b.from || b.to - a.to);
+  const sourceLines = new Set<number>();
+  let hiddenIndex = 0, hiddenTo = 0;
+  for (const match of text.matchAll(/[\\$%{}&#~^_]/g)) {
+    const at = match.index!;
+    while (hiddenIndex < hidden.length && hidden[hiddenIndex].from <= at) {
+      hiddenTo = Math.max(hiddenTo, hidden[hiddenIndex++].to);
+    }
+    if (at >= hiddenTo) sourceLines.add(state.doc.lineAt(at).number);
+  }
+  for (let number = 1; number <= state.doc.lines; number++) {
+    if (!sourceLines.has(number)) ranges.push(Decoration.line({ class: 'cm-prose-line' }).range(state.doc.line(number).from));
+  }
   const result = Decoration.set(ranges, true);
   previewSelections.set(state, selectionRanges);
   return result;

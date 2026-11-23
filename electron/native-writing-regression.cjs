@@ -9,7 +9,8 @@ module.exports = async ({ window, key, wait, type, click, line, open, shot, js, 
   const nativeWait = async condition => {
     const start = Date.now();
     while (Date.now() - start < 100000) { if (await js(condition)) return; await new Promise(resolve => setTimeout(resolve, 150)); }
-    await shot('native-writing-failure'); console.log(await js(`document.querySelector('.cm-native-writing')?.outerHTML`));
+    await js(`document.querySelector('.problems-collapsed .problems-toggle')?.click()`);
+    await shot('native-writing-failure'); console.log(await js(`document.querySelector('.problems-list')?.textContent`));
     throw new Error(`Native preview timed out: ${condition}; ` + await js(`document.querySelector('.app')?.textContent.slice(-3000)`));
   };
   await open('close-project'); await wait(`!!document.querySelector('[data-testid="welcome"]')`);
@@ -70,6 +71,7 @@ module.exports = async ({ window, key, wait, type, click, line, open, shot, js, 
       await click(`document.querySelector('.welcome-project-row')`);
       await nativeWait(`!!document.querySelector('.cm-included-writing .cm-line')`);
       assert.equal(await js(`!!document.querySelector('.cm-included-writing .cm-line')`), true, 'chapters share the editor typography');
+      await nativeWait(`!!document.querySelector('.cm-included-writing')?.querySelector('.cm-native-fragment[data-native-ready="true"]')`);
       for (const theme of ['paper', 'studio', 'night']) { await js(`document.documentElement.dataset.theme=${JSON.stringify(theme)}`); await shot(`native-imported-${theme}`); }
       console.log('PASS real imported master: continuous child composition, original source offsets and three themes on temporary copy');
       if (process.env.TEXPRO_WRITING_SAMPLE_FILE) {

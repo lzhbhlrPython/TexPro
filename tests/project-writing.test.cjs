@@ -180,6 +180,23 @@ test('project macros and graphics flow through independent providers using the s
   assert.equal(result.failures.length, 0);
 });
 
+test('native fallback paragraphs stop at chapter inputs in both directions', () => {
+  const { nativeWritingRegions } = load('writingEngine/native');
+  const text = String.raw`\documentclass{article}
+\begin{document}
+\clearpage\part{First}
+\input{first}
+\include{second}
+\clearpage\part{Second}
+\input{third}
+\unknown{After the input}
+\end{document}`;
+  const regions = nativeWritingRegions(text, main);
+  assert.equal(regions.length, 3);
+  for (const region of regions) assert.doesNotMatch(text.slice(region.from, region.to), /\\(?:input|include)\{/);
+  assert.ok(regions.some(region => text.slice(region.from, region.to).includes('unknown')));
+});
+
 test('automatic native source reads reject symlink escapes, wrong types and oversized dependencies', () => {
   const os = require('node:os');
   const { readWritingSource } = require('../electron/services/writing-source.cjs');

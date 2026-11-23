@@ -22,7 +22,7 @@
 | `src/lib/writingEngine/engine.ts`、`types.ts` | 提供器注册、稳定优先级、范围验证、失败隔离与每实例缓存 |
 | `src/lib/writingEngine/providers/` | 公式、图像、文字样式、表格与图示的语义投影 |
 | `src/editor/visual.ts` | CodeMirror 选择、修订、冲突归属和 decorations；保留现有音乐／占位符等专业交互 |
-| `src/editor/projection/widgets.ts` | DOM、点击回源码和异步图稿生命周期 |
+| `src/editor/projection/widgets.ts`、`blockWidget.ts` | DOM、点击回源码、块级测量容器和异步图稿生命周期 |
 | `src/lib/texMath.ts`、`texInline.ts` | 正文与表格共用的受限数学渲染和内联源码偏移 |
 | `electron/services/synctex.cjs` | 桌面与 MCP 共用的参数、进程与结果解析；保留 `tex.cjs` 的原有导出 |
 | `src/lib/pdfSync.ts` | PDF.js viewport 的缩放、裁切、旋转与 SyncTeX 坐标转换 |
@@ -55,9 +55,25 @@
 
 XeLaTeX 工程仍用 XeLaTeX，不为了实时预览改作者的引擎、字体、模板或宏包。rtex-ts 继续是适用 LuaLaTeX 工程的内部加速路径，见[实时预览](realtime-tex.md)。
 
+## 块级投影的几何契约
+
+所有 `block: true` 的替换和附加预览经过 `WritingBlockWidget`。它提供没有外边距的 `flow-root` 根节点，把原组件的外边距包含在可测高度中；不改组件原来的留白、主题或源码范围。CodeMirror 按块的 bounding box 建立高度图，直接把带外边距的组件用作根节点会漏算留白，使后续正文的鼠标定位落到别行。不能通过猜测偏移或拦截鼠标修补这个问题。
+
+容器转发内容 widget 的相等判断、`updateDOM`、事件过滤、坐标与销毁。尤其章节原位编辑必须继续复用内部挂载节点，原生 PDF／图稿销毁必须释放原资源；不能因为增加布局容器而重建所有子编辑器或中断 IME。块级图片、标题、公式、表格、乐谱、图稿、占位符及原生区域共用该契约，行内对象保持行内。
+
+## 文字参数的原位编辑
+
+`visual.ts` 对已识别的标题和 `format` 投影区分包装语法与文字参数。光标或选区仅进入 `contentFrom/contentTo` 内时，继续隐藏前后包装并保留文字 mark；参数仍是 CodeMirror 原文，不使用 contenteditable 副本或 DOM 回写。进入命令／括号或跨过其边界才展开源码，修订命中整个投影仍展开。选择缓存跟踪两侧语法边界，不能继续按整个格式范围判断，否则移入参数后会错误重建。IME 期间沿用映射后的 decoration，结束后按当前源码重建；参数删空或结构不完整时保留真实源码。
+
+所有实际投影替换范围确定后，适配层检查仍可见的 TeX 分隔符；没有可见语法的行标记 `cm-prose-line`。该标记仅将数字高亮的颜色变量设为 `currentColor`，数字继承普通文字、标题或已识别作者颜色，未关闭语言解析、高亮、补全或诊断。可见未知宏、未完成命令、注释和源码模式保留原配色。嵌套投影范围按起点排序并单向扫描，不为每一行重新扫描所有投影。
+
+使用 `node scripts/test-flow-ui.cjs --inline-writing` 验证真实鼠标定位、嵌套格式文字输入、中文组合输入、精确保存、撤销／重做、标题源码入口、三主题与窄窗口。未知宏的原生图稿仍通过 SyncTeX 进入源码，不能据此宣称任意宏都支持直接文字编辑。插件和 MCP 契约不变，无迁移要求。
+
 ## 原生排版回退
 
 这是 L0 编译基础与 L1 原位呈现，不新增模式选择。开启可视模式和自动编译、编译策略非手动时，在暂停输入后请求原生预览；遵从关闭自动编译的选择。正式编译的保存规则保持不变，原生预览本身不调用保存。
+
+未知宏触发原生段落回退时，独立的 `\input` 和 `\include` 行是段落边界。相邻的分页或标题命令只能扩展到本文件的段落边界，章节继续按各自文件与源范围映射。这样主文件的布局命令与子文件的原生片段可以同时显示，章节仍可原位编辑。
 
 会话按工程入口、引擎与可视启用身份隔离。读取工程真实路径，拒绝外部符号链接和循环；异步复制依赖到系统临时目录，再覆盖当前打开的未保存 TeX／样式／文献缓冲区。原目录不写入。保留作者文档类、引擎、字体、宏包、`.latexmkrc` 与未知配置字段，只在副本指定相同主文件及内部构建目录。它复用本地编译工具链，**临时副本不是 TeX 或构建配置的执行沙箱**。
 
@@ -92,6 +108,8 @@ SyncTeX 的原有服务导出不变，底层实现从 `tex.cjs` 拆出。数值�
 先运行 `npm run typecheck`、`npm run test:regression` 和 `npm run build`。原生通用回退与源码高亮流程为 `node scripts/test-flow-ui.cjs --native-writing`，原生多文件流程为 `node scripts/test-flow-ui.cjs --project-writing`，现有连续写作流程为 `npm run test:flow:ui`。涉及外部接口时补跑 `npm run test:mcp` 和实际 ASAR 外普通 Node 验证；不以开发模式成功代替发行包验证。
 
 重点检查闭合主文件的子文件、嵌套样式、中文／空格路径、未保存样式、未知宏、图片解码、点击回源码、焦点、撤销、三主题和窄窗口。真实项目只在临时副本上编译，区分源码测试、原生界面、真实 TeX、打包与公开发布的验证状态。
+
+使用 `--native-writing` 验收真实工程时，可传入 `TEXPRO_WRITING_SAMPLE` 指向工程目录。样例应在首个展开的章节中包含可原生渲染的内容，测试等待图稿完成后才记录主文件结果。可用 `TEXPRO_WRITING_SAMPLE_FILE` 指定相对于工程目录的子文件，再验收单独打开该文件的预览。
 
 `node scripts/test-flow-ui.cjs --composed-writing` 验证章节与嵌套章节原位输入、同列排版、键盘边界、中文组合输入、每文件撤销、跨文件标签改名的成组撤销、保存和自动保存；`tests/composed-editing.test.cjs` 检查命令归属、陈旧输入拒绝、外部更新与嵌套滚动归属。涉及原生回退时继续运行 `--native-writing`，不能仅靠简单章节测试证明复杂工程已通过。
 

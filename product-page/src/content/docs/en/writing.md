@@ -12,12 +12,19 @@ The content is always the same `.tex`. The visual layer changes how it is displa
 
 On by default; `⇧⌘M` or More → View → Switch to source mode / Switch to visual mode toggles it. While it is on, the editor renders headings, formulas, tables, images, code blocks and quote environments as near-typeset components, and the syntax noise recedes.
 
-- Click any rendered result and the caret lands at its source position; the object unfolds into source, ready to edit.
-- A block the caret or selection enters falls back to source for the moment; it re-renders once you leave.
+- Edit heading text and recognized bold, italic, link and single-argument style macros directly. Formatting stays visible while the caret or selection remains inside the text argument.
+- To edit a command, move into its command or braces, extend the selection across a wrapper boundary, click the heading badge, or switch to source mode.
+- Formulas, artwork and complex native blocks still reveal source when clicked and re-render after you leave.
 - The preamble collapses into a card showing the document class, package count and hidden line count; click Reveal to expand it.
 - Links appear as ordinary text in the body; hold `⌘` (`Ctrl` on Windows / Linux) and click to open one in the system browser.
 
 The visual layer is a set of semantic components, not a typesetting engine: line breaks, float placement and font metrics come from the PDF alone. Judge the final result by the PDF, not by the editor.
+
+### Edit text while keeping its formatting
+
+Enable **Visual mode**, then click bold or colored text and type, for example in `\textbf{Signal \sig{R12}}`. The project must define `sig` as a recognized single-argument color macro. Input changes the argument and preserves its surrounding commands. Chinese composition, save and undo use the same editor. Heading text is editable too; its badge reveals the command. Digits follow the body, heading or authored color instead of the source number palette.
+
+Move into the syntax boundary to change its wrapper, or use **More → View → Switch to source mode** to see all source. Unclosed braces, empty arguments and unrecognized macros retain source in place. Complete the structure and move the caret away to retry. Complex macros without direct text editing keep native preview and source access; macro definitions are never automatically expanded or rewritten.
 
 ## Focus, typewriter and zero interface
 

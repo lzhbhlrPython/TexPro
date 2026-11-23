@@ -7,7 +7,7 @@ export const latexHighlightStyle = HighlightStyle.define([
   { tag: tags.keyword, color: 'var(--syn-command)', fontFamily: 'var(--font-mono)', fontSize: '0.88em' },
   { tag: tags.operator, color: 'var(--syn-operator)' },
   { tag: tags.punctuation, color: 'var(--syn-punctuation)' },
-  { tag: tags.number, color: 'var(--syn-number)' },
+  { tag: tags.number, color: 'var(--writing-number-color, var(--syn-number))' },
   { tag: tags.string, color: 'var(--syn-string)' },
   { tag: tags.variableName, color: 'var(--syn-math)', fontStyle: 'italic' },
   { tag: tags.atom, color: 'var(--syn-math)' },
@@ -42,6 +42,12 @@ export const editorTheme = EditorView.theme({
   '.cm-line': {
     padding: '0 34px',
   },
+  // Only fully projected prose opts out of numeric source highlighting. Source
+  // mode and lines with visible TeX continue using the normal syntax palette.
+  '.cm-prose-line': { '--writing-number-color': 'currentColor' },
+  // Child margins must not collapse outside a measured block. Otherwise the
+  // height map omits its spacing and clicks below it land on later source lines.
+  '.cm-writing-block': { display: 'flow-root', margin: '0', padding: '0' },
   '.cm-native-writing': { margin: '0.4em 0', maxWidth: '100%' },
   '.cm-native-fragment': { position: 'relative', margin: '0.25em 0', overflow: 'hidden', cursor: 'text', background: 'transparent' },
   '.cm-native-fragment[data-artwork="document-color"]': { background: '#fff', colorScheme: 'light' },

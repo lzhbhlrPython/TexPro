@@ -21,6 +21,19 @@
       ]
     },
     {
+      "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-text-and-projection-geometry",
+      "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/inline-text-and-projection-geometry",
+      "title": "让光标落在看见的文字里",
+      "summary": "打磨格式文字与标题的直接编辑，修复块级留白造成的点击偏移，并把正文数字与源码高亮分开处理。",
+      "content_text": "打磨格式文字与标题的直接编辑，修复块级留白造成的点击偏移，并把正文数字与源码高亮分开处理。",
+      "date_published": "2026-11-14T16:00:00.000Z",
+      "tags": [
+        "[写作引擎",
+        "连续编辑",
+        "光标定位]"
+      ]
+    },
+    {
       "id": "https://lzhbhlrpython.github.io/TexStudioPro/blog/editing-included-chapters",
       "url": "https://lzhbhlrpython.github.io/TexStudioPro/blog/editing-included-chapters",
       "title": "让展开的章节真正可以写",
